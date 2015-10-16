@@ -1,0 +1,43 @@
+### added by GMW
+.venv
+.project
+.pydevproject
+.settings/*
+.idea/*
+*.py[cod]
+
+### added with RM's Makefile
+**/deb_dist/**
+localutils/**
+agent/f5/bigip/pycontrol/wsdl/**
+
+### auto-added by Github
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
