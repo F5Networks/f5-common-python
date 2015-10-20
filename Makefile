@@ -77,6 +77,7 @@ clean-rpms:
 
 clean-source:
 	rm -rf build/*.tar.gz
+	rm -rf common/*.tar.gz
 	rm -rf common/dist
 
 BDIR := f5/oslbaasv1agent/drivers/bigip
