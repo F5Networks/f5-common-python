@@ -84,7 +84,7 @@ IDIR := f5/bigip/interfaces
 PYCTL := f5/bigip/pycontrol
 NDIR := /usr/lib/python2.7/dist-packages/neutron
 
-pep8: pep8-driver pep8-agent 
+pep8: pep8-common
 
 pep8-common:
 	(cd common; \
@@ -97,6 +97,7 @@ pep8-common:
          pep8 $(IDIR)/cluster.py; \
          pep8 $(IDIR)/device.py; \
          pep8 $(IDIR)/iapp.py; \
+         pep8 $(IDIR)/interface.py; \
          pep8 $(IDIR)/l2gre.py; \
          pep8 $(IDIR)/monitor.py; \
          pep8 $(IDIR)/nat.py; \
@@ -105,6 +106,8 @@ pep8-common:
          pep8 $(IDIR)/rule.py; \
          pep8 $(IDIR)/selfip.py; \
          pep8 $(IDIR)/snat.py; \
+         pep8 $(IDIR)/ssl.py; \
+         pep8 $(IDIR)/stat.py; \
          pep8 $(IDIR)/system.py; \
          pep8 $(IDIR)/virtual_server.py; \
          pep8 $(IDIR)/vlan.py; \
@@ -116,7 +119,6 @@ pep8-common:
          pep8 f5/common/__init__.py; \
          pep8 f5/common/constants.py; \
          pep8 f5/common/logger.py; \
-         pep8 $(IDIR)/constants.py; \
         )       
         
 PYHOOK := 'import sys;sys.path.insert(1,".")'

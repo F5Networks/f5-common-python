@@ -89,7 +89,7 @@ class BIGIP(object):
         if self.sessions:
             if SESSION_WSDL in wsdls:
                 self.wsdls = [x for x in wsdls if not x.startswith(
-                                                            'System.Session')]
+                    'System.Session')]
                 self.wsdls.insert(0, SESSION_WSDL)
             else:
                 self.wsdls = wsdls
@@ -102,16 +102,16 @@ class BIGIP(object):
         for client in self.clients:
             self._build_suds_interface(client)
 
-    #---------------------
+    # ---------------------
     # Methods to modify active pyControl objects
-    #---------------------
+    # ---------------------
     def set_timeout(self, timeout):
         if 0 < timeout <= 300:
             for client in self.clients:
                 client.set_options(timeout=timeout)
 
     def add_interface(self, wsdl):
-        if not wsdl in self.wsdls:
+        if wsdl not in self.wsdls:
             self.wsdls.append(wsdl)
             client = self._get_client(wsdl)
             self._build_suds_interface(client)
@@ -119,15 +119,15 @@ class BIGIP(object):
 
     def add_interfaces(self, wsdls):
         for wsdl in wsdls:
-            if not wsdl in self.wsdls:
+            if wsdl not in self.wsdls:
                 self.wsdls.append(wsdl)
                 client = self._get_client(wsdl)
                 self._build_suds_interface(client)
                 self.clients.append(client)
 
-    #---------------------
+    # ---------------------
     # Setters and getters.
-    #---------------------
+    # ---------------------
 
     def get_sessionid(self):
         """Fetch a session identifier from a v11.x BigIP."""
@@ -145,9 +145,9 @@ class BIGIP(object):
         """
         client.set_options(headers={'X-iControl-Session': sessionid})
 
-    #---------------------
+    # ---------------------
     # Private methods
-    #---------------------
+    # ---------------------
 
     def _build_suds_interface(self, client):
         location = '%s://%s%s' % (self.proto, self.hostname, ICONTROL_URI)

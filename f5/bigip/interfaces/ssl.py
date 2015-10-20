@@ -94,9 +94,10 @@ class SSL(object):
                     PEM_data
                 )
                 tm = list(
-                          time.strptime(
-                                        x509cert.get_notAfter()[:8],
-                                        "%Y%m%d"))[:6]
+                    time.strptime(
+                        x509cert.get_notAfter()[:8], "%Y%m%d"
+                    )
+                )[:6]
                 tm.append(0)
                 tm.append(None)
 
@@ -151,15 +152,16 @@ class SSL(object):
                 except crypto.Error as error:  # @UndefinedVariable
                     if "mac verify failure" in error.message[0]:
                         raise Exception(
-                          "import passphrase for PKCS12 package was incorrect"
+                            "import passphrase for PKCS12 was incorrect"
                         )
                     else:
                         raise
                 x509cert = pkcspackage.get_certificate()
                 tm = list(
-                          time.strptime(
-                                        x509cert.get_notAfter()[:8],
-                                        "%Y%m%d"))[:6]
+                    time.strptime(
+                        x509cert.get_notAfter()[:8], "%Y%m%d"
+                    )
+                )[:6]
                 tm.append(0)
                 tm.append(None)
 
@@ -204,9 +206,9 @@ class SSL(object):
                     )
             else:
                 raise ValueError(
-                        "Must supply a URL to download PEM certificate." +
-                        " i.e. file:///path/host.crt"
-                    )
+                    "Must supply a URL to download PEM certificate." +
+                    " i.e. file:///path/host.crt"
+                )
 
         def get_PEM_key(self, url=None, key_passphrase=""):
             if url:
@@ -304,7 +306,9 @@ class SSL(object):
 
             if not user_default_parent:
                 profile_string_defaults = \
-                  self.lb_clientssl.typefactory.create('LocalLB.ProfileString')
+                    self.lb_clientssl.typefactory.create(
+                        'LocalLB.ProfileString'
+                    )
                 profile_string_defaults.value = parent_profile
                 profile_string_defaults.default_flag = False
                 self.lb_clientssl.set_default_profile(
@@ -313,7 +317,9 @@ class SSL(object):
                 )
             if certificate.__key_passphrase__:
                 profile_string_passphrase = \
-                  self.lb_clientssl.typefactory.create('LocalLB.ProfileString')
+                    self.lb_clientssl.typefactory.create(
+                        'LocalLB.ProfileString'
+                    )
                 profile_string_passphrase.value = \
                     certificate.__key_passphrase__
                 profile_string_passphrase.default_flag = False
@@ -340,8 +346,8 @@ class SSL(object):
             self.lb_clientssl.delete_profile([profile_name])
             # remove certificate
             self.mgmt_keycert.certificate_delete(
-                 mode='MANAGEMENT_MODE_DEFAULT',
-                 cert_ids=[profile_name]
+                mode='MANAGEMENT_MODE_DEFAULT',
+                cert_ids=[profile_name]
             )
             # remove key
             self.mgmt_keycert.key_delete(

@@ -39,110 +39,110 @@ class Stat(object):
             if 'apiRawValues' in response_obj:
                 sr = {
                     'Sys::Performance System': {
-                            'System CPU Usage': {
-                                'Utilization': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                }
-                             },
-                            'Memory Used': {
-                                'TMM Memory Used': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                },
-                                'Other Memory Used': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                },
-                                'Swap Memory Used': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                }
-                             }
+                        'System CPU Usage': {
+                            'Utilization': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            }
+                        },
+                        'Memory Used': {
+                            'TMM Memory Used': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            },
+                            'Other Memory Used': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            },
+                            'Swap Memory Used': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            }
+                        }
                     },
                     'Sys::Performance Connections': {
-                            'Active Connections': {
-                                'Connections': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                }
-                            },
-                            'Total New Connections': {
-                                'Client Connections': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                },
-                                'Server Connections': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                }
-                            },
-                            'HTTP Requests': {
-                                'HTTP Requests': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                }
+                        'Active Connections': {
+                            'Connections': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
                             }
+                        },
+                        'Total New Connections': {
+                            'Client Connections': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            },
+                            'Server Connections': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            }
+                        },
+                        'HTTP Requests': {
+                            'HTTP Requests': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            }
+                        }
                     },
                     'Sys::Performance Throughput': {
-                            'Throughput(bits)': {
-                                'In': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                },
-                                'Out': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                }
+                        'Throughput(bits)': {
+                            'In': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
                             },
-                            'SSL Transactions': {
-                                'SSL TPS': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                }
-                            },
-                            'Throughput(packets)': {
-                                'In': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                },
-                                'Out': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                }
+                            'Out': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
                             }
+                        },
+                        'SSL Transactions': {
+                            'SSL TPS': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            }
+                        },
+                        'Throughput(packets)': {
+                            'In': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            },
+                            'Out': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            }
+                        }
                     },
                     'Sys::Performance Ramcache': {
-                            'RAM Cache Utilization': {
-                                'Hit Rate': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                },
-                                'Byte Rate': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                },
-                                'Eviction Rate': {
-                                    'current': 0,
-                                    'average': 0,
-                                    'max': 0
-                                }
+                        'RAM Cache Utilization': {
+                            'Hit Rate': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            },
+                            'Byte Rate': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
+                            },
+                            'Eviction Rate': {
+                                'current': 0,
+                                'average': 0,
+                                'max': 0
                             }
+                        }
                     }
                 }
                 stats_display = response_obj['apiRawValues']['apiAnonymous']
@@ -180,9 +180,9 @@ class Stat(object):
                                             if values[0] in fields:
                                                 sr[sec][div][values[0]] = \
                                                     {
-                                                     'current': values[1],
-                                                     'average': values[2],
-                                                     'max': values[3]
+                                                        'current': values[1],
+                                                        'average': values[2],
+                                                        'max': values[3]
                                                     }
                 sr['since'] = since
                 return sr
@@ -236,9 +236,9 @@ class Stat(object):
         if not global_stats:
             global_stats = self.get_global_statistics()
         cpu_score = int(
-          global_stats[
-              'Sys::Performance System']['System CPU Usage'][
-              'Utilization']['current']
+            global_stats[
+                'Sys::Performance System']['System CPU Usage'][
+                'Utilization']['current']
         )
         return cpu_score
 
@@ -248,14 +248,16 @@ class Stat(object):
         if not global_stats:
             global_stats = self.get_global_statistics()
         count_init = int(
-            global_stats['Sys::Performance Connections']['Active Connections'][
-                         'Connections']['current']
+            global_stats[
+                'Sys::Performance Connections']['Active Connections'][
+                'Connections']['current']
         )
         time.sleep(const.DEVICE_HEALTH_SCORE_CPS_PERIOD)
         global_stats = self.get_global_statistics()
         count_final = int(
-            global_stats['Sys::Performance Connections']['Active Connections'][
-                         'Connections']['current']
+            global_stats[
+                'Sys::Performance Connections']['Active Connections'][
+                'Connections']['current']
         )
         cps = (count_final - count_init) / const.DEVICE_HEALTH_SCORE_CPS_PERIOD
 
@@ -271,9 +273,10 @@ class Stat(object):
         if not global_stats:
             global_stats = self.get_global_statistics()
         return int(
-                   global_stats['Sys::Performance Connections'][
-                                'Active Connections'][
-                                'Connections']['current']
+            global_stats[
+                'Sys::Performance Connections'][
+                'Active Connections'][
+                'Connections']['current']
         )
 
     @log
@@ -281,9 +284,10 @@ class Stat(object):
         if not global_stats:
             global_stats = self.get_global_statistics()
         return int(
-                   global_stats['Sys::Performance Throughput'][
-                                'SSL Transactions'][
-                                'SSL TPS']['current']
+            global_stats[
+                'Sys::Performance Throughput'][
+                'SSL Transactions'][
+                'SSL TPS']['current']
         )
 
     @log
@@ -291,9 +295,9 @@ class Stat(object):
         if not global_stats:
             global_stats = self.get_global_statistics()
         return int(
-                   global_stats['Sys::Performance Throughput']
-                               ['Throughput(bits)']
-                               ['In']['current']
+            global_stats[
+                'Sys::Performance Throughput'][
+                'Throughput(bits)']['In']['current']
         )
 
     @log
@@ -301,9 +305,9 @@ class Stat(object):
         if not global_stats:
             global_stats = self.get_global_statistics()
         return int(
-                   global_stats['Sys::Performance Throughput']
-                               ['Throughput(bits)']
-                               ['Out']['current']
+            global_stats[
+                'Sys::Performance Throughput'][
+                'Throughput(bits)']['Out']['current']
         )
 
     @log
@@ -311,13 +315,13 @@ class Stat(object):
         if not global_stats:
             global_stats = self.get_global_statistics()
         inbound = int(
-                   global_stats['Sys::Performance Throughput']
-                               ['Throughput(bits)']
-                               ['In']['current']
+            global_stats[
+                'Sys::Performance Throughput'][
+                'Throughput(bits)']['In']['current']
         )
         outbound = int(
-                   global_stats['Sys::Performance Throughput']
-                               ['Throughput(bits)']
-                               ['Out']['current']
+            global_stats[
+                'Sys::Performance Throughput'][
+                'Throughput(bits)']['Out']['current']
         )
         return inbound + outbound
