@@ -1,0 +1,12 @@
+# Include both the bug ID and headline on the first line
+Fixes:
+
+# Describe the issue that this change addresses
+Problem:
+
+# Describe the change itself and why you made the changes you did
+Analysis:
+
+# Describe the tests you ran and/or created to test this change
+Unit/Robot tests:
+
