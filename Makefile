@@ -18,19 +18,17 @@ debs: build/f5-bigip-common_$(VERSION)_all.deb
 rpms: build/f5-bigip-common-$(VERSION).noarch.rpm
 
 build/f5-bigip-common_$(VERSION)_all.src:
-	(cd common; \
-	export PROJECT_DIR=$(PROJECT_DIR); \
+	(export PROJECT_DIR=$(PROJECT_DIR); \
 	export VERSION=$(VERSION); \
 	export RELEASE=$(RELEASE); \
 	python setup.py sdist; \
 	rm -rf MANIFEST; \
 	)
 	mkdir -p build
-	cp common/dist/f5-bigip-common-$(VERSION).tar.gz build/
+	cp dist/f5-bigip-common-$(VERSION).tar.gz build/
 
 build/f5-bigip-common_$(VERSION)_all.deb:
-	(cd common; \
-	rm -rf deb_dist; \
+	(rm -rf deb_dist; \
 	export PROJECT_DIR=$(PROJECT_DIR); \
 	export VERSION=$(VERSION); \
 	export RELEASE=$(RELEASE); \
@@ -38,18 +36,17 @@ build/f5-bigip-common_$(VERSION)_all.deb:
 	rm -f stdeb.cfg; \
 	) 
 	mkdir -p build
-	cp common/deb_dist/f5-bigip-common_$(VERSION)-$(RELEASE)_all.deb build/
+	cp deb_dist/f5-bigip-common_$(VERSION)-$(RELEASE)_all.deb build/
 
 build/f5-bigip-common-$(VERSION).noarch.rpm:
-	(cd common; \
-	export PROJECT_DIR=$(PROJECT_DIR); \
+	(export PROJECT_DIR=$(PROJECT_DIR); \
 	export VERSION=$(VERSION); \
 	export RELEASE=$(RELEASE); \
 	python setup.py bdist_rpm; \
 	rm -f setup.cfg; \
 	) 
 	mkdir -p build
-	cp common/dist/f5-bigip-common-$(VERSION)-$(RELEASE).noarch.rpm build
+	cp dist/f5-bigip-common-$(VERSION)-$(RELEASE).noarch.rpm build
 
 pdf:
 	html2pdf $(PROJECT_DIR)/doc/f5-oslbaasv1-readme.html \
@@ -59,18 +56,18 @@ clean: clean-debs clean-rpms clean-source
 
 clean-debs:
 	find . -name "*.pyc" -exec rm -rf {} \;
-	rm -f common/MANIFEST
+	rm -f MANIFEST
 	rm -f build/f5-bigip-common_*.deb
-	(cd common; \
+	( \
 	rm -rf deb_dist; \
 	rm -rf build; \
 	)
 
 clean-rpms:
 	find . -name "*.pyc" -exec rm -rf {} \;
-	rm -f common/MANIFEST
+	rm -f MANIFEST
 	rm -f build/f5-bigip-common-*.rpm
-	(cd common; \
+	( \
 	rm -rf dist; \
 	rm -rf build; \
 	)
@@ -88,8 +85,7 @@ NDIR := /usr/lib/python2.7/dist-packages/neutron
 pep8: pep8-common
 
 pep8-common:
-	(cd common; \
-         pep8 f5/__init__.py; \
+	(pep8 f5/__init__.py; \
          pep8 f5/bigip/__init__.py; \
          pep8 f5/bigip/bigip.py; \
          pep8 f5/bigip/exceptions.py; \
@@ -121,6 +117,6 @@ pep8-common:
          pep8 f5/common/constants.py; \
          pep8 f5/common/logger.py; \
         )       
-        
+
 PYHOOK := 'import sys;sys.path.insert(1,".")'
 PYLINT := pylint --additional-builtins=_ --init-hook=$(PYHOOK)
