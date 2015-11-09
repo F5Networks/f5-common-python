@@ -93,7 +93,7 @@ class Cluster(object):
             response_obj = json.loads(response.text)
             if 'items' in response_obj:
                 for device in response_obj['items']:
-                    if device['selfDevice']:
+                    if device['selfDevice'].lower() == 'true':
                         return device['name']
         else:
             Log.error('device', response.text)
@@ -111,7 +111,7 @@ class Cluster(object):
             response_obj = json.loads(response.text)
             if 'items' in response_obj:
                 for device in response_obj['items']:
-                    if device['selfDevice']:
+                    if device['selfDevice'].lower() == 'true':
                         return device['managementIp']
         else:
             Log.error('device', response.text)
