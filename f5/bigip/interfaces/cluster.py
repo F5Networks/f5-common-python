@@ -343,12 +343,12 @@ class Cluster(object):
                     raise exceptions.BigIPClusterPeerAddFailure(
                         'Could not add peer device %s' % name +
                         ' as a trust for device %s'
-                        % os.path.basename(self.mgmt_dev.get_local_device()) +
+                        % os.path.basename(self.get_local_device()) +
                         ' after % attempts' % const.PEER_ADD_ATTEMPTS_MAX)
             else:
                 raise exceptions.BigIPDeviceLockAcquireFailed(
                     'Unable to obtain device lock for device %s'
-                    % os.path.basename(self.mgmt_dev.get_local_device())
+                    % os.path.basename(self.get_local_device())
                     )
 
     @log
