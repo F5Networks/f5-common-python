@@ -276,6 +276,23 @@ class Cluster(object):
         return False
 
     @log
+    def wait_for_insync_status(self):
+        """ Wait until sync status is 'in sync' and color is 'green'. """
+        sync_status_attempts = 0
+        max_status_attempts = 60
+        while sync_status_attempts < max_status_attempts:
+            sync_color = self.get_sync_color().lower()
+            sync_status = self.get_sync_status().lower()
+            if sync_color != u'green' and sync_status != u'in sync':
+                sync_status_attempts += 1
+                time.sleep(2)
+                continue
+            return
+        raise exceptions.BigIPClusterPeerAddFailure(
+            'Group failed to sync in 60 seconds while adding peer.'
+        )
+
+    @log
     def add_peer(self, name, mgmt_ip_address, username, password):
         """ Add a peer to the local trust group """
         if not self.peer_exists(name):
@@ -317,6 +334,7 @@ class Cluster(object):
                                                              '', '',
                                                              '', '')
                     else:
+                        self.wait_for_insync_status()
                         self.bigip.device.release_lock()
                         return
                     time.sleep(const.PEER_ADD_ATTEMPT_DELAY)
