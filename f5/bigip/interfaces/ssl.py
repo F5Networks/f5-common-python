@@ -12,23 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder, icontrol_folder
-from f5.bigip import exceptions
-from f5.bigip.interfaces import log
 
-import os
-import re
-import urllib2
-import time
+from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_folder
+from f5.bigip.interfaces import icontrol_rest_folder
+from f5.bigip.interfaces import log
+from f5.common import constants as const
+from f5.common.logger import Log
+
 import datetime
 import json
+import os
+import re
+import time
+import urllib2
+
 from OpenSSL import crypto
 
 
 class SSL(object):
-    """ Interface for SSL related REST methods """
+    """Interface for SSL related REST methods """
 
     OBJ_PREFIX = 'uuid_'
 
@@ -40,10 +43,9 @@ class SSL(object):
         self.mgmt_keycert = self.bigip.icontrol.Management.KeyCertificate
         self.lb_clientssl = self.bigip.icontrol.LocalLB.ProfileClientSSL
 
-    class Certificate():
-        """
-        provides import and download capability for X.509 certificates
-        and their associated keys.
+    class Certificate(object):
+        """Provides import and download capability for X.509 certificates.
+
         """
 
         __key_passphrase__ = None
@@ -254,13 +256,13 @@ class SSL(object):
             self,
             certificate=None,
             parent_profile='/Common/clientssl',
-            folder='Common'
-    ):
+            folder='Common'):
+
+        """Creates tenant ssl profile for the specified certificate folder
+
+        to create the ssl client profile
         """
-        Creates tenant ssl profile for the specified certificate
-        folder to create the ssl client profile
-        """
-        if not isinstance(certificate, Certificate):  # @UndefinedVariable
+        if not isinstance(certificate, SSL.Certificate):  # @UndefinedVariable
             raise Exception('certificate is not an instance of Certificate')
 
         profile_name = certificate.certificate_id
@@ -333,10 +335,10 @@ class SSL(object):
     def remove_clientssl_profile_and_certificate(self,
                                                  certificate=None,
                                                  folder='Common'):
+        """Removes a client ssl profile.
+
         """
-        Removes a client ssl profile
-        """
-        if not isinstance(certificate, Certificate):  # @UndefinedVariable
+        if not isinstance(certificate, SSL.Certificate):  # @UndefinedVariable
             raise Exception('certificate is not an instance of Certificate')
 
         profile_name = certificate.certifcate_id

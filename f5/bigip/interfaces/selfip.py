@@ -13,14 +13,14 @@
 # limitations under the License.
 #
 
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import strip_folder_and_prefix
-from f5.bigip.interfaces import strip_domain_address
-from f5.bigip import exceptions
-from f5.bigip.interfaces import log
 
+from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
+from f5.bigip.interfaces import log
+from f5.bigip.interfaces import strip_domain_address
+from f5.bigip.interfaces import strip_folder_and_prefix
+from f5.common import constants as const
+from f5.common.logger import Log
 
 import json
 import netaddr
@@ -28,7 +28,7 @@ import os
 
 
 class SelfIP(object):
-    """ Class for managing bigip selfips """
+    """Class for managing bigip selfips """
     def __init__(self, bigip):
         self.bigip = bigip
 
@@ -37,7 +37,7 @@ class SelfIP(object):
     def create(self, name=None, ip_address=None, netmask=None,
                vlan_name=None, floating=False, traffic_group=None,
                folder='Common', preserve_vlan_name=False):
-        """ Create selfip """
+        """Create selfip """
         if name:
             folder = str(folder).replace('/', '')
             if not traffic_group:
@@ -103,7 +103,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def delete(self, name=None, folder='Common', preserve_vlan_name=False):
-        """ Delete selfip """
+        """Delete selfip """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -122,7 +122,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def delete_by_vlan_name(self, vlan_name=None, folder='Common'):
-        """ Delete selfip by vlan name """
+        """Delete selfip by vlan name """
         if vlan_name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self'
@@ -174,7 +174,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def delete_all(self, folder='Common'):
-        """ Delete selfips """
+        """Delete selfips """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/self/'
         request_url += '?$select=name,selfLink'
@@ -204,7 +204,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def get_selfips(self, folder='Common', vlan=None):
-        """ Get selfips """
+        """Get selfips """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/self/'
         if folder:
@@ -229,7 +229,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def get_selfip_list(self, folder='Common'):
-        """ Get selfips """
+        """Get selfips """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/self/'
         request_url += '?$select=name'
@@ -252,7 +252,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def get_addrs(self, folder='Common'):
-        """ Get selfip addrs """
+        """Get selfip addrs """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/self/'
         request_url += '?$select=address'
@@ -275,7 +275,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def get_addr(self, name=None, folder='Common'):
-        """ Get selfip addr """
+        """Get selfip addr """
         folder = str(folder).replace('/', '')
         if name:
             request_url = self.bigip.icr_url + '/net/self/'
@@ -294,7 +294,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def get_mask(self, name=None, folder='Common'):
-        """ Get selfip netmask """
+        """Get selfip netmask """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -318,7 +318,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def set_mask(self, name=None, netmask=None, folder='Common'):
-        """ Set selfip netmask """
+        """Set selfip netmask """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -354,7 +354,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def get_vlan(self, name=None, folder='Common'):
-        """ Get selfip vlan """
+        """Get selfip vlan """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -374,7 +374,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def set_vlan(self, name=None, vlan_name=None, folder='Common'):
-        """ Set selfip vlan """
+        """Set selfip vlan """
         if name and vlan_name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -394,7 +394,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def set_description(self, name=None, description=None, folder='Common'):
-        """ Set selfip description """
+        """Set selfip description """
         if name and description:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -414,7 +414,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def get_description(self, name=None, folder='Common'):
-        """ Get selfip description """
+        """Get selfip description """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -434,7 +434,7 @@ class SelfIP(object):
     @log
     def set_traffic_group(self, name=None, traffic_group=None,
                           folder='Common'):
-        """ Set selfip traffic group """
+        """Set selfip traffic group """
         if name and traffic_group:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -454,7 +454,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def get_traffic_group(self, name=None, folder='Common'):
-        """ Get selfip traffic group """
+        """Get selfip traffic group """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -473,7 +473,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def set_port_lockdown_allow_all(self, name=None, folder='Commmon'):
-        """ Set selfip port lockdown allow all """
+        """Set selfip port lockdown allow all """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -493,7 +493,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def set_port_lockdown_allow_default(self, name=None, folder='Common'):
-        """ Set selfip port lockdown allow default """
+        """Set selfip port lockdown allow default """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -513,7 +513,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def set_port_lockdown_allow_none(self, name=None, folder='Common'):
-        """ Set selfip port lockdown allow none """
+        """Set selfip port lockdown allow none """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self/'
@@ -533,7 +533,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def get_floating_addrs(self, prefix=None, folder='Common'):
-        """ Set selfip floating addresses """
+        """Set selfip floating addresses """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/self/'
         request_url += '?$select=trafficGroup,floating,address'
@@ -557,7 +557,7 @@ class SelfIP(object):
     @icontrol_rest_folder
     @log
     def exists(self, name=None, folder='Common'):
-        """ Does selfip exist? """
+        """Does selfip exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/self/'
         request_url += '~' + folder + '~' + name
@@ -583,14 +583,14 @@ class SelfIP(object):
         return False
 
     def _strip_mask(self, ip_address):
-        """ strip mask """
+        """strip mask """
         mask_index = ip_address.find('/')
         if mask_index > 0:
             ip_address = ip_address[:mask_index]
         return ip_address
 
     def _get_traffic_group_full_path(self, traffic_group, folder=None):
-        """ get traffic group full path """
+        """get traffic group full path """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/cm/traffic-group'
         request_url += '?$select=name,fullPath'

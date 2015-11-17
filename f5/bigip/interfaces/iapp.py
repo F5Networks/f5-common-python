@@ -1,4 +1,4 @@
-""" Manage application services on BIG-IP using REST interface """
+"""Manage application services on BIG-IP using REST interface """
 # Copyright 2014 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +14,17 @@
 # limitations under the License.
 #
 
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip.interfaces import log
+from f5.common import constants as const
+from f5.common.logger import Log
 
 import json
 
 
 class IApp(object):
-    """ Manage iApps """
+    """Manage iApps """
 
     OBJ_PREFIX = 'uuid_'
 
@@ -34,7 +34,7 @@ class IApp(object):
     @icontrol_rest_folder
     @log
     def service_exists(self, name=None, folder='Common'):
-        """ Does iApp exist? """
+        """Does iApp exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/sys/application/service/'
         request_url += '~' + folder + '~' + name + '.app~' + name
@@ -50,7 +50,7 @@ class IApp(object):
     @icontrol_rest_folder
     @log
     def create_service(self, name=None, folder='Common', service=None):
-        """ Create iApp """
+        """Create iApp """
         service['partition'] = folder
         folder = str(folder).replace('/', '')
         if not self.service_exists(name=name, folder=folder):
@@ -70,7 +70,7 @@ class IApp(object):
     @icontrol_rest_folder
     @log
     def get_service(self, name=None, folder='Common'):
-        """ Get application service """
+        """Get application service """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/sys/application/service/'
         request_url += '~' + folder + '~' + name + '.app~' + name
@@ -87,7 +87,7 @@ class IApp(object):
     @icontrol_rest_folder
     @log
     def update_service(self, name, folder='Common', service=None):
-        """ Update application service """
+        """Update application service """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/sys/application/service/'
         request_url += '~' + folder + '~' + name + '.app~' + name
@@ -108,7 +108,7 @@ class IApp(object):
     @icontrol_rest_folder
     @log
     def delete_service(self, name, folder='Common'):
-        """ Delete application service """
+        """Delete application service """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/sys/application/service/'
         request_url += '~' + folder + '~' + name + '.app~' + name
@@ -126,7 +126,7 @@ class IApp(object):
     @icontrol_rest_folder
     @log
     def template_exists(self, name=None, folder='Common'):
-        """ Does iApp exist? """
+        """Does iApp exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/sys/application/template/'
         request_url += '~' + folder + '~' + name
@@ -142,7 +142,7 @@ class IApp(object):
     @icontrol_rest_folder
     @log
     def create_template(self, name=None, folder='Common', template=None):
-        """ Create iApp """
+        """Create iApp """
         template['partition'] = folder
         folder = str(folder).replace('/', '')
         if not self.template_exists(name=name, folder=folder):
@@ -162,7 +162,7 @@ class IApp(object):
     @icontrol_rest_folder
     @log
     def get_template(self, name=None, folder='Common'):
-        """ Get application template """
+        """Get application template """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/sys/application/template/'
         request_url += '~' + folder + '~' + name
@@ -179,7 +179,7 @@ class IApp(object):
     @icontrol_rest_folder
     @log
     def update_template(self, name, folder='Common', template=None):
-        """ Update application template """
+        """Update application template """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/sys/application/template/'
         request_url += '~' + folder + '~' + name
@@ -196,7 +196,7 @@ class IApp(object):
     @icontrol_rest_folder
     @log
     def delete_template(self, name, folder='Common'):
-        """ Delete application template """
+        """Delete application template """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/sys/application/template/'
         request_url += '~' + folder + '~' + name

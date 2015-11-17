@@ -20,29 +20,31 @@ import platform
 import ssl
 
 try:
-    from urllib2 import ProxyHandler
+    import StringIO
+    from urllib import pathname2url
     from urllib2 import HTTPBasicAuthHandler
     from urllib2 import HTTPSHandler
-    from urllib import pathname2url
-    import StringIO
+    from urllib2 import ProxyHandler
+
 except ImportError:
-    from urllib.request import ProxyHandler  # @UnusedImport
+    from io import StringIO as StringIO  # @NoMove
     from urllib.request import HTTPBasicAuthHandler  # @UnusedImport
     from urllib.request import HTTPSHandler  # @UnusedImport
     from urllib.request import pathname2url
-    from io import StringIO as StringIO  # @NoMove
+    from urllib.request import ProxyHandler  # @UnusedImport
 
 from suds.cache import Cache
 from suds.client import Client
-from suds.client import ServiceSelector
 from suds.client import Factory
+from suds.client import ServiceSelector
 from suds.options import Options
 from suds.plugin import PluginContainer
 from suds.reader import DefinitionsReader
 from suds.servicedefinition import ServiceDefinition
-from suds.wsdl import Definitions
-from suds.xsd.doctor import Import, ImportDoctor
 from suds import transport
+from suds.wsdl import Definitions
+from suds.xsd.doctor import Import
+from suds.xsd.doctor import ImportDoctor
 
 # Fix missing imports. These can be global, as it applies to all f5 WSDLS.
 IMP = Import('http://schemas.xmlsoap.org/soap/encoding/')
@@ -55,9 +57,7 @@ __build__ = 'r3'
 
 
 class BIGIP(object):
-    """
-    Wrap suds client object(s) and create a user-friendly class to use.
-    """
+    """Wrap suds client object(s) and create a user-friendly class to use."""
     def __init__(self, hostname=None, username=None,
                  password=None, wsdls=None, directory=None,
                  fromurl=False, debug=False, proto='https',
@@ -137,11 +137,12 @@ class BIGIP(object):
 
     @staticmethod
     def set_sessionid(sessionid, client):
-        """
-        Sets the session header for a client.
+        """Sets the session header for a client.
+
         @sessionid (String) - session_id to add to the
                                X-iControl-Session header.
         @client - client object.
+
         """
         client.set_options(headers={'X-iControl-Session': sessionid})
 
@@ -173,7 +174,7 @@ class BIGIP(object):
         return self._get_suds_client(url, **self.kw)
 
     def _get_clients(self):
-        """ Get a suds client for the wsdls passed in."""
+        """Get a suds client for the wsdls passed in."""
         clients = []
         for wsdl in self.wsdls:
             client = self._get_client(wsdl)
@@ -182,39 +183,40 @@ class BIGIP(object):
 
     @staticmethod
     def _get_module_name(c):
-        """ Returns the module name. Ex: 'LocalLB' """
+        """Returns the module name. Ex: 'LocalLB' """
         return c.sd[0].service.name.split('.')[0]
 
     def _get_module_object(self, c):
-        """ Returns a module object (e.g. LocalLB) """
+        """Returns a module object (e.g. LocalLB) """
         return getattr(self, self._get_module_name(c))
 
     @staticmethod
     def _get_interface_name(c):
-        """
-        Returns the interface name. Ex: 'Pool' from 'LocalLB.Pool'
-        """
+        """Returns the interface name. Ex: 'Pool' from 'LocalLB.Pool'"""
         return c.sd[0].service.name.split('.')[1]
 
     def _get_interface_object(self, c, module):
+        """Returns an interface object (e.g. Pool).
+
+        @c (String) - client object
+        @module - module object
+
         """
-        Returns an interface object (e.g. Pool). Takes a client
-        object and a module object as args.
-        """
+
         return getattr(module, self._get_interface_name(c))
 
     @staticmethod
     def _get_methods(c):
+        """Get and return a list of methods for a specific iControl interface
+
         """
-        Get and return a list of methods for a
-        specific iControl interface
-        """
+
         methods = [method[0] for method in c.sd[0].ports[0][1]]
         return methods
 
     def _get_suds_client(self, url, **kw):
-        """
-        Make a suds client for a specific WSDL (via url).
+        """Make a suds client for a specific WSDL (via url).
+
         Added new Suds cache features. Warning: These don't work on
         Windows. *nix should be fine. Also exposed general kwargs to
         pass down to Suds for advance users who don't want to deal
@@ -233,8 +235,8 @@ class BIGIP(object):
         return c
 
     def _set_url(self, wsdl):
-        """
-        Set the path of file-based wsdls for processing.
+        """Set the path of file-based wsdls for processing.
+
         If not file-based, return a fully qualified url
         to the WSDL.
         """
@@ -258,7 +260,7 @@ class BIGIP(object):
         return url
 
     def _set_module_attributes(self, c):
-        """ Sets appropriate attributes for a Module. """
+        """Sets appropriate attributes for a Module."""
         module = self._get_module_name(c)
         if hasattr(self, module):
             return
@@ -266,23 +268,23 @@ class BIGIP(object):
             setattr(self, module, ModuleInstance(module))
 
     def _set_interface_sudsclient(self, c):
-        """
-        Set an attribute that points to the actual suds client. This
-        will allow for power-users to get at suds client internals.
+        """Set an attribute that points to the actual suds client.
+
+        This will allow for power-users to get at suds client internals.
         """
         module = self._get_module_object(c)
         interface = self._get_interface_object(c, module)
         setattr(interface, 'suds', c)
 
     def _set_interface_attributes(self, c):
-        """ Sets appropriate attributes for a Module. """
+        """Sets appropriate attributes for a Module."""
         module = self._get_module_object(c)
         interface = self._get_interface_name(c)
         setattr(module, interface, InterfaceInstance(interface))
 
     def _set_interface_methods(self, c):
-        """
-        Sets up methods as attributes for a particular iControl interface.
+        """Sets up methods as attributes for a particular iControl interface.
+
         Method keys (attrs) point to suds.service objects for the interface.
         """
         module = self._get_module_object(c)
@@ -298,10 +300,10 @@ class BIGIP(object):
 
     @staticmethod
     def _set_method_input_params(c, interface_method, method):
+        """Set the method input argument attribute named 'params' for easy reference.
+
         """
-        Set the method input argument attribute named 'params' for easy
-        reference.
-        """
+
         m = c.sd[0].ports[0][0].method(method)
         params = []
         for x in m.soap.input.body.parts:
@@ -310,7 +312,7 @@ class BIGIP(object):
 
     @staticmethod
     def _set_return_type(c, interface_method, method):
-        """ Sets the return type in an attribute named response_type"""
+        """Sets the return type in an attribute named response_type"""
         m = c.sd[0].ports[0][0].method(method)
         if len(m.soap.output.body.parts):
             res = m.soap.output.body.parts[0].type[0]
@@ -331,20 +333,21 @@ class BIGIP(object):
 
 
 class ModuleInstance(object):
-    """ An iControl module object to set attributes against. """
+    """An iControl module object to set attributes against."""
     def __init__(self, name):
         self.name = name
 
 
 class InterfaceInstance(object):
-    """ An iControl interface object to set attributes against. """
+    """An iControl interface object to set attributes against."""
     def __init__(self, name):
         self.name = name
 
 
 class ROClient(Client):
     def __init__(self, url, **kwargs):
-        """
+        """ROClient
+
         @param url: The URL for the WSDL.
         @type url: str
         @param kwargs: keyword arguments.
@@ -369,8 +372,7 @@ class ROClient(Client):
 
 
 class InMemoryCache(Cache):
-    """
-    In-memory cache.
+    """In-memory cache.
 
     The contents of the cache is shared between all instances.
     """

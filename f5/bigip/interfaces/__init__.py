@@ -1,4 +1,4 @@
-""" BIG-IP API Interfaces """
+"""BIG-IP API Interfaces """
 # Copyright 2014 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +14,8 @@
 # limitations under the License.
 #
 
-import netaddr
-import os
 import logging
+import os
 
 OBJ_PREFIX = 'uuid_'
 
@@ -24,16 +23,16 @@ LOG = logging.getLogger(__name__)
 
 
 def prefixed(name):
-    """ Put object prefix in front of name """
+    """Put object prefix in front of name """
     if not name.startswith(OBJ_PREFIX):
         name = OBJ_PREFIX + name
     return name
 
 
 def icontrol_folder(method):
-    """
-    Returns the iControl folder + object name if
-    a kwarg name is 'name' or else ends in '_name'.
+    """Returns the iControl folder + object name.
+
+    If a kwarg name is 'name' or else ends in '_name'.
 
     The folder and the name will be prefixed with the global
     prefix OBJ_PREFIX. If preserve_vlan_name=True is an argument,
@@ -49,7 +48,7 @@ def icontrol_folder(method):
     decoration honors that full path.
     """
     def wrapper(*args, **kwargs):
-        """ Necessary wrapper """
+        """Necessary wrapper """
         instance = args[0]
         preserve_vlan_name = False
         if 'preserve_vlan_name' in kwargs:
@@ -125,15 +124,15 @@ def icontrol_folder(method):
 
 
 def icontrol_rest_folder(method):
-    """
-    Returns iControl REST folder + object name if
-    a kwarg name is 'name' or else ends in '_name'.
+    """Returns iControl REST folder + object name.
+
+    If a kwarg name is 'name' or else ends in '_name'.
 
     The folder and the name will be prefixed with the global
     prefix OBJ_PREFIX.
     """
     def wrapper(*args, **kwargs):
-        """ Necessary wrapper """
+        """Necessary wrapper """
         preserve_vlan_name = False
         if 'preserve_vlan_name' in kwargs:
             preserve_vlan_name = kwargs['preserve_vlan_name']
@@ -175,7 +174,7 @@ def icontrol_rest_folder(method):
 
 
 def decorate_name(name=None, folder='Common', use_prefix=True):
-    """ Add "namespace" prefix to names """
+    """Add "namespace" prefix to names """
     folder = os.path.basename(folder)
     if not folder == 'Common':
         folder = prefixed(folder)
@@ -193,7 +192,7 @@ def decorate_name(name=None, folder='Common', use_prefix=True):
 
 
 def strip_folder_and_prefix(path):
-    """ Strip folder and prefix """
+    """Strip folder and prefix """
     if isinstance(path, list):
         for i in range(len(path)):
             if path[i].find('~') > -1:
@@ -214,7 +213,7 @@ def strip_folder_and_prefix(path):
 
 
 def strip_domain_address(ip_address):
-    """ Strip domain from ip address """
+    """Strip domain from ip address """
     mask_index = ip_address.find('/')
     if mask_index > 0:
         return ip_address[:mask_index].split('%')[0] + ip_address[mask_index:]
@@ -235,7 +234,7 @@ def split_addr_port(dest):
 def log(method):
     """Decorator helping to log method calls."""
     def wrapper(*args, **kwargs):
-        """ Necessary wrapper """
+        """Necessary wrapper """
         instance = args[0]
         LOG.debug('%s::%s called with args: %s kwargs: %s',
                   instance.__class__.__name__,

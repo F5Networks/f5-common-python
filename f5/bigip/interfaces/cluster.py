@@ -13,15 +13,15 @@
 # limitations under the License.
 #
 
-from f5.common import constants as const
-from f5.common.logger import Log
 from f5.bigip import exceptions
 from f5.bigip.interfaces import log
+from f5.common import constants as const
+from f5.common.logger import Log
 
-import time
-import os
-import json
 import base64
+import json
+import os
+import time
 
 
 # Management - Cluster
@@ -34,7 +34,7 @@ class Cluster(object):
 
     @log
     def get_sync_status(self):
-        """ Get the sync status description for the bigip """
+        """Get the sync status description for the bigip """
         request_url = self.bigip.icr_url + '/cm/sync-status?$select=status'
         response = self.bigip.icr_session.get(request_url,
                                               timeout=const.CONNECTION_TIMEOUT)
@@ -51,7 +51,7 @@ class Cluster(object):
 
     @log
     def get_sync_color(self):
-        """ Get the sync color for the bigip """
+        """Get the sync color for the bigip """
         request_url = self.bigip.icr_url + '/cm/sync-status?$select=color'
         response = self.bigip.icr_session.get(request_url,
                                               timeout=const.CONNECTION_TIMEOUT)
@@ -68,7 +68,7 @@ class Cluster(object):
 
     @log
     def save_config(self):
-        """ Save the bigip configuration """
+        """Save the bigip configuration """
         request_url = self.bigip.icr_url + '/sys/config'
         payload = dict()
         payload['command'] = 'save'
@@ -84,7 +84,7 @@ class Cluster(object):
 
     @log
     def get_local_device_name(self):
-        """ Get local device name """
+        """Get local device name """
         request_url = self.bigip.icr_url + '/cm/device'
         request_url += '?$select=selfDevice,name,hostname,managementIp'
         response = self.bigip.icr_session.get(
@@ -102,7 +102,7 @@ class Cluster(object):
 
     @log
     def get_local_device_addr(self):
-        """ Get local device management ip """
+        """Get local device management ip """
         request_url = self.bigip.icr_url + '/cm/device'
         request_url += '?$select=selfDevice,name,hostname,managementIp'
         response = self.bigip.icr_session.get(
@@ -120,7 +120,7 @@ class Cluster(object):
 
     @log
     def sync_local_device_to_group(self, device_group_name):
-        """ Sync local device to group """
+        """Sync local device to group """
         request_url = self.bigip.icr_url + '/cm'
         payload = dict()
         payload['command'] = 'run'
@@ -140,7 +140,7 @@ class Cluster(object):
     # in the group are connected.
     @log
     def sync(self, name, force_now=False):
-        """ Ensure local device in sync with group """
+        """Ensure local device in sync with group """
         sync_start_time = time.time()
         dev_name = self.get_local_device_name()
         sleep_delay = const.SYNC_DELAY
@@ -255,7 +255,7 @@ class Cluster(object):
 
     @log
     def sync_failover_dev_group_exists(self, name):
-        """ Does the sync failover device group exist? """
+        """Does the sync failover device group exist? """
         request_url = self.bigip.icr_url + '/cm/device-group/'
         request_url += '~Common~' + name
         request_url += '?$select=type'
@@ -277,7 +277,7 @@ class Cluster(object):
 
     @log
     def wait_for_insync_status(self):
-        """ Wait until sync status is 'in sync' and color is 'green'. """
+        """Wait until sync status is 'in sync' and color is 'green'. """
         sync_status_attempts = 0
         max_status_attempts = 60
         while sync_status_attempts < max_status_attempts:
@@ -294,7 +294,7 @@ class Cluster(object):
 
     @log
     def add_peer(self, name, mgmt_ip_address, username, password):
-        """ Add a peer to the local trust group """
+        """Add a peer to the local trust group """
         if not self.peer_exists(name):
             if self.bigip.device.get_lock():
                 local_device = self.get_local_device_name()
@@ -353,7 +353,7 @@ class Cluster(object):
 
     @log
     def get_peer_addr(self, name):
-        """ Get a peer management ip """
+        """Get a peer management ip """
         request_url = self.bigip.icr_url + '/cm/device'
         request_url += '?$select=selfDevice,name,hostname,managementIp'
         response = self.bigip.icr_session.get(
@@ -371,7 +371,7 @@ class Cluster(object):
 
     @log
     def peer_exists(self, name):
-        """ Does a peer exist by name? """
+        """Does a peer exist by name? """
         request_url = self.bigip.icr_url + '/cm/device'
         request_url += '?$select=selfDevice,name,hostname,managementIp'
         response = self.bigip.icr_session.get(
@@ -390,7 +390,7 @@ class Cluster(object):
 
     @log
     def cluster_exists(self, name):
-        """ Does a cluster exist by name? """
+        """Does a cluster exist by name? """
         request_url = self.bigip.icr_url + '/cm/device-group/~Common~'
         request_url += name
         request_filter = '/?$select=name,type'
@@ -411,7 +411,7 @@ class Cluster(object):
 
     @log
     def create(self, name, autosync=True):
-        """ Create a device group """
+        """Create a device group """
         request_url = self.bigip.icr_url + '/cm/device-group'
         payload = dict()
         payload['name'] = name
@@ -432,7 +432,7 @@ class Cluster(object):
 
     @log
     def delete(self, name):
-        """ Delete a device group """
+        """Delete a device group """
         if self.cluster_exists(name):
             self.remove_all_devices(name)
         request_url = self.bigip.icr_url + '/cm/device-group/~Common~'
@@ -449,7 +449,7 @@ class Cluster(object):
 
     @log
     def enable_auto_sync(self, name):
-        """ Enable autosync on a device group """
+        """Enable autosync on a device group """
         payload = dict()
         payload['autoSync'] = 'enabled'
         request_url = self.bigip.icr_url + '/cm/device-group/~Common~'
@@ -465,7 +465,7 @@ class Cluster(object):
 
     @log
     def disable_auto_sync(self, name):
-        """ Disable autosync on a device group """
+        """Disable autosync on a device group """
         payload = dict()
         payload['autoSync'] = 'disabled'
         request_url = self.bigip.icr_url + '/cm/device-group/~Common~'
@@ -481,7 +481,7 @@ class Cluster(object):
 
     @log
     def devices(self, name):
-        """ Get device group devices """
+        """Get device group devices """
         request_url = self.bigip.icr_url + '/cm/device-group/~Common~'
         request_url += name
         request_url += "/devices?$select=name"
@@ -502,7 +502,7 @@ class Cluster(object):
 
     @log
     def add_devices(self, name, device_names):
-        """ Add devices to device group """
+        """Add devices to device group """
         existing_devices = self.devices(name)
         if not isinstance(device_names, list):
             device_names = [device_names]
@@ -532,7 +532,7 @@ class Cluster(object):
 
     @log
     def remove_devices(self, name, device_names):
-        """ Remove devices from device group """
+        """Remove devices from device group """
         existing_devices = self.devices(name)
         if not isinstance(device_names, list):
             device_names = [device_names]
@@ -562,7 +562,7 @@ class Cluster(object):
 
     @log
     def remove_all_devices(self, name):
-        """ Remove all devices from device group """
+        """Remove all devices from device group """
         request_url = self.bigip.icr_url + '/cm/device-group/~Common~'
         request_url += name
         payload = dict()
@@ -580,12 +580,12 @@ class Cluster(object):
 
     @log
     def remove_device(self, name, device_name):
-        """ Remove device from device group """
+        """Remove device from device group """
         self.remove_devices(name, [device_name])
 
     @log
     def set_metadata(self, name, cluster_dict):
-        """ Set metadata on device group """
+        """Set metadata on device group """
         if isinstance(cluster_dict, dict):
             str_comment = json.dumps(cluster_dict)
         else:
@@ -606,7 +606,7 @@ class Cluster(object):
 
     @log
     def get_metadata(self, name):
-        """ Get metadata on device group """
+        """Get metadata on device group """
         request_url = self.bigip.icr_url + '/cm/device-group/~Common~'
         request_url += name + '?$select=name,description'
         response = self.bigip.icr_session.get(
@@ -620,7 +620,7 @@ class Cluster(object):
         if str_comment:
             try:
                 return json.loads(base64.decodestring(str_comment))
-            except:
+            except Exception:
                 try:
                     return base64.decodestring(str_comment)
                 except Exception as e:
@@ -630,7 +630,7 @@ class Cluster(object):
 
     @log
     def remove_metadata(self, name, remove_dict=None):
-        """ Remove metadata on device group """
+        """Remove metadata on device group """
         if isinstance(remove_dict, dict):
             existing_metadata = self.get_metadata(name)
             if isinstance(existing_metadata, dict):
@@ -645,7 +645,7 @@ class Cluster(object):
 
     @log
     def update_metadata(self, name, cluster_dict):
-        """ Update metadata on device group """
+        """Update metadata on device group """
         if isinstance(cluster_dict, dict):
             existing_metadata = self.get_metadata(name)
             if isinstance(existing_metadata, dict):
@@ -659,7 +659,7 @@ class Cluster(object):
 
     @log
     def get_traffic_groups(self):
-        """ Get traffic groups """
+        """Get traffic groups """
         request_url = self.bigip.icr_url + '/cm/traffic-group'
         request_url += '?$select=name'
         response = self.bigip.icr_session.get(
@@ -675,7 +675,7 @@ class Cluster(object):
 
     @log
     def traffic_group_exists(self, name):
-        """ Does traffic group exist? """
+        """Does traffic group exist? """
         if name:
             request_url = self.bigip.icr_url + '/cm/traffic-group/'
             request_url += '~Common~' + name
@@ -695,7 +695,7 @@ class Cluster(object):
                              name=None, autofailback=False,
                              failbacktimer=60, loadfactor=1,
                              floating=True, ha_order=None):
-        """ Create traffic group """
+        """Create traffic group """
         request_url = self.bigip.icr_url + '/cm/traffic-group'
         payload = dict()
         payload['name'] = name
@@ -727,7 +727,7 @@ class Cluster(object):
                              name=None, autofailback=False,
                              failbacktimer=60, loadfactor=1,
                              floating=True, ha_order=None):
-        """ Update traffic group """
+        """Update traffic group """
         request_url = self.bigip.icr_url + '/cm/traffic-group/'
         request_url += '~Common~' + name
         response = self.bigip.icr_session.get(
@@ -762,7 +762,7 @@ class Cluster(object):
 
     @log
     def delete_traffic_group(self, name):
-        """ Delete traffic group """
+        """Delete traffic group """
         if name:
             request_url = self.bigip.icr_url + '/cm/traffic-group/'
             request_url += '~Common~' + name

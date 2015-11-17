@@ -13,12 +13,12 @@
 # limitations under the License.
 #
 
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import strip_folder_and_prefix
 from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip.interfaces import log
+from f5.bigip.interfaces import strip_folder_and_prefix
+from f5.common import constants as const
+from f5.common.logger import Log
 
 import json
 import os
@@ -33,7 +33,7 @@ class SNAT(object):
     def create(self, name=None, ip_address=None,
                traffic_group=None, snat_pool_name=None,
                folder='Common', snat_pool_folder=None):
-        """ Create SNAT """
+        """Create SNAT """
         if not traffic_group:
             traffic_group = const.SHARED_CONFIG_DEFAULT_TRAFFIC_GROUP
         if name:
@@ -103,7 +103,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def delete_all(self, folder='Common'):
-        """ Delete SNATs """
+        """Delete SNATs """
         folder = str(folder).replace('/', '')
         self.delete_all_snatpools(folder)
         request_url = self.bigip.icr_url + '/ltm/snat-translation/'
@@ -133,7 +133,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def delete_snatpool(self, name=None, folder='Common'):
-        """ Delete SNAT pool """
+        """Delete SNAT pool """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/snatpool/'
@@ -164,7 +164,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def delete_all_snatpools(self, folder='Common'):
-        """ Delete SNAT pools """
+        """Delete SNAT pools """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/snatpool/'
         request_url += '?$select=name,selfLink'
@@ -193,7 +193,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def get_snataddresses(self, folder='Common'):
-        """ Get SNAT addresses """
+        """Get SNAT addresses """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/snat-translation/'
         request_url += '?$select=name'
@@ -216,7 +216,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def get_snat_ipaddress(self, folder='Common', snataddress_name=None):
-        """ Get SNAT IP by snataddress_name """
+        """Get SNAT IP by snataddress_name """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url
         request_url += '/ltm/snat-translation/~' + folder
@@ -236,7 +236,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def get_snatpool_members(self, name=None, folder='Common'):
-        """ Get SNAT pool members """
+        """Get SNAT pool members """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/snatpool/'
@@ -259,7 +259,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def get_snatpool_member_use_count(self, name):
-        """ Get use count for all SNAT pool members """
+        """Get use count for all SNAT pool members """
         request_url = self.bigip.icr_url + '/ltm/snatpool'
         response = self.bigip.icr_session.get(
             request_url, timeout=const.CONNECTION_TIMEOUT)
@@ -281,7 +281,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def create_pool(self, name=None, member_name=None, folder='Common'):
-        """ Get SNAT pool """
+        """Get SNAT pool """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -303,7 +303,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def add_to_pool(self, name=None, member_name=None, folder='Common'):
-        """ Add to SNAT pool """
+        """Add to SNAT pool """
         folder = str(folder).replace('/', '')
         sa_path = '/' + folder + '/' + member_name
         request_url = self.bigip.icr_url + '/ltm/snatpool'
@@ -340,7 +340,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def remove_from_pool(self, name=None, member_name=None, folder='Common'):
-        """ Remove from SNAT pool """
+        """Remove from SNAT pool """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/snatpool'
         request_url += '/~' + folder + '~' + name
@@ -391,7 +391,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def pool_exists(self, name=None, folder='Common'):
-        """ Does SNAT pool exist? """
+        """Does SNAT pool exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/snatpool/'
         request_url += '~' + folder + '~' + name
@@ -408,7 +408,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def get_snatpools(self, folder='Common'):
-        """ Get SNAT pools """
+        """Get SNAT pools """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/snatpool/'
         request_url += '?$select=name'
@@ -431,7 +431,7 @@ class SNAT(object):
     @icontrol_rest_folder
     @log
     def exists(self, name=None, folder='Common'):
-        """ Does SNAT address exist? """
+        """Does SNAT address exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/snat-translation/'
         request_url += '~' + folder + '~' + name

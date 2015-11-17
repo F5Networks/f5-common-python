@@ -13,23 +13,23 @@
 # limitations under the License.
 #
 
-from f5.common import constants as const
-from f5.bigip.interfaces import log
 from f5.bigip import exceptions
+from f5.bigip.interfaces import log
+from f5.common import constants as const
 
-import time
 import json
 import re
+import time
 
 
 class Stat(object):
-    """ Class for accessing bigip statistics """
+    """Class for accessing bigip statistics """
     def __init__(self, bigip):
         self.bigip = bigip
 
     @log
     def get_global_statistics(self):
-        """ Get platform global statisitcs """
+        """Get platform global statisitcs """
         request_url = self.bigip.icr_url + '/sys/performance/all-stats'
         response = self.bigip.icr_session.get(
             request_url, timeout=const.CONNECTION_TIMEOUT)
@@ -194,7 +194,7 @@ class Stat(object):
 
     @log
     def get_composite_score(self):
-        """ Get composite score """
+        """Get composite score """
         gs = self.get_global_statistics()
         cpu_score = self.get_cpu_health_score(gs) * \
             const.DEVICE_HEALTH_SCORE_CPU_WEIGHT
@@ -212,7 +212,7 @@ class Stat(object):
     # returns percentage of TMM memory currently in use
     @log
     def get_mem_health_score(self, global_stats=None):
-        """ use TMM memory usage for memory health """
+        """use TMM memory usage for memory health """
         if not global_stats:
             global_stats = self.get_global_statistics()
         tmm_mem = int(
@@ -232,7 +232,7 @@ class Stat(object):
 
     @log
     def get_cpu_health_score(self, global_stats=None):
-        """ Get cpu health score """
+        """Get cpu health score """
         if not global_stats:
             global_stats = self.get_global_statistics()
         cpu_score = int(
@@ -244,7 +244,7 @@ class Stat(object):
 
     @log
     def get_cps_health_score(self, global_stats=None):
-        """ Get cps health score """
+        """Get cps health score """
         if not global_stats:
             global_stats = self.get_global_statistics()
         count_init = int(

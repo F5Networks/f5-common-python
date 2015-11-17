@@ -13,20 +13,20 @@
 # limitations under the License.
 #
 
-from f5.common.logger import Log
-from f5.common import constants as const
 from f5.bigip import exceptions
+from f5.common import constants as const
+from f5.common.logger import Log
 
 import json
 
 
 class Interface(object):
-    """ Class for managing iRules on bigip """
+    """Class for managing iRules on bigip """
     def __init__(self, bigip):
         self.bigip = bigip
 
     def get_interfaces(self):
-        """ Get interface names """
+        """Get interface names """
         request_url = self.bigip.icr_url + '/net/interface/'
         request_url += '?$select=name'
         response = self.bigip.icr_session.get(
@@ -44,7 +44,7 @@ class Interface(object):
         return None
 
     def get_mac_addresses(self):
-        """ Get MAC addresses for all interfaces """
+        """Get MAC addresses for all interfaces """
         request_url = self.bigip.icr_url + '/net/interface/'
         request_url += '?$select=macAddress'
         response = self.bigip.icr_session.get(
@@ -62,7 +62,7 @@ class Interface(object):
         return None
 
     def get_interface_macaddresses_dict(self):
-        """ Get dictionary of mac addresses keyed by their interface name """
+        """Get dictionary of mac addresses keyed by their interface name """
         request_url = self.bigip.icr_url + '/net/interface/'
         request_url += '?$select=name,macAddress'
         response = self.bigip.icr_session.get(
