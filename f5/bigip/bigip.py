@@ -1,4 +1,4 @@
-""" Classes and functions for configuring BIG-IQ """
+"""Classes and functions for configuring BIG-IQ """
 # Copyright 2014 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,40 +14,40 @@
 # limitations under the License.
 #
 
-import os
 import logging
+import os
 import requests
 import socket
 
-from f5.bigip.pycontrol import pycontrol as pc
-from f5.common import constants as const
 from f5.bigip import interfaces as bigip_interfaces
 
+from f5.bigip.interfaces.arp import ARP
 from f5.bigip.interfaces.cluster import Cluster
 from f5.bigip.interfaces.device import Device
-from f5.bigip.interfaces.interface import Interface
 from f5.bigip.interfaces.iapp import IApp
+from f5.bigip.interfaces.interface import Interface
+from f5.bigip.interfaces.l2gre import L2GRE
 from f5.bigip.interfaces.monitor import Monitor
+from f5.bigip.interfaces.nat import NAT
 from f5.bigip.interfaces.pool import Pool
 from f5.bigip.interfaces.route import Route
-from f5.bigip.interfaces.ssl import SSL
 from f5.bigip.interfaces.rule import Rule
 from f5.bigip.interfaces.selfip import SelfIP
 from f5.bigip.interfaces.snat import SNAT
-from f5.bigip.interfaces.nat import NAT
+from f5.bigip.interfaces.ssl import SSL
 from f5.bigip.interfaces.stat import Stat
 from f5.bigip.interfaces.system import System
 from f5.bigip.interfaces.virtual_server import VirtualServer
 from f5.bigip.interfaces.vlan import Vlan
 from f5.bigip.interfaces.vxlan import VXLAN
-from f5.bigip.interfaces.l2gre import L2GRE
-from f5.bigip.interfaces.arp import ARP
+from f5.bigip.pycontrol import pycontrol as pc
+from f5.common import constants as const
 
 LOG = logging.getLogger(__name__)
 
 
 class BigIP(object):
-    """ An interface to a single BIG-IP """
+    """An interface to a single BIG-IP"""
     def __init__(self, hostname, username, password, timeout=None):
         # get icontrol connection stub
         self.icontrol = self._get_icontrol(hostname, username, password)
@@ -61,7 +61,7 @@ class BigIP(object):
 
     @property
     def iapp(self):
-        """ iApp interface """
+        """iApp interface"""
         if 'iapp' in self.interfaces:
             return self.interfaces['iapp']
         else:
@@ -72,7 +72,7 @@ class BigIP(object):
 
     @property
     def system(self):
-        """ System interface """
+        """System interface"""
         if 'system' in self.interfaces:
             return self.interfaces['system']
         else:
@@ -83,7 +83,7 @@ class BigIP(object):
 
     @property
     def device(self):
-        """ Device interface """
+        """Device interface"""
         if 'device' in self.interfaces:
             return self.interfaces['device']
         else:
@@ -94,7 +94,7 @@ class BigIP(object):
 
     @property
     def devicename(self):
-        """ Device Name interface """
+        """Device Name interface"""
         if not self.devicename:
             if 'device' in self.interfaces:
                 self.devicename = self.interfaces['device'].get_device_name()
@@ -106,7 +106,7 @@ class BigIP(object):
 
     @property
     def cluster(self):
-        """ Cluster interface """
+        """Cluster interface"""
         if 'cluster' in self.interfaces:
             return self.interfaces['cluster']
         else:
@@ -117,7 +117,7 @@ class BigIP(object):
 
     @property
     def stat(self):
-        """ Stat interface """
+        """Stat interface"""
         if 'stat' in self.interfaces:
             return self.interfaces['stat']
         else:
@@ -128,7 +128,7 @@ class BigIP(object):
 
     @property
     def interface(self):
-        """ Network Interface interface """
+        """Network Interface interface"""
         if 'interface' in self.interfaces:
             return self.interfaces['interface']
         else:
@@ -139,7 +139,7 @@ class BigIP(object):
 
     @property
     def vlan(self):
-        """ VLAN interface """
+        """VLAN interface"""
         if 'vlan' in self.interfaces:
             return self.interfaces['vlan']
         else:
@@ -150,7 +150,7 @@ class BigIP(object):
 
     @property
     def vxlan(self):
-        """ VXLAN Tunnel interface """
+        """VXLAN Tunnel interface"""
         if 'vxlan' in self.interfaces:
             return self.interfaces['vxlan']
         else:
@@ -161,7 +161,7 @@ class BigIP(object):
 
     @property
     def l2gre(self):
-        """ GRE Tunnel interface """
+        """GRE Tunnel interface"""
         if 'l2gre' in self.interfaces:
             return self.interfaces['l2gre']
         else:
@@ -172,7 +172,7 @@ class BigIP(object):
 
     @property
     def arp(self):
-        """ ARP interface """
+        """ARP interface"""
         if 'arp' in self.interfaces:
             return self.interfaces['arp']
         else:
@@ -183,7 +183,7 @@ class BigIP(object):
 
     @property
     def selfip(self):
-        """ Self IP interface """
+        """Self IP interface"""
         if 'selfip' in self.interfaces:
             return self.interfaces['selfip']
         else:
@@ -194,7 +194,7 @@ class BigIP(object):
 
     @property
     def snat(self):
-        """ SNAT Interface """
+        """SNAT Interface"""
         if 'snat' in self.interfaces:
             return self.interfaces['snat']
         else:
@@ -205,7 +205,7 @@ class BigIP(object):
 
     @property
     def nat(self):
-        """ NAT interface """
+        """NAT interface"""
         if 'nat' in self.interfaces:
             return self.interfaces['nat']
         else:
@@ -216,7 +216,7 @@ class BigIP(object):
 
     @property
     def route(self):
-        """ Route interface """
+        """Route interface"""
         if 'route' in self.interfaces:
             return self.interfaces['route']
         else:
@@ -227,7 +227,7 @@ class BigIP(object):
 
     @property
     def rule(self):
-        """ Rule interface """
+        """Rule interface"""
         if 'rule' in self.interfaces:
             return self.interfaces['rule']
         else:
@@ -238,7 +238,7 @@ class BigIP(object):
 
     @property
     def virtual_server(self):
-        """ Virtual Server interface """
+        """Virtual Server interface"""
         if 'virtual_server' in self.interfaces:
             return self.interfaces['virtual_server']
         else:
@@ -249,7 +249,7 @@ class BigIP(object):
 
     @property
     def monitor(self):
-        """ Monitor interface """
+        """Monitor interface"""
         if 'monitor' in self.interfaces:
             return self.interfaces['monitor']
         else:
@@ -260,7 +260,7 @@ class BigIP(object):
 
     @property
     def pool(self):
-        """ Pool interface """
+        """Pool interface"""
         if 'pool' in self.interfaces:
             return self.interfaces['pool']
         else:
@@ -271,7 +271,7 @@ class BigIP(object):
 
     @property
     def ssl(self):
-        """ SSL interface """
+        """SSL interface"""
         if 'ssl' in self.interfaces:
             return self.interfaces['ssl']
         else:
@@ -281,11 +281,11 @@ class BigIP(object):
             return ssl
 
     def set_timeout(self, timeout):
-        """ Set iControl timeout """
+        """Set iControl timeout"""
         self.icontrol.set_timeout(timeout)
 
     def set_folder(self, name, folder='/Common'):
-        """ Set iControl folder """
+        """Set iControl folder"""
         if not folder.startswith("/"):
             folder = "/" + folder
         self.system.set_folder(folder)
@@ -298,17 +298,17 @@ class BigIP(object):
             return None
 
     def icr_link(self, selfLink):
-        """ Create iControl REST link """
+        """Create iControl REST link"""
         return selfLink.replace('https://localhost/mgmt/tm', self.icr_url)
 
     def decorate_folder(self, folder='Common'):
-        """ Decorate folder name """
+        """Decorate folder name"""
         folder = str(folder).replace('/', '')
         return bigip_interfaces.prefixed(folder)
 
     @staticmethod
     def _get_icontrol(hostname, username, password, timeout=None):
-        """ Initialize iControl interface """
+        """Initialize iControl interface"""
         # Logger.log(Logger.DEBUG,
         #           "Opening iControl connections to %s for interfaces %s"
         #            % (self.hostname, self.interfaces))
@@ -335,7 +335,7 @@ class BigIP(object):
 
     @staticmethod
     def _get_icr_session(hostname, username, password, timeout=None):
-        """ Get iControl REST Session """
+        """Get iControl REST Session"""
         icr_session = requests.session()
         icr_session.auth = (username, password)
         icr_session.verify = False
@@ -353,7 +353,7 @@ class BigIP(object):
 
     @staticmethod
     def ulong_to_int(ulong_64):
-        """ Convert ulong to int """
+        """Convert ulong to int"""
         high = ulong_64.high
         low = ulong_64.low
 
@@ -366,7 +366,7 @@ class BigIP(object):
 
     @staticmethod
     def add_folder(folder, name):
-        """ Add a BIG-IP folder """
+        """Add a BIG-IP folder"""
         folder = str(folder).replace("/", "")
         if not str(name).startswith("/" + folder + "/"):
             return "/" + folder + "/" + name

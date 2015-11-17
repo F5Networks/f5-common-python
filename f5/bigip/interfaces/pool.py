@@ -13,17 +13,17 @@
 # limitations under the License.
 #
 
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import strip_folder_and_prefix
-from f5.bigip.interfaces import split_addr_port
 from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip.interfaces import log
+from f5.bigip.interfaces import split_addr_port
+from f5.bigip.interfaces import strip_folder_and_prefix
+from f5.common import constants as const
+from f5.common.logger import Log
 
+import json
 import os
 import urllib
-import json
 
 
 class Pool(object):

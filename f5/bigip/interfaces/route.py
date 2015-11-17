@@ -13,11 +13,11 @@
 # limitations under the License.
 #
 
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip.interfaces import log
+from f5.common import constants as const
+from f5.common.logger import Log
 
 import json
 
@@ -31,7 +31,7 @@ class Route(object):
     @log
     def create(self, name=None, dest_ip_address=None, dest_mask=None,
                gw_ip_address=None, folder='Common'):
-        """ Create Route Entry """
+        """Create Route Entry """
         if dest_ip_address and dest_mask and gw_ip_address:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -55,7 +55,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def delete(self, name=None, folder='Common'):
-        """ Delete Route Entry """
+        """Delete Route Entry """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/route/'
         request_url += '~' + folder + '~' + name
@@ -75,7 +75,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def delete_all(self, folder='Common'):
-        """ Delete Route Entries """
+        """Delete Route Entries """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/route/'
         request_url += '?$select=name,selfLink'
@@ -105,7 +105,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def get_domain_by_id(self, folder='/Common', route_domain_id=0):
-        """ Get VLANs in Domain """
+        """Get VLANs in Domain """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + \
             '/net/route-domain?$select=id,name,partition,vlans'
@@ -131,7 +131,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def get_vlans_in_domain_by_id(self, folder='/Common', route_domain_id=0):
-        """ Get VLANs in Domain """
+        """Get VLANs in Domain """
         route_domain = self.get_domain_by_id(
             folder=folder, route_domain_id=route_domain_id)
         vlans = []
@@ -143,7 +143,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def get_vlans_in_domain(self, folder='Common'):
-        """ Get VLANs in Domain """
+        """Get VLANs in Domain """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + \
             '/net/route-domain?$select=name,partition,vlans'
@@ -175,7 +175,7 @@ class Route(object):
     @log
     def add_vlan_to_domain_by_id(
             self, name=None, folder='Common', route_domain_id=0):
-        """ Add VLANs to Domain """
+        """Add VLANs to Domain """
         folder = str(folder).replace('/', '')
         existing_vlans = self.get_vlans_in_domain_by_id(
             folder=folder, route_domain_id=route_domain_id)
@@ -203,7 +203,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def add_vlan_to_domain(self, name=None, folder='Common'):
-        """ Add VLANs to Domain """
+        """Add VLANs to Domain """
         folder = str(folder).replace('/', '')
         existing_vlans = self.get_vlans_in_domain(folder=folder)
         if name not in existing_vlans:
@@ -225,7 +225,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def remove_vlan_from_domain(self, name=None, folder='Common'):
-        """ Remove VLANs from Domain """
+        """Remove VLANs from Domain """
         folder = str(folder).replace('/', '')
         existing_vlans = self.get_vlans_in_domain(folder)
         if name in existing_vlans:
@@ -248,9 +248,12 @@ class Route(object):
     @log
     def create_domain(
             self, folder='Common', strict_route_isolation=False, is_aux=False):
-        """ Create route domain.
-            is_aux: whether it is an auxiliary route domain beyond the main
-                    route domain for the folder """
+        """Create route domain.
+
+        is_aux: whether it is an auxiliary route domain beyond the main
+                    route domain for the folder
+        """
+
         folder = str(folder).replace('/', '')
         if not folder == 'Common':
             payload = dict()
@@ -281,7 +284,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def delete_domain(self, folder='Common', name=None):
-        """ Delete route domain """
+        """Delete route domain """
         folder = str(folder).replace('/', '')
         if not folder == 'Common':
             request_url = self.bigip.icr_url + '/net/route-domain/'
@@ -301,7 +304,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def domain_exists(self, folder='Common', route_domain_id=None):
-        """ Does the route domain exist?  """
+        """Does the route domain exist?  """
         folder = str(folder).replace('/', '')
         if folder == 'Common':
             return True
@@ -325,7 +328,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def get_domain(self, folder='Common'):
-        """ Get route domain """
+        """Get route domain """
         folder = str(folder).replace('/', '')
         if folder == 'Common':
             return 0
@@ -350,7 +353,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def get_domain_ids(self, folder='Common'):
-        """ Get route domains """
+        """Get route domains """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/route-domain/'
         request_url += '?$select=id,partition'
@@ -374,7 +377,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def get_domain_names(self, folder='Common'):
-        """ Get route domains """
+        """Get route domains """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/route-domain/'
         request_url += '?$select=partition,name'
@@ -398,7 +401,7 @@ class Route(object):
     @icontrol_rest_folder
     @log
     def exists(self, name=None, folder='Common'):
-        """ Does route exist? """
+        """Does route exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/route/'
         request_url += '~' + folder + '~' + name
@@ -414,7 +417,7 @@ class Route(object):
         return False
 
     def _get_next_domain_id(self):
-        """ Get next route domain id """
+        """Get next route domain id """
         request_url = self.bigip.icr_url + '/net/route-domain?$select=id'
         response = self.bigip.icr_session.get(
             request_url, timeout=const.CONNECTION_TIMEOUT)
@@ -444,7 +447,7 @@ class Route(object):
 
     @log
     def set_strict_state(self, name=None, folder='Common', state='disabled'):
-        """ Route domain strict attribute """
+        """Route domain strict attribute """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/route-domain/'

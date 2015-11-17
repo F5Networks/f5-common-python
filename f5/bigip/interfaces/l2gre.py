@@ -13,13 +13,13 @@
 # limitations under the License.
 #
 
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import strip_folder_and_prefix
-from f5.bigip.interfaces import prefixed
-from f5.bigip.interfaces import log
 from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
+from f5.bigip.interfaces import log
+from f5.bigip.interfaces import prefixed
+from f5.bigip.interfaces import strip_folder_and_prefix
+from f5.common import constants as const
+from f5.common.logger import Log
 
 import json
 import os
@@ -33,7 +33,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def create_multipoint_profile(self, name=None, folder='Common'):
-        """ Create multipoint tunnel profile """
+        """Create multipoint tunnel profile """
         folder = str(folder).replace('/', '')
         if not self.profile_exists(name=name, folder=folder):
             payload = dict()
@@ -58,7 +58,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def delete_profile(self, name=None, folder='Common'):
-        """ Delete tunnel profile """
+        """Delete tunnel profile """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/gre/'
         request_url += '~' + folder + '~' + name
@@ -84,7 +84,7 @@ class L2GRE(object):
                                  description=None,
                                  folder='Common',
                                  route_domain_id=0):
-        """ Create multipoint tunnel """
+        """Create multipoint tunnel """
         if not self.tunnel_exists(name=name, folder=folder):
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -115,7 +115,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def delete_tunnel(self, name=None, folder='Common'):
-        """ Delete tunnel """
+        """Delete tunnel """
         folder = str(folder).replace('/', '')
         # delete arp and fdb records for this tunnel first
         request_url = self.bigip.icr_url + '/net/fdb/tunnel/'
@@ -158,7 +158,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def delete_all(self, folder='Common'):
-        """ Delete all fdb entries """
+        """Delete all fdb entries """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/tunnel/'
         request_url += '?$select=name,selfLink'
@@ -191,7 +191,7 @@ class L2GRE(object):
                       tunnel_name=None,
                       mac=None,
                       folder='Common'):
-        """ Add fdb entry for a tunnel """
+        """Add fdb entry for a tunnel """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/fdb/tunnel/'
         request_url += '~' + folder + '~' + tunnel_name + '?ver=11.5.0'
@@ -265,7 +265,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def add_fdb_entries(self, fdb_entries=None):
-        """ Add fdb entries for a tunnel """
+        """Add fdb entries for a tunnel """
         for tunnel_name in fdb_entries:
             folder = fdb_entries[tunnel_name]['folder']
             if folder != 'Common':
@@ -326,7 +326,7 @@ class L2GRE(object):
                          mac_address=None,
                          arp_ip_address=None,
                          folder='Common'):
-        """ Delete fdb entry for a tunnel """
+        """Delete fdb entry for a tunnel """
         folder = str(folder).replace('/', '')
         if const.FDB_POPULATE_STATIC_ARP:
             if arp_ip_address:
@@ -363,7 +363,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def delete_fdb_entries(self, tunnel_name=None, fdb_entries=None):
-        """ Delete fdb entries for a tunnel """
+        """Delete fdb entries for a tunnel """
         for tunnel_name in fdb_entries:
             folder = fdb_entries[tunnel_name]['folder']
             if folder != 'Common':
@@ -402,7 +402,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def delete_all_fdb_entries(self, tunnel_name=None, folder='Common'):
-        """ Delete all fdb entries for a tunnel """
+        """Delete all fdb entries for a tunnel """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/fdb/tunnel/'
         request_url += '~' + folder + '~' + tunnel_name + '?ver=11.5.0'
@@ -419,7 +419,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def get_profiles(self, folder='Common'):
-        """ Get gre tunnel profiles """
+        """Get gre tunnel profiles """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/gre'
         if folder:
@@ -461,7 +461,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def get_tunnels(self, folder='Common'):
-        """ Get tunnels """
+        """Get tunnels """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/tunnel'
         if folder:
@@ -488,7 +488,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def get_tunnel_key(self, name=None, folder='Common'):
-        """ Get tunnel key """
+        """Get tunnel key """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/tunnel/'
         request_url += '~' + folder + '~' + name
@@ -506,7 +506,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def get_tunnel_by_description(self, description=None, folder='Common'):
-        """ Get tunnel by description """
+        """Get tunnel by description """
         folder = str(folder).replace('/', '')
         if description:
             request_url = self.bigip.icr_url + '/net/tunnels/tunnel/'
@@ -530,7 +530,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def get_tunnel_folder(self, tunnel_name=None):
-        """ Get an existing tunnels folder """
+        """Get an existing tunnels folder """
         if tunnel_name:
             request_url = self.bigip.icr_url + '/net/tunnels/tunnel/'
             response = self.bigip.icr_session.get(
@@ -550,7 +550,7 @@ class L2GRE(object):
     @icontrol_rest_folder
     @log
     def tunnel_exists(self, name=None, folder='Common'):
-        """ Return whether a tunnel exists """
+        """Return whether a tunnel exists """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/tunnel/'
         request_url += '~' + folder + '~' + name
@@ -566,7 +566,7 @@ class L2GRE(object):
 
     @icontrol_rest_folder
     def _in_use(self, name=None, folder=None):
-        """ Is a self ip using the vlan/tunnel ? """
+        """Is a self ip using the vlan/tunnel ? """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self?$select=vlan'

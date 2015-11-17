@@ -1,4 +1,4 @@
-""" Classes and functions for configuring vlans on BIG-IP """
+"""Classes and functions for configuring vlans on BIG-IP """
 # Copyright 2014 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +14,19 @@
 # limitations under the License.
 #
 
+from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
+from f5.bigip.interfaces import log
+from f5.bigip.interfaces import strip_folder_and_prefix
 from f5.common import constants as const
 from f5.common.logger import Log
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import strip_folder_and_prefix
-from f5.bigip import exceptions
-from f5.bigip.interfaces import log
 
-import os
 import json
+import os
 
 
 class Vlan(object):
-    """ Class for configuring vlans on bigip """
+    """Class for configuring vlans on bigip """
     def __init__(self, bigip):
         self.bigip = bigip
 
@@ -34,8 +34,11 @@ class Vlan(object):
     @log
     def create(self, name=None, vlanid=None, interface=None,
                folder='Common', description=None, route_domain_id=0):
-        """ Create vlan.
-            route_domain_id is an int  """
+        """Create vlan.
+
+        route_domain_id is an int
+
+        """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -73,7 +76,7 @@ class Vlan(object):
     @icontrol_rest_folder
     @log
     def delete(self, name=None, folder='Common'):
-        """ Delete vlan """
+        """Delete vlan """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/vlan/'
@@ -92,7 +95,7 @@ class Vlan(object):
     @icontrol_rest_folder
     @log
     def delete_all(self, folder='Common'):
-        """ Delete vlans """
+        """Delete vlans """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/vlan/'
         request_url += '?$select=name,selfLink'
@@ -121,7 +124,7 @@ class Vlan(object):
     @icontrol_rest_folder
     @log
     def get_vlans(self, folder='Common'):
-        """ Get vlans """
+        """Get vlans """
         request_url = self.bigip.icr_url + '/net/vlan/'
         request_url += '?$select=name'
         if folder:
@@ -144,7 +147,7 @@ class Vlan(object):
     @icontrol_rest_folder
     @log
     def get_id(self, name=None, folder='Common'):
-        """ Get vlan id """
+        """Get vlan id """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/vlan/'
@@ -163,7 +166,7 @@ class Vlan(object):
     @icontrol_rest_folder
     @log
     def set_id(self, name=None, vlanid=0, folder='Common'):
-        """ Set vlan id """
+        """Set vlan id """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/vlan/'
@@ -183,7 +186,7 @@ class Vlan(object):
     @icontrol_rest_folder
     @log
     def get_interface(self, name=None, folder='Common'):
-        """ Get vlan interface by name """
+        """Get vlan interface by name """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/vlan/'
@@ -209,7 +212,7 @@ class Vlan(object):
     @icontrol_rest_folder
     @log
     def set_interface(self, name=None, interface='1.1', folder='Common'):
-        """ Set vlan interface """
+        """Set vlan interface """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/vlan/'
@@ -233,7 +236,7 @@ class Vlan(object):
     @icontrol_rest_folder
     @log
     def get_vlan_name_by_description(self, description=None, folder='Common'):
-        """ Get vlan by description """
+        """Get vlan by description """
         if description:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + \
@@ -259,7 +262,7 @@ class Vlan(object):
     @icontrol_rest_folder
     @log
     def set_description(self, name=None, description=None, folder='Common'):
-        """ Set vlan description """
+        """Set vlan description """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/vlan/'
@@ -279,7 +282,7 @@ class Vlan(object):
     @icontrol_rest_folder
     @log
     def get_description(self, name=None, folder='Common'):
-        """ Get vlan description """
+        """Get vlan description """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + \
@@ -311,7 +314,7 @@ class Vlan(object):
     @icontrol_rest_folder
     @log
     def exists(self, name=None, folder='Common'):
-        """ Does vlan exist? """
+        """Does vlan exist? """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/vlan/'
@@ -328,7 +331,7 @@ class Vlan(object):
 
     @icontrol_rest_folder
     def _in_use(self, name=None, folder=None):
-        """ Does selfip use vlan? """
+        """Does selfip use vlan? """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self?$select=vlan'

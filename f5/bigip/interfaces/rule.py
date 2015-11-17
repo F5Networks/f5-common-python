@@ -13,24 +13,24 @@
 # limitations under the License.
 #
 
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip.interfaces import log
+from f5.common import constants as const
+from f5.common.logger import Log
 
 import json
 
 
 class Rule(object):
-    """ Class for managing iRules on bigip """
+    """Class for managing iRules on bigip """
     def __init__(self, bigip):
         self.bigip = bigip
 
     @icontrol_rest_folder
     @log
     def create(self, name=None, rule_definition=None, folder='Common'):
-        """ Create rule """
+        """Create rule """
         if name and rule_definition:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -53,7 +53,7 @@ class Rule(object):
     @icontrol_rest_folder
     @log
     def update(self, name=None, rule_definition=None, folder='Common'):
-        """ Update rule """
+        """Update rule """
         if name and rule_definition:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/rule/'
@@ -73,7 +73,7 @@ class Rule(object):
     @icontrol_rest_folder
     @log
     def delete(self, name=None, folder='Common'):
-        """ Delete rule """
+        """Delete rule """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/rule/'
@@ -92,7 +92,7 @@ class Rule(object):
     @icontrol_rest_folder
     @log
     def delete_like(self, match=None, folder='Common'):
-        """ Delete rule matching name """
+        """Delete rule matching name """
         if not match:
             return False
         folder = str(folder).replace('/', '')
@@ -124,7 +124,7 @@ class Rule(object):
     @icontrol_rest_folder
     @log
     def delete_all(self, folder='Common'):
-        """ Delete rules """
+        """Delete rules """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/rule/'
         request_url += '?$select=name,selfLink'
@@ -153,7 +153,7 @@ class Rule(object):
     @icontrol_rest_folder
     @log
     def get_rule(self, name=None, folder='Common'):
-        """ Get rule """
+        """Get rule """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/rule/'
@@ -173,7 +173,7 @@ class Rule(object):
     @icontrol_rest_folder
     @log
     def exists(self, name=None, folder='Common'):
-        """ Does rule exist? """
+        """Does rule exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/rule/'
         request_url += '~' + folder + '~' + name

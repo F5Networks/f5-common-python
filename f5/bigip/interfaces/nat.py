@@ -13,12 +13,12 @@
 # limitations under the License.
 #
 
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import strip_folder_and_prefix
 from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip.interfaces import log
+from f5.bigip.interfaces import strip_folder_and_prefix
+from f5.common import constants as const
+from f5.common.logger import Log
 
 import json
 
@@ -31,7 +31,7 @@ class NAT(object):
     @log
     def create(self, name=None, ip_address=None, orig_ip_address=None,
                traffic_group=None, vlan_name=None, folder='Common'):
-        """ Create NAT """
+        """Create NAT """
         folder = str(folder).replace('/', '')
         if not self.exists(name=name, folder=folder):
             payload = dict()
@@ -57,7 +57,7 @@ class NAT(object):
     @icontrol_rest_folder
     @log
     def delete(self, name=None, folder='Common'):
-        """ Delete NAT """
+        """Delete NAT """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/nat/'
@@ -76,7 +76,7 @@ class NAT(object):
     @icontrol_rest_folder
     @log
     def delete_all(self, folder='Common'):
-        """ Delete all NATs """
+        """Delete all NATs """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/nat/'
         request_url += '?$select=name,selfLink'
@@ -105,7 +105,7 @@ class NAT(object):
     @icontrol_rest_folder
     @log
     def get_nats(self, folder='Common'):
-        """ Get NATs """
+        """Get NATs """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/nat'
         request_url += '?$select=name'
@@ -127,7 +127,7 @@ class NAT(object):
     @icontrol_rest_folder
     @log
     def get_addrs(self, folder='Common'):
-        """ Get NAT addrs """
+        """Get NAT addrs """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/nat'
         request_url += '?$select=translationAddress'
@@ -150,7 +150,7 @@ class NAT(object):
     @icontrol_rest_folder
     @log
     def get_addr(self, name=None, folder='Common'):
-        """ Get NAT addr """
+        """Get NAT addr """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/nat/'
@@ -170,7 +170,7 @@ class NAT(object):
     @icontrol_rest_folder
     @log
     def get_original_addrs(self, folder='Common'):
-        """ Get NAT original addrs """
+        """Get NAT original addrs """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/nat'
         request_url += '?$select=originatingAddress'
@@ -192,7 +192,7 @@ class NAT(object):
     @icontrol_rest_folder
     @log
     def get_original_addr(self, name=None, folder='Common'):
-        """ Get NAT original addr """
+        """Get NAT original addr """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/nat/'
@@ -212,7 +212,7 @@ class NAT(object):
     @icontrol_rest_folder
     @log
     def get_vlan(self, name=None, folder='Common'):
-        """ Get NAT vlan """
+        """Get NAT vlan """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/nat/'
@@ -237,7 +237,7 @@ class NAT(object):
     @icontrol_rest_folder
     @log
     def exists(self, name=None, folder='Common'):
-        """ Does NAT exist? """
+        """Does NAT exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/nat/'
         request_url += '~' + folder + '~' + name

@@ -15,21 +15,20 @@
 #
 # pylint: disable=broad-except,no-self-use
 
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import icontrol_folder
-from f5.bigip.interfaces import log
-
 from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_folder
+from f5.bigip.interfaces import icontrol_rest_folder
+from f5.bigip.interfaces import log
+from f5.common import constants as const
+from f5.common.logger import Log
 
 import json
-import urllib
 import netaddr
+import urllib
 
 
 class ARP(object):
-    """ Class for configuring ARP on bigip """
+    """Class for configuring ARP on bigip """
 
     def __init__(self, bigip):
         self.bigip = bigip
@@ -67,7 +66,7 @@ class ARP(object):
     @icontrol_folder
     @log
     def create(self, ip_address=None, mac_address=None, folder='Common'):
-        """ Create an ARP static entry """
+        """Create an ARP static entry """
         if not self.exists(ip_address=ip_address, folder=folder):
             # ARP entries can't handle %0 on them like other
             # TMOS objects.
@@ -109,7 +108,7 @@ class ARP(object):
     @icontrol_folder
     @log
     def delete(self, ip_address=None, folder='Common'):
-        """ Delete an ARP static entry """
+        """Delete an ARP static entry """
         if self.exists(ip_address=ip_address, folder=folder):
             # ARP entries can't handle %0 on them like other
             # TMOS objects.
@@ -126,7 +125,7 @@ class ARP(object):
     @icontrol_folder
     @log
     def delete_by_mac(self, mac_address=None, folder='Common'):
-        """ Delete an ARP static entry by MAC address """
+        """Delete an ARP static entry by MAC address """
         if mac_address:
             arps = self.get_arps(None, folder)
             for arp in arps:
@@ -137,7 +136,7 @@ class ARP(object):
     @icontrol_folder
     @log
     def delete_by_subnet(self, subnet=None, mask=None, folder='Common'):
-        """ Delete ARP static entries on subnet """
+        """Delete ARP static entries on subnet """
         if subnet:
             mask_div = subnet.find('/')
             if mask_div > 0:
@@ -168,7 +167,7 @@ class ARP(object):
             return self._delete_by_network(folder, network)
 
     def _delete_by_network(self, folder, network):
-        """ Delete for network """
+        """Delete for network """
         if not network:
             return []
         mac_addresses = []
@@ -197,7 +196,7 @@ class ARP(object):
     @icontrol_rest_folder
     @log
     def get_arps(self, ip_address=None, folder='Common'):
-        """ Get ARP static entry """
+        """Get ARP static entry """
         folder = str(folder).replace('/', '')
         if ip_address:
             request_url = self.bigip.icr_url + '/net/arp/'
@@ -275,7 +274,7 @@ class ARP(object):
     @icontrol_folder
     @log
     def delete_all(self, folder='Common'):
-        """ Delete all ARP entries """
+        """Delete all ARP entries """
         try:
             self.net_arp.delete_all_static_entries()
         except Exception as exc:
@@ -303,7 +302,7 @@ class ARP(object):
     @icontrol_folder
     @log
     def exists(self, ip_address=None, folder='Common'):
-        """ Does ARP entry exist? """
+        """Does ARP entry exist? """
         # ARP entries can't handle %0 on them like other
         # TMOS objects.
         ip_address = self._remove_route_domain_zero(ip_address)
@@ -320,7 +319,7 @@ class ARP(object):
             return False
 
     def _remove_route_domain_zero(self, ip_address):
-        """ Remove route domain zero from ip_address """
+        """Remove route domain zero from ip_address """
         decorator_index = ip_address.find('%0')
         if decorator_index > 0:
             ip_address = ip_address[:decorator_index]

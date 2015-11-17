@@ -13,17 +13,16 @@
 # limitations under the License.
 #
 
+from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
+from f5.bigip.interfaces import log
+from f5.bigip.interfaces import split_addr_port
+from f5.bigip.interfaces import strip_folder_and_prefix
 from f5.common import constants as const
 from f5.common.logger import Log
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import strip_folder_and_prefix
-from f5.bigip.interfaces import split_addr_port
-from f5.bigip import exceptions
-from f5.bigip.interfaces import log
 
-import os
 import json
-
+import os
 import urllib
 
 
@@ -42,7 +41,7 @@ class VirtualServer(object):
                port=None, protocol=None, vlan_name=None,
                traffic_group=None, use_snat=True,
                snat_pool=None, folder='Common', preserve_vlan_name=False):
-        """ Create vip """
+        """Create vip """
 
         if name:
             folder = str(folder).replace('/', '')
@@ -111,7 +110,7 @@ class VirtualServer(object):
                             traffic_group=None, use_snat=True,
                             snat_pool=None, folder='Common',
                             preserve_vlan_name=False):
-        """ Create ip forwarding vip """
+        """Create ip forwarding vip """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -174,7 +173,7 @@ class VirtualServer(object):
                       traffic_group=None, use_snat=True,
                       snat_pool=None, folder='Common',
                       preserve_vlan_name=False):
-        """ Create fast L4 vip """
+        """Create fast L4 vip """
 
         if name:
             folder = str(folder).replace('/', '')
@@ -240,7 +239,7 @@ class VirtualServer(object):
     def add_profile(self, name=None, profile_name=None,
                     client_context=True, server_context=True,
                     folder='Common'):
-        """ Add vip profile """
+        """Add vip profile """
         if name and profile_name:
             folder = str(folder).replace('/', '')
             found_profile = self._which_profile(profile_name, folder)
@@ -280,7 +279,7 @@ class VirtualServer(object):
     def remove_profile(self, name=None, profile_name=None,
                        client_context=True, server_context=True,
                        folder='Common'):
-        """ Remove vip profile """
+        """Remove vip profile """
         if name and profile_name:
             folder = str(folder).replace('/', '')
             found_profile = self._which_profile(profile_name, folder)
@@ -330,7 +329,7 @@ class VirtualServer(object):
     def virtual_server_has_profile(self, name=None, profile_name=None,
                                    client_context=True, server_context=True,
                                    folder='Common'):
-        """ Does vip have profile? """
+        """Does vip have profile? """
         if name and profile_name:
             folder = str(folder).replace('/', '')
             found_profile = self._which_profile(profile_name, folder)
@@ -358,7 +357,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def http_profile_exists(self, name=None, folder='Common'):
-        """ Does http profile exist? """
+        """Does http profile exist? """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/profile/http/'
@@ -378,7 +377,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_profiles(self, name=None, folder='Common'):
-        """ Get profiles """
+        """Get profiles """
         return_profiles = []
         if name:
             folder = str(folder).replace('/', '')
@@ -413,7 +412,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_all_profiles(self, folder='Common'):
-        """ Get profiles """
+        """Get profiles """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/profile'
         response = self.bigip.icr_session.get(
@@ -455,7 +454,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def delete_all_profiles(self, folder='Common'):
-        """ Delete profiles """
+        """Delete profiles """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/profile'
         response = self.bigip.icr_session.get(
@@ -503,7 +502,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def delete_all_profiles_like(self, match=None, folder='Common'):
-        """ Delete profiles that match by name """
+        """Delete profiles that match by name """
         if not match:
             return False
         folder = str(folder).replace('/', '')
@@ -555,7 +554,7 @@ class VirtualServer(object):
     def create_http_profile(self, name=None, xff=True, pipelining=False,
                             unknown_verbs=False, server_agent=None,
                             folder='Common'):
-        """ Create http profile """
+        """Create http profile """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -591,7 +590,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_all_http_profiles(self, folder='Common'):
-        """ Get all http profiles """
+        """Get all http profiles """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/profile/http'
         request_url += '?$select=name'
@@ -615,7 +614,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def delete_all_http_profiles(self, folder='Common'):
-        """ Delete all http profiles """
+        """Delete all http profiles """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/profile/http'
         request_url += '?$select=name,selfLink'
@@ -649,7 +648,7 @@ class VirtualServer(object):
     @log
     def create_cookie_profile(self, name=None,
                               cookie_name=None, folder='Common'):
-        """ Create cookie profile """
+        """Create cookie profile """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -674,7 +673,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_all_persistence_profiles(self, folder='Common'):
-        """ Get all persistence profiles """
+        """Get all persistence profiles """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/persistence'
         response = self.bigip.icr_session.get(
@@ -718,7 +717,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def delete_all_persistence_profiles(self, folder='Common'):
-        """ Delete all persistence profiles """
+        """Delete all persistence profiles """
         timeout = const.CONNECTION_TIMEOUT
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/persistence'
@@ -767,7 +766,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def cookie_persist_profile_exists(self, name=None, folder='Common'):
-        """ Does cookie persistence profile exist? """
+        """Does cookie persistence profile exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/persistence/cookie/'
         request_url += '~' + folder + '~' + name
@@ -785,7 +784,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def delete_cookie_persist_profile(self, name=None, folder='Common'):
-        """ Delete cookie persistence profile """
+        """Delete cookie persistence profile """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/persistence/cookie/'
         request_url += '~' + folder + '~' + name
@@ -817,7 +816,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def create_uie_profile(self, name=None, rule_name=None, folder='Common'):
-        """ Create uie profile """
+        """Create uie profile """
         if name and rule_name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -841,7 +840,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def uie_persist_profile_exists(self, name=None, folder='Common'):
-        """ Does uie profile exist? """
+        """Does uie profile exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/persistence/universal/'
         request_url += '~' + folder + '~' + name
@@ -859,7 +858,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def delete_uie_persist_profile(self, name=None, folder='Common'):
-        """ Delete uie profile """
+        """Delete uie profile """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/persistence/universal/'
         request_url += '~' + folder + '~' + name
@@ -891,7 +890,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def delete_persist_profile(self, name=None, folder='Common'):
-        """ Delete persist profile """
+        """Delete persist profile """
         folder = str(folder).replace('/', '')
         link = self.get_persistence_link(name, folder)
         if link:
@@ -913,7 +912,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def delete_persist_profile_like(self, match=None, folder='Common'):
-        """ Delete persist profile """
+        """Delete persist profile """
         if not match:
             return False
         folder = str(folder).replace('/', '')
@@ -963,7 +962,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_profile_link(self, name=None, folder='Common'):
-        """ Get profile link """
+        """Get profile link """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/profile/'
         response = self.bigip.icr_session.get(
@@ -990,7 +989,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_persistence_link(self, name=None):
-        """ Get persistence link """
+        """Get persistence link """
         if name:
             request_url = self.bigip.icr_url + '/ltm/persistence/'
             response = self.bigip.icr_session.get(
@@ -1018,7 +1017,7 @@ class VirtualServer(object):
     @log
     def virtual_server_has_rule(self, name=None,
                                 rule_name=None, folder='Common'):
-        """ Does vip have rule? """
+        """Does vip have rule? """
         if name and rule_name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1044,7 +1043,7 @@ class VirtualServer(object):
     @log
     def add_rule(self, name=None, rule_name=None,
                  priority=500, folder='Common'):
-        """ Add rule to vip """
+        """Add rule to vip """
         if name and rule_name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1104,7 +1103,7 @@ class VirtualServer(object):
     @log
     def remove_rule(self, name=None, rule_name=None,
                     priority=500, folder='Common'):
-        """ Remove rule from vip """
+        """Remove rule from vip """
         if name and rule_name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1148,7 +1147,7 @@ class VirtualServer(object):
     @log
     def set_persist_profile(self, name=None, profile_name=None,
                             folder='Common'):
-        """ Set persist profile on vip """
+        """Set persist profile on vip """
         if name and profile_name:
             folder = str(folder).replace('/', '')
             found_profile = self._which_persistence_profile(profile_name,
@@ -1173,7 +1172,7 @@ class VirtualServer(object):
     @log
     def set_fallback_persist_profile(self, name=None, profile_name=None,
                                      folder='Common'):
-        """ Set fallback persist profile on vip """
+        """Set fallback persist profile on vip """
         if name and profile_name:
             folder = str(folder).replace('/', '')
             found_profile = self._which_persistence_profile(profile_name,
@@ -1198,7 +1197,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def remove_all_persist_profiles(self, name=None, folder='Common'):
-        """ Remove persist profiles from vip """
+        """Remove persist profiles from vip """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -1220,7 +1219,7 @@ class VirtualServer(object):
     @log
     def remove_and_delete_persist_profile(self, name=None,
                                           profile_name=None, folder='Common'):
-        """ Remove and delete persist profiles """
+        """Remove and delete persist profiles """
         if name and profile_name:
             folder = str(folder).replace('/', '')
             self.remove_all_persist_profiles(name, folder)
@@ -1230,7 +1229,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def enable_virtual_server(self, name=None, folder='Common'):
-        """ Enable vip """
+        """Enable vip """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -1250,7 +1249,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def disable_virtual_server(self, name=None, folder='Common'):
-        """ Disable vip """
+        """Disable vip """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -1270,7 +1269,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def delete(self, name=None, folder='Common'):
-        """ Delete vip """
+        """Delete vip """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1289,7 +1288,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_virtual_servers(self, folder='Common'):
-        """ Get vips """
+        """Get vips """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/virtual'
         request_url += '?$select=name'
@@ -1313,7 +1312,7 @@ class VirtualServer(object):
     def get_virtual_servers_by_pool_name(self,
                                          pool_name=None,
                                          folder='Common'):
-        """ Get vips by pool name """
+        """Get vips by pool name """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/virtual'
         request_url += '?$select=name,pool'
@@ -1337,7 +1336,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def delete_all(self, folder='Common'):
-        """ Delete vips """
+        """Delete vips """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/virtual/'
         request_url += '?$select=name,selfLink'
@@ -1368,7 +1367,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_pool(self, name=None, folder='Common'):
-        """ Get pool """
+        """Get pool """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1392,7 +1391,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def set_pool(self, name=None, pool_name=None, folder='Common'):
-        """ Set pool on vip """
+        """Set pool on vip """
         if name and pool_name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -1413,7 +1412,7 @@ class VirtualServer(object):
     @log
     def set_addr_port(self, name=None, ip_address=None,
                       port=None, folder='Common'):
-        """ Set vip addr and port """
+        """Set vip addr and port """
         if name and ip_address:
             if not port:
                 port = 0
@@ -1444,7 +1443,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_addr(self, name=None, folder='Common'):
-        """ Get vip addr """
+        """Get vip addr """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1471,7 +1470,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_port(self, name=None, folder='Common'):
-        """ Get vip port """
+        """Get vip port """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1498,7 +1497,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def set_mask(self, name=None, netmask=None, folder='Common'):
-        """ Set vip mask """
+        """Set vip mask """
         if name and netmask:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -1518,7 +1517,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_mask(self, name=None, folder='Common'):
-        """ Get vip mask """
+        """Get vip mask """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1542,7 +1541,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def set_protocol(self, name=None, protocol=None, folder='Common'):
-        """ Set vip protocol """
+        """Set vip protocol """
         if name and protocol:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -1562,7 +1561,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_protocol(self, name=None, folder='Common'):
-        """ Get vip protocol """
+        """Get vip protocol """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1586,7 +1585,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def set_description(self, name=None, description=None, folder='Common'):
-        """ Set vip description """
+        """Set vip description """
         if name and description:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -1606,7 +1605,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_description(self, name=None, folder='Common'):
-        """ Get vip description """
+        """Get vip description """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1631,7 +1630,7 @@ class VirtualServer(object):
     @log
     def set_traffic_group(self, name=None, traffic_group=None,
                           folder='Common'):
-        """ Set vip traffic group """
+        """Set vip traffic group """
         if name and traffic_group:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1665,7 +1664,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_traffic_group(self, name=None, folder='Common'):
-        """ Get vip traffic group """
+        """Get vip traffic group """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1700,7 +1699,7 @@ class VirtualServer(object):
     @log
     def set_connection_limit(self, name=None, connection_limit=0,
                              folder='Common'):
-        """ Set vip connection limit """
+        """Set vip connection limit """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -1721,7 +1720,7 @@ class VirtualServer(object):
     @log
     def get_connection_limit(self, name=None,
                              folder='Common'):
-        """ Get vip connection limit """
+        """Get vip connection limit """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1745,7 +1744,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def set_snat_automap(self, name=None, folder='Common'):
-        """ Set vip snat automap """
+        """Set vip snat automap """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -1765,7 +1764,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def set_snat_pool(self, name=None, pool_name=None, folder='Common'):
-        """ Set vip snat pool """
+        """Set vip snat pool """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -1786,7 +1785,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def remove_snat(self, name=None, folder='Common'):
-        """ Set vip snat """
+        """Set vip snat """
         if name:
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -1808,7 +1807,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_statistics(self, name=None, folder='Common'):
-        """ Get vip statistics """
+        """Get vip statistics """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual/'
@@ -1836,7 +1835,7 @@ class VirtualServer(object):
         return None
 
     def _get_rest_protocol(self, protocol):
-        """ Get vip protocol """
+        """Get vip protocol """
         if str(protocol).lower() == 'tcp':
             return 'tcp'
         elif str(protocol).lower() == 'udp':
@@ -1855,7 +1854,7 @@ class VirtualServer(object):
             return 'tcp'
 
     def _get_icontrol_stat(self, name, value):
-        """ Get vip stats """
+        """Get vip stats """
         if name == "clientside.bitsIn":
             return ('STATISTIC_CLIENT_SIDE_BYTES_IN', (value * 8))
         elif name == "clientside.bitsOut":
@@ -1923,7 +1922,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def get_virtual_service_insertion(self, folder='Common'):
-        """ Get vips """
+        """Get vips """
         folder = str(folder).replace('/', '')
         virtual_services = []
         request_url = self.bigip.icr_url + '/ltm/virtual'
@@ -1957,7 +1956,7 @@ class VirtualServer(object):
     @log
     def _get_virtual_address_traffic_group(self, named_address=None,
                                            folder='Common'):
-        """ Get vip address traffic group """
+        """Get vip address traffic group """
         if named_address:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/ltm/virtual-address/'
@@ -1978,7 +1977,7 @@ class VirtualServer(object):
     def _set_virtual_address_traffic_group(self, named_address=None,
                                            traffic_group=None,
                                            folder='Common'):
-        """ Set vip address traffic group """
+        """Set vip address traffic group """
         if named_address:
             folder = str(folder).replace('/', '')
             if not traffic_group:
@@ -2000,7 +1999,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def exists(self, name=None, folder='Common'):
-        """ Does vip exist? """
+        """Does vip exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/virtual/'
         request_url += '~' + folder + '~' + name
@@ -2018,7 +2017,7 @@ class VirtualServer(object):
     @icontrol_rest_folder
     @log
     def virtual_address_exists(self, named_address=None, folder='Common'):
-        """ Does vip address exist? """
+        """Does vip address exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/virtual-address/'
         request_url += '~' + folder + '~' + urllib.quote(named_address)
@@ -2034,7 +2033,7 @@ class VirtualServer(object):
             raise exceptions.VirtualServerQueryException(response.text)
 
     def _which_profile(self, profile_name=None, folder='Common'):
-        """ which profile """
+        """which profile """
         if not self.common_profiles:
             Log.debug('profiles', 'getting common profile cache')
             self.get_all_profiles(folder='Common')
@@ -2065,7 +2064,7 @@ class VirtualServer(object):
         return None
 
     def _which_persistence_profile(self, profile_name=None, folder='Common'):
-        """ which persistence profile """
+        """which persistence profile """
         if not self.common_persistence_profiles:
             self.get_all_persistence_profiles(folder='Common')
             Log.debug('persistence',

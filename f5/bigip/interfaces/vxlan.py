@@ -1,4 +1,4 @@
-""" vxlan.py """
+"""vxlan.py """
 # Copyright 2014 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,21 +15,21 @@
 #
 # pylint: disable=broad-except
 
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import strip_folder_and_prefix
-from f5.bigip.interfaces import prefixed
+from eventlet import greenthread
 from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip.interfaces import log
+from f5.bigip.interfaces import prefixed
+from f5.bigip.interfaces import strip_folder_and_prefix
+from f5.common import constants as const
+from f5.common.logger import Log
 
 import json
 import os
-from eventlet import greenthread
 
 
 class VXLAN(object):
-    """ Interface for vxlan related REST methods """
+    """Interface for vxlan related REST methods """
 
     OBJ_PREFIX = 'uuid_'
 
@@ -39,7 +39,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def create_multipoint_profile(self, name=None, folder='Common'):
-        """ Create vxlan multipoint tunnel profile """
+        """Create vxlan multipoint tunnel profile """
         if not self.profile_exists(name=name, folder=folder):
             folder = str(folder).replace('/', '')
             payload = dict()
@@ -65,7 +65,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def delete_profile(self, name=None, folder='Common'):
-        """ Delete vxlan multipoint tunnel profile """
+        """Delete vxlan multipoint tunnel profile """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/vxlan/'
         request_url += '~' + folder + '~' + name
@@ -91,7 +91,7 @@ class VXLAN(object):
                                  description=None,
                                  folder='Common',
                                  route_domain_id=0):
-        """ Create vxlan multipoint tunnel """
+        """Create vxlan multipoint tunnel """
         if not self.tunnel_exists(name=name, folder=folder):
             folder = str(folder).replace('/', '')
             # check partition is okay to create in
@@ -123,7 +123,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def delete_tunnel(self, name=None, folder='Common'):
-        """ Delete vxlan multipoint tunnel """
+        """Delete vxlan multipoint tunnel """
         folder = str(folder).replace('/', '')
         # delete arp and fdb records for this tunnel first
         request_url = self.bigip.icr_url + '/net/fdb/tunnel/'
@@ -164,7 +164,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def delete_all(self, folder='Common'):
-        """ Delete vxlan multipoint tunnels """
+        """Delete vxlan multipoint tunnels """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/tunnel/'
         request_url += '?$select=name,selfLink'
@@ -197,7 +197,7 @@ class VXLAN(object):
                       tunnel_name=None,
                       mac=None,
                       folder='Common'):
-        """ Get vxlan fdb entry """
+        """Get vxlan fdb entry """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/fdb/tunnel/'
         request_url += '~' + folder + '~' + tunnel_name + '?ver=11.5.0'
@@ -225,7 +225,7 @@ class VXLAN(object):
                       vtep_ip_address=None,
                       arp_ip_address=None,
                       folder=None):
-        """ Add vxlan fdb entry """
+        """Add vxlan fdb entry """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/fdb/tunnel/'
         request_url += '~' + folder + '~' + tunnel_name + '?ver=11.5.0'
@@ -272,7 +272,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def add_fdb_entries(self, fdb_entries=None):
-        """ Add vxlan fdb entries """
+        """Add vxlan fdb entries """
         for tunnel_name in fdb_entries:
             folder = fdb_entries[tunnel_name]['folder']
             if folder != 'Common':
@@ -333,7 +333,7 @@ class VXLAN(object):
                          mac_address=None,
                          arp_ip_address=None,
                          folder='Common'):
-        """ Delete vxlan fdb entry """
+        """Delete vxlan fdb entry """
         folder = str(folder).replace('/', '')
         if const.FDB_POPULATE_STATIC_ARP:
             if arp_ip_address:
@@ -372,7 +372,7 @@ class VXLAN(object):
     def delete_fdb_entries(self,
                            tunnel_name=None,
                            fdb_entries=None):
-        """ Delete vxlan fdb entries """
+        """Delete vxlan fdb entries """
         for tunnel_name in fdb_entries:
             folder = fdb_entries[tunnel_name]['folder']
             if folder != 'Common':
@@ -411,7 +411,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def delete_all_fdb_entries(self, tunnel_name=None, folder='Common'):
-        """ Delete fdb entries """
+        """Delete fdb entries """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/fdb/tunnel/'
         request_url += '~' + folder + '~' + tunnel_name + '?ver=11.5.0'
@@ -428,7 +428,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def get_profiles(self, folder='Common'):
-        """ Get tunnel profiles """
+        """Get tunnel profiles """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/vxlan'
         request_filter = 'partition eq ' + folder
@@ -453,7 +453,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def profile_exists(self, name=None, folder='Common'):
-        """ Does vxlan tunnel exist? """
+        """Does vxlan tunnel exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/vxlan/'
         request_url += '~' + folder + '~' + name
@@ -470,7 +470,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def get_tunnels(self, folder='Common'):
-        """ Get tunnels """
+        """Get tunnels """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/tunnel'
         if folder:
@@ -497,7 +497,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def get_tunnel_key(self, name=None, folder='Common'):
-        """ Get tunnel key """
+        """Get tunnel key """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/tunnel/'
         request_url += '~' + folder + '~' + name
@@ -515,7 +515,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def get_tunnel_by_description(self, description=None, folder='Common'):
-        """ Get tunnel by description """
+        """Get tunnel by description """
         folder = str(folder).replace('/', '')
         if description:
             request_url = self.bigip.icr_url + '/net/tunnels/tunnel/'
@@ -539,7 +539,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def get_tunnel_folder(self, tunnel_name=None):
-        """ Get tunnel folder """
+        """Get tunnel folder """
         if tunnel_name:
             request_url = self.bigip.icr_url + '/net/tunnels/tunnel/'
             response = self.bigip.icr_session.get(
@@ -559,7 +559,7 @@ class VXLAN(object):
     @icontrol_rest_folder
     @log
     def tunnel_exists(self, name=None, folder='Common'):
-        """ Does tunnel exist? """
+        """Does tunnel exist? """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/net/tunnels/tunnel/'
         request_url += '~' + folder + '~' + name
@@ -587,7 +587,7 @@ class VXLAN(object):
 
     @icontrol_rest_folder
     def _in_use(self, name=None, folder=None):
-        """ Is tunnel used by selfip? """
+        """Is tunnel used by selfip? """
         if name:
             folder = str(folder).replace('/', '')
             request_url = self.bigip.icr_url + '/net/self?$select=vlan'

@@ -13,17 +13,17 @@
 # limitations under the License.
 #
 
-from f5.common.logger import Log
-from f5.common import constants as const
-from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip import exceptions
+from f5.bigip.interfaces import icontrol_rest_folder
 from f5.bigip.interfaces import log
+from f5.common import constants as const
+from f5.common.logger import Log
 
 import json
 
 
 class Monitor(object):
-    """ Class for configuring monitors on bigip """
+    """Class for configuring monitors on bigip """
     def __init__(self, bigip):
         self.bigip = bigip
 
@@ -47,7 +47,7 @@ class Monitor(object):
     def create(self, name=None, mon_type=None, interval=5,
                timeout=16, send_text=None, recv_text=None,
                folder='Common'):
-        """ Create monitor """
+        """Create monitor """
         folder = str(folder).replace('/', '')
         mon_type = self._get_monitor_rest_type(mon_type)
         payload = dict()
@@ -77,7 +77,7 @@ class Monitor(object):
     @icontrol_rest_folder
     @log
     def delete(self, name=None, mon_type=None, folder='Common'):
-        """ Delete monitor """
+        """Delete monitor """
         if name and mon_type:
             folder = str(folder).replace('/', '')
             mon_type = self._get_monitor_rest_type(mon_type)
@@ -97,7 +97,7 @@ class Monitor(object):
     @icontrol_rest_folder
     @log
     def delete_all(self, folder='Common'):
-        """ Create all monitors """
+        """Create all monitors """
         request_url = self.bigip.icr_url + '/ltm/monitor'
         folder = str(folder).replace('/', '')
         request_filter = 'partition eq ' + folder
@@ -141,7 +141,7 @@ class Monitor(object):
     @icontrol_rest_folder
     @log
     def get_type(self, name=None, folder='Common'):
-        """ Get monitor type """
+        """Get monitor type """
         folder = str(folder).replace('/', '')
         request_url = self.bigip.icr_url + '/ltm/monitor'
         request_filter = 'partition eq ' + folder
@@ -184,7 +184,7 @@ class Monitor(object):
     @icontrol_rest_folder
     @log
     def get_interval(self, name=None, mon_type=None, folder='Common'):
-        """ Get monitor interval """
+        """Get monitor interval """
         folder = str(folder).replace('/', '')
         if name and mon_type:
             mon_type = self._get_monitor_rest_type(mon_type)
@@ -206,7 +206,7 @@ class Monitor(object):
     @log
     def set_interval(self, name=None,
                      mon_type=None, interval=5, folder='Common'):
-        """ Set monitor interval """
+        """Set monitor interval """
         folder = str(folder).replace('/', '')
         payload = dict()
         payload['interval'] = interval
@@ -227,7 +227,7 @@ class Monitor(object):
     @icontrol_rest_folder
     @log
     def get_timeout(self, name=None, mon_type=None, folder='Common'):
-        """ Get monitor timeout """
+        """Get monitor timeout """
         folder = str(folder).replace('/', '')
         if name and mon_type:
             mon_type = self._get_monitor_rest_type(mon_type)
@@ -249,7 +249,7 @@ class Monitor(object):
     @log
     def set_timeout(self, name=None, mon_type=None,
                     timeout=16, folder='Common'):
-        """ Set monitor timeout """
+        """Set monitor timeout """
         folder = str(folder).replace('/', '')
         payload = dict()
         payload['timeout'] = timeout
@@ -270,7 +270,7 @@ class Monitor(object):
     @icontrol_rest_folder
     @log
     def get_send_string(self, name=None, mon_type=None, folder='Common'):
-        """ Get monitor send string """
+        """Get monitor send string """
         folder = str(folder).replace('/', '')
         if name and mon_type:
             mon_type = self._get_monitor_rest_type(mon_type)
@@ -292,7 +292,7 @@ class Monitor(object):
     @log
     def set_send_string(self, name=None, mon_type=None,
                         send_text=None, folder='Common'):
-        """ Set monitor send string """
+        """Set monitor send string """
         folder = str(folder).replace('/', '')
         payload = dict()
         if send_text:
@@ -316,7 +316,7 @@ class Monitor(object):
     @icontrol_rest_folder
     @log
     def get_recv_string(self, name=None, mon_type=None, folder='Common'):
-        """ Get monitor receive string """
+        """Get monitor receive string """
         folder = str(folder).replace('/', '')
         if name and mon_type:
             mon_type = self._get_monitor_rest_type(mon_type)
@@ -338,7 +338,7 @@ class Monitor(object):
     @log
     def set_recv_string(self, name=None, mon_type=None,
                         recv_text=None, folder='Common'):
-        """ Set monitor receive string """
+        """Set monitor receive string """
         folder = str(folder).replace('/', '')
         payload = dict()
         if recv_text:
@@ -360,7 +360,7 @@ class Monitor(object):
         return False
 
     def _get_monitor_rest_type(self, type_str):
-        """ Get monitor reset type """
+        """Get monitor reset type """
         type_str = type_str.lower()
         if type_str in self.monitor_type:
             return self.monitor_type[type_str]['name']
@@ -369,7 +369,7 @@ class Monitor(object):
                 'Unknown monitor %s' % type_str)
 
     def _get_monitor_type_from_parent(self, parent):
-        """ Get monitor type from parent """
+        """Get monitor type from parent """
         parent = parent.upper()
         if parent == 'GATEWAY_ICMP':
             return 'PING'
@@ -379,7 +379,7 @@ class Monitor(object):
     @icontrol_rest_folder
     @log
     def exists(self, name=None, mon_type=None, folder='Common'):
-        """ Does monitor exist ? """
+        """Does monitor exist ? """
         folder = str(folder).replace('/', '')
         if name and mon_type:
             mon_type = self._get_monitor_rest_type(mon_type)
@@ -397,7 +397,7 @@ class Monitor(object):
     @icontrol_rest_folder
     @log
     def get_monitors(self, folder='Common'):
-        """ Get monitors """
+        """Get monitors """
         folder = str(folder).replace('/', '')
         request_filter = 'partition eq ' + folder
         return_monitors = []

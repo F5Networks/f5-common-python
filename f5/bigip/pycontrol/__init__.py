@@ -28,7 +28,7 @@ class F5Error(Exception):
         if isinstance(e, suds.WebFault):
             try:
                 parts = e.fault.faultstring.split('\n')
-                e_source = parts[0].replace("Exception caught in ", "")
+                # e_source = parts[0].replace("Exception caught in ", "")
                 e_type = parts[1].replace("Exception: ", "")
                 e_msg = re.sub("\serror_string\s*:\s*", "", parts[4])
                 self.msg = "%s: %s" % (e_type, e_msg)
