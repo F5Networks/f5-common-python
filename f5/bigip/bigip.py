@@ -372,3 +372,11 @@ class BigIP(object):
             return "/" + folder + "/" + name
         else:
             return name
+
+    def add_rest_folder(self, url, folder, name):
+        """Add a BIG-IP REST folder that uses ~ instead of /"""
+        folder = str(folder).replace("/", "")
+        if not str(name).startswith("~" + folder + "~"):
+            return url + "~" + folder + "~" + name
+        else:
+            return url + name

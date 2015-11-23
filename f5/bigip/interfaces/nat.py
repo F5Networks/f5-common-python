@@ -20,12 +20,15 @@ from f5.bigip.interfaces import strip_folder_and_prefix
 from f5.common import constants as const
 from f5.common.logger import Log
 
+from requests.exceptions import HTTPError
+
 import json
 
 
 class NAT(object):
     def __init__(self, bigip):
         self.bigip = bigip
+        self.url = self.bigip.icr_url +'/ltm/nat/'
 
     @icontrol_rest_folder
     @log
@@ -41,9 +44,8 @@ class NAT(object):
             payload['translationAddress'] = ip_address
             payload['trafficGroup'] = traffic_group
             payload['vlans'] = [vlan_name]
-            request_url = self.bigip.icr_url + '/ltm/nat'
             response = self.bigip.icr_session.post(
-                request_url, data=json.dumps(payload),
+                self.url, data=json.dumps(payload),
                 timeout=const.CONNECTION_TIMEOUT)
             if response.status_code < 400:
                 return True
@@ -58,20 +60,15 @@ class NAT(object):
     @log
     def delete(self, name=None, folder='Common'):
         """Delete NAT """
-        if name:
-            folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/nat/'
-            request_url += '~' + folder + '~' + name
+        try:
             response = self.bigip.icr_session.delete(
-                request_url, timeout=const.CONNECTION_TIMEOUT)
+                self.bigip.add_rest_folder(self.url, folder, name),
+                timeout=const.CONNECTION_TIMEOUT)
+        except HTTPError:
             if response.status_code < 400:
                 return True
             elif response.status_code == 404:
                 return True
-            else:
-                Log.error('NAT', response.text)
-                raise exceptions.NATDeleteException(response.text)
-        return False
 
     @icontrol_rest_folder
     @log
