@@ -40,6 +40,7 @@ def test_get_description_error():
     with pytest.raises(exceptions.PoolQueryException):
         test_pool.get_description("my-Pool")
 
+
 def test_get_load_balancing():
     response = BigIPMock.create_mock_response(
         200, BigIPMock.read_json_file("f5/bigip/interfaces/test/pool.json"))
