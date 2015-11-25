@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import json
 import mock
 
 
@@ -68,7 +69,7 @@ class BigIPMock(object):
         :rtype object: mock session object.
         """
 
-        def mock_response(url, timeout):
+        def mock_response(url, **kwargs):
             return self.response
 
         icr_session = mock.Mock()
@@ -81,7 +82,7 @@ class BigIPMock(object):
         return icr_session
 
     @staticmethod
-    def create_mock_response(status_code, json):
+    def create_mock_response(status_code, json_str):
         """Creates a mock HTTP response.
 
         :param int status_code: HTTP response code to mock.
@@ -90,7 +91,8 @@ class BigIPMock(object):
         """
         response = mock.Mock()
         response.status_code = status_code
-        response.text = json
+        response.text = json_str
+        response.json = json.loads(json_str)
 
         return response
 

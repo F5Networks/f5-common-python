@@ -17,9 +17,132 @@
 import logging
 import os
 
+from f5.common import constants as const
+from requests.exceptions import HTTPError
+
 OBJ_PREFIX = 'uuid_'
 
 LOG = logging.getLogger(__name__)
+
+
+def log(method):
+    """Decorator helping to log method calls."""
+    def wrapper(*args, **kwargs):
+        """Necessary wrapper """
+        instance = args[0]
+        LOG.debug('%s::%s called with args: %s kwargs: %s',
+                  instance.__class__.__name__,
+                  method.__name__,
+                  args[1:],
+                  kwargs)
+        return method(*args, **kwargs)
+    return wrapper
+
+
+class Interfaces(object):
+    """Base class for Interface objects. """
+    def __init__(self, bigip):
+        self.bigip = bigip
+        self.base_uri = self.bigip.icr_url
+
+    @log
+    def delete(self, name=None, folder='Common',
+               timeout=const.CONNECTION_TIMEOUT):
+        """Delete the object """
+        if not name:
+            return False
+        try:
+            self.bigip.icr_session.delete(
+                self.base_uri,
+                folder=folder,
+                name=name,
+                timeout=timeout)
+        except HTTPError as exp:
+            if exp.response.status_code == 404:
+                return True
+            else:
+                raise
+        return True
+
+    @log
+    def delete_all(self, folder='Common', startswith="",
+                   timeout=const.CONNECTION_TIMEOUT):
+        """Delete all things that can start with a string.
+
+        Used to use self.OBJ_PREFIX so now you have to pass it in.
+        Maybe this isn't the best thing?
+
+        We need to deal with the prefix in a better way
+        """
+        params = {
+            '$select': 'name,selfLink',
+            '$filter': 'partition eq ' + folder,
+        }
+
+        # This will raise if there is a HTTPError
+        response = self.bigip.icr_session.get(
+            self.base_uri, params=params, timeout=timeout)
+
+        for item in response.json.get('items', []):
+            # This is where we had startswith(self.OBJ_PREFIX)
+            if item['name'].startswith(startswith):
+                if not self.delete(item['name'], folder=folder):
+                    return False
+        return True
+
+    @log
+    def exists(self, name=None, folder='Common',
+               timeout=const.CONNECTION_TIMEOUT):
+        try:
+            self.bigip.icr_session.get(
+                self.base_uri, folder=folder, name=name,
+                params={'$select: name'}, timeout=timeout)
+        except HTTPError as exp:
+            if exp.response.status_code == 404:
+                return False
+            else:
+                raise
+        return True
+
+    @log
+    def _get_items(self, folder='Common', uri=None, select='name',
+                   timeout=const.CONNECTION_TIMEOUT):
+        items = []
+        params = {
+            '$select': select,
+            '$filter': 'partition eq ' + folder
+        }
+        if not uri:
+            uri = self.base_uri
+
+        try:
+            response = self.bigip.icr_session.get(
+                uri, params=params, timeout=timeout)
+        except HTTPError as exp:
+            if exp.response.status_code == 404:
+                return items
+            raise
+
+        for item in response.json.get('items', []):
+            if select in item:
+                items.append(strip_folder_and_prefix(item[select]))
+
+        return items
+
+    @log
+    def _get_named_object(self, name, uri=None, folder='Common', select='name',
+                          timeout=const.CONNECTION_TIMEOUT):
+        params = {
+            '$select': select,
+        }
+        if not uri:
+            uri = self.base_uri
+
+        # No try here because original code was not doing exceptional things
+        # with error messages like self._get()
+        response = self.bigip.icr_session.get(uri, name=name, folder=folder,
+                                              params=params, timeout=timeout)
+        return response.json.get(select, None)
 
 
 def prefixed(name):
@@ -229,17 +352,3 @@ def split_addr_port(dest):
         # ipv4: bigip syntax is addr:port
         parts = dest.split(':')
     return (parts[0], parts[1])
-
-
-def log(method):
-    """Decorator helping to log method calls."""
-    def wrapper(*args, **kwargs):
-        """Necessary wrapper """
-        instance = args[0]
-        LOG.debug('%s::%s called with args: %s kwargs: %s',
-                  instance.__class__.__name__,
-                  method.__name__,
-                  args[1:],
-                  kwargs)
-        return method(*args, **kwargs)
-    return wrapper
