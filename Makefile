@@ -17,6 +17,14 @@ debs: build/f5-bigip-common_$(VERSION)_all.deb
 
 rpms: build/f5-bigip-common-$(VERSION).noarch.rpm
 
+docker_rpms:
+	(docker build -t rpm-pkg-builder ./Docker/redhat)
+	docker run -v $(PROJECT_DIR):/var/build/ rpm-pkg-builder /bin/bash /build-rpms.sh
+
+docker_debs:
+	(docker build -t deb-pkg-builder ./Docker/debian)
+	docker run -v $(PROJECT_DIR):/var/build/ deb-pkg-builder /bin/bash /build-debs.sh
+
 build/f5-bigip-common_$(VERSION)_all.src:
 	(export PROJECT_DIR=$(PROJECT_DIR); \
 	export VERSION=$(VERSION); \
@@ -66,6 +74,7 @@ clean-debs:
 clean-rpms:
 	find . -name "*.pyc" -exec rm -rf {} \;
 	rm -f MANIFEST
+	rm -rf f5-bigip-common*
 	rm -f build/f5-bigip-common-*.rpm
 	( \
 	rm -rf dist; \
