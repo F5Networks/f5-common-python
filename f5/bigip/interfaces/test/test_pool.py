@@ -16,25 +16,24 @@ from f5.bigip import exceptions
 from f5.bigip.interfaces.pool import Pool
 from f5.bigip.interfaces.test.big_ip_mock import BigIPMock
 
+import os
 import pytest
 
-"""Note: Because of file names pased to read_json_file(), tests assume
-they are being called from f5-common-python directory. Change file paths
-if you want to call from a different directory.
+"""Usage example:
 
-Usage example:
-
-    cd <path>/f5-common-python
     py.test f5/bigip/interfaces/test/test_pool.py
 
     with coverage:
     py.test --cov f5
 """
 
+DATA_DIR = os.path.dirname(__file__)
+JSON_FILE = os.path.join(DATA_DIR, 'pool.json')
+
 
 def test_get_description():
     response = BigIPMock.create_mock_response(
-        200, BigIPMock.read_json_file("f5/bigip/interfaces/test/pool.json"))
+        200, BigIPMock.read_json_file(JSON_FILE))
 
     big_ip = BigIPMock(response)
     test_pool = Pool(big_ip)
@@ -45,7 +44,7 @@ def test_get_description():
 
 def test_get_description_error():
     response = BigIPMock.create_mock_response(
-        500, BigIPMock.read_json_file("f5/bigip/interfaces/test/pool.json"))
+        500, BigIPMock.read_json_file(JSON_FILE))
 
     big_ip = BigIPMock(response)
     test_pool = Pool(big_ip)
@@ -57,7 +56,7 @@ def test_get_description_error():
 
 def test_get_load_balancing():
     response = BigIPMock.create_mock_response(
-        200, BigIPMock.read_json_file("f5/bigip/interfaces/test/pool.json"))
+        200, BigIPMock.read_json_file(JSON_FILE))
 
     big_ip = BigIPMock(response)
     test_pool = Pool(big_ip)
