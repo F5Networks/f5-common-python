@@ -42,7 +42,30 @@ See [Contributing](CONTRIBUTING.md)
 
 Build
 -----
-See [Build](BUILD)
+1. Python Package:
+
+To build a python package that can be installed using pip.  The output is in 'dist'.
+$ make source
+
+2. Debian Package
+
+On a debian system you can build debian packages if you have installed python-all, fakeroot, and python-stdeb
+$ sudo apt-get install python-all fakeroot python-stdeb
+$ make debs
+
+On a system that has docker installed you can use the docker_debs target.  This will launch a trusty container to build
+a debian package.
+$ make docker_debs
+
+3. RedHat/Centos 7 Package
+
+On a RedHat/Centos 7 system you can build RPMS if you have installed make and rpm-build rpms.
+$ sudo yum install make rpm-build
+$ make rpms
+
+On a system that has docker installed you can use the docker_rpms target.  This will launch a centos7 container to build
+the f5-bigip-common package
+$ make docker_rpms
 
 Test
 ----
