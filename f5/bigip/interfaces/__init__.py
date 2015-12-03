@@ -96,7 +96,7 @@ class Interfaces(object):
         try:
             self.bigip.icr_session.get(
                 self.base_uri, folder=folder, name=name,
-                params={'$select: name'}, timeout=timeout)
+                params={'$select': 'name'}, timeout=timeout)
         except HTTPError as exp:
             if exp.response.status_code == 404:
                 return False
