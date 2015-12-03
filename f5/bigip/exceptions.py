@@ -14,305 +14,309 @@
 #
 
 
-class MinorVersionValidateFailed(Exception):
+class BigIPException(Exception):
     pass
 
 
-class MajorVersionValidateFailed(Exception):
+class MinorVersionValidateFailed(BigIPException):
     pass
 
 
-class ProvisioningExtraMBValidateFailed(Exception):
+class MajorVersionValidateFailed(BigIPException):
     pass
 
 
-class BigIPDeviceLockAcquireFailed(Exception):
+class ProvisioningExtraMBValidateFailed(BigIPException):
     pass
 
 
-class BigIPClusterInvalidHA(Exception):
+class BigIPDeviceLockAcquireFailed(BigIPException):
     pass
 
 
-class BigIPClusterSyncFailure(Exception):
+class BigIPClusterInvalidHA(BigIPException):
     pass
 
 
-class BigIPClusterPeerAddFailure(Exception):
+class BigIPClusterSyncFailure(BigIPException):
     pass
 
 
-class BigIPClusterConfigSaveFailure(Exception):
+class BigIPClusterPeerAddFailure(BigIPException):
     pass
 
 
-class UnknownMonitorType(Exception):
+class BigIPClusterConfigSaveFailure(BigIPException):
     pass
 
 
-class MissingVTEPAddress(Exception):
+class UnknownMonitorType(BigIPException):
     pass
 
 
-class MissingNetwork(Exception):
+class MissingVTEPAddress(BigIPException):
     pass
 
 
-class InvalidNetworkType(Exception):
+class MissingNetwork(BigIPException):
     pass
 
 
-class StaticARPCreationException(Exception):
+class InvalidNetworkType(BigIPException):
     pass
 
 
-class StaticARPQueryException(Exception):
+class StaticARPCreationException(BigIPException):
     pass
 
 
-class StaticARPDeleteException(Exception):
+class StaticARPQueryException(BigIPException):
     pass
 
 
-class ClusterCreationException(Exception):
+class StaticARPDeleteException(BigIPException):
     pass
 
 
-class ClusterUpdateException(Exception):
+class ClusterCreationException(BigIPException):
     pass
 
 
-class ClusterQueryException(Exception):
+class ClusterUpdateException(BigIPException):
     pass
 
 
-class ClusterDeleteException(Exception):
+class ClusterQueryException(BigIPException):
     pass
 
 
-class DeviceCreationException(Exception):
+class ClusterDeleteException(BigIPException):
     pass
 
 
-class DeviceUpdateException(Exception):
+class DeviceCreationException(BigIPException):
     pass
 
 
-class DeviceQueryException(Exception):
+class DeviceUpdateException(BigIPException):
     pass
 
 
-class DeviceDeleteException(Exception):
+class DeviceQueryException(BigIPException):
     pass
 
 
-class InterfaceQueryException(Exception):
+class DeviceDeleteException(BigIPException):
     pass
 
 
-class IAppCreationException(Exception):
+class InterfaceQueryException(BigIPException):
     pass
 
 
-class IAppQueryException(Exception):
+class IAppCreationException(BigIPException):
     pass
 
 
-class IAppUpdateException(Exception):
+class IAppQueryException(BigIPException):
     pass
 
 
-class IAppDeleteException(Exception):
+class IAppUpdateException(BigIPException):
     pass
 
 
-class L2GRETunnelCreationException(Exception):
+class IAppDeleteException(BigIPException):
     pass
 
 
-class L2GRETunnelQueryException(Exception):
+class L2GRETunnelCreationException(BigIPException):
     pass
 
 
-class L2GRETunnelUpdateException(Exception):
+class L2GRETunnelQueryException(BigIPException):
     pass
 
 
-class L2GRETunnelDeleteException(Exception):
+class L2GRETunnelUpdateException(BigIPException):
     pass
 
 
-class MonitorCreationException(Exception):
+class L2GRETunnelDeleteException(BigIPException):
     pass
 
 
-class MonitorQueryException(Exception):
+class MonitorCreationException(BigIPException):
     pass
 
 
-class MonitorUpdateException(Exception):
+class MonitorQueryException(BigIPException):
     pass
 
 
-class MonitorDeleteException(Exception):
+class MonitorUpdateException(BigIPException):
     pass
 
 
-class NATCreationException(Exception):
+class MonitorDeleteException(BigIPException):
     pass
 
 
-class NATQueryException(Exception):
+class NATCreationException(BigIPException):
     pass
 
 
-class NATUpdateException(Exception):
+class NATQueryException(BigIPException):
     pass
 
 
-class NATDeleteException(Exception):
+class NATUpdateException(BigIPException):
     pass
 
 
-class PoolCreationException(Exception):
+class NATDeleteException(BigIPException):
     pass
 
 
-class PoolQueryException(Exception):
+class PoolCreationException(BigIPException):
     pass
 
 
-class PoolUpdateException(Exception):
+class PoolQueryException(BigIPException):
     pass
 
 
-class PoolDeleteException(Exception):
+class PoolUpdateException(BigIPException):
     pass
 
 
-class RouteCreationException(Exception):
+class PoolDeleteException(BigIPException):
     pass
 
 
-class RouteQueryException(Exception):
+class RouteCreationException(BigIPException):
     pass
 
 
-class RouteUpdateException(Exception):
+class RouteQueryException(BigIPException):
     pass
 
 
-class RouteDeleteException(Exception):
+class RouteUpdateException(BigIPException):
     pass
 
 
-class RuleCreationException(Exception):
+class RouteDeleteException(BigIPException):
     pass
 
 
-class RuleQueryException(Exception):
+class RuleCreationException(BigIPException):
     pass
 
 
-class RuleUpdateException(Exception):
+class RuleQueryException(BigIPException):
     pass
 
 
-class RuleDeleteException(Exception):
+class RuleUpdateException(BigIPException):
     pass
 
 
-class SelfIPCreationException(Exception):
+class RuleDeleteException(BigIPException):
     pass
 
 
-class SelfIPQueryException(Exception):
+class SelfIPCreationException(BigIPException):
     pass
 
 
-class SelfIPUpdateException(Exception):
+class SelfIPQueryException(BigIPException):
     pass
 
 
-class SelfIPDeleteException(Exception):
+class SelfIPUpdateException(BigIPException):
     pass
 
 
-class SNATCreationException(Exception):
+class SelfIPDeleteException(BigIPException):
     pass
 
 
-class SNATQueryException(Exception):
+class SNATCreationException(BigIPException):
     pass
 
 
-class SNATUpdateException(Exception):
+class SNATQueryException(BigIPException):
     pass
 
 
-class SNATDeleteException(Exception):
+class SNATUpdateException(BigIPException):
     pass
 
 
-class SystemCreationException(Exception):
+class SNATDeleteException(BigIPException):
     pass
 
 
-class SystemQueryException(Exception):
+class SystemCreationException(BigIPException):
     pass
 
 
-class SystemUpdateException(Exception):
+class SystemQueryException(BigIPException):
     pass
 
 
-class SystemDeleteException(Exception):
+class SystemUpdateException(BigIPException):
     pass
 
 
-class VirtualServerCreationException(Exception):
+class SystemDeleteException(BigIPException):
     pass
 
 
-class VirtualServerQueryException(Exception):
+class VirtualServerCreationException(BigIPException):
     pass
 
 
-class VirtualServerUpdateException(Exception):
+class VirtualServerQueryException(BigIPException):
     pass
 
 
-class VirtualServerDeleteException(Exception):
+class VirtualServerUpdateException(BigIPException):
     pass
 
 
-class VLANCreationException(Exception):
+class VirtualServerDeleteException(BigIPException):
     pass
 
 
-class VLANQueryException(Exception):
+class VLANCreationException(BigIPException):
     pass
 
 
-class VLANUpdateException(Exception):
+class VLANQueryException(BigIPException):
     pass
 
 
-class VLANDeleteException(Exception):
+class VLANUpdateException(BigIPException):
     pass
 
 
-class VXLANCreationException(Exception):
+class VLANDeleteException(BigIPException):
     pass
 
 
-class VXLANQueryException(Exception):
+class VXLANCreationException(BigIPException):
     pass
 
 
-class VXLANUpdateException(Exception):
+class VXLANQueryException(BigIPException):
     pass
 
 
-class VXLANDeleteException(Exception):
+class VXLANUpdateException(BigIPException):
+    pass
+
+
+class VXLANDeleteException(BigIPException):
     pass

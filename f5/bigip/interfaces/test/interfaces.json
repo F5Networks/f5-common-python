@@ -1,0 +1,9 @@
+{
+  "items": [
+    {"name": "nat1", "selfLink": "https://example.com/mgmt/tm/ltm/nat/~Common~nat1"},
+    {"name": "nat2", "selfLink": "https://example.com/mgmt/tm/ltm/nat/~Common~nat2"},
+    {"name": "nat3", "selfLink": "https://example.com/mgmt/tm/ltm/nat/~Common~nat3"},
+    {"name": "nat4", "selfLink": "https://example.com/mgmt/tm/ltm/nat/~Common~nat4"},
+    {"name": "nat5", "selfLink": "https://example.com/mgmt/tm/ltm/nat/~Common~nat5"}
+  ]
+}

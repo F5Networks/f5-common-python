@@ -9,6 +9,7 @@ before_install:
     - git fetch --depth=100
 install:
     - pip install hacking pytest pytest-cov
+    - pip install -r requirements.txt
 script:
     - flake8 .
     - py.test --cov .
