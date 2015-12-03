@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 from f5.bigip import exceptions
-from f5.bigip.interfaces.pool import Pool
 from f5.bigip.interfaces.test.big_ip_mock import BigIPMock
+from f5.bigip.ltm.pool import Pool
 
 import os
 import pytest

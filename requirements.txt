@@ -1,7 +1,9 @@
+eventlet==0.17.4
 netaddr==0.7.18
+pyopenssl==0.15.1
 requests>=2.8.1
 suds==0.4
 
 # Test Requirements
-mock
+mock==1.3.0
 pytest
