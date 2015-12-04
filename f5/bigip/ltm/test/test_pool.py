@@ -85,6 +85,7 @@ def FakePool():
     fake_bigip = mock.MagicMock()
     fake_bigip.icr_url = 'https://0.0.0.0/mgmt/tm/'
     fake_pool = Pool(fake_bigip)
+    fake_pool._del_arp_and_fdb = mock.MagicMock()
     fake_pool._get_items = mock.MagicMock()
     return fake_pool
 
@@ -98,23 +99,24 @@ def test_delete_no_name_but_folder(FakePool):
 
 
 def test_delete_default_folder_and_name(FakePool):
-    FakePool.delete(name='FakeName')
+    boolean_result = FakePool.delete(name='FakeName')
     assert FakePool._get_items.call_args ==\
         mock.call(folder='Common', suffix='/members', timeout=30,
                   name='FakeName')
     assert FakePool.bigip.icr_session.delete.call_args ==\
         mock.call('ltm/pool/', folder='Common',
                   suffix='/members', timeout=30, name='FakeName')
-
+    assert boolean_result
 
 def test_delete_empty_folder_and_name(FakePool):
-    FakePool.delete(name='FakeName', folder='')
+    boolean_result = FakePool.delete(name='FakeName', folder='')
     assert FakePool._get_items.call_args ==\
         mock.call(folder='', name='FakeName', suffix='/members',
                   timeout=30)
     assert FakePool.bigip.icr_session.delete.call_args ==\
         mock.call('ltm/pool/', folder='',
                   suffix='/members', timeout=30, name='FakeName')
+    assert boolean_result
 
 
 def test_delete_404_HTTPError_in__get_items(FakePool, raise_custom_HTTPError):
@@ -127,6 +129,19 @@ def test_delete_403_HTTPError_in__get_items(monkeypatch, FakePool,
     pool.Log = mock.MagicMock()
     response_txt = 'The mock is for a 403 status code.'
     FakePool._get_items.side_effect = raise_custom_HTTPError(403, response_txt)
-    FakePool.delete(name='FakeName')
+    boolean_result = FakePool.delete(name='FakeName')
     assert pool.Log.error.call_args ==\
         mock.call('members', 'The mock is for a 403 status code.')
+    assert not boolean_result
+
+def test_delete_with_node_addresses(FakePool):
+    FakePool._get_items.return_value = ['node_address_1', 'node_address_2']
+    FakePool.delete(name='FakeName')
+    assert FakePool._get_items.call_args ==\
+        mock.call(folder='Common', suffix='/members', timeout=30,
+                  name='FakeName')
+    assert FakePool.bigip.icr_session.delete.call_args ==\
+        mock.call('ltm/pool/', folder='Common',
+                  suffix='/members', timeout=30, name='FakeName')
+
+
