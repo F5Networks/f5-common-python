@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-from f5.bigip.interfaces.nat import NAT
 from f5.bigip.interfaces.test.big_ip_mock import BigIPMock
+from f5.bigip.ltm.nat import NAT
 from mock import Mock
 from requests.exceptions import HTTPError
 
