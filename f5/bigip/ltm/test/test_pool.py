@@ -69,7 +69,7 @@ def itest_get_load_balancing():
 
 @pytest.fixture
 def raise_custom_HTTPError():
-    def customize_error(status_code, response_txt = ''):
+    def customize_error(status_code, response_txt=''):
         def raise_error(*args, **kwargs):
             mock_response = mock.MagicMock()
             mock_response.status_code = status_code

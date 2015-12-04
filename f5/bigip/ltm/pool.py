@@ -74,15 +74,6 @@ class Pool(Interfaces):
                     Log.error('members', err.response.text)
                     # https://github.com/F5Networks/f5-common-python/issues/25
                     return False
-            try:
-                self.bigip.icr_session.delete(self.base_uri, folder=folder,
-                                              name=name, suffix='/members',
-                                              timeout=const.CONNECTION_TIMEOUT)
-            except HTTPError as err:
-                if err.response.status_code == 404:
-                    pass
-                Log.error('members', err.response.text)
-                raise
 
             for node_address in node_addresses:
                 try:
@@ -97,6 +88,16 @@ class Pool(Interfaces):
                     Log.error('members', err.response.text)
                     raise exceptions.PoolDeleteException(err.response.text)
                 self._del_arp_and_fdb(node_address, folder)
+
+            try:
+                self.bigip.icr_session.delete(self.base_uri, folder=folder,
+                                              name=name, suffix='/members',
+                                              timeout=const.CONNECTION_TIMEOUT)
+            except HTTPError as err:
+                if err.response.status_code == 404:
+                    pass
+                Log.error('members', err.response.text)
+                raise
             return True
         return False
 
