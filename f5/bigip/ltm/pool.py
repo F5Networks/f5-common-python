@@ -30,8 +30,8 @@ import urllib
 
 class Pool(Interfaces):
     def __init__(self, bigip):
-        self.base_uri = "ltm/pool/"
         super(Pool, self).__init__(bigip)
+        self.base_uri = "ltm/pool/"
 
     @log
     def create(self, name=None, lb_method=None,
@@ -61,15 +61,23 @@ class Pool(Interfaces):
     @log
     def delete(self, name=None, folder='Common'):
         if name:
-
             try:
-                node_addresses = self._get_items(name=name, folder=folder, suffix='/members', timeout=const.CONNECTION_TIMEOUT)
+                node_addresses = self._get_items(folder=folder, name=name,
+                                                 suffix='/members',
+                                                 timeout=
+                                                 const.CONNECTION_TIMEOUT)
             except HTTPError as err:
-                if err.response.status_code != 404:
+                if err.response.status_code == 404:
+                    # https://github.com/F5Networks/f5-common-python/issues/25
+                    return True 
+                else:
                     Log.error('members', err.response.text)
+                    # https://github.com/F5Networks/f5-common-python/issues/25
+                    return False
             try:
-                self.bigip.icr_session.delete(self.base_uri, folder=folder, name=name,
-                                              suffix='/members', timeout=const.CONNECTION_TIMEOUT)
+                self.bigip.icr_session.delete(self.base_uri, folder=folder,
+                                              name=name, suffix='/members',
+                                              timeout=const.CONNECTION_TIMEOUT)
             except HTTPError as err:
                 if err.response.status_code == 404:
                     pass
@@ -78,10 +86,13 @@ class Pool(Interfaces):
 
             for node_address in node_addresses:
                 try:
-                    self.bigip.icr_session.delete(self.base_uri, folder=folder, name=node_address,
-                                                  timeout=const.CONNECTION_TIMEOUT)
+                    self.bigip.icr_session.delete(self.base_uri, folder=folder,
+                                                  name=node_address,
+                                                  timeout=
+                                                  const.CONNECTION_TIMEOUT)
                 except HTTPError as err:
-                    if err.response.status_code == 400 and err.response.text.find('is referenced') > 0:
+                    if err.response.status_code == 400\
+                    and err.response.text.find('is referenced') > 0:
                         pass
                     Log.error('members', err.response.text)
                     raise exceptions.PoolDeleteException(err.response.text)
@@ -89,45 +100,6 @@ class Pool(Interfaces):
             return True
         return False
 
-            """
-            folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
-            request_url += '~' + folder + '~' + name
-            node_addresses = []
-            # get a list of node addresses before we delete
-            response = self.bigip.icr_session.get(
-                request_url + '/members', timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return_obj = json.loads(response.text)
-                if 'items' in return_obj:
-                    for member in return_obj['items']:
-                        node_addresses.append(member['address'])
-            elif response.status_code != 404:
-                Log.error('members', response.text)
-                raise exceptions.PoolQueryException(response.text)
-
-            # delete the pool
-            response = self.bigip.icr_session.delete(
-                request_url, timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400 or response.status_code == 404:
-                for node_address in node_addresses:
-                    node_url = self.bigip.icr_url + '/ltm/node/'
-                    node_url += '~' + folder + '~' + urllib.quote(node_address)
-                    node_res = self.bigip.icr_session.delete(
-                        node_url, timeout=const.CONNECTION_TIMEOUT)
-                    # we only care if this works.  Otherwise node is likely
-                    # in use by another pool
-                    if node_res.status_code < 400:
-                        self._del_arp_and_fdb(node_address, folder)
-                    elif node_res.status_code == 400 and \
-                            node_res.text.find('is referenced') > 0:
-                        # same node can be in multiple pools
-                        pass
-                    else:
-                        raise exceptions.PoolDeleteException(node_res.text)
-            return True
-        return False
-"""
 
     # best effort ARP and fdb cleanup
     def _del_arp_and_fdb(self, ip_address, folder):

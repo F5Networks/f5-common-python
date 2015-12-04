@@ -43,7 +43,6 @@ class Interfaces(object):
     """Base class for Interface objects. """
     def __init__(self, bigip):
         self.bigip = bigip
-        self.base_uri = self.bigip.icr_url
 
     @log
     def delete(self, name=None, folder='Common',
@@ -105,19 +104,17 @@ class Interfaces(object):
         return True
 
     @log
-    def _get_items(self, folder='Common', uri=None, select='name',
-                   timeout=const.CONNECTION_TIMEOUT):
+    def _get_items(self, folder='Common', name='', suffix='/members',
+                   select='name', timeout=const.CONNECTION_TIMEOUT, **kwargs):
         items = []
         params = {
             '$select': select,
             '$filter': 'partition eq ' + folder
         }
-        if not uri:
-            uri = self.base_uri
-
         try:
             response = self.bigip.icr_session.get(
-                uri, params=params, timeout=timeout)
+                self.base_uri, folder, name, params=params, timeout=timeout,
+                **kwargs)
         except HTTPError as exp:
             if exp.response.status_code == 404:
                 return items
