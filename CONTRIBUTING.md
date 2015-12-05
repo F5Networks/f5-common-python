@@ -41,6 +41,12 @@ _The Hat_ because your request fails unit tests.
 *  Use our pull request template
 
 ```
+@<reviewer_id>
+#### What issues does this address?
+Fixes #<issueid>
+WIP #<issueid>
+...
+
 #### What's this change do?
 
 #### Where should the reviewer start?
@@ -49,7 +55,20 @@ _The Hat_ because your request fails unit tests.
 ```
 
 ## Testing
-TODO: Add how to create and run unit tests
+Creating tests is pretty straight forward and we need you to help us keep ensure
+the quality of our code.  We write both our unit tests and functional tests
+using [pytest](http://pytest.org).  We know it is extra work to write these
+tests but the maintainers and consumers of this code appreciate the effort and
+ writing the tests is pretty easy.  Take a look at a few of the test directories
+ like [f5/bigip/ltm/test](f5/bigip/ltm/test/) if you need help getting started.
+ 
+ Running those tests is even easier.
+ ```shell
+ $ py.test --cov ./ --cov-report=html
+ $ open htmlcov/index.html
+ ```
+ If you are running our functional tests you will need a real BIG-IP to run
+ them against, but you can get one of those pretty easily in [Amazon EC2](https://aws.amazon.com/marketplace/pp/B00JL3UASY/ref=srh_res_product_title?ie=UTF8&sr=0-10&qid=1449332167461).
 
 ## Contributor License Agreement
 TODO: Need to get this from legal
