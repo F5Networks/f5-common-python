@@ -1,4 +1,4 @@
-"""BIG-IP API Interfaces """
+"""BIG-IP API BaseCollection """
 # Copyright 2014 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@ def log(method):
     return wrapper
 
 
-class Interfaces(object):
+class BaseCollection(object):
     """Base class for Interface objects. """
     def __init__(self, bigip):
         self.bigip = bigip
