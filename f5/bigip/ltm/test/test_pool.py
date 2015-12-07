@@ -126,8 +126,7 @@ def test_delete_404_HTTPError_in__get_items(FakePool, raise_custom_HTTPError):
     assert FakePool.delete(name='FakeName')
 
 
-def test_delete_403_HTTPError_in__get_items(monkeypatch, FakePool,
-                                            raise_custom_HTTPError):
+def test_delete_403_HTTPError_in__get_items(FakePool, raise_custom_HTTPError):
     pool.Log = mock.MagicMock()
     response_txt = 'The mock is for a 403 status code.'
     FakePool._get_items.side_effect = raise_custom_HTTPError(403, response_txt)
@@ -146,3 +145,39 @@ def test_delete_with_node_addresses(FakePool):
     assert FakePool.bigip.icr_session.delete.call_args ==\
         mock.call('ltm/pool/', folder='Common',
                   suffix='/members', timeout=30, name='FakeName')
+
+
+def test_icr_delete_raises_404(FakePool, raise_custom_HTTPError):
+    pool.Log = mock.MagicMock()
+    response_txt = 'This is fake 404 text.'
+    FakePool.bigip.icr_session.delete.side_effect = raise_custom_HTTPError(404,
+        response_txt)
+    with pytest.raises(HTTPError) as EHE:
+        boolean_result = FakePool.delete(name='FakeName')
+    assert FakePool._get_items.call_args ==\
+        mock.call(folder='Common', suffix='/members', timeout=30,
+                  name='FakeName')
+    assert FakePool.bigip.icr_session.delete.call_args ==\
+        mock.call('ltm/pool/', folder='Common',
+                  suffix='/members', timeout=30, name='FakeName')
+    assert pool.Log.error.call_args ==\
+            mock.call('members', response_txt)
+
+
+def test__delete_no_exception(FakePool):
+    FakePool._delete('FakeFolder', 'FakeName', 30)
+
+
+def test__delete_400_exception(FakePool, raise_custom_HTTPError):
+    response_txt = 'This is fake 400 text. is referenced'
+    FakePool.bigip.icr_session.delete.side_effect = raise_custom_HTTPError(400,
+        response_txt)
+    FakePool._delete('FakeFolder', 'FakeName', 30)
+
+
+def test__delete_500_exception(FakePool, raise_custom_HTTPError):
+    response_txt = 'This is fake 500 text.'
+    FakePool.bigip.icr_session.delete.side_effect = raise_custom_HTTPError(500,
+        response_txt)
+    with pytest.raises(exceptions.PoolDeleteException) as PDEI:
+        FakePool._delete('FakeFolder', 'FakeName', 30)

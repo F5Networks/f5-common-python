@@ -58,6 +58,18 @@ class Pool(RESTInterfaceCollection):
                 raise exceptions.PoolCreationException(response.text)
         return False
 
+    def _delete(self, folder, name, timeout):
+        try:
+            self.bigip.icr_session.delete(self.base_uri, folder, name, timeout)
+        except HTTPError as err:
+            if (err.response.status_code == 400
+                    and err.response.text.find('is referenced') > 0):
+                Log.error('members', err.response.text)
+            else:
+                raise exceptions.PoolDeleteException(err.response.text)
+        else:
+            self._del_arp_and_fdb(name, folder)
+
     @log
     def delete(self, name=None, folder='Common'):
         if name:
@@ -76,17 +88,7 @@ class Pool(RESTInterfaceCollection):
                     return False
 
             for node_address in node_addresses:
-                try:
-                    self.bigip.icr_session.delete(
-                        self.base_uri, folder=folder, name=node_address,
-                        timeout=const.CONNECTION_TIMEOUT)
-                except HTTPError as err:
-                    if (err.response.status_code == 400
-                            and err.response.text.find('is referenced') > 0):
-                        pass
-                    Log.error('members', err.response.text)
-                    raise exceptions.PoolDeleteException(err.response.text)
-                self._del_arp_and_fdb(node_address, folder)
+                self._delete(folder, node_address, const.CONNECTION_TIMEOUT)
 
             try:
                 self.bigip.icr_session.delete(self.base_uri, folder=folder,
