@@ -26,68 +26,68 @@ base_uri = 'ltm/'
 
 class LTM(object):
     def __init__(self, bigip):
-        self.interfaces = {}
+        self.collections = {}
         self.bigip = bigip
 
     @property
     def monitor(self):
-        if 'monitor' in self.interfaces:
-            return self.interfaces['monitor']
+        if 'monitor' in self.collections:
+            return self.collections['monitor']
         else:
             monitor = Monitor(self.bigip)
-            self.interfaces['monitor'] = monitor
+            self.collections['monitor'] = monitor
             return monitor
 
     @property
     def nat(self):
-        if 'nat' in self.interfaces:
-            return self.interfaces['nat']
+        if 'nat' in self.collections:
+            return self.collections['nat']
         else:
             nat = NAT(self.bigip)
-            self.interfaces['nat'] = nat
+            self.collections['nat'] = nat
             return nat
 
     @property
     def pool(self):
-        if 'pool' in self.interfaces:
-            return self.interfaces['pool']
+        if 'pool' in self.collections:
+            return self.collections['pool']
         else:
             pool = Pool(self.bigip)
-            self.interfaces['pool'] = pool
+            self.collections['pool'] = pool
             return pool
 
     @property
     def rule(self):
-        if 'rule' in self.interfaces:
-            return self.interfaces['rule']
+        if 'rule' in self.collections:
+            return self.collections['rule']
         else:
             rule = Rule(self.bigip)
-            self.interfaces['rule'] = rule
+            self.collections['rule'] = rule
             return rule
 
     @property
     def snat(self):
-        if 'snat' in self.interfaces:
-            return self.interfaces['snat']
+        if 'snat' in self.collections:
+            return self.collections['snat']
         else:
             snat = SNAT(self.bigip)
-            self.interfaces['snat'] = snat
+            self.collections['snat'] = snat
             return snat
 
     @property
     def ssl(self):
-        if 'ssl' in self.interfaces:
-            return self.interfaces['ssl']
+        if 'ssl' in self.collections:
+            return self.collections['ssl']
         else:
             ssl = SSL(self.bigip)
-            self.interfaces['ssl'] = ssl
+            self.collections['ssl'] = ssl
             return ssl
 
     @property
     def vs(self):
-        if 'virtual_server' in self.interfaces:
-            return self.interfaces['virtual_server']
+        if 'virtual_server' in self.collections:
+            return self.collections['virtual_server']
         else:
             vs = VirtualServer(self.bigip)
-            self.interfaces['virtual_server'] = vs
+            self.collections['virtual_server'] = vs
             return vs

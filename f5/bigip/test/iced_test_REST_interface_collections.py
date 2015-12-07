@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-from f5.bigip.interfaces import Interfaces
-from f5.bigip.interfaces.test.big_ip_mock import BigIPMock
+from f5.bigip.rest_collection import RESTInterfaceCollection
+from f5.bigip.test.big_ip_mock import BigIPMock
 from mock import Mock
 from requests.exceptions import HTTPError
 
@@ -31,8 +31,8 @@ def test_exists():
         BigIPMock.read_json_file(os.path.join(DATA_DIR, 'interfaces.json')))
 
     big_ip = BigIPMock(response)
-    test_int = Interfaces(big_ip)
-    assert test_int.exists()
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
+    assert test_REST_iface_collection.exists()
 
 
 def test_exists_404():
@@ -44,8 +44,8 @@ def test_exists_404():
     big_ip = BigIPMock(response)
     big_ip.icr_session.get = Mock()
     big_ip.icr_session.get.side_effect = HTTPError(response=response)
-    test_int = Interfaces(big_ip)
-    assert not test_int.exists()
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
+    assert not test_REST_iface_collection.exists()
 
 
 def test_exists_http_error():
@@ -57,11 +57,11 @@ def test_exists_http_error():
     big_ip = BigIPMock(response)
     big_ip.icr_session.get = Mock()
     big_ip.icr_session.get.side_effect = HTTPError(response=response)
-    test_int = Interfaces(big_ip)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
 
     # Expect an exception because 409 is not an expected status code
     with pytest.raises(HTTPError):
-        test_int.exists()
+        test_REST_iface_collection.exists()
 
 
 def test_get_items():
@@ -70,8 +70,8 @@ def test_get_items():
         BigIPMock.read_json_file(os.path.join(DATA_DIR, 'interfaces.json')))
 
     big_ip = BigIPMock(response)
-    test_int = Interfaces(big_ip)
-    names = test_int._get_items()
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
+    names = test_REST_iface_collection._get_items()
 
     assert isinstance(names, list)
     assert len(names) == 5
@@ -85,8 +85,8 @@ def test_get_items_invalid_select():
         BigIPMock.read_json_file(os.path.join(DATA_DIR, 'interfaces.json')))
 
     big_ip = BigIPMock(response)
-    test_int = Interfaces(big_ip)
-    names = test_int._get_items(select='bogus')
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
+    names = test_REST_iface_collection._get_items(select='bogus')
 
     assert isinstance(names, list)
     assert len(names) == 0
@@ -100,10 +100,10 @@ def test_get_items_404():
     big_ip = BigIPMock(response)
     big_ip.icr_session.get = Mock()
     big_ip.icr_session.get.side_effect = HTTPError(response=response)
-    test_int = Interfaces(big_ip)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
 
     # Should not raise because 404 is just not found so empty list
-    names = test_int._get_items()
+    names = test_REST_iface_collection._get_items()
     assert isinstance(names, list)
     assert len(names) == 0
 
@@ -116,11 +116,11 @@ def test_get_items_http_error():
     big_ip = BigIPMock(response)
     big_ip.icr_session.get = Mock()
     big_ip.icr_session.get.side_effect = HTTPError(response=response)
-    test_int = Interfaces(big_ip)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
 
     # Expect an exception because 409 is not an expected status code
     with pytest.raises(HTTPError):
-        test_int._get_items()
+        test_REST_iface_collection._get_items()
 
 
 def test_get_items_uri_override():
@@ -129,8 +129,8 @@ def test_get_items_uri_override():
         BigIPMock.read_json_file(os.path.join(DATA_DIR, 'interfaces.json')))
 
     big_ip = BigIPMock(response)
-    test_int = Interfaces(big_ip)
-    names = test_int._get_items(uri="an/overriden/uri")
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
+    names = test_REST_iface_collection._get_items(uri="an/overriden/uri")
 
     assert len(names) == 5
 
@@ -142,8 +142,8 @@ def test_get_items_no_items():
     response.json = {'not_items': [{'a': 1}, {'b': 1}]}
 
     big_ip = BigIPMock(response)
-    test_int = Interfaces(big_ip)
-    names = test_int._get_items()
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
+    names = test_REST_iface_collection._get_items()
 
     assert isinstance(names, list)
     assert len(names) == 0
@@ -158,8 +158,8 @@ def test_get_named_object():
     response.json = {'name': 'nat1'}
 
     big_ip = BigIPMock(response)
-    test_int = Interfaces(big_ip)
-    name = test_int._get_named_object('nat1')
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
+    name = test_REST_iface_collection._get_named_object('nat1')
 
     assert name == 'nat1'
 
@@ -174,9 +174,9 @@ def test_get_named_object_http_error():
 
     big_ip = BigIPMock(response)
     big_ip.icr_session.get = Mock(side_effect=HTTPError(response=response))
-    test_int = Interfaces(big_ip)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
     with pytest.raises(HTTPError):
-        test_int._get_named_object('nat1')
+        test_REST_iface_collection._get_named_object('nat1')
 
 
 def test_delete():
@@ -185,9 +185,9 @@ def test_delete():
         BigIPMock.read_json_file(os.path.join(DATA_DIR, 'interfaces.json')))
 
     big_ip = BigIPMock(response)
-    test_int = Interfaces(big_ip)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
 
-    assert test_int.delete(name='nat1')
+    assert test_REST_iface_collection.delete(name='nat1')
 
 
 def test_delete_no_name():
@@ -196,9 +196,9 @@ def test_delete_no_name():
         BigIPMock.read_json_file(os.path.join(DATA_DIR, 'interfaces.json')))
 
     big_ip = BigIPMock(response)
-    test_int = Interfaces(big_ip)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
 
-    assert not test_int.delete()
+    assert not test_REST_iface_collection.delete()
 
 
 def test_delete_404():
@@ -208,9 +208,9 @@ def test_delete_404():
 
     big_ip = BigIPMock(response)
     big_ip.icr_session.delete = Mock(side_effect=HTTPError(response=response))
-    test_int = Interfaces(big_ip)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
 
-    assert test_int.delete(name='nat1')
+    assert test_REST_iface_collection.delete(name='nat1')
 
 
 def test_delete_http_error():
@@ -220,10 +220,10 @@ def test_delete_http_error():
 
     big_ip = BigIPMock(response)
     big_ip.icr_session.delete = Mock(side_effect=HTTPError(response=response))
-    test_int = Interfaces(big_ip)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
 
     with pytest.raises(HTTPError):
-        test_int.delete(name='nat1')
+        test_REST_iface_collection.delete(name='nat1')
 
 
 def test_delete_all():
@@ -232,9 +232,9 @@ def test_delete_all():
         BigIPMock.read_json_file(os.path.join(DATA_DIR, 'interfaces.json')))
 
     big_ip = BigIPMock(response)
-    test_int = Interfaces(big_ip)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
 
-    assert test_int.delete_all()
+    assert test_REST_iface_collection.delete_all()
 
 
 def test_delete_all_startswith():
@@ -243,9 +243,9 @@ def test_delete_all_startswith():
         BigIPMock.read_json_file(os.path.join(DATA_DIR, 'interfaces.json')))
 
     big_ip = BigIPMock(response)
-    test_int = Interfaces(big_ip)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
 
-    assert test_int.delete_all(startswith="nat")
+    assert test_REST_iface_collection.delete_all(startswith="nat")
 
 
 def test_delete_all_fail():
@@ -254,10 +254,10 @@ def test_delete_all_fail():
         BigIPMock.read_json_file(os.path.join(DATA_DIR, 'interfaces.json')))
 
     big_ip = BigIPMock(response)
-    test_int = Interfaces(big_ip)
-    test_int.delete = Mock(return_value=False)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
+    test_REST_iface_collection.delete = Mock(return_value=False)
 
-    assert not test_int.delete_all()
+    assert not test_REST_iface_collection.delete_all()
 
 
 def test_delete_all_http_error():
@@ -267,7 +267,7 @@ def test_delete_all_http_error():
 
     big_ip = BigIPMock(response)
     big_ip.icr_session.delete = Mock(side_effect=HTTPError(response=response))
-    test_int = Interfaces(big_ip)
+    test_REST_iface_collection = RESTInterfaceCollection(big_ip)
 
     with pytest.raises(HTTPError):
-        test_int.delete_all()
+        test_REST_iface_collection.delete_all()

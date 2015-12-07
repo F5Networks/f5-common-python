@@ -22,32 +22,32 @@ base_uri = 'sys/'
 
 class Sys(object):
     def __init__(self, bigip):
-        self.interfaces = {}
+        self.collections = {}
         self.bigip = bigip
 
     @property
     def iapp(self):
-        if 'iapp' in self.interfaces:
-            return self.interfaces['iapp']
+        if 'iapp' in self.collections:
+            return self.collections['iapp']
         else:
             iapp = IApp(self.bigip)
-            self.interfaces['iapp'] = iapp
+            self.collections['iapp'] = iapp
             return iapp
 
     @property
     def stat(self):
-        if 'stat' in self.interfaces:
-            return self.interfaces['stat']
+        if 'stat' in self.collections:
+            return self.collections['stat']
         else:
             stat = Stat(self.bigip)
-            self.interfaces['stat'] = stat
+            self.collections['stat'] = stat
             return stat
 
     @property
     def system(self):
-        if 'system' in self.interfaces:
-            return self.interfaces['system']
+        if 'system' in self.collections:
+            return self.collections['system']
         else:
             system = System(self.bigip)
-            self.interfaces['system'] = system
+            self.collections['system'] = system
             return system

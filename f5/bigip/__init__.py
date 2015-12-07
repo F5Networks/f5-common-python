@@ -1,4 +1,4 @@
-"""Classes and functions for configuring BIG-IQ """
+"""Classes and functions for configuring BIG-IP"""
 # Copyright 2014 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@ import os
 import requests
 import socket
 
-from f5.bigip import interfaces as bigip_interfaces
+from f5.bigip import rest_collection
 
 from f5.bigip.cm import CM
 from f5.bigip.cm.device import Device
@@ -41,59 +41,60 @@ class BigIP(object):
         self.icr_url = 'https://%s/mgmt/tm' % hostname
 
         # interface instance cache
-        self.interfaces = {}
+        self.root_collections = {}
         self.device_name = None
         self.local_ip = None
 
     @property
     def cm(self):
-        """/cm/ REST module interface"""
-        if 'cm' in self.interfaces:
-            return self.interfaces['cm']
+        """cm/ REST root collection"""
+        if 'cm' in self.root_collections:
+            return self.root_collections['cm']
         else:
             cm = CM(self)
-            self.interfaces['cm'] = cm
+            self.root_collections['cm'] = cm
             return cm
 
     @property
     def ltm(self):
-        """/ltm/ REST module interface"""
-        if 'ltm' in self.interfaces:
-            return self.interfaces['cm']
+        """ltm/ REST root collection"""
+        if 'ltm' in self.root_collections:
+            return self.root_collections['cm']
         else:
             ltm = LTM(self)
-            self.interfaces['ltm'] = ltm
+            self.root_collections['ltm'] = ltm
             return ltm
 
     @property
     def net(self):
-        """/net/ REST module interface"""
-        if 'net' in self.interfaces:
-            return self.interfaces['net']
+        """net/ REST root collection"""
+        if 'net' in self.root_collections:
+            return self.root_collections['net']
         else:
             net = Net(self)
-            self.interfaces['net'] = net
+            self.root_collections['net'] = net
             return net
 
     @property
     def sys(self):
-        """/sys/ REST module interface"""
-        if 'sys' in self.interfaces:
-            return self.interfaces['sys']
+        """sys/ REST root collection"""
+        if 'sys' in self.root_collections:
+            return self.root_collections['sys']
         else:
             sys = Sys(self)
-            self.interfaces['sys']
+            self.root_collections['sys']
             return sys
 
     @property
     def devicename(self):
         """Device Name interface"""
         if not self.devicename:
-            if 'device' in self.interfaces:
-                self.devicename = self.interfaces['device'].get_device_name()
+            if 'device' in self.root_collections:
+                self.devicename =\
+                    self.root_collections['device'].get_device_name()
             else:
                 device = Device(self)
-                self.interfaces['device'] = device
+                self.root_collections['device'] = device
                 self.devicename = device.get_device_name()
         return self.devicename
 
@@ -121,14 +122,14 @@ class BigIP(object):
     def decorate_folder(self, folder='Common'):
         """Decorate folder name"""
         folder = str(folder).replace('/', '')
-        return bigip_interfaces.prefixed(folder)
+        return rest_collection.prefixed(folder)
 
     @staticmethod
     def _get_icontrol(hostname, username, password, timeout=None):
         """Initialize iControl interface"""
         # Logger.log(Logger.DEBUG,
         #           "Opening iControl connections to %s for interfaces %s"
-        #            % (self.hostname, self.interfaces))
+        #            % (self.hostname, self.root_collections))
 
         if os.path.exists(const.WSDL_CACHE_DIR):
             icontrol = pc.BIGIP(hostname=hostname,

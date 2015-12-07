@@ -15,8 +15,8 @@
 #
 
 from f5.bigip import exceptions
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import log
+from f5.bigip.rest_collection import icontrol_rest_folder
+from f5.bigip.rest_collection import log
 from f5.common import constants as const
 from f5.common.logger import Log
 

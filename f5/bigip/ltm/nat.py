@@ -13,15 +13,15 @@
 # limitations under the License.
 #
 
-from f5.bigip.interfaces import Interfaces
-from f5.bigip.interfaces import log
+from f5.bigip.rest_collection import log
+from f5.bigip.rest_collection import RESTInterfaceCollection
 from f5.common import constants as const
 from f5.common.logger import Log
 
 from requests.exceptions import HTTPError
 
 
-class NAT(Interfaces):
+class NAT(RESTInterfaceCollection):
     def __init__(self, bigip):
         super(NAT, self).__init__(bigip)
         self.base_uri = self.bigip.icr_url + 'ltm/nat/'

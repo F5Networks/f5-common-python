@@ -14,23 +14,25 @@
 #
 
 from f5.bigip import exceptions
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import log
-from f5.bigip.interfaces import split_addr_port
-from f5.bigip.interfaces import strip_folder_and_prefix
+from f5.bigip.rest_collection import icontrol_rest_folder
+from f5.bigip.rest_collection import log
+from f5.bigip.rest_collection import RESTInterfaceCollection
+from f5.bigip.rest_collection import split_addr_port
+from f5.bigip.rest_collection import strip_folder_and_prefix
 from f5.common import constants as const
 from f5.common.logger import Log
+from requests.exceptions import HTTPError
 
 import json
 import os
 import urllib
 
 
-class Pool(object):
+class Pool(RESTInterfaceCollection):
     def __init__(self, bigip):
-        self.bigip = bigip
+        super(Pool, self).__init__(bigip)
+        self.base_uri = "ltm/pool/"
 
-    @icontrol_rest_folder
     @log
     def create(self, name=None, lb_method=None,
                description=None, folder='Common'):
@@ -56,49 +58,53 @@ class Pool(object):
                 raise exceptions.PoolCreationException(response.text)
         return False
 
-    @icontrol_rest_folder
+    def _delete(self, folder, name, timeout):
+        try:
+            self.bigip.icr_session.delete(self.base_uri, folder, name, timeout)
+        except HTTPError as err:
+            if (err.response.status_code == 400
+                    and err.response.text.find('is referenced') > 0):
+                Log.error('members', err.response.text)
+            else:
+                raise exceptions.PoolDeleteException(err.response.text)
+        else:
+            self._del_arp_and_fdb(name, folder)
+
     @log
     def delete(self, name=None, folder='Common'):
         if name:
-            folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
-            request_url += '~' + folder + '~' + name
-            node_addresses = []
-            # get a list of node addresses before we delete
-            response = self.bigip.icr_session.get(
-                request_url + '/members', timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return_obj = json.loads(response.text)
-                if 'items' in return_obj:
-                    for member in return_obj['items']:
-                        node_addresses.append(member['address'])
-            elif response.status_code != 404:
-                Log.error('members', response.text)
-                raise exceptions.PoolQueryException(response.text)
-            # delete the pool
-            response = self.bigip.icr_session.delete(
-                request_url, timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400 or response.status_code == 404:
-                for node_address in node_addresses:
-                    node_url = self.bigip.icr_url + '/ltm/node/'
-                    node_url += '~' + folder + '~' + urllib.quote(node_address)
-                    node_res = self.bigip.icr_session.delete(
-                        node_url, timeout=const.CONNECTION_TIMEOUT)
-                    # we only care if this works.  Otherwise node is likely
-                    # in use by another pool
-                    if node_res.status_code < 400:
-                        self._del_arp_and_fdb(node_address, folder)
-                    elif node_res.status_code == 400 and \
-                            node_res.text.find('is referenced') > 0:
-                        # same node can be in multiple pools
-                        pass
-                    else:
-                        raise exceptions.PoolDeleteException(node_res.text)
+            try:
+                node_addresses =\
+                    self._get_items(folder=folder, name=name,
+                                    suffix='/members',
+                                    timeout=const.CONNECTION_TIMEOUT)
+            except HTTPError as err:
+                if err.response.status_code == 404:
+                    # https://github.com/F5Networks/f5-common-python/issues/25
+                    return True
+                else:
+                    Log.error('members', err.response.text)
+                    # https://github.com/F5Networks/f5-common-python/issues/25
+                    return False
+
+            for node_address in node_addresses:
+                self._delete(folder, node_address, const.CONNECTION_TIMEOUT)
+
+            try:
+                self.bigip.icr_session.delete(self.base_uri, folder=folder,
+                                              name=name, suffix='/members',
+                                              timeout=const.CONNECTION_TIMEOUT)
+            except HTTPError as err:
+                if err.response.status_code == 404:
+                    pass
+                Log.error('members', err.response.text)
+                raise
             return True
         return False
 
     # best effort ARP and fdb cleanup
     def _del_arp_and_fdb(self, ip_address, folder):
+
         if not const.FDB_POPULATE_STATIC_ARP:
             return
         arp_req = self.bigip.icr_url + '/net/arp'
@@ -406,6 +412,7 @@ class Pool(object):
                 request_url += urllib.quote(ip_address) + '.' + str(port)
             else:
                 request_url += urllib.quote(ip_address) + ':' + str(port)
+
             payload = dict()
             payload['session'] = 'user-enabled'
             response = self.bigip.icr_session.patch(

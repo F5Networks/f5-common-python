@@ -33,8 +33,8 @@ def ltm():
 
 
 def test_ltm_init(ltm):
-    assert isinstance(ltm.interfaces, dict)
-    assert not ltm.interfaces
+    assert isinstance(ltm.collections, dict)
+    assert not ltm.collections
 
 
 def test_ltm_uri():
@@ -45,42 +45,42 @@ def test_ltm_uri():
 def test_ltm_monitor(ltm):
     ltm.monitor.delete()
     assert isinstance(ltm.monitor, Monitor)
-    assert 'monitor' in ltm.interfaces
+    assert 'monitor' in ltm.collections
 
 
 def test_ltm_nat(ltm):
     ltm.nat.delete()
     assert isinstance(ltm.nat, NAT)
-    assert 'nat' in ltm.interfaces
+    assert 'nat' in ltm.collections
 
 
 def test_ltm_pool(ltm):
     ltm.pool.delete()
     assert isinstance(ltm.pool, Pool)
-    assert 'pool' in ltm.interfaces
+    assert 'pool' in ltm.collections
 
 
 def test_ltm_rule(ltm):
     ltm.rule.delete()
     assert isinstance(ltm.rule, Rule)
-    assert 'rule' in ltm.interfaces
+    assert 'rule' in ltm.collections
 
 
 def test_ltm_snat(ltm):
     ltm.snat.exists = MagicMock()
     ltm.snat.exists()
     assert isinstance(ltm.snat, SNAT)
-    assert 'snat' in ltm.interfaces
+    assert 'snat' in ltm.collections
 
 
 def test_ltm_ssl(ltm):
     ltm.ssl.client_profile_exits = MagicMock()
     ltm.ssl.client_profile_exits()
     assert isinstance(ltm.ssl, SSL)
-    assert 'ssl' in ltm.interfaces
+    assert 'ssl' in ltm.collections
 
 
 def test_ltm_virtual_server(ltm):
     ltm.vs.delete()
     assert isinstance(ltm.vs, VirtualServer)
-    assert 'virtual_server' in ltm.interfaces
+    assert 'virtual_server' in ltm.collections

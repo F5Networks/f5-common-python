@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-from f5.bigip.interfaces.test.big_ip_mock import BigIPMock
 from f5.bigip.ltm.nat import NAT
+from f5.bigip.test.big_ip_mock import BigIPMock
 from mock import Mock
 from requests.exceptions import HTTPError
 
@@ -24,7 +24,7 @@ import pytest
 DATA_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_get_nats():
+def itest_get_nats():
     response = BigIPMock.create_mock_response(
         200, BigIPMock.read_json_file(os.path.join(DATA_DIR, 'nat.json')))
 
