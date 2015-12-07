@@ -14,11 +14,11 @@
 #
 
 from f5.bigip import exceptions
-from f5.bigip.interfaces import icontrol_rest_folder
-from f5.bigip.interfaces import Interfaces
-from f5.bigip.interfaces import log
-from f5.bigip.interfaces import split_addr_port
-from f5.bigip.interfaces import strip_folder_and_prefix
+from f5.bigip.rest_collection import icontrol_rest_folder
+from f5.bigip.rest_collection import log
+from f5.bigip.rest_collection import RESTInterfaceCollection
+from f5.bigip.rest_collection import split_addr_port
+from f5.bigip.rest_collection import strip_folder_and_prefix
 from f5.common import constants as const
 from f5.common.logger import Log
 from requests.exceptions import HTTPError
@@ -28,7 +28,7 @@ import os
 import urllib
 
 
-class Pool(Interfaces):
+class Pool(RESTInterfaceCollection):
     def __init__(self, bigip):
         super(Pool, self).__init__(bigip)
         self.base_uri = "ltm/pool/"
