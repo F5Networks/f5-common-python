@@ -62,14 +62,14 @@ class Pool(Interfaces):
     def delete(self, name=None, folder='Common'):
         if name:
             try:
-                node_addresses = self._get_items(folder=folder, name=name,
-                                                 suffix='/members',
-                                                 timeout=
-                                                 const.CONNECTION_TIMEOUT)
+                node_addresses =\
+                    self._get_items(folder=folder, name=name,
+                                    suffix='/members',
+                                    timeout=const.CONNECTION_TIMEOUT)
             except HTTPError as err:
                 if err.response.status_code == 404:
                     # https://github.com/F5Networks/f5-common-python/issues/25
-                    return True 
+                    return True
                 else:
                     Log.error('members', err.response.text)
                     # https://github.com/F5Networks/f5-common-python/issues/25
@@ -77,13 +77,12 @@ class Pool(Interfaces):
 
             for node_address in node_addresses:
                 try:
-                    self.bigip.icr_session.delete(self.base_uri, folder=folder,
-                                                  name=node_address,
-                                                  timeout=
-                                                  const.CONNECTION_TIMEOUT)
+                    self.bigip.icr_session.delete(
+                        self.base_uri, folder=folder, name=node_address,
+                        timeout=const.CONNECTION_TIMEOUT)
                 except HTTPError as err:
-                    if err.response.status_code == 400\
-                    and err.response.text.find('is referenced') > 0:
+                    if (err.response.status_code == 400
+                            and err.response.text.find('is referenced') > 0):
                         pass
                     Log.error('members', err.response.text)
                     raise exceptions.PoolDeleteException(err.response.text)
@@ -100,7 +99,6 @@ class Pool(Interfaces):
                 raise
             return True
         return False
-
 
     # best effort ARP and fdb cleanup
     def _del_arp_and_fdb(self, ip_address, folder):
@@ -412,7 +410,6 @@ class Pool(Interfaces):
                 request_url += urllib.quote(ip_address) + '.' + str(port)
             else:
                 request_url += urllib.quote(ip_address) + ':' + str(port)
-
 
             payload = dict()
             payload['session'] = 'user-enabled'

@@ -19,6 +19,7 @@ from requests.exceptions import HTTPError
 
 from f5.bigip import exceptions
 from f5.bigip.interfaces.test.big_ip_mock import BigIPMock
+from f5.bigip.ltm import pool
 from f5.bigip.ltm.pool import Pool
 
 """Usage example:
@@ -108,6 +109,7 @@ def test_delete_default_folder_and_name(FakePool):
                   suffix='/members', timeout=30, name='FakeName')
     assert boolean_result
 
+
 def test_delete_empty_folder_and_name(FakePool):
     boolean_result = FakePool.delete(name='FakeName', folder='')
     assert FakePool._get_items.call_args ==\
@@ -134,6 +136,7 @@ def test_delete_403_HTTPError_in__get_items(monkeypatch, FakePool,
         mock.call('members', 'The mock is for a 403 status code.')
     assert not boolean_result
 
+
 def test_delete_with_node_addresses(FakePool):
     FakePool._get_items.return_value = ['node_address_1', 'node_address_2']
     FakePool.delete(name='FakeName')
@@ -143,5 +146,3 @@ def test_delete_with_node_addresses(FakePool):
     assert FakePool.bigip.icr_session.delete.call_args ==\
         mock.call('ltm/pool/', folder='Common',
                   suffix='/members', timeout=30, name='FakeName')
-
-

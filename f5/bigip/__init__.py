@@ -90,7 +90,8 @@ class BigIP(object):
         """Device Name interface"""
         if not self.devicename:
             if 'device' in self.root_collections:
-                self.devicename = self.root_collections['device'].get_device_name()
+                self.devicename =\
+                    self.root_collections['device'].get_device_name()
             else:
                 device = Device(self)
                 self.root_collections['device'] = device
