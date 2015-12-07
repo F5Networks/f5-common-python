@@ -34,7 +34,7 @@ DATA_DIR = os.path.dirname(__file__)
 JSON_FILE = os.path.join(DATA_DIR, 'pool.json')
 
 
-def itest_get_description():
+def test_get_description():
     response = BigIPMock.create_mock_response(
         200, BigIPMock.read_json_file(JSON_FILE))
 
@@ -45,7 +45,7 @@ def itest_get_description():
     assert description == "sdfds"
 
 
-def itest_get_description_error():
+def test_get_description_error():
     response = BigIPMock.create_mock_response(
         500, BigIPMock.read_json_file(JSON_FILE))
 
@@ -57,7 +57,7 @@ def itest_get_description_error():
         test_pool.get_description("my-Pool")
 
 
-def itest_get_load_balancing():
+def test_get_load_balancing():
     response = BigIPMock.create_mock_response(
         200, BigIPMock.read_json_file(JSON_FILE))
 
