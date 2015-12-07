@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-from f5.bigip.rest_collection import RESTInterfaceCollection
 from f5.bigip.rest_collection import log
+from f5.bigip.rest_collection import RESTInterfaceCollection
 from f5.common import constants as const
 from f5.common.logger import Log
 
