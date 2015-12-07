@@ -91,15 +91,15 @@ def FakePool():
     return fake_pool
 
 
-def test_delete_with_no_name(FakePool):
+def test_delete_with_no_args(FakePool):
     assert FakePool.delete() is False
 
 
-def test_delete_no_name_but_folder(FakePool):
+def test_delete_with_folder_arg(FakePool):
     assert FakePool.delete(folder='FolderName') is False
 
 
-def test_delete_default_folder_and_name(FakePool):
+def test_delete_with_name_arg(FakePool):
     boolean_result = FakePool.delete(name='FakeName')
     assert FakePool._get_items.call_args ==\
         mock.call(folder='Common', suffix='/members', timeout=30,
@@ -127,7 +127,7 @@ def test_delete_404_HTTPError_in__get_items(FakePool, raise_custom_HTTPError):
 
 
 def test_delete_403_HTTPError_in__get_items(FakePool, raise_custom_HTTPError):
-    pool.Log = mock.MagicMock()
+    pool.Log = mock.MagicMock()  # Needs to ensure cleanup.
     response_txt = 'The mock is for a 403 status code.'
     FakePool._get_items.side_effect = raise_custom_HTTPError(403, response_txt)
     boolean_result = FakePool.delete(name='FakeName')

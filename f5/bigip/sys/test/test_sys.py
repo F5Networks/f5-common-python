@@ -29,8 +29,8 @@ def sys():
 
 
 def test_cm_init(sys):
-    assert isinstance(sys.interfaces, dict)
-    assert not sys.interfaces
+    assert isinstance(sys.collections, dict)
+    assert not sys.collections
 
 
 def test_sys_uri():
@@ -42,18 +42,18 @@ def test_sys_iapp(sys):
     sys.iapp.get_service = MagicMock()
     sys.iapp.get_service()
     assert isinstance(sys.iapp, IApp)
-    assert 'iapp' in sys.interfaces
+    assert 'iapp' in sys.collections
 
 
 def test_sys_stat(sys):
     sys.stat.get_throughput = MagicMock()
     sys.stat.get_throughput()
     assert isinstance(sys.stat, Stat)
-    assert 'stat' in sys.interfaces
+    assert 'stat' in sys.collections
 
 
 def test_sys_system(sys):
     sys.system.get_service = MagicMock()
     sys.system.get_service()
     assert isinstance(sys.system, System)
-    assert 'system' in sys.interfaces
+    assert 'system' in sys.collections
