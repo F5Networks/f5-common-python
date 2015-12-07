@@ -19,7 +19,7 @@ import os
 import requests
 import socket
 
-from f5.bigip import interfaces as bigip_interfaces
+from f5.bigip import rest_collection
 
 from f5.bigip.cm import CM
 from f5.bigip.cm.device import Device
@@ -122,7 +122,7 @@ class BigIP(object):
     def decorate_folder(self, folder='Common'):
         """Decorate folder name"""
         folder = str(folder).replace('/', '')
-        return bigip_interfaces.prefixed(folder)
+        return rest_collection.prefixed(folder)
 
     @staticmethod
     def _get_icontrol(hostname, username, password, timeout=None):

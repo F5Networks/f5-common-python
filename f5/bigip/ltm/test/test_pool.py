@@ -18,13 +18,13 @@ import pytest
 from requests.exceptions import HTTPError
 
 from f5.bigip import exceptions
-from f5.bigip.interfaces.test.big_ip_mock import BigIPMock
+from f5.bigip.test.big_ip_mock import BigIPMock
 from f5.bigip.ltm import pool
 from f5.bigip.ltm.pool import Pool
 
 """Usage example:
 
-    py.test f5/bigip/interfaces/test/test_pool.py
+    py.test f5/bigip/test/test_pool.py
 
     with coverage:
     py.test --cov f5
