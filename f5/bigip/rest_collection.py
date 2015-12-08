@@ -40,10 +40,7 @@ def log(method):
 
 
 class RESTInterfaceCollection(object):
-    """Base class for collection objects. """
-    def __init__(self, bigip):
-        self.bigip = bigip
-
+    """Abstract base class for collection objects. """
     @log
     def delete(self, name=None, folder='Common',
                timeout=const.CONNECTION_TIMEOUT):
@@ -52,7 +49,7 @@ class RESTInterfaceCollection(object):
             return False
         try:
             self.bigip.icr_session.delete(
-                self.base_uri,
+                self.root_uri_path_element,
                 folder=folder,
                 instance_name=name,
                 timeout=timeout)
@@ -80,7 +77,7 @@ class RESTInterfaceCollection(object):
 
         # This will raise if there is a HTTPError
         response = self.bigip.icr_session.get(
-            self.base_uri, params=params, timeout=timeout)
+            self.root_uri_path_element, params=params, timeout=timeout)
 
         items = response.json().get('items', [])
         for item in items:
@@ -114,8 +111,8 @@ class RESTInterfaceCollection(object):
         }
         try:
             response = self.bigip.icr_session.get(
-                self.base_uri, folder, name, params=params, timeout=timeout,
-                **kwargs)
+                self.root_uri_path_element, folder, name, params=params,
+                timeout=timeout, **kwargs)
         except HTTPError as exp:
             if exp.response.status_code == 404:
                 return items
@@ -136,7 +133,7 @@ class RESTInterfaceCollection(object):
             '$select': select,
         }
         if not uri:
-            uri = self.base_uri
+            uri = self.root_uri_path_element
 
         # No try here because original code was not doing exceptional things
         # with error messages like self._get()

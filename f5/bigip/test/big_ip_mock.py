@@ -69,7 +69,7 @@ class BigIPMock(object):
         :rtype object: mock session object.
         """
 
-        def mock_response(url, **kwargs):
+        def mock_response(url, *args, **kwargs):
             return self.response
 
         icr_session = mock.Mock()

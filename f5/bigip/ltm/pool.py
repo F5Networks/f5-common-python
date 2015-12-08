@@ -29,9 +29,9 @@ import urllib
 
 
 class Pool(RESTInterfaceCollection):
-    def __init__(self, bigip):
-        super(Pool, self).__init__(bigip)
-        self.base_uri = "ltm/pool/"
+    def __init__(self, bigip, root_uri_path_element):
+        self.bigip = bigip
+        self.root_uri_path_element = root_uri_path_element
 
     @log
     def create(self, name=None, lb_method=None,
