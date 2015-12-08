@@ -82,7 +82,7 @@ class RESTInterfaceCollection(object):
         response = self.bigip.icr_session.get(
             self.base_uri, params=params, timeout=timeout)
 
-        items =  response.json().get('items', [])
+        items = response.json().get('items', [])
         for item in items:
             # This is where we had startswith(self.OBJ_PREFIX)
             if item['name'].startswith(startswith):
@@ -121,11 +121,11 @@ class RESTInterfaceCollection(object):
                 return items
             raise
 
-        items =  response.json().get('items', [])
+        items = response.json().get('items', [])
         if select:
-          for item in items:
-              if select in item:
-                  items.append(strip_folder_and_prefix(item[select]))
+            for item in items:
+                if select in item:
+                    items.append(strip_folder_and_prefix(item[select]))
 
         return items
 
@@ -140,8 +140,11 @@ class RESTInterfaceCollection(object):
 
         # No try here because original code was not doing exceptional things
         # with error messages like self._get()
-        response = self.bigip.icr_session.get(uri, instance_name=name, folder=folder,
-                                              params=params, timeout=timeout)
+        response = self.bigip.icr_session.get(uri,
+                                              instance_name=name,
+                                              folder=folder,
+                                              params=params,
+                                              timeout=timeout)
         return response.json().get(select, None)
 
 
