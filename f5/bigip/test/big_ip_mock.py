@@ -52,7 +52,7 @@ class BigIPMock(object):
         """
         self.icontrol = self._create_icontrol()
         self.icr_session = self._create_icr_session()
-        self.icr_url = 'https://host-abc/mgmt/tm'
+        self.icr_uri = 'https://host-abc/mgmt/tm'
         self.response = response
 
     def _create_icontrol(self):
@@ -69,7 +69,7 @@ class BigIPMock(object):
         :rtype object: mock session object.
         """
 
-        def mock_response(url, **kwargs):
+        def mock_response(url, *args, **kwargs):
             return self.response
 
         icr_session = mock.Mock()
@@ -92,7 +92,7 @@ class BigIPMock(object):
         response = mock.Mock()
         response.status_code = status_code
         response.text = json_str
-        response.json = json.loads(json_str)
+        response.json.return_value = json.loads(json_str)
 
         return response
 

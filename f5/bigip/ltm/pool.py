@@ -30,8 +30,8 @@ import urllib
 
 class Pool(RESTInterfaceCollection):
     def __init__(self, bigip):
-        super(Pool, self).__init__(bigip)
-        self.base_uri = "ltm/pool/"
+        self.bigip = bigip
+        self.base_uri = self.bigip.icr_uri + 'ltm/pool/'
 
     @log
     def create(self, name=None, lb_method=None,
@@ -45,7 +45,7 @@ class Pool(RESTInterfaceCollection):
                 payload['description'] = description
             payload['loadBalancingMode'] = \
                 self._get_rest_lb_method_type(lb_method)
-            request_url = self.bigip.icr_url + '/ltm/pool'
+            request_url = self.bigip.icr_uri + '/ltm/pool'
             response = self.bigip.icr_session.post(
                 request_url, data=json.dumps(payload),
                 timeout=const.CONNECTION_TIMEOUT)
@@ -107,7 +107,7 @@ class Pool(RESTInterfaceCollection):
 
         if not const.FDB_POPULATE_STATIC_ARP:
             return
-        arp_req = self.bigip.icr_url + '/net/arp'
+        arp_req = self.bigip.icr_uri + '/net/arp'
         arp_req += '?$select=ipAddress,macAddress,selfLink'
         arp_req += '&$filter=partition eq ' + folder
         arp_res = self.bigip.icr_session.get(
@@ -128,7 +128,7 @@ class Pool(RESTInterfaceCollection):
                 self.bigip.arp.delete(arp['ipAddress'], folder=folder)
             except Exception as exc:
                 Log.error('ARP', exc.message)
-            fdb_req = self.bigip.icr_url + '/net/fdb/tunnel'
+            fdb_req = self.bigip.icr_uri + '/net/fdb/tunnel'
             fdb_req += '?$select=records,selfLink'
             fdb_req += '&$filter=partition eq ' + folder
             response = self.bigip.icr_session.get(
@@ -161,7 +161,7 @@ class Pool(RESTInterfaceCollection):
     @log
     def delete_all(self, folder='Common'):
         folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/pool/'
+        request_url = self.bigip.icr_uri + '/ltm/pool/'
         request_url += '?$select=name,selfLink'
         request_filter = 'partition eq ' + folder
         request_url += '&$filter=' + request_filter
@@ -185,7 +185,7 @@ class Pool(RESTInterfaceCollection):
     def get_members(self, name=None, folder='Common'):
         if name:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             request_url += '/members?$select=name'
             response = self.bigip.icr_session.get(
@@ -209,7 +209,7 @@ class Pool(RESTInterfaceCollection):
     @log
     def get_pools(self, folder='Common'):
         folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/pool'
+        request_url = self.bigip.icr_uri + '/ltm/pool'
         request_url += '?$select=name'
         request_url += '&$filter=partition eq ' + folder
 
@@ -229,7 +229,7 @@ class Pool(RESTInterfaceCollection):
 
     @log
     def purge_orphaned_pools(self, known_pools, delete_virtual_server=True):
-        request_url = self.bigip.icr_url + '/ltm/pool'
+        request_url = self.bigip.icr_uri + '/ltm/pool'
         request_url += '?$select=name,partition'
 
         response = self.bigip.icr_session.get(
@@ -297,7 +297,7 @@ class Pool(RESTInterfaceCollection):
             self, name=None, folder='Common', config_mode='object'):
         if name:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             if config_mode == 'iapp':
                 request_url += '~' + folder + '~' + name + \
                     '.app~' + name
@@ -330,7 +330,7 @@ class Pool(RESTInterfaceCollection):
         if not name:
             return None
         folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/pool/'
+        request_url = self.bigip.icr_uri + '/ltm/pool/'
         if config_mode == 'iapp':
             request_url += '~' + folder + '~' + name + '.app~' + name
         else:
@@ -371,7 +371,7 @@ class Pool(RESTInterfaceCollection):
                    folder='Common', no_checks=False):
         if name and ip_address and port:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             request_url += '/members'
             payload = dict()
@@ -404,7 +404,7 @@ class Pool(RESTInterfaceCollection):
                       folder='Common', no_checks=False):
         if name and ip_address and port:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             request_url += '/members/'
             request_url += '~' + folder + '~'
@@ -437,7 +437,7 @@ class Pool(RESTInterfaceCollection):
                        folder='Common', no_checks=False):
         if name and ip_address and port:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             request_url += '/members/'
             request_url += '~' + folder + '~'
@@ -469,7 +469,7 @@ class Pool(RESTInterfaceCollection):
                          ratio=1, folder='Common', no_checks=False):
         if name and ip_address and port:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             request_url += '/members/'
             request_url += '~' + folder + '~'
@@ -502,7 +502,7 @@ class Pool(RESTInterfaceCollection):
                       port=None, folder='Common'):
         if name and ip_address and port:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             request_url += '/members/'
             request_url += '~' + folder + '~'
@@ -514,7 +514,7 @@ class Pool(RESTInterfaceCollection):
                 request_url, timeout=const.CONNECTION_TIMEOUT)
             if response.status_code < 400 or response.status_code == 404:
                 # delete nodes
-                node_req = self.bigip.icr_url + '/ltm/node/'
+                node_req = self.bigip.icr_uri + '/ltm/node/'
                 node_req += '~' + folder + '~' + urllib.quote(ip_address)
                 response = self.bigip.icr_session.delete(
                     node_req, timeout=const.CONNECTION_TIMEOUT)
@@ -537,7 +537,7 @@ class Pool(RESTInterfaceCollection):
     @log
     def delete_all_nodes(self, folder='Common'):
         folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/node'
+        request_url = self.bigip.icr_uri + '/ltm/node'
         request_url += '?$select=address,selfLink'
         request_url += '&$filter=partition eq ' + folder
         response = self.bigip.icr_session.get(
@@ -561,7 +561,7 @@ class Pool(RESTInterfaceCollection):
     @log
     def get_node_addresses(self, folder='Common'):
         folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/node'
+        request_url = self.bigip.icr_uri + '/ltm/node'
         request_url += '?$select=address'
         request_url += '&$filter=partition eq ' + folder
         response = self.bigip.icr_session.get(
@@ -582,7 +582,7 @@ class Pool(RESTInterfaceCollection):
     def get_service_down_action(self, name=None, folder='Common'):
         if name:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             request_url += '?$select=serviceDownAction'
             response = self.bigip.icr_session.get(
@@ -610,7 +610,7 @@ class Pool(RESTInterfaceCollection):
                                 service_down_action=None, folder='Common'):
         if name:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             payload = dict()
             if service_down_action:
@@ -632,7 +632,7 @@ class Pool(RESTInterfaceCollection):
     def set_lb_method(self, name=None, lb_method=None, folder='Common'):
         if name:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             payload = dict()
             if lb_method:
@@ -655,7 +655,7 @@ class Pool(RESTInterfaceCollection):
     def get_lb_method(self, name=None, folder='Common'):
         if name:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             request_url += '?$select=loadBalancingMode'
             response = self.bigip.icr_session.get(
@@ -701,7 +701,7 @@ class Pool(RESTInterfaceCollection):
     def set_description(self, name=None, description=None, folder='Common'):
         if name:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             payload = dict()
             if description:
@@ -723,7 +723,7 @@ class Pool(RESTInterfaceCollection):
     def get_description(self, name=None, folder='Common'):
         if name:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             request_url += '?$select=description'
             response = self.bigip.icr_session.get(
@@ -749,7 +749,7 @@ class Pool(RESTInterfaceCollection):
     def get_monitors(self, name=None, folder='Common'):
         if name:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             request_url += '?$select=monitor'
             response = self.bigip.icr_session.get(
@@ -773,7 +773,7 @@ class Pool(RESTInterfaceCollection):
     def add_monitor(self, name=None, monitor_name=None, folder='Common'):
         if name and monitor_name:
             folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/pool/'
+            request_url = self.bigip.icr_uri + '/ltm/pool/'
             request_url += '~' + folder + '~' + name
             request_url += '?$select=monitor'
             response = self.bigip.icr_session.get(
@@ -800,7 +800,7 @@ class Pool(RESTInterfaceCollection):
                             for monitor in existing_monitors:
                                 monitor_string += monitor + ' and '
                             monitor_string += fp_monitor
-                        request_url = self.bigip.icr_url + '/ltm/pool/'
+                        request_url = self.bigip.icr_uri + '/ltm/pool/'
                         request_url += '~' + folder + '~' + name
                         payload = dict()
                         payload['monitor'] = monitor_string
@@ -817,7 +817,7 @@ class Pool(RESTInterfaceCollection):
                 else:
                     payload = dict()
                     payload['monitor'] = monitor_name
-                    request_url = self.bigip.icr_url + '/ltm/pool/'
+                    request_url = self.bigip.icr_uri + '/ltm/pool/'
                     request_url += '~' + folder + '~' + name
                     response = self.bigip.icr_session.patch(
                         request_url, data=json.dumps(payload),
@@ -838,7 +838,7 @@ class Pool(RESTInterfaceCollection):
         if not (name and monitor_name):
             return False
         folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/pool/'
+        request_url = self.bigip.icr_uri + '/ltm/pool/'
         request_url += '~' + folder + '~' + name
         request_url += '?$select=monitor'
         response = self.bigip.icr_session.get(
@@ -873,7 +873,7 @@ class Pool(RESTInterfaceCollection):
                                 else:
                                     monitor_string += \
                                         existing_monitors[i] + ' '
-                    request_url = self.bigip.icr_url + '/ltm/pool/'
+                    request_url = self.bigip.icr_uri + '/ltm/pool/'
                     request_url += '~' + folder + '~' + name
                     payload = dict()
                     payload['monitor'] = monitor_string
@@ -994,7 +994,7 @@ class Pool(RESTInterfaceCollection):
     @log
     def exists(self, name=None, folder='Common', config_mode='object'):
         folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/pool/'
+        request_url = self.bigip.icr_uri + '/ltm/pool/'
         if config_mode == 'iapp':
             request_url += '~' + folder + '~' + name + '.app~' + name
         else:
@@ -1014,7 +1014,7 @@ class Pool(RESTInterfaceCollection):
     def member_exists(self, name=None, ip_address=None,
                       port=None, folder='Common'):
         folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/pool/'
+        request_url = self.bigip.icr_uri + '/ltm/pool/'
         request_url += '~' + folder + '~' + name
         request_url += '/members/'
         request_url += '~' + folder + '~'
@@ -1038,7 +1038,7 @@ class Pool(RESTInterfaceCollection):
     @icontrol_rest_folder
     @log
     def get_all_node_count(self):
-        request_url = self.bigip.icr_url + '/ltm/node'
+        request_url = self.bigip.icr_uri + '/ltm/node'
         request_url += '?$top=1&$select=totalItems'
         response = self.bigip.icr_session.get(
             request_url, timeout=const.CONNECTION_TIMEOUT)

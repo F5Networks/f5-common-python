@@ -84,7 +84,7 @@ def raise_custom_HTTPError():
 @pytest.fixture
 def FakePool():
     fake_bigip = mock.MagicMock()
-    fake_bigip.icr_url = 'https://0.0.0.0/mgmt/tm/'
+    fake_bigip.icr_uri = 'https://0.0.0.0/mgmt/tm/'
     fake_pool = Pool(fake_bigip)
     fake_pool._del_arp_and_fdb = mock.MagicMock()
     fake_pool._get_items = mock.MagicMock()
@@ -105,7 +105,7 @@ def test_delete_with_name_arg(FakePool):
         mock.call(folder='Common', suffix='/members', timeout=30,
                   name='FakeName')
     assert FakePool.bigip.icr_session.delete.call_args ==\
-        mock.call('ltm/pool/', folder='Common',
+        mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='Common',
                   suffix='/members', timeout=30, name='FakeName')
     assert boolean_result
 
@@ -116,7 +116,7 @@ def test_delete_empty_folder_and_name(FakePool):
         mock.call(folder='', name='FakeName', suffix='/members',
                   timeout=30)
     assert FakePool.bigip.icr_session.delete.call_args ==\
-        mock.call('ltm/pool/', folder='',
+        mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='',
                   suffix='/members', timeout=30, name='FakeName')
     assert boolean_result
 
@@ -143,7 +143,7 @@ def test_delete_with_node_addresses(FakePool):
         mock.call(folder='Common', suffix='/members', timeout=30,
                   name='FakeName')
     assert FakePool.bigip.icr_session.delete.call_args ==\
-        mock.call('ltm/pool/', folder='Common',
+        mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='Common',
                   suffix='/members', timeout=30, name='FakeName')
 
 
@@ -158,7 +158,7 @@ def test_icr_delete_raises_404(FakePool, raise_custom_HTTPError):
         mock.call(folder='Common', suffix='/members', timeout=30,
                   name='FakeName')
     assert FakePool.bigip.icr_session.delete.call_args ==\
-        mock.call('ltm/pool/', folder='Common',
+        mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='Common',
                   suffix='/members', timeout=30, name='FakeName')
     assert pool.Log.error.call_args ==\
         mock.call('members', response_txt)

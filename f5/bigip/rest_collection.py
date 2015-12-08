@@ -40,10 +40,7 @@ def log(method):
 
 
 class RESTInterfaceCollection(object):
-    """Base class for collection objects. """
-    def __init__(self, bigip):
-        self.bigip = bigip
-
+    """Abstract base class for collection objects. """
     @log
     def delete(self, name=None, folder='Common',
                timeout=const.CONNECTION_TIMEOUT):
@@ -114,8 +111,8 @@ class RESTInterfaceCollection(object):
         }
         try:
             response = self.bigip.icr_session.get(
-                self.base_uri, folder, name, params=params, timeout=timeout,
-                **kwargs)
+                self.base_uri, folder, name, params=params,
+                timeout=timeout, **kwargs)
         except HTTPError as exp:
             if exp.response.status_code == 404:
                 return items
