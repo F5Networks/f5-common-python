@@ -49,7 +49,7 @@ class RESTInterfaceCollection(object):
             return False
         try:
             self.bigip.icr_session.delete(
-                self.root_uri_path_element,
+                self.base_uri,
                 folder=folder,
                 instance_name=name,
                 timeout=timeout)
@@ -77,7 +77,7 @@ class RESTInterfaceCollection(object):
 
         # This will raise if there is a HTTPError
         response = self.bigip.icr_session.get(
-            self.root_uri_path_element, params=params, timeout=timeout)
+            self.base_uri, params=params, timeout=timeout)
 
         items = response.json().get('items', [])
         for item in items:
@@ -111,7 +111,7 @@ class RESTInterfaceCollection(object):
         }
         try:
             response = self.bigip.icr_session.get(
-                self.root_uri_path_element, folder, name, params=params,
+                self.base_uri, folder, name, params=params,
                 timeout=timeout, **kwargs)
         except HTTPError as exp:
             if exp.response.status_code == 404:
@@ -133,7 +133,7 @@ class RESTInterfaceCollection(object):
             '$select': select,
         }
         if not uri:
-            uri = self.root_uri_path_element
+            uri = self.base_uri
 
         # No try here because original code was not doing exceptional things
         # with error messages like self._get()

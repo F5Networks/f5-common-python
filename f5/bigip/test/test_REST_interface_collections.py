@@ -27,7 +27,7 @@ DATA_DIR = os.path.dirname(os.path.realpath(__file__))
 class TestRESTInterfaceCollectionChild(RESTInterfaceCollection):
     def __init__(self, bigip):
         self.bigip = bigip
-        self.root_uri_path_element = self.bigip.icr_uri + 'root/rest'
+        self.base_uri = self.bigip.icr_uri + 'root/rest'
 
 
 def test_exists():
