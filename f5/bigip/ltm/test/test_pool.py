@@ -69,19 +69,6 @@ def test_get_load_balancing():
 
 
 @pytest.fixture
-def raise_custom_HTTPError():
-    def customize_error(status_code, response_txt=''):
-        def raise_error(*args, **kwargs):
-            mock_response = mock.MagicMock()
-            mock_response.status_code = status_code
-            mock_response.text = response_txt
-            HTTPErrorInstance = HTTPError(response=mock_response)
-            raise HTTPErrorInstance
-        return raise_error
-    return customize_error
-
-
-@pytest.fixture
 def FakePool():
     fake_bigip = mock.MagicMock()
     fake_bigip.icr_uri = 'https://0.0.0.0/mgmt/tm/'
