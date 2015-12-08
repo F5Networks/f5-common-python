@@ -54,7 +54,7 @@ class RESTInterfaceCollection(object):
             self.bigip.icr_session.delete(
                 self.base_uri,
                 folder=folder,
-                name=name,
+                instance_name=name,
                 timeout=timeout)
         except HTTPError as exp:
             if exp.response.status_code == 404:
@@ -82,7 +82,8 @@ class RESTInterfaceCollection(object):
         response = self.bigip.icr_session.get(
             self.base_uri, params=params, timeout=timeout)
 
-        for item in response.json.get('items', []):
+        items =  response.json().get('items', [])
+        for item in items:
             # This is where we had startswith(self.OBJ_PREFIX)
             if item['name'].startswith(startswith):
                 if not self.delete(item['name'], folder=folder):
@@ -94,7 +95,7 @@ class RESTInterfaceCollection(object):
                timeout=const.CONNECTION_TIMEOUT):
         try:
             self.bigip.icr_session.get(
-                self.base_uri, folder=folder, name=name,
+                self.base_uri, folder=folder, instance_name=name,
                 params={'$select': 'name'}, timeout=timeout)
         except HTTPError as exp:
             if exp.response.status_code == 404:
@@ -120,9 +121,11 @@ class RESTInterfaceCollection(object):
                 return items
             raise
 
-        for item in response.json.get('items', []):
-            if select in item:
-                items.append(strip_folder_and_prefix(item[select]))
+        items =  response.json().get('items', [])
+        if select:
+          for item in items:
+              if select in item:
+                  items.append(strip_folder_and_prefix(item[select]))
 
         return items
 
@@ -137,9 +140,9 @@ class RESTInterfaceCollection(object):
 
         # No try here because original code was not doing exceptional things
         # with error messages like self._get()
-        response = self.bigip.icr_session.get(uri, name=name, folder=folder,
+        response = self.bigip.icr_session.get(uri, instance_name=name, folder=folder,
                                               params=params, timeout=timeout)
-        return response.json.get(select, None)
+        return response.json().get(select, None)
 
 
 def prefixed(name):
