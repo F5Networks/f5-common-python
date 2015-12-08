@@ -92,7 +92,7 @@ class BigIPMock(object):
         response = mock.Mock()
         response.status_code = status_code
         response.text = json_str
-        response.json = json.loads(json_str)
+        response.json.return_value = json.loads(json_str)
 
         return response
 

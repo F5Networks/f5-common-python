@@ -84,7 +84,7 @@ def test_get_items():
     names = test_REST_iface_collection._get_items()
 
     assert isinstance(names, list)
-    assert len(names) == 5
+    assert len(names) == 10
     for i in range(1, 6):
         assert 'nat%s' % i in names
 
@@ -100,7 +100,7 @@ def test_get_items_invalid_select():
     names = test_REST_iface_collection._get_items(select='bogus')
 
     assert isinstance(names, list)
-    assert len(names) == 0
+    assert len(names) == 5
 
 
 def test_get_items_404():
@@ -146,14 +146,13 @@ def test_get_items_uri_override():
         TestRESTInterfaceCollectionChild(big_ip)
     names = test_REST_iface_collection._get_items(uri="an/overriden/uri")
 
-    assert len(names) == 5
+    assert len(names) == 10
 
 
 def test_get_items_no_items():
     response = BigIPMock.create_mock_response(
         200,
-        BigIPMock.read_json_file(os.path.join(DATA_DIR, 'interfaces.json')))
-    response.json = {'not_items': [{'a': 1}, {'b': 1}]}
+        '{"not_items": [{"a": 1}, {"b": 1}]}')
 
     big_ip = BigIPMock(response)
     test_REST_iface_collection =\
@@ -167,10 +166,7 @@ def test_get_items_no_items():
 def test_get_named_object():
     response = BigIPMock.create_mock_response(
         200,
-        BigIPMock.read_json_file(os.path.join(DATA_DIR, 'interfaces.json')))
-
-    # Override the default jason here for single named object
-    response.json = {'name': 'nat1'}
+        '{"name": "nat1"}')
 
     big_ip = BigIPMock(response)
     test_REST_iface_collection =\
