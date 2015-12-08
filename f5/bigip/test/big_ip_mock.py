@@ -52,7 +52,7 @@ class BigIPMock(object):
         """
         self.icontrol = self._create_icontrol()
         self.icr_session = self._create_icr_session()
-        self.icr_url = 'https://host-abc/mgmt/tm'
+        self.icr_uri = 'https://host-abc/mgmt/tm'
         self.response = response
 
     def _create_icontrol(self):

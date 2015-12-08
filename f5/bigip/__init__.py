@@ -38,7 +38,7 @@ class BigIP(object):
         # get icontrol connection stub
         self.icontrol = self._get_icontrol(hostname, username, password)
         self.icr_session = self._get_icr_session(hostname, username, password)
-        self.icr_url = 'https://%s/mgmt/tm' % hostname
+        self.icr_uri = 'https://%s/mgmt/tm' % hostname
 
         # interface instance cache
         self.root_collections = {}

@@ -23,8 +23,8 @@ from requests.exceptions import HTTPError
 
 class NAT(RESTInterfaceCollection):
     def __init__(self, bigip):
-        super(NAT, self).__init__(bigip)
-        self.base_uri = self.bigip.icr_url + 'ltm/nat/'
+        self.bigip = bigip
+        self.base_uri = self.bigip.icr_uri + 'ltm/nat/'
 
     @log
     def create(self, name=None, ip_address=None, orig_ip_address=None,
