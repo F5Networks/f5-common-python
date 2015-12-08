@@ -88,23 +88,31 @@ submitting a pull request.  In addition there should be a set of functional
 tests that are written to use a real BIG-IP device for testing.  Below is
 information on how to run our various tests.
 
-#### Unit Tests
-We use pytest for our unit tests
-1. If you haven't already install the required test packages and the requirements.txt in your virtual environment.
+We use pytest for our unit and functional tests.  Install the required test 
+packages and the requirements.txt in your virtual environment.
 ```shell
 $ pip install hacking pytest pytest-cov
 $ pip install -r requirements.txt
 ```
-2. Run the tests and produce a coverage repor.  The `--cov-report=html` will
-create a `htmlcov/` directory that you can view in your browser to see the
-missing lines of code.
+
+#### Unit Tests
+All unit tests are located in the f5/ directory.  Run the tests and produce a 
+coverage report.  The `--cov-report=html` will create a `htmlcov/` directory 
+that you can view in your browser to see the missing lines of code.
 ```shell
-$ py.test --cov ./ --cov-report=html
+$ py.test --cov ./f5 --cov-report=html
 $ open htmlcov/index.html
 ```
 
 #### Functional Tests
-TODO: Add the steps to run the functional tests
+All functional tests are located in the test/functional directory.  Functional
+tests are BYOD (Bring Your Own Device).  Create a BIG-IP using your favorite
+tool or cloud, such as AWS, OpenStack or even bare-metal. The IPv4 address must
+be reachable from wherever your will run the tests.
+```shell
+$ py.test ./test/functional --bigip=10.2.1.4  # run all functional tests
+$ py.test ./test/functional/test_nat.py --bigip=10.2.1.4  # run all nat tests
+```
 
 Contact
 -------
