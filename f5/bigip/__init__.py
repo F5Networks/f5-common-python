@@ -43,7 +43,6 @@ class BigIP(object):
             iControlRESTSession(username, password, timeout)
 
         # interface instance cache
-        self.root_collections = {}
         self.device_name = None
         self.local_ip = None
 
