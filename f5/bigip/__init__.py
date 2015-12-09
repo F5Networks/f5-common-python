@@ -44,7 +44,6 @@ class BigIP(object):
         self.icr_uri = 'https://%s/mgmt/tm' % hostname
 
         # interface instance cache
-        self.root_collections = {}
         self.device_name = None
         self.local_ip = None
 
