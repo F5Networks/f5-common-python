@@ -17,8 +17,10 @@
 class BigIPException(Exception):
     pass
 
+
 class CreateAlreadyExtantResource(BigIPException):
     pass
+
 
 class MinorVersionValidateFailed(BigIPException):
     pass
