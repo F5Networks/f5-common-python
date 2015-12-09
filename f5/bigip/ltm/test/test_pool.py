@@ -98,6 +98,7 @@ class TestCreate(object):
     def test_create_with_description(self, FakePoolForCreate):
         FakePoolForCreate.create('FakeName', description='FakeDescription')
 
+
 class TestDelete(object):
     def test_delete_with_no_args(self, FakePool):
         assert FakePool.delete() is False
