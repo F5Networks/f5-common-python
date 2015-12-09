@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+
 import mock
 import os
 import pytest
@@ -76,6 +76,13 @@ def FakePool():
     fake_pool._del_arp_and_fdb = mock.MagicMock()
     fake_pool._get_items = mock.MagicMock()
     return fake_pool
+
+
+def test_create_with_no_args(FakePool):
+    mock_exists = mock.MagicMock()
+    mock_exists.return_value = False
+    FakePool.exists = mock_exists
+    FakePool.create()
 
 
 def test_delete_with_no_args(FakePool):
