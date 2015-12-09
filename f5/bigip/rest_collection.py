@@ -17,7 +17,9 @@
 import logging
 import os
 
+from f5.bigip import exceptions
 from f5.common import constants as const
+from f5.common.logger import Log
 from requests.exceptions import HTTPError
 
 OBJ_PREFIX = 'uuid_'
@@ -59,6 +61,18 @@ class RESTInterfaceCollection(object):
             else:
                 raise
         return True
+
+    def _delete(self, folder, name, timeout):
+        try:
+            self.bigip.icr_session.delete(self.base_uri, folder, name, timeout)
+        except HTTPError as err:
+            if (err.response.status_code == 400
+                    and err.response.text.find('is referenced') > 0):
+                Log.error('members', err.response.text)
+            else:
+                raise exceptions.PoolDeleteException(err.response.text)
+        else:
+            self._del_arp_and_fdb(name, folder)
 
     @log
     def delete_all(self, folder='Common', startswith="",

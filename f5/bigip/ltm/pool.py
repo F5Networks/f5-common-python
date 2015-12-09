@@ -34,41 +34,22 @@ class Pool(RESTInterfaceCollection):
         self.base_uri = self.bigip.icr_uri + 'ltm/pool/'
 
     @log
-    def create(self, name=None, lb_method=None,
-               description=None, folder='Common'):
-        folder = str(folder).replace('/', '')
-        if not self.exists(name=name, folder=folder):
-            payload = dict()
-            payload['name'] = name
-            payload['partition'] = folder
+    def create(self, name, lb_method=None, description=None, folder='Common'):
+        if self.exists(name=name, folder=folder):
+            error_message = (self.base_uri, folder, name)
+            raise exceptions.CreateAlreadyExtantResource(error_message)
+        else:
+            lb_method = self._get_rest_lb_method_type(lb_method)
+            payload = {'name': name,
+                       'partition': folder,
+                       'loadBalancingMode': lb_method}
             if description:
                 payload['description'] = description
-            payload['loadBalancingMode'] = \
-                self._get_rest_lb_method_type(lb_method)
-            request_url = self.bigip.icr_uri + '/ltm/pool'
-            response = self.bigip.icr_session.post(
-                request_url, data=json.dumps(payload),
-                timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return True
-            elif response.status_code == 409:
-                return True
-            else:
-                Log.error('pool', response.text)
-                raise exceptions.PoolCreationException(response.text)
-        return False
-
-    def _delete(self, folder, name, timeout):
-        try:
-            self.bigip.icr_session.delete(self.base_uri, folder, name, timeout)
-        except HTTPError as err:
-            if (err.response.status_code == 400
-                    and err.response.text.find('is referenced') > 0):
-                Log.error('members', err.response.text)
-            else:
-                raise exceptions.PoolDeleteException(err.response.text)
-        else:
-            self._del_arp_and_fdb(name, folder)
+            response =\
+                self.bigip.icr_session.post(self.base_uri, folder, name,
+                                            data=json.dumps(payload),
+                                            timeout=const.CONNECTION_TIMEOUT)
+            return response.json()
 
     @log
     def delete(self, name=None, folder='Common'):

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+
 import mock
 import os
 import pytest
@@ -78,93 +78,108 @@ def FakePool():
     return fake_pool
 
 
-def test_delete_with_no_args(FakePool):
-    assert FakePool.delete() is False
+@pytest.fixture
+def FakePoolForCreate(FakePool):
+    mock_exists = mock.MagicMock()
+    mock_exists.return_value = False
+    FakePool.exists = mock_exists
+    return FakePool
 
 
-def test_delete_with_folder_arg(FakePool):
-    assert FakePool.delete(folder='FolderName') is False
+class TestCreate(object):
+    def test_create_with_no_args(self, FakePoolForCreate):
+        FakePoolForCreate.create('FakeName')
+
+    def test_create_when_pool_already_exists(self, FakePoolForCreate):
+        FakePoolForCreate.exists.return_value = True
+        with pytest.raises(exceptions.CreateAlreadyExtantResource):
+            FakePoolForCreate.create('FakeName')
+
+    def test_create_with_description(self, FakePoolForCreate):
+        FakePoolForCreate.create('FakeName', description='FakeDescription')
 
 
-def test_delete_with_name_arg(FakePool):
-    boolean_result = FakePool.delete(name='FakeName')
-    assert FakePool._get_items.call_args ==\
-        mock.call(folder='Common', suffix='/members', timeout=30,
-                  name='FakeName')
-    assert FakePool.bigip.icr_session.delete.call_args ==\
-        mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='Common',
-                  suffix='/members', timeout=30, name='FakeName')
-    assert boolean_result
+class TestDelete(object):
+    def test_delete_with_no_args(self, FakePool):
+        assert FakePool.delete() is False
 
+    def test_delete_with_folder_arg(self, FakePool):
+        assert FakePool.delete(folder='FolderName') is False
 
-def test_delete_empty_folder_and_name(FakePool):
-    boolean_result = FakePool.delete(name='FakeName', folder='')
-    assert FakePool._get_items.call_args ==\
-        mock.call(folder='', name='FakeName', suffix='/members',
-                  timeout=30)
-    assert FakePool.bigip.icr_session.delete.call_args ==\
-        mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='',
-                  suffix='/members', timeout=30, name='FakeName')
-    assert boolean_result
+    def test_delete_with_name_arg(self, FakePool):
+        boolean_result = FakePool.delete(name='FakeName')
+        assert FakePool._get_items.call_args ==\
+            mock.call(folder='Common', suffix='/members', timeout=30,
+                      name='FakeName')
+        assert FakePool.bigip.icr_session.delete.call_args ==\
+            mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='Common',
+                      suffix='/members', timeout=30, name='FakeName')
+        assert boolean_result
 
+    def test_delete_empty_folder_and_name(self, FakePool):
+        boolean_result = FakePool.delete(name='FakeName', folder='')
+        assert FakePool._get_items.call_args ==\
+            mock.call(folder='', name='FakeName', suffix='/members',
+                      timeout=30)
+        assert FakePool.bigip.icr_session.delete.call_args ==\
+            mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='',
+                      suffix='/members', timeout=30, name='FakeName')
+        assert boolean_result
 
-def test_delete_404_HTTPError_in__get_items(FakePool, raise_custom_HTTPError):
-    FakePool._get_items.side_effect = raise_custom_HTTPError(404)
-    assert FakePool.delete(name='FakeName')
+    def test_delete_404_HTTPError_in__get_items(self, FakePool,
+                                                raise_custom_HTTPError):
+        FakePool._get_items.side_effect = raise_custom_HTTPError(404)
+        assert FakePool.delete(name='FakeName')
 
+    def test_delete_403_HTTPError_in__get_items(self, FakePool,
+                                                raise_custom_HTTPError):
+        pool.Log = mock.MagicMock()  # Needs to ensure cleanup.
+        response_txt = 'The mock is for a 403 status code.'
+        FakePool._get_items.side_effect = raise_custom_HTTPError(403,
+                                                                 response_txt)
+        boolean_result = FakePool.delete(name='FakeName')
+        assert pool.Log.error.call_args ==\
+            mock.call('members', 'The mock is for a 403 status code.')
+        assert not boolean_result
 
-def test_delete_403_HTTPError_in__get_items(FakePool, raise_custom_HTTPError):
-    pool.Log = mock.MagicMock()  # Needs to ensure cleanup.
-    response_txt = 'The mock is for a 403 status code.'
-    FakePool._get_items.side_effect = raise_custom_HTTPError(403, response_txt)
-    boolean_result = FakePool.delete(name='FakeName')
-    assert pool.Log.error.call_args ==\
-        mock.call('members', 'The mock is for a 403 status code.')
-    assert not boolean_result
-
-
-def test_delete_with_node_addresses(FakePool):
-    FakePool._get_items.return_value = ['node_address_1', 'node_address_2']
-    FakePool.delete(name='FakeName')
-    assert FakePool._get_items.call_args ==\
-        mock.call(folder='Common', suffix='/members', timeout=30,
-                  name='FakeName')
-    assert FakePool.bigip.icr_session.delete.call_args ==\
-        mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='Common',
-                  suffix='/members', timeout=30, name='FakeName')
-
-
-def test_icr_delete_raises_404(FakePool, raise_custom_HTTPError):
-    pool.Log = mock.MagicMock()
-    response_txt = 'This is fake 404 text.'
-    FakePool.bigip.icr_session.delete.side_effect =\
-        raise_custom_HTTPError(404, response_txt)
-    with pytest.raises(HTTPError):
+    def test_delete_with_node_addresses(self, FakePool):
+        FakePool._get_items.return_value = ['node_address_1', 'node_address_2']
         FakePool.delete(name='FakeName')
-    assert FakePool._get_items.call_args ==\
-        mock.call(folder='Common', suffix='/members', timeout=30,
-                  name='FakeName')
-    assert FakePool.bigip.icr_session.delete.call_args ==\
-        mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='Common',
-                  suffix='/members', timeout=30, name='FakeName')
-    assert pool.Log.error.call_args ==\
-        mock.call('members', response_txt)
+        assert FakePool._get_items.call_args ==\
+            mock.call(folder='Common', suffix='/members', timeout=30,
+                      name='FakeName')
+        assert FakePool.bigip.icr_session.delete.call_args ==\
+            mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='Common',
+                      suffix='/members', timeout=30, name='FakeName')
 
+    def test_icr_delete_raises_404(self, FakePool, raise_custom_HTTPError):
+        pool.Log = mock.MagicMock()
+        response_txt = 'This is fake 404 text.'
+        FakePool.bigip.icr_session.delete.side_effect =\
+            raise_custom_HTTPError(404, response_txt)
+        with pytest.raises(HTTPError):
+            FakePool.delete(name='FakeName')
+        assert FakePool._get_items.call_args ==\
+            mock.call(folder='Common', suffix='/members', timeout=30,
+                      name='FakeName')
+        assert FakePool.bigip.icr_session.delete.call_args ==\
+            mock.call('https://0.0.0.0/mgmt/tm/ltm/pool/', folder='Common',
+                      suffix='/members', timeout=30, name='FakeName')
+        assert pool.Log.error.call_args ==\
+            mock.call('members', response_txt)
 
-def test__delete_no_exception(FakePool):
-    FakePool._delete('FakeFolder', 'FakeName', 30)
-
-
-def test__delete_400_exception(FakePool, raise_custom_HTTPError):
-    response_txt = 'This is fake 400 text. is referenced'
-    FakePool.bigip.icr_session.delete.side_effect =\
-        raise_custom_HTTPError(400, response_txt)
-    FakePool._delete('FakeFolder', 'FakeName', 30)
-
-
-def test__delete_500_exception(FakePool, raise_custom_HTTPError):
-    response_txt = 'This is fake 500 text.'
-    FakePool.bigip.icr_session.delete.side_effect =\
-        raise_custom_HTTPError(500, response_txt)
-    with pytest.raises(exceptions.PoolDeleteException):
+    def test__delete_no_exception(self, FakePool):
         FakePool._delete('FakeFolder', 'FakeName', 30)
+
+    def test__delete_400_exception(self, FakePool, raise_custom_HTTPError):
+        response_txt = 'This is fake 400 text. is referenced'
+        FakePool.bigip.icr_session.delete.side_effect =\
+            raise_custom_HTTPError(400, response_txt)
+        FakePool._delete('FakeFolder', 'FakeName', 30)
+
+    def test__delete_500_exception(self, FakePool, raise_custom_HTTPError):
+        response_txt = 'This is fake 500 text.'
+        FakePool.bigip.icr_session.delete.side_effect =\
+            raise_custom_HTTPError(500, response_txt)
+        with pytest.raises(exceptions.PoolDeleteException):
+            FakePool._delete('FakeFolder', 'FakeName', 30)
