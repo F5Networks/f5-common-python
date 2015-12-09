@@ -40,7 +40,7 @@ class BigIP(object):
         self.icontrol = self._get_icontrol(hostname, username, password)
         self.icr_uri = 'https://%s/mgmt/tm/' % hostname
         self.icr_session =\
-            iControlRESTSession(username, password, timeout)
+            iControlRESTSession(self.icr_uri, username, password, timeout)
 
         # interface instance cache
         self.device_name = None
