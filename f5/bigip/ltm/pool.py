@@ -34,8 +34,7 @@ class Pool(RESTInterfaceCollection):
         self.base_uri = self.bigip.icr_uri + 'ltm/pool/'
 
     @log
-    def create(self, name=None, lb_method=None,
-               description=None, folder='Common'):
+    def create(self, name, lb_method=None, description=None, folder='Common'):
         if self.exists(name=name, folder=folder):
             error_message = (self.base_uri, folder, name)
             raise exceptions.CreateAlreadyExtantResource(error_message)

@@ -88,8 +88,15 @@ def FakePoolForCreate(FakePool):
 
 class TestCreate(object):
     def test_create_with_no_args(self, FakePoolForCreate):
-        FakePoolForCreate.create()
+        FakePoolForCreate.create('FakeName')
 
+    def test_create_when_pool_already_exists(self, FakePoolForCreate):
+        FakePoolForCreate.exists.return_value = True
+        with pytest.raises(exceptions.CreateAlreadyExtantResource):
+            FakePoolForCreate.create('FakeName')
+
+    def test_create_with_description(self, FakePoolForCreate):
+        FakePoolForCreate.create('FakeName', description='FakeDescription')
 
 class TestDelete(object):
     def test_delete_with_no_args(self, FakePool):
