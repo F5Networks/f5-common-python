@@ -127,17 +127,15 @@ class RESTInterfaceCollection(object):
         return items
 
     @log
-    def _get_named_object(self, name, uri=None, folder='Common', select='name',
+    def _get_named_object(self, name, folder='Common', select='name',
                           timeout=const.CONNECTION_TIMEOUT):
         params = {
             '$select': select,
         }
-        if not uri:
-            uri = self.base_uri
 
         # No try here because original code was not doing exceptional things
         # with error messages like self._get()
-        response = self.bigip.icr_session.get(uri,
+        response = self.bigip.icr_session.get(self.base_uri,
                                               instance_name=name,
                                               folder=folder,
                                               params=params,
@@ -145,13 +143,11 @@ class RESTInterfaceCollection(object):
         return response.json().get(select, None)
 
     @log
-    def _set_named_object(self, name, uri=None, folder='Common', data=None,
+    def _set_named_object(self, name, folder='Common', data=None,
                           timeout=const.CONNECTION_TIMEOUT):
-        if not uri:
-            uri = self.base_uri
 
         # No try -- let exceptions get raised up
-        self.bigip.icr_session.put(uri, instance_name=name, folder=folder,
+        self.bigip.icr_session.put(self.base_uri, instance_name=name, folder=folder,
                                    data=data, timeout=timeout)
 
         return True

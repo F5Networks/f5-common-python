@@ -25,12 +25,16 @@ from requests.exceptions import HTTPError
 class Vlan(RESTInterfaceCollection):
     def __init__(self, bigip):
         self.bigip = bigip
-        self.base_uri = 'net/vlan/'
+        self.base_uri = bigip.icr_uri + 'net/vlan/'
 
     @log
     def create(self, name=None, vlanid=None, interface=None,
                folder='Common', description=None, route_domain_id=0):
-        """Create a VLAN.
+        """Create a new VLAN.
+
+        Use to create a VLAN configuration for a BIG-IP. By default, the
+        VLAN will be configured for the Common folder. Include a folder
+        name if the VLAN is for a specific tenant
 
         :param string name: Name for VLAN object.
         :param int vlanid: ID for VLAN.
@@ -81,7 +85,11 @@ class Vlan(RESTInterfaceCollection):
 
     @log
     def get_vlans(self, folder='Common'):
-        """Get all VLANs
+        """Get a list of all VLANs configured for the BIG-IP.
+
+        Use to get a list of all VLANs configured for the BIG-IP.
+        VLANs in the Common folder are returned by default. If you pass
+        in a folder name, VLANs configured for that folder are returned.
 
         :param string folder: Optional name of folder. Defaults to Common.
         :return: List of zero or more VLAN objects.
@@ -91,9 +99,10 @@ class Vlan(RESTInterfaceCollection):
 
     @log
     def get_id(self, name=None, folder='Common'):
-        """Get VLAN ID
+        """Get the VLAN ID of a VLAN object.
 
-        Returns VLAN ID as defined by tag attribute.
+        Use to get the VLAN ID. VLAN IDs are stored as the 'tag'
+        attribute.
 
         :param string name: Name of VLAN object.
         :param string folder: Optional name of folder. Defaults to Common.
@@ -201,9 +210,9 @@ class Vlan(RESTInterfaceCollection):
 
     @log
     def get_description(self, name=None, folder='Common'):
-        """Get VLAN descritpon
+        """Get description of a VLAN.
 
-        Returns description defined for a VLAN object.
+        Use this method to get the description of a VLAN object.
 
         :param string name: Name of VLAN object.
         :param string folder: Optional name of folder. Defaults to Common.
@@ -213,7 +222,7 @@ class Vlan(RESTInterfaceCollection):
         if name:
             return self._get_named_object(name, folder=folder,
                                           select='description')
-        return 0
+        return ""
 
     @log
     def _in_use(self, name=None, folder=None):

@@ -22,9 +22,8 @@ import pytest
 import responses
 
 HOST_NAME = "host-abc"
-VLAN_NAME = "external"
-VLAN_FOLDER = "Common"
-VLAN_BASE_URI = "https://" + HOST_NAME + "/mgmt/tm/net/vlan/"
+NAME = "external"
+COMMON = "Common"
 VLAN_ALL_JSON = "vlan.json"
 VLAN_EXTERNAL_JSON = "vlan_ext.json"
 
@@ -57,11 +56,11 @@ def test_get_description(vlan):
 
     with responses.RequestsMock() as rsps:
         rsps.add(responses.GET,
-                 VLAN_BASE_URI + "~" + VLAN_FOLDER + "~" + VLAN_NAME,
+                 vlan.base_uri + "~" + COMMON + "~" + NAME,
                  status=200,
                  json=json_data(VLAN_EXTERNAL_JSON))
 
-        description = vlan.get_description(VLAN_NAME)
+        description = vlan.get_description(NAME)
         assert description == "External VLAN"
 
 
@@ -71,13 +70,13 @@ def test_get_description_http_error(vlan):
     with responses.RequestsMock() as rsps:
         exception = HTTPError('Some kind of HTTP error.')
         rsps.add(responses.GET,
-                 VLAN_BASE_URI + "~" + VLAN_FOLDER + "~" + VLAN_NAME,
+                 vlan.base_uri + "~" + COMMON + "~" + NAME,
                  status=200,
                  body=exception)
 
         # should raise an HTTP exception
         with pytest.raises(HTTPError):
-            vlan.get_description(VLAN_NAME)
+            vlan.get_description(NAME)
 
 
 def test_get_vlan_name_by_description(vlan):
@@ -85,7 +84,7 @@ def test_get_vlan_name_by_description(vlan):
 
     with responses.RequestsMock() as rsps:
         rsps.add(responses.GET,
-                 VLAN_BASE_URI + "~" + VLAN_FOLDER,
+                 vlan.base_uri + "~" + COMMON,
                  status=200,
                  json=json_data(VLAN_ALL_JSON))
 
@@ -98,7 +97,7 @@ def test_get_vlan_name_by_bad_description(vlan):
 
     with responses.RequestsMock() as rsps:
         rsps.add(responses.GET,
-                 VLAN_BASE_URI + "~" + VLAN_FOLDER,
+                 vlan.base_uri + "~" + COMMON,
                  status=200,
                  json=json_data(VLAN_ALL_JSON))
 
@@ -112,7 +111,7 @@ def test_create(vlan):
     # write a more complete test
     with responses.RequestsMock() as rsps:
         rsps.add(responses.POST,
-                 VLAN_BASE_URI,
+                 vlan.base_uri,
                  status=200)
 
         assert vlan.create(name="internal")
@@ -123,7 +122,7 @@ def test_get_vlans(vlan):
 
     with responses.RequestsMock() as rsps:
         rsps.add(responses.GET,
-                 VLAN_BASE_URI + "~Common",
+                 vlan.base_uri + "~" + COMMON,
                  status=200,
                  json=json_data(VLAN_ALL_JSON))
 
@@ -136,11 +135,11 @@ def test_get_id(vlan):
 
     with responses.RequestsMock() as rsps:
         rsps.add(responses.GET,
-                 VLAN_BASE_URI + "~" + VLAN_FOLDER + "~" + VLAN_NAME,
+                 vlan.base_uri + "~" + COMMON + "~" + NAME,
                  status=200,
                  json=json_data(VLAN_EXTERNAL_JSON))
 
-        id = vlan.get_id(VLAN_NAME)
+        id = vlan.get_id(NAME)
         assert id == 4093
     pass
 
@@ -150,10 +149,10 @@ def test_set_id(vlan):
 
     with responses.RequestsMock() as rsps:
         rsps.add(responses.PUT,
-                 VLAN_BASE_URI + "~" + VLAN_FOLDER + "~" + VLAN_NAME,
+                 vlan.base_uri + "~" + COMMON + "~" + NAME,
                  status=200)
 
-        assert vlan.set_id(VLAN_NAME, vlanid=4095)
+        assert vlan.set_id(NAME, vlanid=4095)
 
 
 def test_get_interface(vlan):
@@ -166,10 +165,10 @@ def test_set_interface(vlan):
 
     with responses.RequestsMock() as rsps:
         rsps.add(responses.PUT,
-                 VLAN_BASE_URI + "~" + VLAN_FOLDER + "~" + VLAN_NAME,
+                 vlan.base_uri + "~" + COMMON + "~" + NAME,
                  status=200)
 
-        assert vlan.set_interface(VLAN_NAME, interface="1.1")
+        assert vlan.set_interface(NAME, interface="1.1")
     pass
 
 
@@ -178,8 +177,8 @@ def test_set_description(vlan):
 
     with responses.RequestsMock() as rsps:
         rsps.add(responses.PUT,
-                 VLAN_BASE_URI + "~" + VLAN_FOLDER + "~" + VLAN_NAME,
+                 vlan.base_uri + "~" + COMMON + "~" + NAME,
                  status=200)
 
-        assert vlan.set_description(VLAN_NAME, description="My test VLAN")
+        assert vlan.set_description(NAME, description="My test VLAN")
     pass
