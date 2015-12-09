@@ -1,0 +1,64 @@
+{
+  "kind": "tm:net:vlan:vlancollectionstate",
+  "selfLink": "https://localhost/mgmt/tm/net/vlan?ver=11.6.0",
+  "items": [{
+    "kind": "tm:net:vlan:vlanstate",
+    "name": "external",
+    "description": "External VLAN",
+    "partition": "Common",
+    "fullPath": "/Common/external",
+    "generation": 2,
+    "selfLink": "https://localhost/mgmt/tm/net/vlan/~Common~external?ver=11.6.0",
+    "autoLasthop": "default",
+    "cmpHash": "default",
+    "dagRoundRobin": "disabled",
+    "dagTunnel": "outer",
+    "failsafe": "disabled",
+    "failsafeAction": "failover-restart-tm",
+    "failsafeTimeout": 90,
+    "ifIndex": 112,
+    "learning": "enable-forward",
+    "mtu": 1500,
+    "sflow": {
+      "pollInterval": 0,
+      "pollIntervalGlobal": "yes",
+      "samplingRate": 0,
+      "samplingRateGlobal": "yes"
+    },
+    "sourceChecking": "disabled",
+    "tag": 4093,
+    "interfacesReference": {
+      "link": "https://localhost/mgmt/tm/net/vlan/~Common~external/interfaces?ver=11.6.0",
+      "isSubcollection": true
+    }
+  }, {
+    "kind": "tm:net:vlan:vlanstate",
+    "name": "internal",
+    "partition": "Common",
+    "fullPath": "/Common/internal",
+    "generation": 8,
+    "selfLink": "https://localhost/mgmt/tm/net/vlan/~Common~internal?ver=11.6.0",
+    "autoLasthop": "default",
+    "cmpHash": "default",
+    "dagRoundRobin": "disabled",
+    "dagTunnel": "outer",
+    "failsafe": "disabled",
+    "failsafeAction": "failover-restart-tm",
+    "failsafeTimeout": 90,
+    "ifIndex": 96,
+    "learning": "enable-forward",
+    "mtu": 1500,
+    "sflow": {
+      "pollInterval": 0,
+      "pollIntervalGlobal": "yes",
+      "samplingRate": 0,
+      "samplingRateGlobal": "yes"
+    },
+    "sourceChecking": "disabled",
+    "tag": 4094,
+    "interfacesReference": {
+      "link": "https://localhost/mgmt/tm/net/vlan/~Common~internal/interfaces?ver=11.6.0",
+      "isSubcollection": true
+    }
+  }]
+}
