@@ -17,23 +17,26 @@
 import logging
 import os
 
-from f5.bigip.cm import CM
-from f5.bigip.cm.device import Device
-from f5.bigip.ltm import LTM
-from f5.bigip.net import Net
+from f5.bigip.cm import CM as cm
+from f5.bigip.cm.device import Device as device
+from f5.bigip.ltm import LTM as ltm
+from f5.bigip.net import Net as net
 from f5.bigip.pycontrol import pycontrol as pc
 from f5.bigip import rest_collection
-from f5.bigip.sys import Sys
+from f5.bigip.sys import Sys as sys
 from f5.common import constants as const
 from icontrol.session import iControlRESTSession
 
 LOG = logging.getLogger(__name__)
+root_collection_classes = [cm, device, ltm, net, sys]
 
 
 class BigIP(object):
     """An interface to a single BIG-IP"""
-    def __init__(self, hostname, username, password, timeout=None):
+    def __init__(self, hostname, username, password, timeout=None,
+                 root_collection_classes=root_collection_classes):
         # get icontrol connection stub
+        self.root_collection_classes = root_collection_classes
         self.icontrol = self._get_icontrol(hostname, username, password)
         self.icr_uri = 'https://%s/mgmt/tm/' % hostname
         self.icr_session =\
@@ -44,58 +47,15 @@ class BigIP(object):
         self.device_name = None
         self.local_ip = None
 
-    @property
-    def cm(self):
-        """cm/ REST root collection"""
-        if 'cm' in self.root_collections:
-            return self.root_collections['cm']
-        else:
-            cm = CM(self)
-            self.root_collections['cm'] = cm
-            return cm
-
-    @property
-    def ltm(self):
-        """ltm/ REST root collection"""
-        if 'ltm' in self.root_collections:
-            return self.root_collections['cm']
-        else:
-            ltm = LTM(self)
-            self.root_collections['ltm'] = ltm
-            return ltm
-
-    @property
-    def net(self):
-        """net/ REST root collection"""
-        if 'net' in self.root_collections:
-            return self.root_collections['net']
-        else:
-            net = Net(self)
-            self.root_collections['net'] = net
-            return net
-
-    @property
-    def sys(self):
-        """sys/ REST root collection"""
-        if 'sys' in self.root_collections:
-            return self.root_collections['sys']
-        else:
-            sys = Sys(self)
-            self.root_collections['sys']
-            return sys
-
-    @property
-    def devicename(self):
-        """Device Name interface"""
-        if not self.devicename:
-            if 'device' in self.root_collections:
-                self.devicename =\
-                    self.root_collections['device'].get_device_name()
-            else:
-                device = Device(self)
-                self.root_collections['device'] = device
-                self.devicename = device.get_device_name()
-        return self.devicename
+    def __getattr__(self, name):
+        for rcc in self.root_collection_classes:
+            if name == rcc.__name__.lower():
+                iface_collection = rcc(self)
+                setattr(self, name, iface_collection)
+                return iface_collection
+        error_message = "'%s' object has no attribute '%s'"\
+            % (self.__class__, name)
+        raise AttributeError(error_message)
 
     def set_timeout(self, timeout):
         """Set iControl timeout"""
