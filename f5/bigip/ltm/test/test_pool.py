@@ -78,11 +78,17 @@ def FakePool():
     return fake_pool
 
 
-def test_create_with_no_args(FakePool):
+@pytest.fixture
+def FakePoolForCreate(FakePool):
     mock_exists = mock.MagicMock()
     mock_exists.return_value = False
     FakePool.exists = mock_exists
-    FakePool.create()
+    return FakePool
+
+
+class TestCreate(object):
+    def test_create_with_no_args(self, FakePoolForCreate):
+        FakePoolForCreate.create()
 
 
 class TestDelete(object):
