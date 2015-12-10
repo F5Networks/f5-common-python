@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import mock
 import pytest
 
 from f5.bigip import BigIP
 
 from f5.bigip.cm import CM
+from f5.bigip.cm.device import Device
 from f5.bigip.ltm import LTM
 from f5.bigip.net import Net
 from f5.bigip.sys import Sys
@@ -25,6 +27,7 @@ from f5.bigip.sys import Sys
 @pytest.fixture
 def FakeBigIP():
     FBIP = BigIP('FakeHostName', 'admin', 'admin')
+    FBIP.icontrol = mock.MagicMock()
     return FBIP
 
 
@@ -37,5 +40,7 @@ def test___get__attr(FakeBigIP):
     assert isinstance(bigip_dot_net, Net)
     bigip_dot_sys = FakeBigIP.sys
     assert isinstance(bigip_dot_sys, Sys)
+    bigip_dot_sys = FakeBigIP.device
+    assert isinstance(bigip_dot_sys, Device)
     with pytest.raises(AttributeError):
         FakeBigIP.this_is_not_a_real_attribute
