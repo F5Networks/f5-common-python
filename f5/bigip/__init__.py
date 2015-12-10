@@ -17,8 +17,6 @@
 import logging
 import os
 
-from f5.bigip import rest_collection
-
 from f5.bigip.cm import CM
 from f5.bigip.cm.device import Device
 from f5.bigip.ltm import LTM
@@ -32,15 +30,42 @@ LOG = logging.getLogger(__name__)
 root_collection_classes = [CM, Device, LTM, Net, Sys]
 
 
+def _get_icontrol(hostname, username, password, timeout=None):
+    """Initialize iControl interface"""
+    # Logger.log(Logger.DEBUG,
+    #           "Opening iControl connections to %s for interfaces %s"
+    #            % (self.hostname, self.root_collections))
+
+    if os.path.exists(const.WSDL_CACHE_DIR):
+        icontrol = pc.BIGIP(hostname=hostname,
+                            username=username,
+                            password=password,
+                            directory=const.WSDL_CACHE_DIR,
+                            wsdls=[])
+    else:
+        icontrol = pc.BIGIP(hostname=hostname,
+                            username=username,
+                            password=password,
+                            fromurl=True,
+                            wsdls=[])
+
+    if timeout:
+        icontrol.set_timeout(timeout)
+    else:
+        icontrol.set_timeout(const.CONNECTION_TIMEOUT)
+
+    return icontrol
+
+
 class BigIP(object):
     """An interface to a single BIG-IP"""
     def __init__(self, hostname, username, password, timeout=None,
                  root_collection_classes=root_collection_classes):
         # get icontrol connection stub
         self.root_collection_classes = root_collection_classes
-        self.icontrol = self._get_icontrol(hostname, username, password)
+        self.icontrol = _get_icontrol(hostname, username, password)
         self.icr_uri = 'https://%s/mgmt/tm/' % hostname
-        self.icr_session = iControlRESTSession(hostname, username, password)
+        self.icr_session = iControlRESTSession(username, password)
 
         # interface instance cache
         self.device_name = None
@@ -55,86 +80,3 @@ class BigIP(object):
         error_message = "'%s' object has no attribute '%s'"\
             % (self.__class__, name)
         raise AttributeError(error_message)
-
-    def set_timeout(self, timeout):
-        """Set iControl timeout"""
-        self.icontrol.set_timeout(timeout)
-
-    def set_folder(self, name, folder='/Common'):
-        """Set iControl folder"""
-        if not folder.startswith("/"):
-            folder = "/" + folder
-        self.system.set_folder(folder)
-        if name:
-            if not name.startswith(folder + "/"):
-                return folder + "/" + name
-            else:
-                return name
-        else:
-            return None
-
-    def icr_link(self, selfLink):
-        """Create iControl REST link"""
-        return selfLink.replace('https://localhost/mgmt/tm', self.icr_url)
-
-    def decorate_folder(self, folder='Common'):
-        """Decorate folder name"""
-        folder = str(folder).replace('/', '')
-        return rest_collection.prefixed(folder)
-
-    @staticmethod
-    def _get_icontrol(hostname, username, password, timeout=None):
-        """Initialize iControl interface"""
-        # Logger.log(Logger.DEBUG,
-        #           "Opening iControl connections to %s for interfaces %s"
-        #            % (self.hostname, self.root_collections))
-
-        if os.path.exists(const.WSDL_CACHE_DIR):
-            icontrol = pc.BIGIP(hostname=hostname,
-                                username=username,
-                                password=password,
-                                directory=const.WSDL_CACHE_DIR,
-                                wsdls=[])
-        else:
-            icontrol = pc.BIGIP(hostname=hostname,
-                                username=username,
-                                password=password,
-                                fromurl=True,
-                                wsdls=[])
-
-        if timeout:
-            icontrol.set_timeout(timeout)
-        else:
-            icontrol.set_timeout(const.CONNECTION_TIMEOUT)
-
-        return icontrol
-
-    @staticmethod
-    def ulong_to_int(ulong_64):
-        """Convert ulong to int"""
-        high = ulong_64.high
-        low = ulong_64.low
-
-        if high < 0:
-            high += (1 << 32)
-        if low < 0:
-            low += (1 << 32)
-
-        return long((high << 32) | low)
-
-    @staticmethod
-    def add_folder(folder, name):
-        """Add a BIG-IP folder"""
-        folder = str(folder).replace("/", "")
-        if not str(name).startswith("/" + folder + "/"):
-            return "/" + folder + "/" + name
-        else:
-            return name
-
-    def add_rest_folder(self, url, folder, name):
-        """Add a BIG-IP REST folder that uses ~ instead of /"""
-        folder = str(folder).replace("/", "")
-        if not str(name).startswith("~" + folder + "~"):
-            return url + "~" + folder + "~" + name
-        else:
-            return url + name
