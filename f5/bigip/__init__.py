@@ -19,17 +19,17 @@ import os
 
 from f5.bigip import rest_collection
 
-from f5.bigip.cm import CM as cm
-from f5.bigip.cm.device import Device as device
-from f5.bigip.ltm import LTM as ltm
-from f5.bigip.net import Net as net
+from f5.bigip.cm import CM
+from f5.bigip.cm.device import Device
+from f5.bigip.ltm import LTM
+from f5.bigip.net import Net
 from f5.bigip.pycontrol import pycontrol as pc
-from f5.bigip.sys import Sys as sys
+from f5.bigip.sys import Sys
 from f5.common import constants as const
 from icontrol.session import iControlRESTSession
 
 LOG = logging.getLogger(__name__)
-root_collection_classes = [cm, device, ltm, net, sys]
+root_collection_classes = [CM, Device, LTM, Net, Sys]
 
 
 class BigIP(object):
