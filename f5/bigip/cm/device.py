@@ -455,12 +455,12 @@ class Device(object):
             Log.error('device', e.message)
             raise exceptions.DeviceUpdateException(e.message)
         try:
-            self.remove_metadata(None, {
-                             'root_device_name': None,
-                             'root_device_mgmt_address': None})
+            self.remove_metadata(
+                None, {'root_device_name': None,
+                       'root_device_mgmt_address': None})
         except exceptions.DeviceUpdateException:
             pass
-            
+
         self.devicename = None
         self.get_device_name()
 
