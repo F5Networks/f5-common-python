@@ -1,4 +1,4 @@
-# Copyright 2014 F5 Networks Inc.
+# Copyright 2014-2015 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,176 +13,129 @@
 # limitations under the License.
 #
 
-from f5.bigip import exceptions
-from f5.bigip.rest_collection import icontrol_rest_folder
 from f5.bigip.rest_collection import log
+from f5.bigip.rest_collection import RESTInterfaceCollection
+from f5.bigip.rest_collection import strip_folder_and_prefix
 from f5.common import constants as const
 from f5.common.logger import Log
+from requests.exceptions import HTTPError
 
-import json
 
-
-class Rule(object):
-    """Class for managing iRules on bigip """
+class Rule(RESTInterfaceCollection):
     def __init__(self, bigip):
         self.bigip = bigip
+        self.base_uri = self.bigip.icr_uri + 'ltm/rule/'
 
-    @icontrol_rest_folder
     @log
-    def create(self, name=None, rule_definition=None, folder='Common'):
-        """Create rule """
+    def create(self, name='', rule_definition=None, folder='Common'):
+        """Create an LTM iRule.
+
+        :param string name: Name for iRule object.
+        :param string rule_definition: iRule definition.
+        :param string folder: Optional Folder name.
+        :rtype: bool
+        :returns: True if iRule successfully created.
+        :raises: HTTPError
+        """
         if name and rule_definition:
-            folder = str(folder).replace('/', '')
             payload = dict()
             payload['name'] = name
             payload['partition'] = folder
             payload['apiAnonymous'] = rule_definition
-            request_url = self.bigip.icr_url + '/ltm/rule/'
-            response = self.bigip.icr_session.post(
-                request_url, data=json.dumps(payload),
-                timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return True
-            elif response.status_code == 409:
-                return True
-            else:
-                Log.error('rule', response.text)
-                raise exceptions.RuleCreationException(response.text)
+
+            try:
+                self.bigip.icr_session.post(
+                    self.base_uri, '', '', json=payload,
+                    timeout=const.CONNECTION_TIMEOUT)
+            except HTTPError as exp:
+                if exp.response.status_code == 409:
+                    return True
+                Log.error(__name__, exp.response.text)
+                raise
+            return True
         return False
 
-    @icontrol_rest_folder
     @log
     def update(self, name=None, rule_definition=None, folder='Common'):
-        """Update rule """
+        """Update an LTM iRule.
+
+        :param string name: Name for iRule object.
+        :param string rule_definition: iRule definition.
+        :param string folder: Optional Folder name.
+        :rtype: bool
+        :returns: True if iRule successfully updated.
+        :raises: HTTPError
+        """
         if name and rule_definition:
-            folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/rule/'
-            request_url += '~' + folder + '~' + name
             payload = dict()
             payload['apiAnonymous'] = rule_definition
-            response = self.bigip.icr_session.put(
-                request_url, data=json.dumps(payload),
+
+            self.bigip.icr_session.put(
+                self.base_uri, folder, name, json=payload,
                 timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return True
-            else:
-                Log.error('rule', response.text)
-                raise exceptions.RuleUpdateException(response.text)
+            return True
         return False
 
-    @icontrol_rest_folder
+    # DE note: the generic _get_items in rest_collection presumes that folder
+    # needs to be used in both $filter AND passed to icr_session.get.  At least
+    # this lib, it must be used ONLY in $filter.  TBD: collapse this API
     @log
-    def delete(self, name=None, folder='Common'):
-        """Delete rule """
-        if name:
-            folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/rule/'
-            request_url += '~' + folder + '~' + name
-            response = self.bigip.icr_session.delete(
-                request_url, timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return True
-            elif response.status_code == 404:
-                return True
-            else:
-                Log.error('rule', response.text)
-                raise exceptions.RouteDeleteException(response.text)
-        return False
+    def _get_items(self, folder='Common', name='', suffix='/members',
+                   select='name', timeout=const.CONNECTION_TIMEOUT, **kwargs):
+        items = []
+        params = {
+            '$select': select,
+            '$filter': 'partition eq ' + folder
+        }
+        try:
+            response = self.bigip.icr_session.get(
+                self.base_uri, '', name, params=params,  # set folder to ''
+                timeout=timeout, **kwargs)
+        except HTTPError as exp:
+            if exp.response.status_code == 404:
+                return items
+            raise
 
-    @icontrol_rest_folder
+        items = response.json().get('items', [])
+        if select:
+            for item in items:
+                if select in item:
+                    items.append(strip_folder_and_prefix(item[select]))
+
+        return items
+
     @log
     def delete_like(self, match=None, folder='Common'):
-        """Delete rule matching name """
+        """Delete an LTM iRule matching a string.
+
+        :param string match: Substring to match in iRule name.
+        :param string folder: Optional Folder name.
+        :rtype: bool
+        :returns: True if one or more iRules were deleted.
+        :raises: HTTPError
+        """
         if not match:
             return False
-        folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/rule/'
-        request_url += '?$select=name,selfLink'
-        request_filter = 'partition eq ' + folder
-        request_url += '&$filter=' + request_filter
-        response = self.bigip.icr_session.get(
-            request_url, timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            response_obj = json.loads(response.text)
-            if 'items' in response_obj:
-                for item in response_obj['items']:
-                    if item['name'].find(match) > -1:
-                        response = self.bigip.icr_session.delete(
-                            self.bigip.icr_link(item['selfLink']),
-                            timeout=const.CONNECTION_TIMEOUT)
-                        if response.status_code > 400 and \
-                           response.status_code != 404:
-                            Log.error('rule', response.text)
-                            raise exceptions.RuleDeleteException(
-                                response.text)
+        items = self._get_items(folder='', name='', select='name,selfLink')
+        if items:
+            for item in items:
+                if item['name'].find(match) > -1:
+                    self.delete(item['name'], folder)
             return True
-        elif response.status_code != 404:
-            Log.error('rule', response.text)
-            raise exceptions.RuleQueryException(response.text)
         return False
 
-    @icontrol_rest_folder
-    @log
-    def delete_all(self, folder='Common'):
-        """Delete rules """
-        folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/rule/'
-        request_url += '?$select=name,selfLink'
-        request_filter = 'partition eq ' + folder
-        request_url += '&$filter=' + request_filter
-        response = self.bigip.icr_session.get(
-            request_url, timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            response_obj = json.loads(response.text)
-            if 'items' in response_obj:
-                for item in response_obj['items']:
-                    if item['name'].startswith(self.OBJ_PREFIX):
-                        response = self.bigip.icr_session.delete(
-                            self.bigip.icr_link(item['selfLink']),
-                            timeout=const.CONNECTION_TIMEOUT)
-                        if response.status_code > 400 and \
-                           response.status_code != 404:
-                            Log.error('rule', response.text)
-                            raise exceptions.RuleDeleteException(response.text)
-            return True
-        elif response.status_code != 404:
-            Log.error('rule', response.text)
-            raise exceptions.RuleQueryException(response.text)
-        return False
-
-    @icontrol_rest_folder
     @log
     def get_rule(self, name=None, folder='Common'):
-        """Get rule """
-        if name:
-            folder = str(folder).replace('/', '')
-            request_url = self.bigip.icr_url + '/ltm/rule/'
-            request_url += '~' + folder + '~' + name
-            request_url += '?$select=apiAnonymous'
-            response = self.bigip.icr_session.get(
-                request_url, timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                response_obj = json.loads(response.text)
-                if 'apiAnonymous' in response_obj:
-                    return response_obj['apiAnonymous']
-            elif response.status_code != 404:
-                Log.error('rule', response.text)
-                raise exceptions.RuleQueryException(response.text)
-        return None
+        """Get an LTM iRule by name.
 
-    @icontrol_rest_folder
-    @log
-    def exists(self, name=None, folder='Common'):
-        """Does rule exist? """
-        folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/rule/'
-        request_url += '~' + folder + '~' + name
-        request_url += '?$select=name'
-        response = self.bigip.icr_session.get(
-            request_url, timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            return True
-        elif response.status_code != 404:
-            Log.error('rule', response.text)
-            raise exceptions.RuleQueryException(response.text)
-        return False
+        :param string match: Name of iRule to get.
+        :param string folder: Optional Folder name.
+        :rtype: json
+        :returns: JSON representation of iRule if found, otherwise None.
+        :raises: HTTPError
+        """
+        if name:
+            return self._get_named_object(name,
+                                          folder=folder,
+                                          select='apiAnonymous')
+        return None
