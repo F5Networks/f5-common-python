@@ -16,8 +16,6 @@
 
 import logging
 import os
-import requests
-import socket
 
 from f5.bigip import rest_collection
 
@@ -28,6 +26,7 @@ from f5.bigip.net import Net as net
 from f5.bigip.pycontrol import pycontrol as pc
 from f5.bigip.sys import Sys as sys
 from f5.common import constants as const
+from icontrol.session import iControlRESTSession
 
 LOG = logging.getLogger(__name__)
 root_collection_classes = [cm, device, ltm, net, sys]
@@ -40,8 +39,8 @@ class BigIP(object):
         # get icontrol connection stub
         self.root_collection_classes = root_collection_classes
         self.icontrol = self._get_icontrol(hostname, username, password)
-        self.icr_session = self._get_icr_session(hostname, username, password)
-        self.icr_uri = 'https://%s/mgmt/tm' % hostname
+        self.icr_uri = 'https://%s/mgmt/tm/' % hostname
+        self.icr_session = iControlRESTSession(hostname, username, password)
 
         # interface instance cache
         self.device_name = None
@@ -109,24 +108,6 @@ class BigIP(object):
             icontrol.set_timeout(const.CONNECTION_TIMEOUT)
 
         return icontrol
-
-    @staticmethod
-    def _get_icr_session(hostname, username, password, timeout=None):
-        """Get iControl REST Session"""
-        icr_session = requests.session()
-        icr_session.auth = (username, password)
-        icr_session.verify = False
-        if hasattr(requests, 'packages'):
-            ul3 = requests.packages.urllib3  # @UndefinedVariable
-            ul3.disable_warnings(
-                category=ul3.exceptions.InsecureRequestWarning
-            )
-        icr_session.headers.update({'Content-Type': 'application/json'})
-        if timeout:
-            socket.setdefaulttimeout(timeout)
-        else:
-            socket.setdefaulttimeout(const.CONNECTION_TIMEOUT)
-        return icr_session
 
     @staticmethod
     def ulong_to_int(ulong_64):
