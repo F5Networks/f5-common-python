@@ -19,6 +19,7 @@ import os
 
 from f5.bigip.cm import CM
 from f5.bigip.cm.device import Device
+from f5.bigip.dynamic_attributes import LazyAttributeMixin
 from f5.bigip.ltm import LTM
 from f5.bigip.net import Net
 from f5.bigip.pycontrol import pycontrol as pc
@@ -27,7 +28,7 @@ from f5.common import constants as const
 from icontrol.session import iControlRESTSession
 
 LOG = logging.getLogger(__name__)
-root_collection_classes = [CM, Device, LTM, Net, Sys]
+allowed_lazy_attributes = [CM, Device, LTM, Net, Sys]
 
 
 def _get_icontrol(hostname, username, password, timeout=None):
@@ -57,12 +58,12 @@ def _get_icontrol(hostname, username, password, timeout=None):
     return icontrol
 
 
-class BigIP(object):
+class BigIP(LazyAttributeMixin):
     """An interface to a single BIG-IP"""
     def __init__(self, hostname, username, password, timeout=None,
-                 root_collection_classes=root_collection_classes):
+                 allowed_lazy_attributes=allowed_lazy_attributes):
         # get icontrol connection stub
-        self.root_collection_classes = root_collection_classes
+        self.allowed_lazy_attributes = allowed_lazy_attributes
         self.icontrol = _get_icontrol(hostname, username, password)
         self.icr_uri = 'https://%s/mgmt/tm/' % hostname
         self.icr_session = iControlRESTSession(username, password)
@@ -70,13 +71,3 @@ class BigIP(object):
         # interface instance cache
         self.device_name = None
         self.local_ip = None
-
-    def __getattr__(self, name):
-        for rcc in self.root_collection_classes:
-            if name == rcc.__name__.lower():
-                iface_collection = rcc(self)
-                setattr(self, name, iface_collection)
-                return iface_collection
-        error_message = "'%s' object has no attribute '%s'"\
-            % (self.__class__, name)
-        raise AttributeError(error_message)
