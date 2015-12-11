@@ -1,4 +1,6 @@
-include README
-include BUILD
+include README.md
 include SUPPORT
+include VERSION
+include RELEASE
+
 
