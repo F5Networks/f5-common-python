@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+from f5.bigip import rest_collection
 from f5.bigip.rest_collection import RESTInterfaceCollection
 from f5.bigip.test.big_ip_mock import BigIPMock
+from mock import call
+from mock import MagicMock
 from mock import Mock
 from requests.exceptions import HTTPError
 
@@ -22,6 +24,23 @@ import os
 import pytest
 
 DATA_DIR = os.path.dirname(os.path.realpath(__file__))
+
+
+class TestChild(RESTInterfaceCollection):
+    def __init__(self, bigip):
+        self.bigip = bigip
+        self.base_uri = self.bigip.icr_url + 'root/rest'
+
+
+@pytest.fixture
+def RIC():
+    ric = TestChild(MagicMock())
+    return ric
+
+
+@pytest.fixture
+def LOG():
+    rest_collection.Log = MagicMock()
 
 
 class TestRESTInterfaceCollectionChild(RESTInterfaceCollection):
@@ -292,3 +311,23 @@ def test_delete_all_http_error():
 
     with pytest.raises(HTTPError):
         test_REST_iface_collection.delete_all()
+
+
+def test__set(RIC):
+    response = RIC._set('myname', 'myfolder', 'd', 'c')
+    assert RIC.bigip.icr_session.put.call_args == call(
+        RIC.base_uri, folder='myfolder',
+        instance_name='myname', json={'d': 'c'}, timeout=30)
+    assert response
+
+
+def test__set_http_error(RIC, raise_custom_HTTPError, LOG):
+    RIC.bigip.icr_session.put.side_effect =\
+        raise_custom_HTTPError(404, 'some text')
+
+    with pytest.raises(HTTPError) as err_info:
+        RIC._set('myname', 'myfolder', 'd', 'c')
+
+    assert err_info.value.response.status_code == 404
+    assert rest_collection.Log.error.call_args == call(
+        RIC.__class__.__name__, 'some text')

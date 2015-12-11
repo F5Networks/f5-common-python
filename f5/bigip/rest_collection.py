@@ -158,6 +158,21 @@ class RESTInterfaceCollection(object):
                                               timeout=timeout)
         return response.json().get(select, None)
 
+    @log
+    def _set(self, name, folder, key, value):
+        payload = {key: value}
+        try:
+            self.bigip.icr_session.put(
+                self.base_uri,
+                instance_name=name,
+                folder=folder,
+                json=payload,
+                timeout=const.CONNECTION_TIMEOUT)
+        except HTTPError as err:
+            Log.error(self.__class__.__name__, err.response.text)
+            raise
+        return True
+
 
 def prefixed(name):
     """Put object prefix in front of name """
