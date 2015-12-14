@@ -7,6 +7,9 @@ before_install:
     - git config --global user.email "OpenStack_TravisCI@f5.com"
     - git config --global user.name "Travis F5 Openstack"
     - git fetch --depth=100
+    - wget https://github.com/F5Networks/f5-icontrol-rest-python/archive/v0.1.0.tar.gz -O /tmp/icontrol.tar.gz
+    - tar -zxf /tmp/icontrol.tar.gz -C /tmp
+    - mv /tmp/f5-icontrol-rest-python-0.1.0/icontrol/ .
 install:
     - pip install hacking pytest pytest-cov
     - pip install -r requirements.txt
