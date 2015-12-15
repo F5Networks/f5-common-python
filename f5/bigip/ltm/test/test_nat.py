@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+from f5.bigip import BigIP
 from f5.bigip.ltm.nat import NAT
 from f5.bigip.test.big_ip_mock import BigIPMock
 from mock import Mock
@@ -22,6 +22,12 @@ import os
 import pytest
 
 DATA_DIR = os.path.dirname(os.path.realpath(__file__))
+
+
+@pytest.fixture
+def BIGIP():
+    b = BigIP('host-vm-15', 'admin', 'admin')
+    return b
 
 
 def itest_get_nats():
@@ -51,3 +57,36 @@ def test_get_nats_error():
 
     with pytest.raises(HTTPError):
         test_nat.get_nats(folder="Common")
+
+
+def test_create(BIGIP):
+    try:
+        n = BIGIP.ltm.create_nat('test-nat-6', '192.168.1.10', '192.168.2.10')
+    except HTTPError as e:
+        print e.response.text
+        raise
+
+    print n.raw
+    print n.__dict__
+
+def test_find(BIGIP):
+    BIGIP.ltm.create_nat('test-nat-6', '192.168.1.10', '192.168.2.10')
+    n = BIGIP.ltm.nat('test-nat-6')
+    print n.name
+
+def test_delete(BIGIP):
+    n = BIGIP.ltm.nat('test-nat-6')
+    n.delete()
+
+def test_update(BIGIP):
+    n = BIGIP.ltm.nat('test-nat-5')
+    try:
+        n.update(originatingAddress='192.168.2.100')
+    except HTTPError as e:
+        print e.response.text
+    print n.__dict__
+
+def test_get_nats(BIGIP):
+    nats = BIGIP.ltm.get_nats()
+    for nat in nats:
+        print "%s/%s" % (nat.partition, nat.name)

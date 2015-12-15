@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+from f5.common import constants as const
 from f5.bigip.ltm.monitor import Monitor
 from f5.bigip.ltm.nat import NAT
 from f5.bigip.ltm.pool import Pool
@@ -20,6 +21,7 @@ from f5.bigip.ltm.rule import Rule
 from f5.bigip.ltm.snat import SNAT
 from f5.bigip.ltm.ssl import SSL
 from f5.bigip.ltm.virtual_server import VirtualServer
+from requests.exceptions import HTTPError
 
 base_uri = 'ltm/'
 
@@ -28,6 +30,37 @@ class LTM(object):
     def __init__(self, bigip):
         self.collections = {}
         self.bigip = bigip
+        self.base_uri = self.bigip.icr_uri + 'ltm/'
+
+    def create_nat(self, name, translation_address, originating_address,
+                   folder=const.DEFAULT_FOLDER, **kwargs):
+        data = {
+            'name': name,
+            'partition': folder,
+            'translationAddress': translation_address,
+            'originatingAddress': originating_address,
+        }
+        data.update(kwargs)
+        response = self.bigip.icr_session.post(
+            self.base_uri + 'nat/', json=data)
+        return NAT(self.bigip, response.json())
+
+    def get_nats(self, folder=const.DEFAULT_FOLDER):
+        params = {'$filter': 'partition eq ' + folder}
+        try:
+            response = self.bigip.icr_session.get(
+                self.base_uri + 'nat/',
+                params=params)
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                print e.response.text
+                return []
+            raise
+
+        return [NAT(self.bigip, json_data=nat)
+                for nat in response.json().get('items', [])]
+
+
 
     @property
     def monitor(self):
@@ -38,6 +71,7 @@ class LTM(object):
             self.collections['monitor'] = monitor
             return monitor
 
+    '''
     @property
     def nat(self):
         if 'nat' in self.collections:
@@ -46,6 +80,11 @@ class LTM(object):
             nat = NAT(self.bigip)
             self.collections['nat'] = nat
             return nat
+    '''
+    def nat(self, name, folder=const.DEFAULT_FOLDER):
+        nat = NAT(self.bigip)
+        nat.read(name, folder)
+        return nat
 
     @property
     def pool(self):
