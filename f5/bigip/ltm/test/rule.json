@@ -1,0 +1,5 @@
+{
+  "name": "foo",
+  "partition": "Common",
+  "apiAnonymous": "# test rule"
+}

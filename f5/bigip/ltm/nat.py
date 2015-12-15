@@ -38,11 +38,11 @@ class NAT(RESTInterfaceCollection):
             payload['originatingAddress'] = orig_ip_address
             payload['translationAddress'] = ip_address
             payload['trafficGroup'] = traffic_group
-            payload['vlans'] = [vlan_name]
+            payload['vlans'] = [vlan_name] if vlan_name else []
 
             try:
                 self.bigip.icr_session.post(
-                    self.base_uri, data=payload,
+                    self.base_uri, json=payload,
                     timeout=const.CONNECTION_TIMEOUT)
             except HTTPError as exp:
                 if exp.response.status_code == 409:
