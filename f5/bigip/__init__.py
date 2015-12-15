@@ -60,8 +60,10 @@ def _get_icontrol(hostname, username, password, timeout=None):
 
 class BigIP(LazyAttributeMixin):
     """An interface to a single BIG-IP"""
-    def __init__(self, hostname, username, password, timeout=None,
-                 allowed_lazy_attributes=allowed_lazy_attributes):
+    def __init__(self, hostname, username, password, **kwargs):
+        timeout = kwargs.pop('timeout', None)
+        allowed_lazy_attributes = kwargs.pop('allowed_lazy_attributes',
+                                             allowed_lazy_attributes)
         # get icontrol connection stub
         self.allowed_lazy_attributes = allowed_lazy_attributes
         self.icontrol = _get_icontrol(hostname, username, password)
