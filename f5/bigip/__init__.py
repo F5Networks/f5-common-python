@@ -19,10 +19,10 @@ import os
 
 from f5.bigip.cm import CM
 from f5.bigip.cm.device import Device
-from f5.bigip.dynamic_attributes import LazyAttributeMixin
 from f5.bigip.ltm import LTM
 from f5.bigip.net import Net
 from f5.bigip.pycontrol import pycontrol as pc
+from f5.bigip.resource import Resource
 from f5.bigip.sys import Sys
 from f5.common import constants as const
 from icontrol.session import iControlRESTSession
@@ -58,7 +58,7 @@ def _get_icontrol(hostname, username, password, timeout=None):
     return icontrol
 
 
-class BigIP(LazyAttributeMixin):
+class BigIP(Resource):
     """An interface to a single BIG-IP"""
     def __init__(self, hostname, username, password, **kwargs):
         timeout = kwargs.pop('timeout', 30)
@@ -66,14 +66,15 @@ class BigIP(LazyAttributeMixin):
                                         allowed_lazy_attributes)
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
-
-        # get icontrol connection stub
-        self.allowed_lazy_attributes = allowed_lazy_attrs
-        self.icontrol = _get_icontrol(hostname, username, password)
-        self.icr_uri = 'https://%s/mgmt/tm/' % hostname
-        self.icr_session = iControlRESTSession(username, password,
-                                               timeout=timeout)
-
-        # interface instance cache
-        self.device_name = None
-        self.local_ip = None
+        # _meta_data variable values
+        iCRS = iControlRESTSession(username, password, timeout=timeout)
+        icontrol_inst = _get_icontrol(hostname, username, password)
+        # define _meta_data
+        self._meta_data = {'allowed_lazy_attributes': allowed_lazy_attrs,
+                           'icontrol': icontrol_inst,
+                           'hostname': hostname,
+                           'uri': 'https://%s/mgmt/tm/' % hostname,
+                           'icr_session': iCRS,
+                           'device_name': None,
+                           'local_ip': None,
+                           'bigip': self}

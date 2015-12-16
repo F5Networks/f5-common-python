@@ -35,8 +35,8 @@ class SSL(object):
 
     OBJ_PREFIX = 'uuid_'
 
-    def __init__(self, bigip):
-        self.bigip = bigip
+    def __init__(self, ltm_instance):
+        self.bigip = ltm_instance.bigip
 
         self.bigip.icontrol.add_interfaces(['Management.KeyCertificate',
                                             'LocalLB.ProfileClientSSL'])

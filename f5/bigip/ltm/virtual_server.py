@@ -28,8 +28,8 @@ import urllib
 
 class VirtualServer(object):
 
-    def __init__(self, bigip):
-        self.bigip = bigip
+    def __init__(self, ltm_instance):
+        self.bigip = ltm_instance.bigip
         self.common_persistence_profiles = {}
         self.folder_persistence_profiles = {}
         self.common_profiles = {}

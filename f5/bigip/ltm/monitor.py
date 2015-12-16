@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-import f5.bigip.exceptions
+from f5.bigip import exceptions
 from f5.bigip.rest_collection import icontrol_rest_folder
 from f5.bigip.rest_collection import log
 from f5.common import constants as const
@@ -24,8 +24,8 @@ import json
 
 class Monitor(object):
     """Class for configuring monitors on bigip """
-    def __init__(self, bigip):
-        self.bigip = bigip
+    def __init__(self, ltm_instance):
+        self.bigip = ltm_instance.bigip
 
         self.monitor_type = {
             'ping': {'name': 'gateway-icmp',
