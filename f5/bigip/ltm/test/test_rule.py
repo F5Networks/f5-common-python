@@ -122,7 +122,7 @@ def test_delete(rule):
 def test_delete_all(rule):
     # TBD: write a test
     pass
-    
+
 
 def test_delete_like(rule):
     # TBD: write a test
