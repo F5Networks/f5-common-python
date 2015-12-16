@@ -61,14 +61,18 @@ def _get_icontrol(hostname, username, password, timeout=None):
 class BigIP(LazyAttributeMixin):
     """An interface to a single BIG-IP"""
     def __init__(self, hostname, username, password, **kwargs):
-        timeout = kwargs.pop('timeout', None)
-        allowed_lazy_attributes = kwargs.pop('allowed_lazy_attributes',
-                                             allowed_lazy_attributes)
+        timeout = kwargs.pop('timeout', 30)
+        allowed_lazy_attrs = kwargs.pop('allowed_lazy_attributes',
+                                        allowed_lazy_attributes)
+        if kwargs:
+            raise TypeError('Unexpected **kwargs: %r' % kwargs)
+
         # get icontrol connection stub
-        self.allowed_lazy_attributes = allowed_lazy_attributes
+        self.allowed_lazy_attributes = allowed_lazy_attrs
         self.icontrol = _get_icontrol(hostname, username, password)
         self.icr_uri = 'https://%s/mgmt/tm/' % hostname
-        self.icr_session = iControlRESTSession(username, password)
+        self.icr_session = iControlRESTSession(username, password,
+                                               timeout=timeout)
 
         # interface instance cache
         self.device_name = None
