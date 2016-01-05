@@ -25,8 +25,8 @@ import os
 
 
 class SNAT(object):
-    def __init__(self, bigip):
-        self.bigip = bigip
+    def __init__(self, ltm_instance):
+        self.bigip = ltm_instance.bigip
 
     @icontrol_rest_folder
     @log

@@ -24,8 +24,8 @@ import json
 
 class Monitor(object):
     """Class for configuring monitors on bigip """
-    def __init__(self, bigip):
-        self.bigip = bigip
+    def __init__(self, ltm_instance):
+        self.bigip = ltm_instance.bigip
 
         self.monitor_type = {
             'ping': {'name': 'gateway-icmp',
