@@ -16,6 +16,7 @@
 import mock
 import pytest
 
+from f5.bigip import BigIP
 from f5.bigip.ltm.nat import NAT
 from f5.bigip.resource import MissingRequiredCreationParameter
 
@@ -28,6 +29,12 @@ def FakeNat():
 
 
 class TestCreate(object):
+    def test_create_two(self):
+        b = BigIP('192.168.1.1', 'admin', 'admin')
+        n1 = b.ltm.natcollection.nat
+        n2 = b.ltm.natcollection.nat
+        assert n1 is not n2
+
     def test_create_no_args(self, FakeNat):
         with pytest.raises(MissingRequiredCreationParameter):
             FakeNat.create()

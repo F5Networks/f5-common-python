@@ -50,3 +50,9 @@ def bigip(opt_bigip, opt_username, opt_password, scope="module"):
     '''bigip fixture'''
     b = BigIP(opt_bigip, opt_username, opt_password)
     return b
+
+
+@pytest.fixture
+def NAT(bigip):
+    n = bigip.ltm.natcollection.nat
+    return n
