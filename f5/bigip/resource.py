@@ -17,7 +17,7 @@ There are different types of resources published by the BigIP REST Server, they
 are represented by the "Resource" class hierarchy.
 
 Available Classes:
-    * InvalidCRUDException -- resources do not generally support all 4 CRUD
+    * InvalidCRUD -- resources do not generally support all 4 CRUD
       operations, if a caller attempts to invoke an unsupported operation this
       Exception is raised
     * Resource -- only `read` is generally supported in all resource types,
@@ -35,15 +35,11 @@ Available Classes:
       the creating post, and the returned uri of the newly created resource.
 
 """
-
-import json
-
-from f5.bigip.mixins import JSONMixin
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
 
 
-class KindTypeMismatchException(Exception):
+class KindTypeMismatch(Exception):
     pass
 
 
@@ -51,7 +47,7 @@ class DeviceProvidesIncompatibleKey(Exception):
     pass
 
 
-class InvalidCRUDException(Exception):
+class InvalidCRUD(Exception):
     """Raise this when a caller tries to invoke an unsupported CUD op.
 
     All resources support `read`.
@@ -60,7 +56,11 @@ class InvalidCRUDException(Exception):
     pass
 
 
-class Resource(JSONMixin, LazyAttributeMixin, ToDictMixin):
+class MissingRequiredCreationParameter(Exception):
+    pass
+
+
+class Resource(LazyAttributeMixin, ToDictMixin):
     """Every resource that maps to a uri on the device should inherit this.
 
     Instantiate this with ContainerInstance.NewResourceInstance via the
@@ -156,15 +156,15 @@ class Resource(JSONMixin, LazyAttributeMixin, ToDictMixin):
 
     def create(self):
         error_message = "Only CRUDResources support http 'create'."
-        raise InvalidCRUDException(error_message)
+        raise InvalidCRUD(error_message)
 
     def update(self):
         error_message = "Only CRUDResources support http 'update'."
-        raise InvalidCRUDException(error_message)
+        raise InvalidCRUD(error_message)
 
     def delete(self):
         error_message = "Only CRUDResources support http 'delete'."
-        raise InvalidCRUDException(error_message)
+        raise InvalidCRUD(error_message)
 
 
 class CollectionResource(Resource):
@@ -264,5 +264,5 @@ class CRUDResource(Resource):
         session = self._meta_data['bigip']._meta_data['icr_session']
         response = session.delete(delete_uri, partition=self.partition,
                                   name=self.name)
-        res_dict = json.loads(response.json())
+        res_dict = response.json()
         self.__dict__ = res_dict

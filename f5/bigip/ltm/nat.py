@@ -14,7 +14,8 @@
 #
 from f5.bigip.resource import CollectionResource
 from f5.bigip.resource import CRUDResource
-from f5.bigip.resource import KindTypeMismatchException
+from f5.bigip.resource import KindTypeMismatch
+from f5.bigip.resource import MissingRequiredCreationParameter
 
 
 class NATCollection(CollectionResource):
@@ -29,9 +30,14 @@ class NAT(CRUDResource):
         self._meta_data['allowed_lazy_attributes'] = []
 
     def create(self, **kwargs):
+        for required in ['name', 'partition', 'originatingAddress',
+                         'translationAddress']:
+            if required not in kwargs:
+                raise MissingRequiredCreationParameter(kwargs)
+
         self._create(**kwargs)
         if not self.kind == 'tm:ltm:nat:natstate':
             error_message = "For instances of type 'NAT' the corresponding" +\
                 " kind must be 'tm:ltm:nat:natstate' but creation returned" +\
                 " JSON with kind: %r" % self.kind
-            raise KindTypeMismatchException(error_message)
+            raise KindTypeMismatch(error_message)
