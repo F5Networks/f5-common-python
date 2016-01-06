@@ -17,15 +17,15 @@ from f5.bigip.mixins import LazyAttributesRequired
 
 bigip = BigIP('10.190.5.7', 'admin', 'admin')
 nat1 = bigip.ltm.natcollection.nat
+nat2 = bigip.ltm.natcollection.nat
 try:
-    nat1.create(name='aaa59', partition='Common',
-                originatingAddress='192.168.2.59',
-                translationAddress='192.168.1.59')
+    nat1.create(name='za_test_001', partition='Common',
+                originatingAddress='192.168.3.1',
+                translationAddress='192.168.3.2')
 except LazyAttributesRequired as LAR:
-    print("Inside LAR exception.")
-    print(LAR)
-    print(nat1.__dict__)
     raise
-print("No LAR!!")
-nat1._read()
-print(nat1.__dict__)
+nat2.load(partition='Common', name='za_test_001')
+nat2.update(arp=u'disabled')
+print('******')
+nat2.refresh()
+nat1.delete()

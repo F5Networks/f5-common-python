@@ -60,6 +60,10 @@ class MissingRequiredCreationParameter(Exception):
     pass
 
 
+class MissingRequiredReadParameter(Exception):
+    pass
+
+
 class Resource(LazyAttributeMixin, ToDictMixin):
     """Every resource that maps to a uri on the device should inherit this.
 
@@ -139,7 +143,7 @@ class Resource(LazyAttributeMixin, ToDictMixin):
         print("rdict is: %r" % rdict)
         return rdict
 
-    def _read(self):
+    def _refresh(self):
         """Use this to make the device resource be represented by self.
 
         This method is run for its side-effects on self.
@@ -153,6 +157,17 @@ class Resource(LazyAttributeMixin, ToDictMixin):
         read_session = self._meta_data['bigip']._meta_data['icr_session']
         response = read_session.get(self._meta_data['uri'])
         self._local_update(response.json())
+
+    def _load(self, **kwargs):
+        if ('name' not in kwargs) or ('partition' not in kwargs):
+            raise MissingRequiredReadParameter(str(kwargs))
+        kwargs['uri_as_parts'] = True
+        hostname = self._meta_data['bigip']._meta_data['hostname']
+        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['container']._meta_data['uri']
+        response = read_session.get(base_uri, **kwargs)
+        self._local_update(response.json())
+        self._meta_data['uri'] = self.selfLink.replace('localhost', hostname)
 
     def create(self):
         error_message = "Only CRUDResources support http 'create'."
@@ -236,9 +251,8 @@ class CRUDResource(Resource):
         """
         # Make convenience variable with short names for this method.
         _create_uri = self._meta_data['container']._meta_data['uri']
-        bigip = self._meta_data['bigip']
-        hostname = bigip._meta_data['hostname']
-        session = bigip._meta_data['icr_session']
+        hostname = self._meta_data['bigip']._meta_data['hostname']
+        session = self._meta_data['bigip']._meta_data['icr_session']
 
         # Invoke the REST operation on the device.
         response = session.post(_create_uri, json=kwargs)
@@ -253,9 +267,10 @@ class CRUDResource(Resource):
         update_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
         temp_meta = self.__dict__.pop('_meta_data')
-        data_dict = self.to_dict()
-        data_dict.update(kwargs)
-        response = session.put(update_uri, data=data_dict)
+        # TOD: data_dict = self.to_dict()
+        # TOD: data_dict.update(kwargs)
+        # TOD: print('data_dict: %r' % data_dict)
+        response = session.put(update_uri, json=kwargs)
         self._meta_data = temp_meta
         self._local_update(response.json())
 
@@ -264,5 +279,5 @@ class CRUDResource(Resource):
         session = self._meta_data['bigip']._meta_data['icr_session']
         response = session.delete(delete_uri, partition=self.partition,
                                   name=self.name)
-        res_dict = response.json()
-        self.__dict__ = res_dict
+        if response.status_code == 200:
+            self.__dict__ = {'deleted': True}

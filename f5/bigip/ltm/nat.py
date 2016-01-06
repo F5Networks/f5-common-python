@@ -41,3 +41,18 @@ class NAT(CRUDResource):
                 " kind must be 'tm:ltm:nat:natstate' but creation returned" +\
                 " JSON with kind: %r" % self.kind
             raise KindTypeMismatch(error_message)
+
+    def refresh(self):
+        self._refresh()
+
+    def load(self, **kwargs):
+        self._load(**kwargs)
+
+    def update(self, **kwargs):
+        # Need to implement checking for valid params here.
+        self._update(**kwargs)
+
+    def delete(self):
+        # Need to implement checking for ? here.
+        self._delete()
+        # Need to implement correct teardown here.
