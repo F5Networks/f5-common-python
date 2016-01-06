@@ -128,7 +128,6 @@ class Resource(LazyAttributeMixin, ToDictMixin):
     def _local_update(self, rdict):
         sanitized = self._check_keys(rdict)
         temp_meta = self._meta_data
-        print("sanitized is: %r" % sanitized)
         self.__dict__ = sanitized
         self._meta_data = temp_meta
 
@@ -140,7 +139,6 @@ class Resource(LazyAttributeMixin, ToDictMixin):
         for x in rdict:
             if x.startswith('__'):
                 raise DeviceProvidesIncompatibleKey(x)
-        print("rdict is: %r" % rdict)
         return rdict
 
     def _refresh(self):
@@ -194,10 +192,8 @@ class CollectionResource(Resource):
             base_uri = base_uri[:-len('collection')] + '/'
         else:
             base_uri = base_uri + '/'
-        print("collection base_uri: %r" % base_uri)
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + base_uri
-        print("Collection uri %r" % self._meta_data['uri'])
 
     def get_managed(self):
         """Get an iterator (list maybe upgrade to generator) of objects.
