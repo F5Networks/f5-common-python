@@ -35,6 +35,16 @@ class NAT(CRUDResource):
             if required not in kwargs:
                 raise MissingRequiredCreationParameter(kwargs)
 
+        # If you do a create with inheritedTrafficGroup set to 'false' you
+        # must also have a trafficGroup
+        itg = kwargs.get('inheritedTrafficGroup', None)
+        if itg and itg == 'false':
+            tg = kwargs.get('trafficGroup', None)
+            if not tg:
+                raise MissingRequiredCreationParameter(
+                    "Setting inheritedTrafficGroup to 'false' requires" +
+                    "setting the trafficGroup option")
+
         self._create(**kwargs)
         if not self.kind == 'tm:ltm:nat:natstate':
             error_message = "For instances of type 'NAT' the corresponding" +\
