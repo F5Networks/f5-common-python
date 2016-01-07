@@ -86,6 +86,6 @@ class LazyAttributeMixin(object):
                 # Use the name of CRLUDResource because importing causes
                 # a circular reference
                 bases = [base.__name__ for base in lazy_attribute.__bases__]
-                if 'CRLUDResource' not in bases:
+                if 'CRLUD' not in bases:
                     setattr(self, name, iface_collection)
                 return iface_collection

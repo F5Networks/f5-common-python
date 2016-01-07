@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from f5.bigip.resource import CollectionResource
-from f5.bigip.resource import CRLUDResource
+from f5.bigip.resource import Collection
+from f5.bigip.resource import CRLUD
 from f5.bigip.resource import KindTypeMismatch
 
 
-class NATCollection(CollectionResource):
+class NATCollection(Collection):
     def __init__(self, ltm):
         super(NATCollection, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [NAT]
@@ -25,7 +25,7 @@ class NATCollection(CollectionResource):
             {'tm:ltm:nat:natstate': NAT}
 
 
-class NAT(CRLUDResource):
+class NAT(CRLUD):
     def __init__(self, nat_collection):
         super(NAT, self).__init__(nat_collection)
         self._meta_data['required_creation_parameters'].update(
