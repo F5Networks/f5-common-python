@@ -78,14 +78,14 @@ class LazyAttributeMixin(object):
 
         # Instantiate and potentially set the attr on the object
         # Issue #112 -- Only call setattr here if the lazy attribute
-        # is NOT a CRLUDResource.  This should allow for only 1 ltm attribute
+        # is NOT a `Resource`.  This should allow for only 1 ltm attribute
         # but many nat attributes just like the BIGIP device.
         for lazy_attribute in self._meta_data['allowed_lazy_attributes']:
             if name == lazy_attribute.__name__.lower():
                 iface_collection = lazy_attribute(self)
-                # Use the name of CRLUDResource because importing causes
+                # Use the name of ResourceResource because importing causes
                 # a circular reference
                 bases = [base.__name__ for base in lazy_attribute.__bases__]
-                if 'CRLUD' not in bases:
+                if 'Resource' not in bases:
                     setattr(self, name, iface_collection)
                 return iface_collection
