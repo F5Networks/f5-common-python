@@ -17,7 +17,6 @@ import pytest
 
 from requests.exceptions import HTTPError
 
-from f5.bigip.ltm.pool import Pool
 from f5.bigip.resource import MissingRequiredCreationParameter
 
 

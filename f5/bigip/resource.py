@@ -324,7 +324,6 @@ class CRLUD(Resource):
         temp_meta = self.__dict__.pop('_meta_data')
         data_dict = self.to_dict()
         data_dict.update(kwargs)
-        # TOD: print('data_dict: %r' % data_dict)
         response = session.put(update_uri, json=data_dict)
         self._meta_data = temp_meta
         self._local_update(response.json())

@@ -14,7 +14,7 @@
 #
 from f5.bigip.resource import Collection
 from f5.bigip.resource import CRLUD
-from f5.bigip.resource import KindTypeMismatch
+from f5.bigip.resource import MissingRequiredCreationParameter
 
 
 class NATCollection(Collection):
@@ -47,14 +47,19 @@ class NAT(CRLUD):
         if itg and itg == 'false':
             self._meta_data['required_creation_parameters'].\
                 update(('trafficGroup',))
+            try:
+                if not kwargs['trafficGroup']:
+                    raise MissingRequiredCreationParameter(
+                        "trafficGroup must not be falsey but it's: %r"
+                        % kwargs['trafficGroup'])
+            except KeyError:
+                pass
         self._create(**kwargs)
         return self
 
     def update(self, **kwargs):
         stash_translation_address = self.__dict__.pop('translationAddress')
-        print stash_translation_address
         try:
             self._update(**kwargs)
         except Exception:
             self.__dict__['translationAddress'] = stash_translation_address
-        print self.__dict__
