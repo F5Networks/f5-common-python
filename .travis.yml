@@ -9,7 +9,7 @@ before_install:
     - git fetch --depth=100
 install:
     - pip install hacking pytest pytest-cov
-    - pip install git+ssh://git@github.com/F5Networks/f5-icontrol-rest
+    - pip install git+ssh://git@github.com/F5Networks/f5-icontrol-rest-python
     - pip install -r requirements.txt
 script:
     - flake8 .
