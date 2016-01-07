@@ -26,6 +26,15 @@ except LazyAttributesRequired as LAR:
     raise
 nat2.load(partition='Common', name='za_test_001')
 nat2.update(arp=u'disabled')
+nc = bigip.ltm.natcollection
+# print(nc.__dict__)
 print('******')
+CRLUDs = nc.get_collection()
+print('******')
+# print(nc.__dict__['items'])
 nat2.refresh()
+print(CRLUDs)
 nat1.delete()
+CRLUDs2 = nc.get_collection()
+print('!!!!!!!!!!')
+print(CRLUDs2)

@@ -63,6 +63,10 @@ class MissingRequiredReadParameter(Exception):
     pass
 
 
+class UnregisteredKind(Exception):
+    pass
+
+
 class Resource(LazyAttributeMixin, ToDictMixin):
     """Every resource that maps to a uri on the device should inherit this.
 
@@ -193,23 +197,35 @@ class CollectionResource(Resource):
             base_uri = base_uri + '/'
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + base_uri
+        # CollectionResources have a registry which must be reified in the
+        # subclass constructor.
+        self._meta_data['collection_registry'] = {}
 
-    def get_managed(self):
+    def get_collection(self):
         """Get an iterator (list maybe upgrade to generator) of objects.
 
         The objects in the returned list are Pythonic Resources that map to the
-        uris-resources published by the device.
-
-        Note: The "self.ManagedType" must be correctly assigned when the
-        ManagerResource is instantiated.
+        most recently `got` state of uris-resources published by the device.
+        In order to instantiate the correct types, the concrete subclass must
+        populate its registry with acceptable types, based on the `kind` field
+        returned by the REST server.
         """
-        list_of_managed = []
-        response = self.read()
-        # This will need to be updated
-        res_dict = response.json()
-        for item in res_dict['items']:
-            list_of_managed.append(self.ManagedType(item))
-        return list_of_managed
+        list_of_contents = []
+        # Collections list is likely to become collections.abc.Sequence subtype
+        # with support for field based comparison.
+        self._refresh()
+        if 'items' in self.__dict__:
+            for item in self.items:
+                kind = item['kind']
+                if kind in self._meta_data['collection_registry']:
+                    instance =\
+                        self._meta_data['collection_registry'][kind](self)
+                    instance._local_update(item)
+                    list_of_contents.append(instance)
+                else:
+                    error_message = '%r is not registered!' % kind
+                    raise UnregisteredKind(error_message)
+        return list_of_contents
 
 
 class CRLUDResource(Resource):
