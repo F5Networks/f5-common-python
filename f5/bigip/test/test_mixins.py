@@ -14,7 +14,6 @@
 #
 import json
 
-from f5.bigip.mixins import JSONMixin
 from f5.bigip.mixins import ToDictMixin
 
 
@@ -102,13 +101,3 @@ def test_TestClass_Basic():
     TDMAttrObj.y = TestClass()
     mtc_as_dict = TDMAttrObj.to_dict()
     assert json.dumps(mtc_as_dict) == '{"y": {"test_attribute": 42}}'
-
-
-class TestBothMixins(ToDictMixin, JSONMixin):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-
-def test_from_JSON():
-    from_json_obj = TestBothMixins.from_json('{"a": "b"}')
-    assert from_json_obj.to_json() == '{"a": "b"}'

@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 # NOTE:  Code taken from Effective Python Item 26
-import json
 
 
 class ToDictMixin(object):
@@ -53,16 +52,6 @@ class ToDictMixin(object):
             return value
 
 
-class JSONMixin(object):
-    @classmethod
-    def from_json(cls, data):
-        kwargs = json.loads(data)
-        return cls(**kwargs)
-
-    def to_json(self):
-        return json.dumps(self.to_dict())
-
-
 class LazyAttributesRequired(Exception):
     pass
 
@@ -89,14 +78,14 @@ class LazyAttributeMixin(object):
 
         # Instantiate and potentially set the attr on the object
         # Issue #112 -- Only call setattr here if the lazy attribute
-        # is NOT a CRUDResource.  This should allow for only 1 ltm attribute
+        # is NOT a CRLUDResource.  This should allow for only 1 ltm attribute
         # but many nat attributes just like the BIGIP device.
         for lazy_attribute in self._meta_data['allowed_lazy_attributes']:
             if name == lazy_attribute.__name__.lower():
                 iface_collection = lazy_attribute(self)
-                # Use the name of CRUDResource because importing causes
+                # Use the name of CRLUDResource because importing causes
                 # a circular reference
                 bases = [base.__name__ for base in lazy_attribute.__bases__]
-                if 'CRUDResource' not in bases:
+                if 'CRLUDResource' not in bases:
                     setattr(self, name, iface_collection)
                 return iface_collection

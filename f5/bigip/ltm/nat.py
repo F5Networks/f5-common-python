@@ -13,9 +13,8 @@
 # limitations under the License.
 #
 from f5.bigip.resource import CollectionResource
-from f5.bigip.resource import CRUDResource
+from f5.bigip.resource import CRLUDResource
 from f5.bigip.resource import KindTypeMismatch
-from f5.bigip.resource import MissingRequiredCreationParameter
 
 
 class NATCollection(CollectionResource):
@@ -24,26 +23,27 @@ class NATCollection(CollectionResource):
         self._meta_data['allowed_lazy_attributes'] = [NAT]
 
 
-class NAT(CRUDResource):
+class NAT(CRLUDResource):
     def __init__(self, nat_collection):
         super(NAT, self).__init__(nat_collection)
+        self._meta_data['required_creation_parameters'].update(
+            ('name', 'partition', 'originatingAddress', 'translationAddress'))
         self._meta_data['allowed_lazy_attributes'] = []
 
     def create(self, **kwargs):
-        for required in ['name', 'partition', 'originatingAddress',
-                         'translationAddress']:
-            if required not in kwargs:
-                raise MissingRequiredCreationParameter(kwargs)
-
         # If you do a create with inheritedTrafficGroup set to 'false' you
-        # must also have a trafficGroup
+        # must also have a trafficGroup.  This pattern generalizes like so:
+        # If the presence of a param implies an additional required param, then
+        # simply self._meta_data['required_creation_params'].update(IMPLIED),
+        # before the call to self._create(**kwargs), wherein req params are
+        # checked.
+        # We refer to this property as "implied-required parameters" because
+        # the presence of one parameter, or parameter value (e.g.
+        # inheritedTrafficGroup), implies that another parameter is required.
         itg = kwargs.get('inheritedTrafficGroup', None)
         if itg and itg == 'false':
-            tg = kwargs.get('trafficGroup', None)
-            if not tg:
-                raise MissingRequiredCreationParameter(
-                    "Setting inheritedTrafficGroup to 'false' requires" +
-                    "setting the trafficGroup option")
+            self._meta_data['required_creation_parameters'].\
+                update('trafficGroup')
 
         self._create(**kwargs)
         if not self.kind == 'tm:ltm:nat:natstate':
