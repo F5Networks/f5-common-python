@@ -344,4 +344,4 @@ class TestUpdate(object):
         assert n1.arp == 'enabled'
         n1.arp = 'disabled'
         n1.update()
-        #assert n1.arp == 'disabled'
+        assert n1.arp == 'disabled'

@@ -42,4 +42,4 @@ lc = bigip.ltm
 print('lc.__dict__: %r' % lc.__dict__)
 lc.get_collection()
 print('lc.__dict__: %r' % lc.__dict__)
-print lc.get_collection()
+print(lc.get_collection())
