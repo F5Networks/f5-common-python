@@ -195,13 +195,12 @@ class OrganizingCollection(Resource):
         # subclass constructor.
         self._meta_data['collection_registry'] = {}
 
-
     # Because of the behavior of the BigIP REST server different resource types
     # must handle get_collection differently.
     def get_collection(self):
         self._refresh()
         return self.items
-         
+
 
 class Collection(OrganizingCollection):
     """Inherit from this class if the corresponding uri lists other resources.

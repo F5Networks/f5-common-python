@@ -13,11 +13,11 @@
 # limitations under the License.
 #
 
-from f5.bigip.resource import CollectionResource
-from f5.bigip.resource import CRLUDResource
+from f5.bigip.resource import Collection
+from f5.bigip.resource import CRLUD
 
 
-class RuleCollection(CollectionResource):
+class RuleCollection(Collection):
     def __init__(self, ltm):
         super(RuleCollection, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Rule]
@@ -25,7 +25,7 @@ class RuleCollection(CollectionResource):
             {'tm:ltm:rule:rulestate': Rule}
 
 
-class Rule(CRLUDResource):
+class Rule(CRLUD):
     def __init__(self, rule_collection):
         super(Rule, self).__init__(rule_collection)
         self._meta_data['allowed_lazy_attributes'] = []
