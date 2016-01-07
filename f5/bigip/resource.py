@@ -258,6 +258,7 @@ class CRUDResource(Resource):
 
         # Update the object to have the correct functional uri.
         self._meta_data['uri'] = self.selfLink.replace('localhost', hostname)
+        return self
 
     def _update(self, **kwargs):
         update_uri = self._meta_data['uri']
