@@ -160,6 +160,9 @@ class Resource(LazyAttributeMixin, ToDictMixin):
         response = read_session.get(self._meta_data['uri'])
         self._local_update(response.json())
 
+    def refresh(self):
+        self._refresh()
+
     def _load(self, **kwargs):
         if ('name' not in kwargs) or ('partition' not in kwargs):
             raise MissingRequiredReadParameter(str(kwargs))
@@ -170,6 +173,10 @@ class Resource(LazyAttributeMixin, ToDictMixin):
         response = read_session.get(base_uri, **kwargs)
         self._local_update(response.json())
         self._meta_data['uri'] = self.selfLink.replace('localhost', hostname)
+        return self
+
+    def load(self, **kwargs):
+        self._load(**kwargs)
         return self
 
     def create(self):
@@ -255,7 +262,8 @@ class CRLUD(Resource):
         super(CRLUD, self).__init__(container)
         # All Creation supporting Resources must update the
         # 'required_creation_parameters' set with the appropriate values.
-        self._meta_data['required_creation_parameters'] = set()
+        self._meta_data['required_creation_parameters'] = set(
+            ('name', 'partition'))
 
     def _create(self, **kwargs):
         """Call this to create.
@@ -294,20 +302,36 @@ class CRLUD(Resource):
         # Post-process the response
         self._local_update(response.json())
 
+        if self.kind != self._meta_data['required_json_kind']:
+            error_message = "For instances of type '%r' the corresponding" +\
+                " kind must be '%r' but creation returned JSON with kind: %r"\
+                % (self.__class__.__name__,
+                   self._meta_data['required_json_kind'],
+                   self.kind)
+            raise KindTypeMismatch(error_message)
+
         # Update the object to have the correct functional uri.
         self._meta_data['uri'] = self.selfLink.replace('localhost', hostname)
+        return self
+
+    def create(self, **kwargs):
+        self._create(**kwargs)
         return self
 
     def _update(self, **kwargs):
         update_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
         temp_meta = self.__dict__.pop('_meta_data')
-        # TOD: data_dict = self.to_dict()
-        # TOD: data_dict.update(kwargs)
+        data_dict = self.to_dict()
+        data_dict.update(kwargs)
         # TOD: print('data_dict: %r' % data_dict)
-        response = session.put(update_uri, json=kwargs)
+        response = session.put(update_uri, json=data_dict)
         self._meta_data = temp_meta
         self._local_update(response.json())
+
+    def update(self, **kwargs):
+        # Need to implement checking for valid params here.
+        self._update(**kwargs)
 
     def _delete(self):
         delete_uri = self._meta_data['uri']
@@ -316,3 +340,8 @@ class CRLUD(Resource):
                                   name=self.name)
         if response.status_code == 200:
             self.__dict__ = {'deleted': True}
+
+    def delete(self):
+        # Need to implement checking for ? here.
+        self._delete()
+        # Need to implement correct teardown here.

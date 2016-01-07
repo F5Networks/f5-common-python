@@ -29,8 +29,9 @@ class NAT(CRLUD):
     def __init__(self, nat_collection):
         super(NAT, self).__init__(nat_collection)
         self._meta_data['required_creation_parameters'].update(
-            ('name', 'partition', 'originatingAddress', 'translationAddress'))
+            ('originatingAddress', 'translationAddress'))
         self._meta_data['allowed_lazy_attributes'] = []
+        self._meta_data['required_json_kind'] = 'tm:ltm:nat:natstate'
 
     def create(self, **kwargs):
         # If you do a create with inheritedTrafficGroup set to 'false' you
@@ -45,28 +46,15 @@ class NAT(CRLUD):
         itg = kwargs.get('inheritedTrafficGroup', None)
         if itg and itg == 'false':
             self._meta_data['required_creation_parameters'].\
-                update('trafficGroup')
-
+                update(('trafficGroup',))
         self._create(**kwargs)
-        if not self.kind == 'tm:ltm:nat:natstate':
-            error_message = "For instances of type 'NAT' the corresponding" +\
-                " kind must be 'tm:ltm:nat:natstate' but creation returned" +\
-                " JSON with kind: %r" % self.kind
-            raise KindTypeMismatch(error_message)
-        return self
-
-    def refresh(self):
-        self._refresh()
-
-    def load(self, **kwargs):
-        self._load(**kwargs)
         return self
 
     def update(self, **kwargs):
-        # Need to implement checking for valid params here.
-        self._update(**kwargs)
-
-    def delete(self):
-        # Need to implement checking for ? here.
-        self._delete()
-        # Need to implement correct teardown here.
+        stash_translation_address = self.__dict__.pop('translationAddress')
+        print stash_translation_address
+        try:
+            self._update(**kwargs)
+        except Exception:
+            self.__dict__['translationAddress'] = stash_translation_address
+        print self.__dict__
