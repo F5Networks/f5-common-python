@@ -1,4 +1,4 @@
-# Copyright 2015 F5 Networks Inc.
+# Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,3 +50,9 @@ def bigip(opt_bigip, opt_username, opt_password, scope="module"):
     '''bigip fixture'''
     b = BigIP(opt_bigip, opt_username, opt_password)
     return b
+
+
+@pytest.fixture
+def NAT(bigip):
+    n = bigip.ltm.natcollection.nat
+    return n

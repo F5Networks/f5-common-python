@@ -1,4 +1,4 @@
-# Copyright 2014 F5 Networks Inc.
+# Copyright 2014-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,18 +35,30 @@ class NAT(CRUDResource):
             if required not in kwargs:
                 raise MissingRequiredCreationParameter(kwargs)
 
+        # If you do a create with inheritedTrafficGroup set to 'false' you
+        # must also have a trafficGroup
+        itg = kwargs.get('inheritedTrafficGroup', None)
+        if itg and itg == 'false':
+            tg = kwargs.get('trafficGroup', None)
+            if not tg:
+                raise MissingRequiredCreationParameter(
+                    "Setting inheritedTrafficGroup to 'false' requires" +
+                    "setting the trafficGroup option")
+
         self._create(**kwargs)
         if not self.kind == 'tm:ltm:nat:natstate':
             error_message = "For instances of type 'NAT' the corresponding" +\
                 " kind must be 'tm:ltm:nat:natstate' but creation returned" +\
                 " JSON with kind: %r" % self.kind
             raise KindTypeMismatch(error_message)
+        return self
 
     def refresh(self):
         self._refresh()
 
     def load(self, **kwargs):
         self._load(**kwargs)
+        return self
 
     def update(self, **kwargs):
         # Need to implement checking for valid params here.

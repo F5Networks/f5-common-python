@@ -1,4 +1,4 @@
-# Copyright 2015 F5 Networks Inc.
+# Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -87,9 +87,16 @@ class LazyAttributeMixin(object):
                 % (self.__class__, name)
             raise AttributeError(error_message)
 
-        # set the attr on the object
+        # Instantiate and potentially set the attr on the object
+        # Issue #112 -- Only call setattr here if the lazy attribute
+        # is NOT a CRUDResource.  This should allow for only 1 ltm attribute
+        # but many nat attributes just like the BIGIP device.
         for lazy_attribute in self._meta_data['allowed_lazy_attributes']:
             if name == lazy_attribute.__name__.lower():
                 iface_collection = lazy_attribute(self)
-                setattr(self, name, iface_collection)
+                # Use the name of CRUDResource because importing causes
+                # a circular reference
+                bases = [base.__name__ for base in lazy_attribute.__bases__]
+                if 'CRUDResource' not in bases:
+                    setattr(self, name, iface_collection)
                 return iface_collection
