@@ -13,407 +13,681 @@
 # limitations under the License.
 #
 
-from f5.bigip import exceptions
-from f5.bigip.rest_collection import icontrol_rest_folder
-from f5.bigip.rest_collection import log
-from f5.common import constants as const
-from f5.common.logger import Log
-
-import json
+from f5.bigip.resource import Collection
+from f5.bigip.resource import OrganizingCollection
+from f5.bigip.resource import Resource
 
 
-class Monitor(object):
-    """Class for configuring monitors on bigip """
-    def __init__(self, ltm_instance):
-        self.bigip = ltm_instance.bigip
+class Monitor(OrganizingCollection):
+    def __init__(self, ltm):
+        super(Monitor, self).__init__(ltm)
+        self._meta_data['allowed_lazy_attributes'] = [
+            HTTPCollection,
+            HTTPSCollection,
+            DiameterCollection,
+            DNSCollection,
+            ExternalCollection,
+            FirePassCollection,
+            FTPCollection,
+            GateWay_ICMPCollection,
+            ICMPCollection,
+            IMAPCollection,
+            InBandCollection,
+            LDAPCollection,
+            Module_ScoreCollection,
+            MSSQLCollection,
+            MYSQLCollection,
+            NNTPCollection,
+            NONECollection,
+            OracleCollection,
+            POP3Collection,
+            PostGRESQLCollection,
+            RadiusCollection,
+            Radius_AccountingCollection,
+            Real_ServerCollection,
+            RPCCollection,
+            SASPCollection,
+            ScriptedCollection,
+            SIPCollection,
+            SMBCollection,
+            SMTPCollection,
+            SNMP_DCACollection,
+            SNMP_DCA_BaseCollection,
+            SOAPCollection,
+            TCPCollection,
+            TCP_EchoCollection,
+            TCP_Half_OpenCollection,
+            UDPCollection,
+            Virtual_LocationCollection,
+            WAPCollection,
+            WMICollection]
 
-        self.monitor_type = {
-            'ping': {'name': 'gateway-icmp',
-                     'url': '/ltm/monitor/gateway-icmp'},
-            'icmp': {'name': 'gateway-icmp',
-                     'url': '/ltm/monitor/gateway-icmp'},
-            'tcp': {'name': 'tcp',
-                    'url': '/ltm/monitor/tcp'},
-            'http': {'name': 'http',
-                     'url': '/ltm/monitor/http'},
-            'https': {'name': 'https',
-                      'url': '/ltm/monitor/https'},
-            'udp': {'name': 'udp', 'url': '/ltm/monitor/udp'},
-            'inband': {'name': 'inband',
-                       'url': '/ltm/monitor/inband'}}
 
-    @icontrol_rest_folder
-    @log
-    def create(self, name=None, mon_type=None, interval=5,
-               timeout=16, send_text=None, recv_text=None,
-               folder='Common'):
-        """Create monitor """
-        folder = str(folder).replace('/', '')
-        mon_type = self._get_monitor_rest_type(mon_type)
-        payload = dict()
-        payload['name'] = name
-        payload['partition'] = folder
-        parent = mon_type.replace('-', '_')
-        payload['defaultsFrom'] = '/Common/' + parent
-        payload['timeout'] = timeout
-        payload['interval'] = interval
-        if send_text:
-            payload['send'] = send_text
-        if recv_text:
-            payload['recv'] = recv_text
-        request_url = self.bigip.icr_url + '/ltm/monitor/' + mon_type
-        response = self.bigip.icr_session.post(
-            request_url, data=json.dumps(payload),
-            timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            return True
-        elif response.status_code == 409:
-            return True
-        else:
-            Log.error('monitor', response.text)
-            raise exceptions.MonitorCreationException(response.text)
-        return False
+class HTTPCollection(Collection):
+    def __init__(self, monitor):
+        super(HTTPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [HTTP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:http:httpstate': HTTP}
 
-    @icontrol_rest_folder
-    @log
-    def delete(self, name=None, mon_type=None, folder='Common'):
-        """Delete monitor """
-        if name and mon_type:
-            folder = str(folder).replace('/', '')
-            mon_type = self._get_monitor_rest_type(mon_type)
-            request_url = self.bigip.icr_url + '/ltm/monitor/' + mon_type + '/'
-            request_url += '~' + folder + '~' + name
-            response = self.bigip.icr_session.delete(
-                request_url, timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return True
-            elif response.status_code == 404:
-                return True
-            else:
-                Log.error('monitor', response.text)
-                raise exceptions.MonitorDeleteException(response.text)
-        return False
 
-    @icontrol_rest_folder
-    @log
-    def delete_all(self, folder='Common'):
-        """Create all monitors """
-        request_url = self.bigip.icr_url + '/ltm/monitor'
-        folder = str(folder).replace('/', '')
-        request_filter = 'partition eq ' + folder
-        request_url += '?$filter=' + request_filter
-        response = self.bigip.icr_session.get(
-            request_url, timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            return_obj = json.loads(response.text)
-            monitor_types = []
-            if 'items' in return_obj:
-                for monitor_type in return_obj['items']:
-                    ref = monitor_type['reference']['link']
-                    monitor_types.append(
-                        self.bigip.icr_link(ref).split('?')[0])
-            for monitor in monitor_types:
-                mon_req = monitor
-                mon_req += '?$select=name,selfLink'
-                if folder:
-                    mon_req += '&$filter=' + request_filter
-                mon_resp = self.bigip.icr_session.get(
-                    mon_req, timeout=const.CONNECTION_TIMEOUT)
-                if mon_resp.status_code < 400:
-                    mon_resp_obj = json.loads(mon_resp.text)
-                    if 'items' in mon_resp_obj:
-                        for mon_def in mon_resp_obj['items']:
-                            if mon_def['name'].startswith(self.OBJ_PREFIX):
-                                response = self.bigip.icr_session.delete(
-                                    self.bigip.icr_link(mon_def['selfLink']),
-                                    timeout=const.CONNECTION_TIMEOUT)
-                                if response.status_code > 400 and \
-                                   response.status_code != 404:
-                                    Log.error('monitor', response.text)
-                                    raise exceptions.MonitorDeleteException(
-                                        response.text)
-            return True
-        elif response.status_code != 404:
-            Log.error('monitor', response.text)
-            raise exceptions.MonitorQueryException(response.text)
-        return False
+class UpdateMonitorMixin(object):
+    def update(self, **kwargs):
+        self.__dict__.pop(u'defaultsFrom', '')
+        self._update(**kwargs)
 
-    @icontrol_rest_folder
-    @log
-    def get_type(self, name=None, folder='Common'):
-        """Get monitor type """
-        folder = str(folder).replace('/', '')
-        request_url = self.bigip.icr_url + '/ltm/monitor'
-        request_filter = 'partition eq ' + folder
-        request_url += '?$filter=' + request_filter
-        response = self.bigip.icr_session.get(
-            request_url, timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            return_obj = json.loads(response.text)
-            monitor_types = []
-            if 'items' in return_obj:
-                for monitor_type in return_obj['items']:
-                    ref = monitor_type['reference']['link']
-                    monitor_types.append(ref.replace(
-                        'https://localhost/mgmt/tm', '').split('?')[0])
-            for monitor in monitor_types:
-                mon_req = self.bigip.icr_url + monitor
-                mon_req += '?$select=name,defaultsFrom'
-                if folder:
-                    mon_req += '&$filter=' + request_filter
-                mon_resp = self.bigip.icr_session.get(
-                    mon_req, timeout=const.CONNECTION_TIMEOUT)
-                if mon_resp.status_code < 400:
-                    mon_resp_obj = json.loads(mon_resp.text)
-                    if 'items' not in mon_resp_obj:
-                        continue
-                    for mon_def in mon_resp_obj['items']:
-                        if mon_def['name'] != name:
-                            continue
-                        def_from = mon_def['defaultsFrom']
-                        mon_type = def_from.replace('/Common/', '')
-                        return self._get_monitor_type_from_parent(mon_type)
-                else:
-                    Log.error('monitor', mon_resp.text)
-                    raise exceptions.MonitorQueryException(mon_resp.text)
-        else:
-            Log.error('monitor', response.text)
-            raise exceptions.MonitorQueryException(response.text)
-        return None
 
-    @icontrol_rest_folder
-    @log
-    def get_interval(self, name=None, mon_type=None, folder='Common'):
-        """Get monitor interval """
-        folder = str(folder).replace('/', '')
-        if name and mon_type:
-            mon_type = self._get_monitor_rest_type(mon_type)
-            request_url = self.bigip.icr_url + '/ltm/monitor/' + mon_type + '/'
-            request_url += '~' + folder + '~' + name
-            request_url += '/?$select=interval'
-            response = self.bigip.icr_session.get(
-                request_url, timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return_obj = json.loads(response.text)
-                if 'interval' in return_obj:
-                    return return_obj['interval']
-            else:
-                Log.error('monitor', response.text)
-                raise exceptions.MonitorQueryException(response.text)
-        return 0
+class HTTP(UpdateMonitorMixin, Resource):
+    def __init__(self, http_collection):
+        super(HTTP, self).__init__(http_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:http:httpstate'
 
-    @icontrol_rest_folder
-    @log
-    def set_interval(self, name=None,
-                     mon_type=None, interval=5, folder='Common'):
-        """Set monitor interval """
-        folder = str(folder).replace('/', '')
-        payload = dict()
-        payload['interval'] = interval
 
-        mon_type = self._get_monitor_rest_type(mon_type)
-        request_url = self.bigip.icr_url + '/ltm/monitor/' + mon_type + '/'
-        request_url += '~' + folder + '~' + name
-        response = self.bigip.icr_session.patch(
-            request_url, data=json.dumps(payload),
-            timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            return True
-        else:
-            Log.error('monitor', response.text)
-            raise exceptions.MonitorUpdateException(response.text)
-        return False
+class HTTPSCollection(Collection):
+    def __init__(self, monitor):
+        super(HTTPSCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [HTTPS]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:https:httpsstate': HTTPS}
 
-    @icontrol_rest_folder
-    @log
-    def get_timeout(self, name=None, mon_type=None, folder='Common'):
-        """Get monitor timeout """
-        folder = str(folder).replace('/', '')
-        if name and mon_type:
-            mon_type = self._get_monitor_rest_type(mon_type)
-            request_url = self.bigip.icr_url + '/ltm/monitor/' + mon_type + '/'
-            request_url += '~' + folder + '~' + name
-            request_url += '/?$select=timeout'
-            response = self.bigip.icr_session.get(
-                request_url, timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return_obj = json.loads(response.text)
-                if 'timeout' in return_obj:
-                    return return_obj['timeout']
-            else:
-                Log.error('monitor', response.text)
-                raise exceptions.MonitorQueryException(response.text)
-        return 0
 
-    @icontrol_rest_folder
-    @log
-    def set_timeout(self, name=None, mon_type=None,
-                    timeout=16, folder='Common'):
-        """Set monitor timeout """
-        folder = str(folder).replace('/', '')
-        payload = dict()
-        payload['timeout'] = timeout
+class HTTPS(UpdateMonitorMixin, Resource):
+    def __init__(self, https_collection):
+        super(HTTPS, self).__init__(https_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:https:httpsstate'
 
-        mon_type = self._get_monitor_rest_type(mon_type)
-        request_url = self.bigip.icr_url + '/ltm/monitor/' + mon_type + '/'
-        request_url += '~' + folder + '~' + name
-        response = self.bigip.icr_session.patch(
-            request_url, data=json.dumps(payload),
-            timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            return True
-        else:
-            Log.error('monitor', response.text)
-            raise exceptions.MonitorUpdateException(response.text)
-        return False
 
-    @icontrol_rest_folder
-    @log
-    def get_send_string(self, name=None, mon_type=None, folder='Common'):
-        """Get monitor send string """
-        folder = str(folder).replace('/', '')
-        if name and mon_type:
-            mon_type = self._get_monitor_rest_type(mon_type)
-            request_url = self.bigip.icr_url + '/ltm/monitor/' + mon_type + '/'
-            request_url += '~' + folder + '~' + name
-            request_url += '/?$select=send'
-            response = self.bigip.icr_session.get(
-                request_url, timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return_obj = json.loads(response.text)
-                if 'send' in return_obj:
-                    return return_obj['send']
-            else:
-                Log.error('monitor', response.text)
-                raise exceptions.MonitorQueryException(response.text)
-        return None
+class DiameterCollection(Collection):
+    def __init__(self, monitor):
+        super(DiameterCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Diameter]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:diameter:diameterstate': Diameter}
 
-    @icontrol_rest_folder
-    @log
-    def set_send_string(self, name=None, mon_type=None,
-                        send_text=None, folder='Common'):
-        """Set monitor send string """
-        folder = str(folder).replace('/', '')
-        payload = dict()
-        if send_text:
-            payload['send'] = send_text
-        else:
-            payload['send'] = ''
 
-        mon_type = self._get_monitor_rest_type(mon_type)
-        request_url = self.bigip.icr_url + '/ltm/monitor/' + mon_type + '/'
-        request_url += '~' + folder + '~' + name
-        response = self.bigip.icr_session.patch(
-            request_url, data=json.dumps(payload),
-            timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            return True
-        else:
-            Log.error('monitor', response.text)
-            raise exceptions.MonitorUpdateException(response.text)
-        return False
+class Diameter(UpdateMonitorMixin, Resource):
+    def __init__(self, diameter_collection):
+        super(Diameter, self).__init__(diameter_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:diameter:diameterstate'
 
-    @icontrol_rest_folder
-    @log
-    def get_recv_string(self, name=None, mon_type=None, folder='Common'):
-        """Get monitor receive string """
-        folder = str(folder).replace('/', '')
-        if name and mon_type:
-            mon_type = self._get_monitor_rest_type(mon_type)
-            request_url = self.bigip.icr_url + '/ltm/monitor/' + mon_type + '/'
-            request_url += '~' + folder + '~' + name
-            request_url += '/?$select=recv'
-            response = self.bigip.icr_session.get(
-                request_url, timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return_obj = json.loads(response.text)
-                if 'recv' in return_obj:
-                    return return_obj['recv']
-            else:
-                Log.error('monitor', response.text)
-                raise exceptions.MonitorQueryException(response.text)
-        return None
 
-    @icontrol_rest_folder
-    @log
-    def set_recv_string(self, name=None, mon_type=None,
-                        recv_text=None, folder='Common'):
-        """Set monitor receive string """
-        folder = str(folder).replace('/', '')
-        payload = dict()
-        if recv_text:
-            payload['recv'] = recv_text
-        else:
-            payload['recv'] = ''
+class DNSCollection(Collection):
+    def __init__(self, monitor):
+        super(DNSCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [DNS]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:dns:dnsstate': DNS}
 
-        mon_type = self._get_monitor_rest_type(mon_type)
-        request_url = self.bigip.icr_url + '/ltm/monitor/' + mon_type + '/'
-        request_url += '~' + folder + '~' + name
-        response = self.bigip.icr_session.patch(
-            request_url, data=json.dumps(payload),
-            timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            return True
-        else:
-            Log.error('monitor', response.text)
-            raise exceptions.MonitorQueryException(response.text)
-        return False
 
-    def _get_monitor_rest_type(self, type_str):
-        """Get monitor reset type """
-        type_str = type_str.lower()
-        if type_str in self.monitor_type:
-            return self.monitor_type[type_str]['name']
-        else:
-            raise exceptions.UnknownMonitorType(
-                'Unknown monitor %s' % type_str)
+class DNS(UpdateMonitorMixin, Resource):
+    def __init__(self, dns_collection):
+        super(DNS, self).__init__(dns_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:dns:dnsstate'
+        self._meta_data['required_creation_parameters'].update(('qname',))
 
-    def _get_monitor_type_from_parent(self, parent):
-        """Get monitor type from parent """
-        parent = parent.upper()
-        if parent == 'GATEWAY_ICMP':
-            return 'PING'
-        else:
-            return parent
 
-    @icontrol_rest_folder
-    @log
-    def exists(self, name=None, mon_type=None, folder='Common'):
-        """Does monitor exist ? """
-        folder = str(folder).replace('/', '')
-        if name and mon_type:
-            mon_type = self._get_monitor_rest_type(mon_type)
-            request_url = self.bigip.icr_url + '/ltm/monitor/' + mon_type + '/'
-            request_url += '~' + folder + '~' + name
-            response = self.bigip.icr_session.get(
-                request_url, timeout=const.CONNECTION_TIMEOUT)
-            if response.status_code < 400:
-                return True
-            else:
-                return False
-        else:
-            return False
+class ExternalCollection(Collection):
+    def __init__(self, monitor):
+        super(ExternalCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [External]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:external:externalstate': External}
 
-    @icontrol_rest_folder
-    @log
-    def get_monitors(self, folder='Common'):
-        """Get monitors """
-        folder = str(folder).replace('/', '')
-        request_filter = 'partition eq ' + folder
-        return_monitors = []
-        urls = {}
-        for mon in self.monitor_type:
-            if not self.monitor_type[mon]['url'] in urls:
-                mon_req = self.bigip.icr_url + self.monitor_type[mon]['url']
-                mon_req += '?$select=name,partition'
-                if folder:
-                    mon_req += '&$filter=' + request_filter
-                mon_resp = self.bigip.icr_session.get(
-                    mon_req, timeout=const.CONNECTION_TIMEOUT)
-                urls[self.monitor_type[mon]['url']] = mon_resp.status_code
-                if mon_resp.status_code < 400:
-                    mon_resp_obj = json.loads(mon_resp.text)
-                    if 'items' in mon_resp_obj:
-                        for mon_def in mon_resp_obj['items']:
-                            return_monitors.append(mon_def['name'])
-        return return_monitors
+
+class External(UpdateMonitorMixin, Resource):
+    def __init__(self, external_collection):
+        super(External, self).__init__(external_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:external:externalstate'
+
+
+class FirePassCollection(Collection):
+    def __init__(self, monitor):
+        super(FirePassCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [FirePass]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:firepass:firepassstate': FirePass}
+
+
+class FirePass(UpdateMonitorMixin, Resource):
+    def __init__(self, firepass_collection):
+        super(FirePass, self).__init__(firepass_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:firepass:firepassstate'
+
+
+class FTPCollection(Collection):
+    def __init__(self, monitor):
+        super(FTPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [FTP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:ftp:ftpstate': FTP}
+
+
+class FTP(UpdateMonitorMixin, Resource):
+    def __init__(self, ftp_collection):
+        super(FTP, self).__init__(ftp_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:ftp:ftpstate'
+
+
+class GateWay_ICMPCollection(Collection):
+    def __init__(self, monitor):
+        super(GateWay_ICMPCollection, self).__init__(monitor)
+        fixed = self._meta_data['uri'].replace('_', '-')
+        self._meta_data['uri'] = fixed
+        self._meta_data['allowed_lazy_attributes'] = [GateWay_ICMP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:gateway-icmp:gateway-icmpstate': GateWay_ICMP}
+
+
+class GateWay_ICMP(UpdateMonitorMixin, Resource):
+    def __init__(self, gateway_icmp_collection):
+        super(GateWay_ICMP, self).__init__(gateway_icmp_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:gateway-icmp:gateway-icmpstate'
+
+
+class ICMPCollection(Collection):
+    def __init__(self, monitor):
+        super(ICMPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [ICMP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:icmp:icmpstate': ICMP}
+
+
+class ICMP(UpdateMonitorMixin, Resource):
+    def __init__(self, icmp_collection):
+        super(ICMP, self).__init__(icmp_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:icmp:icmpstate'
+
+
+class IMAPCollection(Collection):
+    def __init__(self, monitor):
+        super(IMAPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [IMAP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:imap:imapstate': IMAP}
+
+
+class IMAP(UpdateMonitorMixin, Resource):
+    def __init__(self, imap_collection):
+        super(IMAP, self).__init__(imap_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:imap:imapstate'
+
+
+class InBandCollection(Collection):
+    def __init__(self, monitor):
+        super(InBandCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [InBand]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:inband:inbandstate': InBand}
+
+
+class InBand(UpdateMonitorMixin, Resource):
+    def __init__(self, inband_collection):
+        super(InBand, self).__init__(inband_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:inband:inbandstate'
+
+
+class LDAPCollection(Collection):
+    def __init__(self, monitor):
+        super(LDAPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [LDAP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:ldap:ldapstate': LDAP}
+
+
+class LDAP(UpdateMonitorMixin, Resource):
+    def __init__(self, ldap_collection):
+        super(LDAP, self).__init__(ldap_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:ldap:ldapstate'
+
+
+class Module_ScoreCollection(Collection):
+    def __init__(self, monitor):
+        super(Module_ScoreCollection, self).__init__(monitor)
+        fixed = self._meta_data['uri'].replace('_', '-')
+        self._meta_data['uri'] = fixed
+        self._meta_data['allowed_lazy_attributes'] = [Module_Score]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:module-score:module-scorestate': Module_Score}
+
+
+class Module_Score(UpdateMonitorMixin, Resource):
+    def __init__(self, gateway_icmp_collection):
+        super(Module_Score, self).__init__(gateway_icmp_collection)
+        self._meta_data['required_creation_parameters'].update(
+            ('snmp-ip-address',))
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:module-score:module-scorestate'
+
+
+class MYSQLCollection(Collection):
+    def __init__(self, monitor):
+        super(MYSQLCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [MYSQL]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:mysql:mysqlstate': MYSQL}
+
+
+class MYSQL(UpdateMonitorMixin, Resource):
+    def __init__(self, mysql_collection):
+        super(MYSQL, self).__init__(mysql_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:mysql:mysqlstate'
+
+
+class MSSQLCollection(Collection):
+    def __init__(self, monitor):
+        super(MSSQLCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [MSSQL]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:mssql:mssqlstate': MSSQL}
+
+
+class MSSQL(UpdateMonitorMixin, Resource):
+    def __init__(self, mssql_collection):
+        super(MSSQL, self).__init__(mssql_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:mssql:mssqlstate'
+
+
+class NNTPCollection(Collection):
+    def __init__(self, monitor):
+        super(NNTPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [NNTP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:nntp:nntpstate': NNTP}
+
+
+class NNTP(UpdateMonitorMixin, Resource):
+    def __init__(self, nntp_collection):
+        super(NNTP, self).__init__(nntp_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:nntp:nntpstate'
+
+
+class NONECollection(Collection):
+    def __init__(self, monitor):
+        super(NONECollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [NONE]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:none:nonestate': NONE}
+
+
+class NONE(UpdateMonitorMixin, Resource):
+    def __init__(self, none_collection):
+        super(NONE, self).__init__(none_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:none:nonestate'
+
+
+class OracleCollection(Collection):
+    def __init__(self, monitor):
+        super(OracleCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Oracle]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:oracle:oraclestate': Oracle}
+
+
+class Oracle(UpdateMonitorMixin, Resource):
+    def __init__(self, oracle_collection):
+        super(Oracle, self).__init__(oracle_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:oracle:oraclestate'
+
+
+class POP3Collection(Collection):
+    def __init__(self, monitor):
+        super(POP3Collection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [POP3]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:pop3:pop3state': POP3}
+
+
+class POP3(UpdateMonitorMixin, Resource):
+    def __init__(self, pop3_collection):
+        super(POP3, self).__init__(pop3_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:pop3:pop3state'
+
+
+class PostGRESQLCollection(Collection):
+    def __init__(self, monitor):
+        super(PostGRESQLCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [PostGRESQL]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:postgresql:postgresqlstate': PostGRESQL}
+
+
+class PostGRESQL(UpdateMonitorMixin, Resource):
+    def __init__(self, postgresql_collection):
+        super(PostGRESQL, self).__init__(postgresql_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:postgresql:postgresqlstate'
+
+
+class RadiusCollection(Collection):
+    def __init__(self, monitor):
+        super(RadiusCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Radius]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:radius:radiusstate': Radius}
+
+
+class Radius(UpdateMonitorMixin, Resource):
+    def __init__(self, radius_collection):
+        super(Radius, self).__init__(radius_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:radius:radiusstate'
+
+
+class Radius_AccountingCollection(Collection):
+    def __init__(self, monitor):
+        super(Radius_AccountingCollection, self).__init__(monitor)
+        fixed = self._meta_data['uri'].replace('_', '-')
+        self._meta_data['uri'] = fixed
+        self._meta_data['allowed_lazy_attributes'] = [Radius_Accounting]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:radius-accounting:radius-accountingstate':
+             Radius_Accounting}
+
+
+class Radius_Accounting(UpdateMonitorMixin, Resource):
+    def __init__(self, radius_accounting_collection):
+        super(Radius_Accounting, self).__init__(radius_accounting_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:radius-accounting:radius-accountingstate'
+
+
+class Real_ServerCollection(Collection):
+    def __init__(self, monitor):
+        super(Real_ServerCollection, self).__init__(monitor)
+        fixed = self._meta_data['uri'].replace('_', '-')
+        self._meta_data['uri'] = fixed
+        self._meta_data['allowed_lazy_attributes'] = [Real_Server]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:real-server:real-serverstate': Real_Server}
+
+
+class Real_Server(UpdateMonitorMixin, Resource):
+    def __init__(self, real_server_collection):
+        super(Real_Server, self).__init__(real_server_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:real-server:real-serverstate'
+
+    def update(self, **kwargs):
+        self.__dict__.pop('tmCommand', '')
+        self.__dict__.pop('agent', '')
+        self.__dict__.pop('method', '')
+        super(Real_Server, self).update(**kwargs)
+
+
+class RPCCollection(Collection):
+    def __init__(self, monitor):
+        super(RPCCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [RPC]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:rpc:rpcstate': RPC}
+
+
+class RPC(UpdateMonitorMixin, Resource):
+    def __init__(self, rpc_collection):
+        super(RPC, self).__init__(rpc_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:rpc:rpcstate'
+
+
+class SASPCollection(Collection):
+    def __init__(self, monitor):
+        super(SASPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [SASP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:sasp:saspstate': SASP}
+
+
+class SASP(UpdateMonitorMixin, Resource):
+    def __init__(self, sasp_collection):
+        super(SASP, self).__init__(sasp_collection)
+        self._meta_data['required_creation_parameters'].update(
+            ('primaryAddress',))
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:sasp:saspstate'
+
+
+class ScriptedCollection(Collection):
+    def __init__(self, monitor):
+        super(ScriptedCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Scripted]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:scripted:scriptedstate': Scripted}
+
+
+class Scripted(UpdateMonitorMixin, Resource):
+    def __init__(self, scripted_collection):
+        super(Scripted, self).__init__(scripted_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:scripted:scriptedstate'
+
+
+class SIPCollection(Collection):
+    def __init__(self, monitor):
+        super(SIPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [SIP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:sip:sipstate': SIP}
+
+
+class SIP(UpdateMonitorMixin, Resource):
+    def __init__(self, sip_collection):
+        super(SIP, self).__init__(sip_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:sip:sipstate'
+
+
+class SMBCollection(Collection):
+    def __init__(self, monitor):
+        super(SMBCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [SMB]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:smb:smbstate': SMB}
+
+
+class SMB(UpdateMonitorMixin, Resource):
+    def __init__(self, smb_collection):
+        super(SMB, self).__init__(smb_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:smb:smbstate'
+
+
+class SMTPCollection(Collection):
+    def __init__(self, monitor):
+        super(SMTPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [SMTP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:smtp:smtpstate': SMTP}
+
+
+class SMTP(UpdateMonitorMixin, Resource):
+    def __init__(self, smtp_collection):
+        super(SMTP, self).__init__(smtp_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:smtp:smtpstate'
+
+
+class SNMP_DCACollection(Collection):
+    def __init__(self, monitor):
+        super(SNMP_DCACollection, self).__init__(monitor)
+        fixed = self._meta_data['uri'].replace('_', '-')
+        self._meta_data['uri'] = fixed
+        self._meta_data['allowed_lazy_attributes'] = [SNMP_DCA]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:snmp-dca:snmp-dcastate': SNMP_DCA}
+
+
+class SNMP_DCA(UpdateMonitorMixin, Resource):
+    def __init__(self, snmp_dca_collection):
+        super(SNMP_DCA, self).__init__(snmp_dca_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:snmp-dca:snmp-dcastate'
+
+
+class SNMP_DCA_BaseCollection(Collection):
+    def __init__(self, monitor):
+        super(SNMP_DCA_BaseCollection, self).__init__(monitor)
+        fixed = self._meta_data['uri'].replace('_', '-')
+        self._meta_data['uri'] = fixed
+        self._meta_data['allowed_lazy_attributes'] = [SNMP_DCA_Base]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:snmp-dca-base:snmp-dca-basestate': SNMP_DCA_Base}
+
+
+class SNMP_DCA_Base(UpdateMonitorMixin, Resource):
+    def __init__(self, snmp_dca_base_collection):
+        super(SNMP_DCA_Base, self).__init__(snmp_dca_base_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:snmp-dca-base:snmp-dca-basestate'
+
+
+class SOAPCollection(Collection):
+    def __init__(self, monitor):
+        super(SOAPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [SOAP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:soap:soapstate': SOAP}
+
+
+class SOAP(UpdateMonitorMixin, Resource):
+    def __init__(self, soap_collection):
+        super(SOAP, self).__init__(soap_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:soap:soapstate'
+
+
+class TCPCollection(Collection):
+    def __init__(self, monitor):
+        super(TCPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [TCP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:tcp:tcpstate': TCP}
+
+
+class TCP(UpdateMonitorMixin, Resource):
+    def __init__(self, tcp_collection):
+        super(TCP, self).__init__(tcp_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:tcp:tcpstate'
+
+
+class TCP_EchoCollection(Collection):
+    def __init__(self, monitor):
+        super(TCP_EchoCollection, self).__init__(monitor)
+        fixed = self._meta_data['uri'].replace('_', '-')
+        self._meta_data['uri'] = fixed
+        self._meta_data['allowed_lazy_attributes'] = [TCP_Echo]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:tcp-echo:tcp-echostate': TCP_Echo}
+
+
+class TCP_Echo(UpdateMonitorMixin, Resource):
+    def __init__(self, tcp_echo_collection):
+        super(TCP_Echo, self).__init__(tcp_echo_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:tcp-echo:tcp-echostate'
+
+
+class TCP_Half_OpenCollection(Collection):
+    def __init__(self, monitor):
+        super(TCP_Half_OpenCollection, self).__init__(monitor)
+        fixed = self._meta_data['uri'].replace('_', '-')
+        self._meta_data['uri'] = fixed
+        self._meta_data['allowed_lazy_attributes'] = [TCP_Half_Open]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:tcp-half-open:tcp-half-openstate': TCP_Half_Open}
+
+
+class TCP_Half_Open(UpdateMonitorMixin, Resource):
+    def __init__(self, tcp_half_open_collection):
+        super(TCP_Half_Open, self).__init__(tcp_half_open_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:tcp-half-open:tcp-half-openstate'
+
+
+class UDPCollection(Collection):
+    def __init__(self, monitor):
+        super(UDPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [UDP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:udp:udpstate': UDP}
+
+
+class UDP(UpdateMonitorMixin, Resource):
+    def __init__(self, udp_collection):
+        super(UDP, self).__init__(udp_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:udp:udpstate'
+
+
+class Virtual_LocationCollection(Collection):
+    def __init__(self, monitor):
+        super(Virtual_LocationCollection, self).__init__(monitor)
+        fixed = self._meta_data['uri'].replace('_', '-')
+        self._meta_data['uri'] = fixed
+        self._meta_data['allowed_lazy_attributes'] = [Virtual_Location]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:virtual-location:virtual-locationstate':
+             Virtual_Location}
+
+
+class Virtual_Location(UpdateMonitorMixin, Resource):
+    def __init__(self, virtual_location_collection):
+        super(Virtual_Location, self).__init__(virtual_location_collection)
+        self._meta_data['required_creation_parameters'].update(
+            ('pool',))
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:virtual-location:virtual-locationstate'
+
+
+class WAPCollection(Collection):
+    def __init__(self, monitor):
+        super(WAPCollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [WAP]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:wap:wapstate': WAP}
+
+
+class WAP(UpdateMonitorMixin, Resource):
+    def __init__(self, wap_collection):
+        super(WAP, self).__init__(wap_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:wap:wapstate'
+
+
+class WMICollection(Collection):
+    def __init__(self, monitor):
+        super(WMICollection, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [WMI]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:monitor:wmi:wmistate': WMI}
+
+
+class WMI(UpdateMonitorMixin, Resource):
+    def __init__(self, wmi_collection):
+        super(WMI, self).__init__(wmi_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:wmi:wmistate'
+
+    def update(self, **kwargs):
+        self.__dict__.pop('agent', '')
+        self.__dict__.pop('post', '')
+        self.__dict__.pop('method', '')
+        super(WMI, self).update(**kwargs)
