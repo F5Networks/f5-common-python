@@ -15,11 +15,18 @@
 
 import pytest
 
+from icontrol.session import iControlUnexpectedHTTPError
 from requests.exceptions import HTTPError
 
 from f5.bigip.ltm.snat import RequireOneOf
 
 TESTDESCRIPTION = 'TESTDESCRIPTION'
+
+EXPECTED_ORIGINS_DELETION_MESSAGE = '400 Unexpected Error: Bad Request for' +\
+    ' uri: https://host-vm-15/mgmt/tm/ltm/snat/~Common~snat1/\nText:' +\
+    ' u\'{"code":400,"message":"\\\\"origins\\\\" unexpected argument' +\
+    ' \\\\"none\\\\" one of the following must be specified:\\\\nadd,' +\
+    ' delete, modify, replace-all-with","errorStack":[]}\''
 
 
 def delete_snat(bigip, name, partition):
@@ -87,3 +94,20 @@ class TestSNAT(object):
         snat2.load(name='snat1', partition='Common')
         snat1.delete()
         assert snat1.__dict__ == {'deleted': True}
+
+    def test_add_one_origin(self, request, bigip):
+        snat1, sc1 = setup_basic_test(request, bigip, 'snat1', 'Common')
+        assert snat1.origins == [{u'name': u'1.1.1.1/32'}]
+        origin2 = {u'name': u'2.2.2.2/32'}
+        snat1.origins.append(origin2)
+        snat1.update()
+        assert snat1.origins == [{u'name': u'1.1.1.1/32'},
+                                 {u'name': u'2.2.2.2/32'}]
+        snat1.origins[0]['name'] = u'3.3.3.3/32'
+        snat1.update()
+        assert snat1.origins == [{u'name': u'2.2.2.2/32'},
+                                 {u'name': u'3.3.3.3/32'}]
+        snat1.origins = []
+        with pytest.raises(iControlUnexpectedHTTPError) as UHEIO:
+            snat1.update()
+        assert UHEIO.value.message == EXPECTED_ORIGINS_DELETION_MESSAGE

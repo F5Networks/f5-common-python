@@ -32,6 +32,11 @@ class SNATCollection(Collection):
 
 class SNAT(Resource):
     def __init__(self, snat_collection):
+        '''This represents a SNAT.
+
+        "origins" is our first example of a dict attribute, it appears to
+        behave as expected.
+        '''
         super(SNAT, self).__init__(snat_collection)
         self._meta_data['required_json_kind'] = 'tm:ltm:snat:snatstate'
         self._meta_data['required_creation_parameters'].update(
