@@ -17,143 +17,73 @@ import pytest
 
 from requests.exceptions import HTTPError
 
-from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.bigip.ltm.snat import RequireOneOf
 
 TESTDESCRIPTION = 'TESTDESCRIPTION'
 
 
-def delete_pool(bigip, name, partition):
-    p = bigip.ltm.poolcollection.pool
+def delete_snat(bigip, name, partition):
+    s = bigip.ltm.snatcollection.snat
     try:
-        p.load(name=name, partition=partition)
+        s.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
         return
-    p.delete()
+    s.delete()
 
 
 def setup_create_test(request, bigip, name, partition):
     def teardown():
-        delete_pool(bigip, name, partition)
+        delete_snat(bigip, name, partition)
     request.addfinalizer(teardown)
+    snat1 = bigip.ltm.snatcollection.snat
+    return snat1
 
 
-def setup_basic_test(request, bigip, name, partition):
+def setup_basic_test(request, bigip, name, partition, orig='1.1.1.1'):
     def teardown():
-        delete_pool(bigip, name, partition)
+        delete_snat(bigip, name, partition)
 
-    pool1 = bigip.ltm.poolcollection.pool
-    pool1.create(name=name, partition=partition)
+    snat1 = bigip.ltm.snatcollection.snat
+    snat_collection1 = bigip.ltm.snatcollection
+    snat1.create(name=name, partition=partition, origins=orig, automap=True)
     request.addfinalizer(teardown)
-    return pool1
+    return snat1, snat_collection1
 
 
-def setup_member_test(request, bigip, name, partition,
-                      memname="192.168.15.15:80"):
-    p1 = setup_basic_test(request, bigip, name, partition)
-    member = p1.memberscollection.member
-    member.create(name=memname, partition=partition)
-    assert member.name == "192.168.15.15:80"
-    return member, p1
-
-
-class TestPoolMembersCollection(object):
-    def test_get_collection(self, request, bigip):
-        member1, pool1 = setup_member_test(request, bigip, 'membertestpool1',
-                                           'Common')
-        pool1.memberscollection.member.create(
-            name='192.168.16.16:8080', partition='Common')
-        selfLinks = []
-        for mem in pool1.memberscollection.get_collection():
-            selfLinks.append(mem.selfLink)
-            mem.delete()
-        assert selfLinks[0] == u'https://localhost/mgmt/tm/ltm/pool/' +\
-            '~Common~membertestpool1/members/~Common~192.168.15.15:80' +\
-            '?ver=11.6.0'
-        assert selfLinks[1] == u'https://localhost/mgmt/tm/ltm/pool/' +\
-            '~Common~membertestpool1/members/~Common~192.168.16.16:8080' +\
-            '?ver=11.6.0'
-        pre_del = set(member1.__dict__.keys())
-        member1.refresh()
-        post_del = set(member1.__dict__.keys())
-        delta = pre_del - post_del
-        remaining = pre_del - delta
-        assert remaining ==\
-            set(['_meta_data', u'fullPath', u'generation', u'kind', u'name',
-                 u'partition', u'selfLink'])
-
-
-class TestPoolMembers(object):
-    def test_create_member(self, request, bigip):
-        member, _ = setup_member_test(request, bigip, 'membertestpool1',
-                                      'Common')
-
-    def test_update_member(self, request, bigip):
-        member, _ = setup_member_test(request, bigip, 'membertestpool1',
-                                      'Common')
-        pre_update_dict = member.__dict__.copy()
-        pre_update_gen = int(pre_update_dict.pop(u'generation'))
-        member.update(description=TESTDESCRIPTION, state=None)
-        assert member.__dict__.pop('description') == TESTDESCRIPTION
-        assert int(member.__dict__['generation']) == pre_update_gen+1
-        member.delete()
-        assert member.__dict__ == {'deleted': True}
-
-    def test_refresh_member(self, request, bigip):
-        member, _ = setup_member_test(request, bigip, 'membertestpool1',
-                                      'Common')
-        member.description = TESTDESCRIPTION
-        member.update(state=None)
-        member.description = "NOTTESTDESCRIPTION"
-        member.refresh()
-        assert member.description == TESTDESCRIPTION
-        member.delete()
-        assert member.__dict__ == {'deleted': True}
-
-    def test_load_member(self, request, bigip):
-        member1, pool1 = setup_member_test(request, bigip, 'membertestpool1',
-                                           'Common')
-        member1.description = TESTDESCRIPTION
-        member1.update(state=None)
-        member2 = pool1.memberscollection.member
-        member2.load(name='192.168.15.15:80', partition='Common')
-        assert member2.description == TESTDESCRIPTION
-        assert member2.selfLink == member1.selfLink
-        member1.delete()
-        assert member1.__dict__ == {'deleted': True}
-
-
-class TestPool(object):
-    def test_create_no_args(self, bigip):
-        pool1 = bigip.ltm.poolcollection.pool
-        with pytest.raises(MissingRequiredCreationParameter):
-            pool1.create()
+class TestSNAT(object):
+    def test_create_no_args(self, request, bigip):
+        snat1 = setup_create_test(request, bigip, 'TESTNAME', 'Common')
+        with pytest.raises(RequireOneOf):
+            snat1.create()
 
     def test_create(self, request, bigip):
-        setup_create_test(request, bigip, 'pool1', 'Common')
-        pool1 = bigip.ltm.poolcollection.pool
-        pool1.create(name='pool1', partition='Common')
-        assert pool1.name == 'pool1'
-        assert pool1.partition == 'Common'
-        assert pool1.generation and isinstance(pool1.generation, int)
-        assert pool1.fullPath == '/Common/pool1'
-        assert pool1.kind == 'tm:ltm:pool:poolstate'
-        assert pool1.selfLink.startswith(
-            'https://localhost/mgmt/tm/ltm/pool/~Common~pool1')
+        snat1 = setup_create_test(request, bigip, 'snat1', 'Common')
+        snat1.create(name='snat1', partition='Common', origins='1.1.1.1',
+                     automap=True)
+        assert snat1.name == 'snat1'
+        assert snat1.partition == 'Common'
+        assert snat1.generation and isinstance(snat1.generation, int)
+        assert snat1.kind == 'tm:ltm:snat:snatstate'
+        assert snat1.selfLink.startswith(
+            'https://localhost/mgmt/tm/ltm/snat/~Common~snat1')
 
-    def test_refresh(self, request, bigip):
-        pool1 = setup_basic_test(request, bigip, 'pool1', 'Common')
-        assert pool1.allowNat == "yes"
-        pool1.allowNat = "no"
-        pool1.refresh()
-        assert pool1.allowNat == "yes"
+    def test_update_and_refresh(self, request, bigip):
+        snat1, sc1 = setup_basic_test(request, bigip, 'snat1', 'Common')
+        snat1.description = TESTDESCRIPTION
+        snat1.update()
+        assert snat1.description == TESTDESCRIPTION
+        snat1.description = "NEWDESCRIPTION"
+        snat1.refresh()
+        assert snat1.description == TESTDESCRIPTION
+        snat1.description = "NEWDESCRIPTION"
+        snat1.update()
+        assert snat1.description == "NEWDESCRIPTION"
 
-    def test_update(self, request, bigip):
-        pool1 = setup_basic_test(request, bigip, 'pool1', 'Common')
-        pool1.allowNat = "no"
-        pool1.update()
-        assert pool1.allowNat == "no"
-        pool1.allowNat = "yes"
-        pool1.refresh()
-        assert pool1.allowNat == "no"
+    def test_load_and_delete(self, request, bigip):
+        snat1, sc1 = setup_basic_test(request, bigip, 'snat1', 'Common')
+        snat2 = sc1.snat
+        snat2.load(name='snat1', partition='Common')
+        snat1.delete()
+        assert snat1.__dict__ == {'deleted': True}

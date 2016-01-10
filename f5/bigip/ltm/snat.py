@@ -40,7 +40,7 @@ class SNAT(Resource):
     def create(self, **kwargs):
         rcp = self._meta_data['required_creation_parameters']
         required_singles = set(('automap', 'snatpool', 'translation'))
-        pre_req_len = len(rcp)
+        pre_req_len = len(kwargs.keys())
         if len(rcp - required_singles) != (pre_req_len-1):
             error_message = 'Creation requires one of the provided k,v:\n'
             for req_sing in required_singles:
@@ -48,8 +48,8 @@ class SNAT(Resource):
                     req_val = kwargs.pop(req_sing)
                 except KeyError:
                     req_val = ''
-                error_message = error_message +
-                                str(req_sing) + ': ' + str(req_val) + '\n'
+                error_message = error_message + str(req_sing) + ', ' +\
+                    str(req_val) + '\n'
             raise RequireOneOf(error_message)
         self._create(**kwargs)
         return self
