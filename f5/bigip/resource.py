@@ -11,15 +11,12 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""This module provides classes that specify how Resources are handled.
+"""This module provides classes that specify how RESTful Resources are handled.
 
 There are different types of resources published by the BigIP REST Server, they
 are represented by the "Resource" class hierarchy.
 
 Available Classes:
-    * InvalidCRUD -- resources do not generally support all 4 CRUD
-      operations, if a caller attempts to invoke an unsupported operation this
-      Exception is raised
     * Resource -- only `read` is generally supported in all resource types,
       this class provides `read`. Resource objects are usually instantiated via
       setting lazy attributes.  Resource provides a contructor to match the
@@ -29,11 +26,13 @@ Available Classes:
       themselves).  The container is the object the Resource is an attribute
       of.
     * CollectionResource -- These resources support lists of Resource Objects.
-    * CRUDResource -- These resources are the only resources that support
+    * CRLUDResource -- These resources are the only resources that support
       `create`, `update`, and `delete` operations.  Because they support HTTP
       post (via _create) they uniquely depend on 2 uri's, a uri that supports
       the creating post, and the returned uri of the newly created resource.
-
+    * InvalidCRLUD -- resources do not generally support all 5 CRLUD
+      operations, if a caller attempts to invoke an unsupported operation this
+      Exception is raised.
 """
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
@@ -47,11 +46,11 @@ class DeviceProvidesIncompatibleKey(Exception):
     pass
 
 
-class InvalidCRUD(Exception):
+class InvalidCRLUD(Exception):
     """Raise this when a caller tries to invoke an unsupported CUD op.
 
     All resources support `read`.
-    Only CRUDResources support `create`, `update`, and `delete`.
+    Only CRLUDResources support `create`, `update`, and `delete`.
     """
     pass
 
@@ -168,16 +167,16 @@ class Resource(LazyAttributeMixin, ToDictMixin):
         self._meta_data['uri'] = self.selfLink.replace('localhost', hostname)
 
     def create(self):
-        error_message = "Only CRUDResources support http 'create'."
-        raise InvalidCRUD(error_message)
+        error_message = "Only CRLUDResources support http 'create'."
+        raise InvalidCRLUD(error_message)
 
     def update(self):
-        error_message = "Only CRUDResources support http 'update'."
-        raise InvalidCRUD(error_message)
+        error_message = "Only CRLUDResources support http 'update'."
+        raise InvalidCRLUD(error_message)
 
     def delete(self):
-        error_message = "Only CRUDResources support http 'delete'."
-        raise InvalidCRUD(error_message)
+        error_message = "Only CRLUDResources support http 'delete'."
+        raise InvalidCRLUD(error_message)
 
 
 class CollectionResource(Resource):
@@ -213,7 +212,7 @@ class CollectionResource(Resource):
         return list_of_managed
 
 
-class CRUDResource(Resource):
+class CRLUDResource(Resource):
     """Use this to represent a Configurable Resource on the device.
 
     1a.  bigip.ltm.natcollection.nat
@@ -222,10 +221,13 @@ class CRUDResource(Resource):
     2.  call super(Subclass, self).__init__(container) in its __init__
     """
     def __init__(self, container):
-        """Call _create for a CRUD resource to have a self._meta_data['uri']!
+        """Call _create for a CRLUD resource to have a self._meta_data['uri']!
 
         """
-        super(CRUDResource, self).__init__(container)
+        super(CRLUDResource, self).__init__(container)
+        # All Creation supporting Resources must update the
+        # 'required_creation_parameters' set with the appropriate values.
+        self._meta_data['required_creation_parameters'] = set()
 
     def _create(self, **kwargs):
         """Call this to create.
@@ -237,14 +239,22 @@ class CRUDResource(Resource):
         :returns: An instance of the Python object that represents the device's
         uri-published resource.  The uri of the resource is part of the
         object's _meta_data.
-        :returns: Note this is the only fundamental CRUD operation that returns
-        a different uri (in the returned object) than the uri the operation was
-        called on.  The returned uri can be accessed as Object.selfLink, the
-        actual uri used by REST operations on the object is
-        Object._meta_data['uri'].  The _meta_data['uri'] is the same as
+        :returns: Note this is the only fundamental CRLUD operation that
+        returns a different uri (in the returned object) than the uri the
+        operation was called on.  The returned uri can be accessed as
+        Object.selfLink, the actual uri used by REST operations on the object
+        is Object._meta_data['uri'].  The _meta_data['uri'] is the same as
         Object.selfLink with the substring 'localhost' replaced with the value
         of Object._meta_data['bigip']._meta_data['hostname'].
         """
+        key_set = set(kwargs.keys())
+        required_minus_received =\
+            self._meta_data['required_creation_parameters'] - key_set
+        if required_minus_received != set():
+            error_message = 'Missing required params: %r'\
+                % required_minus_received
+            raise MissingRequiredCreationParameter(error_message)
+
         # Make convenience variable with short names for this method.
         _create_uri = self._meta_data['container']._meta_data['uri']
         hostname = self._meta_data['bigip']._meta_data['hostname']
