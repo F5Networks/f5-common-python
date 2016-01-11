@@ -169,6 +169,7 @@ class Resource(LazyAttributeMixin, ToDictMixin):
         response = read_session.get(base_uri, **kwargs)
         self._local_update(response.json())
         self._meta_data['uri'] = self.selfLink.replace('localhost', hostname)
+        return self
 
     def create(self):
         error_message = "Only CRLUDResources support http 'create'."
