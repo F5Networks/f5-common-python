@@ -13,129 +13,36 @@
 # limitations under the License.
 #
 
-from f5.bigip.rest_collection import log
-from f5.bigip.rest_collection import RESTInterfaceCollection
-from f5.bigip.rest_collection import strip_folder_and_prefix
-from f5.common import constants as const
-from f5.common.logger import Log
-from requests.exceptions import HTTPError
+from f5.bigip.resource import CollectionResource
+from f5.bigip.resource import CRLUDResource
 
 
-class Rule(RESTInterfaceCollection):
-    def __init__(self, ltm_instance):
-        self.bigip = ltm_instance.bigip
-        self.base_uri = self.bigip.icr_uri + 'ltm/rule/'
+class RuleCollection(CollectionResource):
+    def __init__(self, ltm):
+        super(RuleCollection, self).__init__(ltm)
+        self._meta_data['allowed_lazy_attributes'] = [Rule]
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:rule:rulestate': Rule}
 
-    @log
-    def create(self, name='', rule_definition=None, folder='Common'):
-        """Create an LTM iRule.
 
-        :param string name: Name for iRule object.
-        :param string rule_definition: iRule definition.
-        :param string folder: Optional Folder name.
-        :rtype: bool
-        :returns: True if iRule successfully created.
-        :raises: HTTPError
-        """
-        if name and rule_definition:
-            payload = dict()
-            payload['name'] = name
-            payload['partition'] = folder
-            payload['apiAnonymous'] = rule_definition
+class Rule(CRLUDResource):
+    def __init__(self, rule_collection):
+        super(Rule, self).__init__(rule_collection)
+        self._meta_data['allowed_lazy_attributes'] = []
+        self._meta_data['required_creation_parameters'].update(
+            ('name', 'partition', 'apiAnonymous'))
 
-            try:
-                self.bigip.icr_session.post(
-                    self.base_uri, '', '', json=payload,
-                    timeout=const.CONNECTION_TIMEOUT)
-            except HTTPError as exp:
-                if exp.response.status_code == 409:
-                    return True
-                Log.error(__name__, exp.response.text)
-                raise
-            return True
-        return False
+    def create(self, **kwargs):
+        return self._create(**kwargs)
 
-    @log
-    def update(self, name=None, rule_definition=None, folder='Common'):
-        """Update an LTM iRule.
+    def refresh(self):
+        self._refresh()
 
-        :param string name: Name for iRule object.
-        :param string rule_definition: iRule definition.
-        :param string folder: Optional Folder name.
-        :rtype: bool
-        :returns: True if iRule successfully updated.
-        :raises: HTTPError
-        """
-        if name and rule_definition:
-            payload = dict()
-            payload['apiAnonymous'] = rule_definition
+    def load(self, **kwargs):
+        return self._load(**kwargs)
 
-            self.bigip.icr_session.put(
-                self.base_uri, folder, name, json=payload,
-                timeout=const.CONNECTION_TIMEOUT)
-            return True
-        return False
+    def update(self, **kwargs):
+        self._update(**kwargs)
 
-    # DE note: the generic _get_items in rest_collection presumes that folder
-    # needs to be used in both $filter AND passed to icr_session.get.  At least
-    # this lib, it must be used ONLY in $filter.  TBD: collapse this API
-    @log
-    def _get_items(self, folder='Common', name='', suffix='/members',
-                   select='name', timeout=const.CONNECTION_TIMEOUT, **kwargs):
-        items = []
-        params = {
-            '$select': select,
-            '$filter': 'partition eq ' + folder
-        }
-        try:
-            response = self.bigip.icr_session.get(
-                self.base_uri, '', name, params=params,  # set folder to ''
-                timeout=timeout, **kwargs)
-        except HTTPError as exp:
-            if exp.response.status_code == 404:
-                return items
-            raise
-
-        items = response.json().get('items', [])
-        if select:
-            for item in items:
-                if select in item:
-                    items.append(strip_folder_and_prefix(item[select]))
-
-        return items
-
-    @log
-    def delete_like(self, match=None, folder='Common'):
-        """Delete an LTM iRule matching a string.
-
-        :param string match: Substring to match in iRule name.
-        :param string folder: Optional Folder name.
-        :rtype: bool
-        :returns: True if one or more iRules were deleted.
-        :raises: HTTPError
-        """
-        if not match:
-            return False
-        items = self._get_items(folder='', name='', select='name,selfLink')
-        if items:
-            for item in items:
-                if item['name'].find(match) > -1:
-                    self.delete(item['name'], folder)
-            return True
-        return False
-
-    @log
-    def get_rule(self, name=None, folder='Common'):
-        """Get an LTM iRule by name.
-
-        :param string match: Name of iRule to get.
-        :param string folder: Optional Folder name.
-        :rtype: json
-        :returns: JSON representation of iRule if found, otherwise None.
-        :raises: HTTPError
-        """
-        if name:
-            return self._get_named_object(name,
-                                          folder=folder,
-                                          select='apiAnonymous')
-        return None
+    def delete(self):
+        self._delete()

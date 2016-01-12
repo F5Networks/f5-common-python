@@ -13,91 +13,165 @@
 # limitations under the License.
 #
 
-import os
 import pytest
+
+from f5.bigip.ltm.rule import Rule
+from f5.bigip.resource import MissingRequiredCreationParameter
 from requests.exceptions import HTTPError
 
 
-def get_data(file_name):
-    """Reads data file, returning a string.
-
-    :param string name: Name of file containing data.
-    :rtype string: data string.
-    """
-
-    data_dir = os.path.dirname(__file__)
-    file = open(os.path.join(data_dir, file_name))
-    return file.read().strip()
-
-
-RULE_DATA = "rule.ldap.data"
-
-rule1 = {
-    'name': 'test_foo',
-    'definition':  get_data(RULE_DATA)
+RULE = '''when CLIENT_ACCEPTED {
+if { [IP::addr [IP::client_addr] equals 10.10.10.10] } {
+pool my_pool
 }
-
-rule2 = {
-    'name': 'test_bar',
-    'definition':  get_data(RULE_DATA)
 }
-
-# TBD: set to True once we figure out how to create a new partition
-multi_partition = False
-
-rule_default_folder = 'Common'
-rule_other_folder = 'Uncommon' if multi_partition else rule_default_folder
+'''
 
 
-def setup_standard_test(request, bigip):
+def delete_rule(bigip, name, partition):
+    r = bigip.ltm.rulecollection.rule
+    try:
+        r.load(name=name, partition=partition)
+    except HTTPError as err:
+        if err.response.status_code != 404:
+            raise
+        return
+    r.delete()
+
+
+def setup_create_test(request, bigip, name, partition):
     def teardown():
-        bigip.ltm.rule.delete(rule1['name'])
-        assert not bigip.ltm.rule.exists(rule1['name'])
-        bigip.ltm.rule.delete(rule2['name'])
-        assert not bigip.ltm.rule.exists(rule2['name'])
+        delete_rule(bigip, name, partition)
     request.addfinalizer(teardown)
 
-    assert bigip.ltm.rule.create(rule1['name'], rule1['definition'])
-    assert bigip.ltm.rule.exists(rule1['name'])
+
+def setup_basic_test(request, bigip, name, partition):
+    def teardown():
+        delete_rule(bigip, name, partition)
+
+    rule1 = bigip.ltm.rulecollection.rule
+    rule1.create(name=name, partition=partition, apiAnonymous=RULE)
+    request.addfinalizer(teardown)
+    return rule1
 
 
-def setup_multi_rule_test(request, bigip):
-    setup_standard_test(request, bigip)
+class TestCreate(object):
+    def test_create_no_args(self, bigip):
+        rule1 = bigip.ltm.rulecollection.rule
+        with pytest.raises(MissingRequiredCreationParameter):
+            rule1.create()
 
-    # create with all paramters
-    assert bigip.ltm.rule.create(rule2['name'],
-                                 rule2['definition'],
-                                 rule_default_folder)
-    assert bigip.ltm.rule.exists(rule2['name'])
+    def test_create_no_apianonymous(self, bigip):
+        rule1 = bigip.ltm.rulecollection.rule
+        with pytest.raises(MissingRequiredCreationParameter):
+            rule1.create(name='rule1', partition='Common')
+
+    def test_create(self, request, bigip):
+        setup_create_test(request, bigip, 'rule1', 'Common')
+        rule1 = bigip.ltm.rulecollection.rule
+        rule1.create(name='rule1', partition='Common', apiAnonymous=RULE)
+        assert rule1.name == 'rule1'
+        assert rule1.partition == 'Common'
+        assert rule1.generation and isinstance(rule1.generation, int)
+        assert 'my_pool' in rule1.apiAnonymous
+        assert rule1.fullPath == '/Common/rule1'
+        assert rule1.kind == 'tm:ltm:rule:rulestate'
+        assert rule1.selfLink.startswith(
+            'https://localhost/mgmt/tm/ltm/rule/~Common~rule1')
+
+        # These are test cases that fail due to BigIP REST API problems
+        # assert rule1.ignoreVerification is False
+
+    def test_create_optional_args(self, request, bigip):
+        setup_create_test(request, bigip, 'rule1', 'Common')
+        rule1 = bigip.ltm.rulecollection.rule
+        rule1.create(name='rule1', partition='Common',
+                     apiAnonymous=RULE,
+                     ignoreVerification=True)
+        assert rule1.ignoreVerification == 'true'
+
+        # These are assertions that fail due to BigIP REST API problems
+        # assert rule1.ignoreVerifcation is True
+
+    def test_create_duplicate(self, request, bigip):
+        setup_create_test(request, bigip, 'rule1', 'Common')
+        rule1 = bigip.ltm.rulecollection.rule
+        rule1.create(name='rule1', partition='Common',
+                     apiAnonymous=RULE,
+                     ignoreVerification=True)
+        rule2 = bigip.ltm.rulecollection.rule
+        with pytest.raises(HTTPError) as err:
+            rule2.create(name='rule1', partition='Common',
+                         apiAnonymous=RULE,
+                         ignoreVerification=True)
+            assert err.response.status_code == 400
 
 
-def test_create_and_delete_one(request, bigip):
-    assert bigip.ltm.rule.create(rule1['name'], rule1['definition'])
-    assert bigip.ltm.rule.exists(rule1['name'])
+class TestRefresh(object):
+    def test_refresh(self, request, bigip):
+        setup_basic_test(request, bigip, 'rule1', 'Common')
+        r1 = bigip.ltm.rulecollection.rule.load(
+            name='rule1', partition='Common')
+        r2 = bigip.ltm.rulecollection.rule.load(
+            name='rule1', partition='Common')
+        assert not hasattr(r1, 'ignoreVerification')
+        assert not hasattr(r2, 'ignoreVerification')
 
-    assert bigip.ltm.rule.delete(rule1['name'])
-    assert not bigip.ltm.rule.exists(rule1['name'])
+        r2.update(ignoreVerification=True)
+        assert r2.ignoreVerification == 'true'
+        assert not hasattr(r1, 'ignoreVerification')
 
-
-def test_create_and_delete_two(request, bigip):
-    setup_multi_rule_test(request, bigip)
-
-    assert bigip.ltm.rule.delete_like('test_')
-    assert not bigip.ltm.rule.exists(rule1['name'])
-    assert not bigip.ltm.rule.exists(rule2['name'])
-
-
-def test_get_rule(request, bigip):
-    setup_standard_test(request, bigip)
-
-    rule_definition = bigip.ltm.rule.get_rule(rule1['name'])
-    assert rule_definition == rule1['definition']
+        r1.refresh()
+        assert r1.ignoreVerification == 'true'
 
 
-def test_create_duplicate_name(request, bigip):
-    setup_standard_test(request, bigip)
+class TestLoad(object):
+    def test_load_no_object(self, bigip):
+        with pytest.raises(HTTPError) as err:
+            bigip.ltm.rulecollection.rule.load(
+                name='rule1', partition='Common')
+            assert err.response.status_code == 404
 
-    # create duplicate by name
-    with pytest.raises(HTTPError):
-        bigip.ltm.rule.create(rule1['name'], rule2['definition'])
-    assert bigip.ltm.rule.exists(rule1['name'])
+    def test_load(self, request, bigip):
+        setup_basic_test(request, bigip, 'rule1', 'Common')
+        rule1 = bigip.ltm.rulecollection.rule.load(
+            name='rule1', partition='Common')
+        assert not hasattr(rule1, 'ignoreVerification')
+        rule1.update(ignoreVerification=True)
+        rule2 = bigip.ltm.rulecollection.rule.load(
+            name='rule1', partition='Common')
+        assert rule1.ignoreVerification == 'true'
+        assert rule2.ignoreVerification == 'true'
+
+
+class TestUpdate(object):
+    def test_update(self, request, bigip):
+        rule1 = setup_basic_test(request, bigip, 'rule1', 'Common')
+        rule1.update(ignoreVerification=True)
+        assert rule1.ignoreVerification == 'true'
+
+    def test_update_samevalue(self, request, bigip):
+        rule1 = setup_basic_test(request, bigip, 'rule1', 'Common')
+        rule1.update(ignoreVerification=False)
+        assert not hasattr(rule1, 'ignoreVerfication')
+
+        # These are assertsion that fail due to BigIP REST API problems
+        # assert rule1.ignoreVerification == 'false'
+
+
+class TestDelete(object):
+    def test_delete(self, request, bigip):
+        r1 = setup_basic_test(request, bigip, 'rule1', 'Common')
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            bigip.ltm.rulecollection.rule.load(
+                name='rule1', partition='Common')
+            assert err.response.status_code == 404
+
+
+class TestRuleCollection(object):
+    def test_rule_collection(self, request, bigip):
+        rc = bigip.ltm.rulecollection.get_collection()
+        assert isinstance(rc, list)
+        assert len(rc)
+        assert isinstance(rc[0], Rule)
