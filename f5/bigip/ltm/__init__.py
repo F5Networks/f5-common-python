@@ -14,7 +14,7 @@
 #
 from f5.bigip.ltm.monitor import Monitor
 from f5.bigip.ltm.nat import NATCollection
-from f5.bigip.ltm.pool import Pool
+from f5.bigip.ltm.pool import PoolCollection
 from f5.bigip.ltm.rule import RuleCollection
 from f5.bigip.ltm.snat import SNAT
 from f5.bigip.ltm.ssl import SSL
@@ -27,7 +27,7 @@ class LTM(OrganizingCollection):
         super(LTM, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
             NATCollection, RuleCollection,
-            Monitor, Pool,
+            Monitor, PoolCollection,
             SNAT, SSL,
             VirtualServer
         ]
