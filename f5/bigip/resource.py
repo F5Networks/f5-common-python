@@ -11,6 +11,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+#
 """This module provides classes that specify how RESTful Resources are handled.
 
 There are different types of resources published by the BigIP REST Server, they
@@ -25,8 +26,8 @@ Available Classes:
       All Resource objects (except BigIPs) have a container (BigIPs contain
       themselves).  The container is the object the Resource is an attribute
       of.
-    * CollectionResource -- These resources support lists of Resource Objects.
-    * CRLUDResource -- These resources are the only resources that support
+    * Collection -- These resources support lists of Resource Objects.
+    * CRLUD -- These resources are the only resources that support
       `create`, `update`, and `delete` operations.  Because they support HTTP
       post (via _create) they uniquely depend on 2 uri's, a uri that supports
       the creating post, and the returned uri of the newly created resource.
@@ -50,7 +51,7 @@ class InvalidCRLUD(Exception):
     """Raise this when a caller tries to invoke an unsupported CUD op.
 
     All resources support `read`.
-    Only CRLUDResources support `create`, `update`, and `delete`.
+    Only CRLUDs support `create`, `update`, and `delete`.
     """
     pass
 
@@ -172,35 +173,45 @@ class Resource(LazyAttributeMixin, ToDictMixin):
         return self
 
     def create(self):
-        error_message = "Only CRLUDResources support http 'create'."
+        error_message = "Only CRLUDs support http 'create'."
         raise InvalidCRLUD(error_message)
 
     def update(self):
-        error_message = "Only CRLUDResources support http 'update'."
+        error_message = "Only CRLUDs support http 'update'."
         raise InvalidCRLUD(error_message)
 
     def delete(self):
-        error_message = "Only CRLUDResources support http 'delete'."
+        error_message = "Only CRLUDs support http 'delete'."
         raise InvalidCRLUD(error_message)
 
 
-class CollectionResource(Resource):
+class OrganizingCollection(Resource):
+    def __init__(self, container):
+        super(OrganizingCollection, self).__init__(container)
+        base_uri = self.__class__.__name__.lower() + '/'
+        self._meta_data['uri'] =\
+            self._meta_data['container']._meta_data['uri'] + base_uri
+        # Collections have a registry which must be reified in the
+        # subclass constructor.
+        self._meta_data['collection_registry'] = {}
+
+    # Because of the behavior of the BigIP REST server different resource types
+    # must handle get_collection differently.
+    def get_collection(self):
+        self._refresh()
+        return self.items
+
+
+class Collection(OrganizingCollection):
     """Inherit from this class if the corresponding uri lists other resources.
 
     Note any subclass must append "Collection" to its name!
     """
     def __init__(self, container):
-        super(CollectionResource, self).__init__(container)
-        base_uri = self.__class__.__name__.lower()
-        if base_uri.endswith('collection'):
-            base_uri = base_uri[:-len('collection')] + '/'
-        else:
-            base_uri = base_uri + '/'
-        self._meta_data['uri'] =\
-            self._meta_data['container']._meta_data['uri'] + base_uri
-        # CollectionResources have a registry which must be reified in the
-        # subclass constructor.
-        self._meta_data['collection_registry'] = {}
+        super(Collection, self).__init__(container)
+        # Handle 'collection/'
+        endind = len('collection/')
+        self._meta_data['uri'] = self._meta_data['uri'][:-endind] + '/'
 
     def get_collection(self):
         """Get an iterator (list maybe upgrade to generator) of objects.
@@ -229,7 +240,7 @@ class CollectionResource(Resource):
         return list_of_contents
 
 
-class CRLUDResource(Resource):
+class CRLUD(Resource):
     """Use this to represent a Configurable Resource on the device.
 
     1a.  bigip.ltm.natcollection.nat
@@ -241,7 +252,7 @@ class CRLUDResource(Resource):
         """Call _create for a CRLUD resource to have a self._meta_data['uri']!
 
         """
-        super(CRLUDResource, self).__init__(container)
+        super(CRLUD, self).__init__(container)
         # All Creation supporting Resources must update the
         # 'required_creation_parameters' set with the appropriate values.
         self._meta_data['required_creation_parameters'] = set()

@@ -19,10 +19,10 @@ from f5.bigip.ltm.rule import RuleCollection
 from f5.bigip.ltm.snat import SNAT
 from f5.bigip.ltm.ssl import SSL
 from f5.bigip.ltm.virtual_server import VirtualServer
-from f5.bigip.resource import CollectionResource
+from f5.bigip.resource import OrganizingCollection
 
 
-class LTM(CollectionResource):
+class LTM(OrganizingCollection):
     def __init__(self, bigip):
         super(LTM, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
