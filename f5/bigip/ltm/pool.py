@@ -36,6 +36,7 @@ class Pool(Resource):
 
     def create(self, **kwargs):
         self._create(**kwargs)
+        # This idiom is specific to subcollections!
         self._meta_data['allowed_lazy_attributes'] = [MembersCollection]
         return self
 
