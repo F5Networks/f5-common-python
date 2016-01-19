@@ -14,7 +14,11 @@
 #
 
 from f5.bigip.resource import Collection
-from f5.bigip.resource import CRLUD
+from f5.bigip.resource import Resource
+
+
+class MemberStateAlwaysRequiredOnUpdate(Exception):
+    pass
 
 
 class PoolCollection(Collection):
@@ -25,8 +29,47 @@ class PoolCollection(Collection):
             {'tm:ltm:pool:poolstate': Pool}
 
 
-class Pool(CRLUD):
+class Pool(Resource):
     def __init__(self, pool_collection):
         super(Pool, self).__init__(pool_collection)
-        self._meta_data['allowed_lazy_attributes'] = []
         self._meta_data['required_json_kind'] = 'tm:ltm:pool:poolstate'
+
+    def create(self, **kwargs):
+        self._create(**kwargs)
+        self._meta_data['allowed_lazy_attributes'] = [MembersCollection]
+        return self
+
+
+class MembersCollection(Collection):
+    def __init__(self, pool):
+        super(MembersCollection, self).__init__(pool)
+        self._meta_data['allowed_lazy_attributes'] = [Member]
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:pool:members:memberscollectionstate'
+        self._meta_data['collection_registry'] =\
+            {'tm:ltm:pool:members:membersstate': Member}
+
+
+class Member(Resource):
+    def __init__(self, member_collection):
+        super(Member, self).__init__(member_collection)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:pool:members:membersstate'
+        self._meta_data['required_creation_parameters'].update(('partition',))
+
+    def update(self, **kwargs):
+        try:
+            state = kwargs.pop('state')
+        except KeyError:
+            error_message = 'You must supply a value to the "state"' +\
+                ' parameter if you do not wish to change the state then' +\
+                ' pass "state=None".'
+            raise MemberStateAlwaysRequiredOnUpdate(error_message)
+        if state is None:
+            self.__dict__.pop(u'state', '')
+        else:
+            self.state = state
+        # This is an example implementation of read-only params
+        self.__dict__.pop(u'ephemeral', '')
+        self.__dict__.pop(u'address', '')
+        self._update(**kwargs)

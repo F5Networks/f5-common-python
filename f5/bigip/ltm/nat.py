@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 from f5.bigip.resource import Collection
-from f5.bigip.resource import CRLUD
 from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.bigip.resource import Resource
 
 
 class NATCollection(Collection):
@@ -25,12 +25,11 @@ class NATCollection(Collection):
             {'tm:ltm:nat:natstate': NAT}
 
 
-class NAT(CRLUD):
+class NAT(Resource):
     def __init__(self, nat_collection):
         super(NAT, self).__init__(nat_collection)
         self._meta_data['required_creation_parameters'].update(
-            ('originatingAddress', 'translationAddress'))
-        self._meta_data['allowed_lazy_attributes'] = []
+            ('originatingAddress', 'translationAddress', 'partition'))
         self._meta_data['required_json_kind'] = 'tm:ltm:nat:natstate'
 
     def create(self, **kwargs):
@@ -58,8 +57,7 @@ class NAT(CRLUD):
         return self
 
     def update(self, **kwargs):
+        # This is an example implementation of read-only params
         stash_translation_address = self.__dict__.pop('translationAddress')
-        try:
-            self._update(**kwargs)
-        except Exception:
-            self.__dict__['translationAddress'] = stash_translation_address
+        self._update(**kwargs)
+        self.__dict__['translationAddress'] = stash_translation_address

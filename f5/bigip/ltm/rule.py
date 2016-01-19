@@ -14,7 +14,7 @@
 #
 
 from f5.bigip.resource import Collection
-from f5.bigip.resource import CRLUD
+from f5.bigip.resource import Resource
 
 
 class RuleCollection(Collection):
@@ -25,7 +25,7 @@ class RuleCollection(Collection):
             {'tm:ltm:rule:rulestate': Rule}
 
 
-class Rule(CRLUD):
+class Rule(Resource):
     def __init__(self, rule_collection):
         super(Rule, self).__init__(rule_collection)
         self._meta_data['allowed_lazy_attributes'] = []

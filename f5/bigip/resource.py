@@ -12,29 +12,32 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-"""This module provides classes that specify how RESTful Resources are handled.
+"""This module provides classes that specify how RESTful resources are handled.
 
 There are different types of resources published by the BigIP REST Server, they
-are represented by the "Resource" class hierarchy.
+are represented by the classes in this module.
 
 Available Classes:
-    * Resource -- only `read` is generally supported in all resource types,
-      this class provides `read`. Resource objects are usually instantiated via
-      setting lazy attributes.  Resource provides a contructor to match the
-      lazy constructor. The expected behavior is that all resource subclasses
-      depend on this constructor to correctly set their self._meta_data['uri'].
-      All Resource objects (except BigIPs) have a container (BigIPs contain
-      themselves).  The container is the object the Resource is an attribute
-      of.
-    * Collection -- These resources support lists of Resource Objects.
-    * CRLUD -- These resources are the only resources that support
+    * ResourceBase -- only `read` is generally supported in all resource types,
+      this class provides `read`. ResourceBase objects are usually instantiated
+      via setting lazy attributes. ResourceBase provides a contructor to match
+      the lazy constructor. The expected behavior is that all resource
+      subclasses depend on this constructor to correctly set their
+      self._meta_data['uri'].
+      All ResourceBase objects (except BigIPs) have a container (BigIPs contain
+      themselves).  The container is the object the ResourceBase is an
+      attribute of.
+    * Collection -- These resources support lists of ResourceBase Objects.
+    * Resource -- These resources are the only resources that support
       `create`, `update`, and `delete` operations.  Because they support HTTP
       post (via _create) they uniquely depend on 2 uri's, a uri that supports
       the creating post, and the returned uri of the newly created resource.
-    * InvalidCRLUD -- resources do not generally support all 5 CRLUD
+    * InvalidResource -- resources do not generally support all 5 Resource
       operations, if a caller attempts to invoke an unsupported operation this
       Exception is raised.
 """
+import urlparse
+
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
 
@@ -47,11 +50,11 @@ class DeviceProvidesIncompatibleKey(Exception):
     pass
 
 
-class InvalidCRLUD(Exception):
+class InvalidResource(Exception):
     """Raise this when a caller tries to invoke an unsupported CUD op.
 
     All resources support `read`.
-    Only CRLUDs support `create`, `update`, and `delete`.
+    Only Resources support `create`, `update`, and `delete`.
     """
     pass
 
@@ -68,10 +71,10 @@ class UnregisteredKind(Exception):
     pass
 
 
-class Resource(LazyAttributeMixin, ToDictMixin):
+class ResourceBase(LazyAttributeMixin, ToDictMixin):
     """Every resource that maps to a uri on the device should inherit this.
 
-    Instantiate this with ContainerInstance.NewResourceInstance via the
+    Instantiate this with ContainerInstance.NewResourceBaseInstance via the
     LazyAttributeMixin.
 
     The BigIP is represented by an object that converts device published uri's
@@ -108,7 +111,7 @@ class Resource(LazyAttributeMixin, ToDictMixin):
     The net result is a reasonably succinct mapping between uri's and objects,
     that represents objects in a hierarchical relationship similar to the
     devices uri path hierarchy.
-    This is the class that defines `read` for all Resources.
+    This is the class that defines `read` for all ResourceBases.
 
     Public attributes:
     - read: updates itself with the results of an http GET on the resource
@@ -120,11 +123,12 @@ class Resource(LazyAttributeMixin, ToDictMixin):
 
         FOO must inherit from this class.  The '.' operator passes "FOO" to
         the __getattr__ method of the containing_object_instance where it is
-        instantiated as the appropriate type of Resource.
+        instantiated as the appropriate type of ResourceBase.
 
-        Since all Resources support `read` instances of Resource do as well.
-        The BigIP uri 'mgmt/tm/' uniquely passes itself to this constructor
-        as the "container".
+        Since all ResourceBases support `read` instances of ResourceBase do as
+        well.
+        The BigIP uri 'mgmt/tm/' uniquely passes itself to this constructor as
+        the "container".
         """
         self._meta_data = {'container': container,
                            'bigip': container._meta_data['bigip']}
@@ -163,38 +167,34 @@ class Resource(LazyAttributeMixin, ToDictMixin):
     def refresh(self):
         self._refresh()
 
-    def _load(self, **kwargs):
-        if ('name' not in kwargs) or ('partition' not in kwargs):
-            raise MissingRequiredReadParameter(str(kwargs))
-        kwargs['uri_as_parts'] = True
+    def _build_meta_data_uri(self, selfLinkuri):
         hostname = self._meta_data['bigip']._meta_data['hostname']
-        read_session = self._meta_data['bigip']._meta_data['icr_session']
-        base_uri = self._meta_data['container']._meta_data['uri']
-        response = read_session.get(base_uri, **kwargs)
-        self._local_update(response.json())
-        self._meta_data['uri'] = self.selfLink.replace('localhost', hostname)
-        return self
+        (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
+        path_uri = urlparse.urlunsplit((scheme, hostname, path, '', ''))+'/'
+        self._meta_data['uri'] = path_uri
+        self._meta_data['creation_uri_qarg'] = qarg
+        self._meta_data['creation_uri_frag'] = frag
 
     def load(self, **kwargs):
-        self._load(**kwargs)
-        return self
+        error_message = "Only Resources support 'load'."
+        raise InvalidResource(error_message)
 
     def create(self):
-        error_message = "Only CRLUDs support http 'create'."
-        raise InvalidCRLUD(error_message)
+        error_message = "Only Resources support 'create'."
+        raise InvalidResource(error_message)
 
     def update(self):
-        error_message = "Only CRLUDs support http 'update'."
-        raise InvalidCRLUD(error_message)
+        error_message = "Only Resources support 'update'."
+        raise InvalidResource(error_message)
 
     def delete(self):
-        error_message = "Only CRLUDs support http 'delete'."
-        raise InvalidCRLUD(error_message)
+        error_message = "Only Resources support 'delete'."
+        raise InvalidResource(error_message)
 
 
-class OrganizingCollection(Resource):
-    def __init__(self, container):
-        super(OrganizingCollection, self).__init__(container)
+class OrganizingCollection(ResourceBase):
+    def __init__(self, bigip):
+        super(OrganizingCollection, self).__init__(bigip)
         base_uri = self.__class__.__name__.lower() + '/'
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + base_uri
@@ -209,21 +209,23 @@ class OrganizingCollection(Resource):
         return self.items
 
 
-class Collection(OrganizingCollection):
+class Collection(ResourceBase):
     """Inherit from this class if the corresponding uri lists other resources.
 
-    Note any subclass must append "Collection" to its name!
+    Note any subclass must have "Collection" at the end of its name!
     """
     def __init__(self, container):
         super(Collection, self).__init__(container)
-        # Handle 'collection/'
-        endind = len('collection/')
-        self._meta_data['uri'] = self._meta_data['uri'][:-endind] + '/'
+        # Handle 'collection'
+        endind = len('collection')
+        base_uri = self.__class__.__name__.lower()[:-endind] + '/'
+        self._meta_data['uri'] =\
+            self._meta_data['container']._meta_data['uri'] + base_uri
 
     def get_collection(self):
         """Get an iterator (list maybe upgrade to generator) of objects.
 
-        The objects in the returned list are Pythonic Resources that map to the
+        The objects in returned list are Pythonic ResourceBases that map to the
         most recently `got` state of uris-resources published by the device.
         In order to instantiate the correct types, the concrete subclass must
         populate its registry with acceptable types, based on the `kind` field
@@ -239,7 +241,8 @@ class Collection(OrganizingCollection):
                 if kind in self._meta_data['collection_registry']:
                     instance =\
                         self._meta_data['collection_registry'][kind](self)
-                    instance._local_update(item)
+                    instance.load(name=item['name'],
+                                  partition=item['partition'])
                     list_of_contents.append(instance)
                 else:
                     error_message = '%r is not registered!' % kind
@@ -247,7 +250,7 @@ class Collection(OrganizingCollection):
         return list_of_contents
 
 
-class CRLUD(Resource):
+class Resource(ResourceBase):
     """Use this to represent a Configurable Resource on the device.
 
     1a.  bigip.ltm.natcollection.nat
@@ -256,14 +259,14 @@ class CRLUD(Resource):
     2.  call super(Subclass, self).__init__(container) in its __init__
     """
     def __init__(self, container):
-        """Call _create for a CRLUD resource to have a self._meta_data['uri']!
+        """Call _create for a Resource resource to have a self._meta_data['uri']!
 
         """
-        super(CRLUD, self).__init__(container)
+        super(Resource, self).__init__(container)
         # All Creation supporting Resources must update the
         # 'required_creation_parameters' set with the appropriate values.
         self._meta_data['required_creation_parameters'] = set(
-            ('name', 'partition'))
+            ('name',))
 
     def _create(self, **kwargs):
         """Call this to create.
@@ -275,7 +278,7 @@ class CRLUD(Resource):
         :returns: An instance of the Python object that represents the device's
         uri-published resource.  The uri of the resource is part of the
         object's _meta_data.
-        :returns: Note this is the only fundamental CRLUD operation that
+        :returns: Note this is the only fundamental Resource operation that
         returns a different uri (in the returned object) than the uri the
         operation was called on.  The returned uri can be accessed as
         Object.selfLink, the actual uri used by REST operations on the object
@@ -293,7 +296,6 @@ class CRLUD(Resource):
 
         # Make convenience variable with short names for this method.
         _create_uri = self._meta_data['container']._meta_data['uri']
-        hostname = self._meta_data['bigip']._meta_data['hostname']
         session = self._meta_data['bigip']._meta_data['icr_session']
 
         # Invoke the REST operation on the device.
@@ -311,11 +313,26 @@ class CRLUD(Resource):
             raise KindTypeMismatch(error_message)
 
         # Update the object to have the correct functional uri.
-        self._meta_data['uri'] = self.selfLink.replace('localhost', hostname)
+        self._build_meta_data_uri(self.selfLink)
         return self
 
     def create(self, **kwargs):
         self._create(**kwargs)
+        return self
+
+    def _load(self, **kwargs):
+        if ('name' not in kwargs) or ('partition' not in kwargs):
+            raise MissingRequiredReadParameter(str(kwargs))
+        kwargs['uri_as_parts'] = True
+        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['container']._meta_data['uri']
+        response = read_session.get(base_uri, **kwargs)
+        self._local_update(response.json())
+        self._build_meta_data_uri(self.selfLink)
+        return self
+
+    def load(self, **kwargs):
+        self._load(**kwargs)
         return self
 
     def _update(self, **kwargs):

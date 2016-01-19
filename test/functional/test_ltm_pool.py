@@ -19,6 +19,8 @@ from requests.exceptions import HTTPError
 
 from f5.bigip.resource import MissingRequiredCreationParameter
 
+TESTDESCRIPTION = 'TESTDESCRIPTION'
+
 
 def delete_pool(bigip, name, partition):
     p = bigip.ltm.poolcollection.pool
@@ -47,7 +49,82 @@ def setup_basic_test(request, bigip, name, partition):
     return pool1
 
 
-class TestCreate(object):
+def setup_member_test(request, bigip, name, partition,
+                      memname="192.168.15.15:80"):
+    p1 = setup_basic_test(request, bigip, name, partition)
+    member = p1.memberscollection.member
+    member.create(name=memname, partition=partition)
+    assert member.name == "192.168.15.15:80"
+    return member, p1
+
+
+class TestPoolMembersCollection(object):
+    def test_get_collection(self, request, bigip):
+        member1, pool1 = setup_member_test(request, bigip, 'membertestpool1',
+                                           'Common')
+        pool1.memberscollection.member.create(
+            name='192.168.16.16:8080', partition='Common')
+        selfLinks = []
+        for mem in pool1.memberscollection.get_collection():
+            selfLinks.append(mem.selfLink)
+            mem.delete()
+        assert selfLinks[0] == u'https://localhost/mgmt/tm/ltm/pool/' +\
+            '~Common~membertestpool1/members/~Common~192.168.15.15:80' +\
+            '?ver=11.6.0'
+        assert selfLinks[1] == u'https://localhost/mgmt/tm/ltm/pool/' +\
+            '~Common~membertestpool1/members/~Common~192.168.16.16:8080' +\
+            '?ver=11.6.0'
+        pre_del = set(member1.__dict__.keys())
+        member1.refresh()
+        post_del = set(member1.__dict__.keys())
+        delta = pre_del - post_del
+        remaining = pre_del - delta
+        assert remaining ==\
+            set(['_meta_data', u'fullPath', u'generation', u'kind', u'name',
+                 u'partition', u'selfLink'])
+
+
+class TestPoolMembers(object):
+    def test_create_member(self, request, bigip):
+        member, _ = setup_member_test(request, bigip, 'membertestpool1',
+                                      'Common')
+
+    def test_update_member(self, request, bigip):
+        member, _ = setup_member_test(request, bigip, 'membertestpool1',
+                                      'Common')
+        pre_update_dict = member.__dict__.copy()
+        pre_update_gen = int(pre_update_dict.pop(u'generation'))
+        member.update(description=TESTDESCRIPTION, state=None)
+        assert member.__dict__.pop('description') == TESTDESCRIPTION
+        assert int(member.__dict__['generation']) == pre_update_gen+1
+        member.delete()
+        assert member.__dict__ == {'deleted': True}
+
+    def test_refresh_member(self, request, bigip):
+        member, _ = setup_member_test(request, bigip, 'membertestpool1',
+                                      'Common')
+        member.description = TESTDESCRIPTION
+        member.update(state=None)
+        member.description = "NOTTESTDESCRIPTION"
+        member.refresh()
+        assert member.description == TESTDESCRIPTION
+        member.delete()
+        assert member.__dict__ == {'deleted': True}
+
+    def test_load_member(self, request, bigip):
+        member1, pool1 = setup_member_test(request, bigip, 'membertestpool1',
+                                           'Common')
+        member1.description = TESTDESCRIPTION
+        member1.update(state=None)
+        member2 = pool1.memberscollection.member
+        member2.load(name='192.168.15.15:80', partition='Common')
+        assert member2.description == TESTDESCRIPTION
+        assert member2.selfLink == member1.selfLink
+        member1.delete()
+        assert member1.__dict__ == {'deleted': True}
+
+
+class TestPool(object):
     def test_create_no_args(self, bigip):
         pool1 = bigip.ltm.poolcollection.pool
         with pytest.raises(MissingRequiredCreationParameter):
