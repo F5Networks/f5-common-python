@@ -28,6 +28,7 @@ def setup_virtual_test(request, bigip, partition, name):
         delete_resource(vc1)
     request.addfinalizer(teardown)
     vc1 = bigip.ltm.virtualcollection
+    pp('****')
     virtual1 = vc1.virtual
     virtual1.create(name=name, partition=partition)
     return virtual1, vc1
