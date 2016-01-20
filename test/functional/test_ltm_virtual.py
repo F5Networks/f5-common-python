@@ -20,7 +20,6 @@ TESTDESCRIPTION = "TESTDESCRIPTION"
 
 def delete_resource(resourcecollection):
     for resource in resourcecollection.get_collection():
-        pp(resource.__dict__)
         resource.delete()
 
 
