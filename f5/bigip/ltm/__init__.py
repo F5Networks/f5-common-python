@@ -18,7 +18,7 @@ from f5.bigip.ltm.pool import PoolCollection
 from f5.bigip.ltm.rule import RuleCollection
 from f5.bigip.ltm.snat import SNATCollection
 from f5.bigip.ltm.ssl import SSL
-from f5.bigip.ltm.virtual_server import VirtualServer
+from f5.bigip.ltm.virtual import VirtualCollection
 from f5.bigip.resource import OrganizingCollection
 
 
@@ -29,5 +29,5 @@ class LTM(OrganizingCollection):
             NATCollection, RuleCollection,
             Monitor, PoolCollection,
             SNATCollection, SSL,
-            VirtualServer
+            VirtualCollection
         ]
