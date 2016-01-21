@@ -1,4 +1,4 @@
-# Copyright 2015 F5 Networks Inc.
+# Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
 #
 from f5.bigip.ltm.monitor import Monitor
 from f5.bigip.ltm.nat import NATCollection
+from f5.bigip.ltm.policy import PolicyCollection
 from f5.bigip.ltm.pool import PoolCollection
 from f5.bigip.ltm.rule import RuleCollection
 from f5.bigip.ltm.snat import SNATCollection
-from f5.bigip.ltm.ssl import SSL
 from f5.bigip.ltm.virtual import VirtualCollection
 from f5.bigip.resource import OrganizingCollection
 
@@ -26,8 +26,11 @@ class LTM(OrganizingCollection):
     def __init__(self, bigip):
         super(LTM, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
-            NATCollection, RuleCollection,
-            Monitor, PoolCollection,
-            SNATCollection, SSL,
+            Monitor,
+            NATCollection,
+            PolicyCollection,
+            PoolCollection,
+            RuleCollection,
+            SNATCollection,
             VirtualCollection
         ]

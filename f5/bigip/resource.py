@@ -241,8 +241,10 @@ class Collection(ResourceBase):
                 if kind in self._meta_data['collection_registry']:
                     instance =\
                         self._meta_data['collection_registry'][kind](self)
-                    instance.load(name=item['name'],
-                                  partition=item['partition'])
+                    load_payload = {}
+                    load_payload['name'] = item.pop('name', '')
+                    load_payload['partition'] = item.pop('partition', '')
+                    instance.load(**load_payload)
                     list_of_contents.append(instance)
                 else:
                     error_message = '%r is not registered!' % kind
@@ -321,7 +323,7 @@ class Resource(ResourceBase):
         return self
 
     def _load(self, **kwargs):
-        if ('name' not in kwargs) or ('partition' not in kwargs):
+        if ('name' not in kwargs):
             raise MissingRequiredReadParameter(str(kwargs))
         kwargs['uri_as_parts'] = True
         read_session = self._meta_data['bigip']._meta_data['icr_session']
