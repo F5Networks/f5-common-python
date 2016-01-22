@@ -242,13 +242,12 @@ class Collection(ResourceBase):
         if 'items' in self.__dict__:
             for item in self.items:
                 kind = item['kind']
+                name = item['name']
+                partition = item.get('partition', '')
                 if kind in self._meta_data['collection_registry']:
                     instance =\
                         self._meta_data['collection_registry'][kind](self)
-                    load_payload = {}
-                    load_payload['name'] = item.pop('name', '')
-                    load_payload['partition'] = item.pop('partition', '')
-                    instance.load(**load_payload)
+                    instance.load(name=name, partition=partition)
                     list_of_contents.append(instance)
                 else:
                     error_message = '%r is not registered!' % kind
@@ -331,8 +330,14 @@ class Resource(ResourceBase):
         return self
 
     def _load(self, **kwargs):
-        if ('name' not in kwargs):
-            raise MissingRequiredReadParameter(str(kwargs))
+        # For vlan.interfacescollection.interface the partition is not valid
+        key_set = set(kwargs.keys())
+        required_minus_received =\
+            self._meta_data['required_read_parameters'] - key_set
+        if required_minus_received != set():
+            error_message = 'Missing required params: %r'\
+                % required_minus_received
+            raise MissingRequiredReadParameter(error_message)
         kwargs['uri_as_parts'] = True
         read_session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']

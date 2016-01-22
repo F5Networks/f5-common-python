@@ -685,6 +685,8 @@ class WMI(UpdateMonitorMixin, Resource):
         super(WMI, self).__init__(wmi_collection)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:wmi:wmistate'
+        self._meta_data['read_only_attributes'] =\
+            ['agent', 'post', 'method']
 
     def update(self, **kwargs):
         self.__dict__.pop('agent', '')
