@@ -89,3 +89,23 @@ class LazyAttributeMixin(object):
                 if 'Resource' not in bases:
                     setattr(self, name, iface_collection)
                 return iface_collection
+
+
+class ExclusiveAttributesMixin(object):
+    def __setattr__(self, key, value):
+        '''Remove any of the existing exclusive attrs from the object
+
+        Objects attributes can be exclusive for example disable/enable.  So
+        we need to make sure objects only have one of these attributes at
+        at time so that the updates won't fail.
+        '''
+        if '_meta_data' in self.__dict__:
+            # Sometimes this is called prior to full object construction
+            for s in self.__dict__['_meta_data']['exclusive_attributes']:
+                if key in s:
+                    new_s = s - key
+                    for n in new_s:
+                        # Avoid key errors if the attribute wasn't there
+                        self.__dict__.pop(n, '')
+        # Now set the attribute
+        super(ExclusiveAttributesMixin, self).__setattr__(key, value)
