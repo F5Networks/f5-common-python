@@ -101,11 +101,9 @@ class ExclusiveAttributesMixin(object):
         '''
         if '_meta_data' in self.__dict__:
             # Sometimes this is called prior to full object construction
-            for s in self.__dict__['_meta_data']['exclusive_attributes']:
-                if key in s:
-                    new_s = s - key
-                    for n in new_s:
-                        # Avoid key errors if the attribute wasn't there
-                        self.__dict__.pop(n, '')
+            for attr_set in self._meta_data['exclusive_attributes']:
+                if key in attr_set:
+                    new_set = set(attr_set) - set([key])
+                    [self.__dict__.pop(n, '') for n in new_set]
         # Now set the attribute
         super(ExclusiveAttributesMixin, self).__setattr__(key, value)
