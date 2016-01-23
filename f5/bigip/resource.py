@@ -191,6 +191,10 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
 
+    @property
+    def raw(self):
+        return self.__dict__
+
 
 class OrganizingCollection(ResourceBase):
     def __init__(self, bigip):
@@ -267,6 +271,10 @@ class Resource(ResourceBase):
         # 'required_creation_parameters' set with the appropriate values.
         self._meta_data['required_creation_parameters'] = set(
             ('name',))
+        self._meta_data['required_read_parameters'] = set(
+            ('name', 'partition'))
+        self._meta_data['exclusive_attributes'] = []
+        self._meta_data['read_only_attributes'] = []
 
     def _create(self, **kwargs):
         """Call this to create.
@@ -338,8 +346,24 @@ class Resource(ResourceBase):
     def _update(self, **kwargs):
         update_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
+        read_only = self._meta_data.get('read_only_attributes', [])
         temp_meta = self.__dict__.pop('_meta_data')
+
+        # Need to remove any of the Collection objects from self.__dict__
+        # because these are sub-collections and _meta_data and
+        # other non-BIGIP attrs are not removed from the sub-collections
+        # See issue #146 for details
+        for key, value in self.__dict__.items():
+            if isinstance(value, Collection):
+                self.__dict__.pop(key, '')
         data_dict = self.to_dict()
+
+        # Remove any read-only attributes from our data_dict before we update
+        # the data dict with the attributes.  If they pass in read-only attrs
+        # in the method call we are going to let BIGIP let them know about it
+        # when it fails
+        for attr in read_only:
+            data_dict.pop(attr, '')
         data_dict.update(kwargs)
         response = session.put(update_uri, json=data_dict)
         self._meta_data = temp_meta
