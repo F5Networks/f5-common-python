@@ -17,18 +17,15 @@ limitations under the License.
 [![Build Status](https://travis-ci.com/F5Networks/f5-common-python.svg?token=s9yQgrQoSkLe6ec4WQKS&branch=develop)](https://travis-ci.com/F5Networks/f5-common-python)
 
 ## Introduction
-F5 Networks BIG-IP and BIG-IQ python API.
- 
- TODO: Add something more meaningful
+F5 Networks BIG-IP python SDK.  This project implements an SDK for the
+iControl REST interface for the BigIP.  Users of this library can create, edit,
+update, and delete configuration objects on a BigIP device.
 
 ### Submodules
 
 #### bigip
 Python API for configuring objects on a BIG-IP device and gathering information
 from the device via the REST API.
-
-#### bigiq
-TODO: Lets figure out what this does and if we should even have it in this library
 
 ## Installation
 ```

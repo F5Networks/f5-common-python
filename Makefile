@@ -122,8 +122,6 @@ flake8:
 #          pep8 $(IDIR)/vxlan.py; \
 #          pep8 $(PYCTL)/__init__.py; \
 #          pep8 $(PYCTL)/pycontrol.py; \
-#          pep8 f5/bigiq/__init__.py; \
-#          pep8 f5/bigiq/bigiq.py; \
 #          pep8 f5/common/__init__.py; \
 #          pep8 f5/common/constants.py; \
 #          pep8 f5/common/logger.py; \
