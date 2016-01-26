@@ -78,6 +78,7 @@ class GenerationMismatch(Exception):
 class InvalidForceType(ValueError):
     pass
 
+
 class ResourceBase(LazyAttributeMixin, ToDictMixin):
     """Every resource that maps to a uri on the device should inherit this.
 
@@ -416,7 +417,6 @@ class Resource(ResourceBase):
         if not isinstance(force, bool):
             raise InvalidForceType("force parameter must be type bool")
         return force
-
 
     def _check_generation(self):
         '''Check that the generation on the BigIP matches the object
