@@ -270,10 +270,8 @@ class Resource(ResourceBase):
         super(Resource, self).__init__(container)
         # All Creation supporting Resources must update the
         # 'required_creation_parameters' set with the appropriate values.
-        self._meta_data['required_creation_parameters'] = set(
-            ('name',))
-        self._meta_data['required_read_parameters'] = set(
-            ('name', 'partition'))
+        self._meta_data['required_creation_parameters'] = set(('name',))
+        self._meta_data['required_refresh_parameters'] = set(('name',))
         self._meta_data['exclusive_attributes'] = []
         self._meta_data['read_only_attributes'] = []
 
@@ -333,7 +331,7 @@ class Resource(ResourceBase):
         # For vlan.interfacescollection.interface the partition is not valid
         key_set = set(kwargs.keys())
         required_minus_received =\
-            self._meta_data['required_read_parameters'] - key_set
+            self._meta_data['required_refresh_parameters'] - key_set
         if required_minus_received != set():
             error_message = 'Missing required params: %r'\
                 % required_minus_received

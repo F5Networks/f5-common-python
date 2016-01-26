@@ -58,7 +58,6 @@ class Interfaces(Resource, ExclusiveAttributesMixin):
     def __init__(self, interfaces_collection):
         super(Interfaces, self).__init__(interfaces_collection)
         # VLAN intefaces objects do not have a partition
-        self._meta_data['required_read_parameters'] = set(('name',))
         self._meta_data['required_json_kind'] =\
             'tm:net:vlan:interfaces:interfacesstate'
         # You cannot send both tagged and untagged attributes on update
