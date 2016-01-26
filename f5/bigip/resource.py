@@ -191,6 +191,10 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
 
+    @property
+    def raw(self):
+        return self.__dict__
+
 
 class OrganizingCollection(ResourceBase):
     def __init__(self, bigip):
@@ -238,13 +242,12 @@ class Collection(ResourceBase):
         if 'items' in self.__dict__:
             for item in self.items:
                 kind = item['kind']
+                name = item['name']
+                partition = item.get('partition', '')
                 if kind in self._meta_data['collection_registry']:
                     instance =\
                         self._meta_data['collection_registry'][kind](self)
-                    load_payload = {}
-                    load_payload['name'] = item.pop('name', '')
-                    load_payload['partition'] = item.pop('partition', '')
-                    instance.load(**load_payload)
+                    instance.load(name=name, partition=partition)
                     list_of_contents.append(instance)
                 else:
                     error_message = '%r is not registered!' % kind
@@ -267,8 +270,10 @@ class Resource(ResourceBase):
         super(Resource, self).__init__(container)
         # All Creation supporting Resources must update the
         # 'required_creation_parameters' set with the appropriate values.
-        self._meta_data['required_creation_parameters'] = set(
-            ('name',))
+        self._meta_data['required_creation_parameters'] = set(('name',))
+        self._meta_data['required_refresh_parameters'] = set(('name',))
+        self._meta_data['exclusive_attributes'] = []
+        self._meta_data['read_only_attributes'] = []
 
     def _create(self, **kwargs):
         """Call this to create.
@@ -323,8 +328,14 @@ class Resource(ResourceBase):
         return self
 
     def _load(self, **kwargs):
-        if ('name' not in kwargs):
-            raise MissingRequiredReadParameter(str(kwargs))
+        # For vlan.interfacescollection.interface the partition is not valid
+        key_set = set(kwargs.keys())
+        required_minus_received =\
+            self._meta_data['required_refresh_parameters'] - key_set
+        if required_minus_received != set():
+            error_message = 'Missing required params: %r'\
+                % required_minus_received
+            raise MissingRequiredReadParameter(error_message)
         kwargs['uri_as_parts'] = True
         read_session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
@@ -340,8 +351,24 @@ class Resource(ResourceBase):
     def _update(self, **kwargs):
         update_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
+        read_only = self._meta_data.get('read_only_attributes', [])
         temp_meta = self.__dict__.pop('_meta_data')
+
+        # Need to remove any of the Collection objects from self.__dict__
+        # because these are sub-collections and _meta_data and
+        # other non-BIGIP attrs are not removed from the sub-collections
+        # See issue #146 for details
+        for key, value in self.__dict__.items():
+            if isinstance(value, Collection):
+                self.__dict__.pop(key, '')
         data_dict = self.to_dict()
+
+        # Remove any read-only attributes from our data_dict before we update
+        # the data dict with the attributes.  If they pass in read-only attrs
+        # in the method call we are going to let BIGIP let them know about it
+        # when it fails
+        for attr in read_only:
+            data_dict.pop(attr, '')
         data_dict.update(kwargs)
         response = session.put(update_uri, json=data_dict)
         self._meta_data = temp_meta
@@ -354,8 +381,7 @@ class Resource(ResourceBase):
     def _delete(self):
         delete_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
-        response = session.delete(delete_uri, partition=self.partition,
-                                  name=self.name)
+        response = session.delete(delete_uri)
         if response.status_code == 200:
             self.__dict__ = {'deleted': True}
 
