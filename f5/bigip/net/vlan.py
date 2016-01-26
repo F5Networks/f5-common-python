@@ -65,10 +65,8 @@ class Interfaces(Resource, ExclusiveAttributesMixin):
 
     def create(self, **kwargs):
         self._create(**kwargs)
-        self.partition = ""
         return self
 
     def load(self, **kwargs):
         self._load(**kwargs)
-        self.partition = ""
         return self

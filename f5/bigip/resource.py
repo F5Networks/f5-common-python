@@ -381,8 +381,7 @@ class Resource(ResourceBase):
     def _delete(self):
         delete_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
-        response = session.delete(delete_uri, partition=self.partition,
-                                  name=self.name)
+        response = session.delete(delete_uri)
         if response.status_code == 200:
             self.__dict__ = {'deleted': True}
 
