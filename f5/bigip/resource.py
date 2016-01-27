@@ -71,6 +71,14 @@ class UnregisteredKind(Exception):
     pass
 
 
+class GenerationMismatch(Exception):
+    pass
+
+
+class InvalidForceType(ValueError):
+    pass
+
+
 class ResourceBase(LazyAttributeMixin, ToDictMixin):
     """Every resource that maps to a uri on the device should inherit this.
 
@@ -352,6 +360,15 @@ class Resource(ResourceBase):
         update_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
+
+        # Get the current state of the object on BigIP and check the generation
+        # Use pop here because we don't want force in the data_dict
+        force = self._check_force_arg(kwargs.pop('force', False))
+        if not force:
+            self._check_generation()
+
+        # Save the meta data so we can add it back into self after we
+        # load the new object.
         temp_meta = self.__dict__.pop('_meta_data')
 
         # Need to remove any of the Collection objects from self.__dict__
@@ -378,9 +395,15 @@ class Resource(ResourceBase):
         # Need to implement checking for valid params here.
         self._update(**kwargs)
 
-    def _delete(self):
+    def _delete(self, **kwargs):
         delete_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
+
+        # Check the generation for match before delete
+        force = self._check_force_arg(kwargs.pop('force', False))
+        if not force:
+            self._check_generation()
+
         response = session.delete(delete_uri)
         if response.status_code == 200:
             self.__dict__ = {'deleted': True}
@@ -389,3 +412,24 @@ class Resource(ResourceBase):
         # Need to implement checking for ? here.
         self._delete()
         # Need to implement correct teardown here.
+
+    def _check_force_arg(self, force):
+        if not isinstance(force, bool):
+            raise InvalidForceType("force parameter must be type bool")
+        return force
+
+    def _check_generation(self):
+        '''Check that the generation on the BigIP matches the object
+
+        This will do a get to the objects URI and check that the generation
+        returned in the JSON matches the one the object currently has.  If it
+        does not it will raise the `GenerationMismatch` exception.
+        '''
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        response = session.get(self._meta_data['uri'])
+        current_gen = response.json().get('generation', None)
+        if current_gen is not None and current_gen != self.generation:
+            error_message = "The generation of the object on the BigIP (%s)" +\
+                            "does not match the current object (%s)" % (
+                                current_gen, self.generation)
+            raise GenerationMismatch(error_message)
