@@ -17,7 +17,7 @@ script:
 notifications:
     slack:
       rooms:
-        - f5openstackdev:IbC9KXz2vGVq9jkOLCT5USYD#f5-common-python
-        - f5openstackdev:IbC9KXz2vGVq9jkOLCT5USYD#build-status
+        - f5openstackdev:$SLACK_TOKEN#f5-common-python
+        - f5openstackdev:$SLACK_TOKEN#build-status
       on_success: change
       on_failure: always
