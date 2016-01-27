@@ -396,7 +396,7 @@ class Resource(ResourceBase):
         self._update(**kwargs)
 
     def _delete(self, **kwargs):
-        delete_uri = self._meta_datakwargs['uri']
+        delete_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
 
         # Check the generation for match before delete
