@@ -26,10 +26,6 @@ def pytest_addoption(parser):
                      default="admin")
 
 
-def pytest_generate_tests(metafunc):
-    assert metafunc.config.option.bigip
-
-
 @pytest.fixture
 def opt_bigip(request):
     return request.config.getoption("--bigip")

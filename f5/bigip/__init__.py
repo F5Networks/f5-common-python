@@ -22,7 +22,7 @@ from f5.bigip.cm.device import Device
 from f5.bigip.ltm import LTM
 from f5.bigip.net import Net
 from f5.bigip.pycontrol import pycontrol as pc
-from f5.bigip.resource import Resource
+from f5.bigip.resource import OrganizingCollection
 from f5.bigip.sys import Sys
 from f5.common import constants as const
 from icontrol.session import iControlRESTSession
@@ -58,7 +58,7 @@ def _get_icontrol(hostname, username, password, timeout=None):
     return icontrol
 
 
-class BigIP(Resource):
+class BigIP(OrganizingCollection):
     """An interface to a single BIG-IP"""
     def __init__(self, hostname, username, password, **kwargs):
         timeout = kwargs.pop('timeout', 30)
