@@ -60,7 +60,7 @@ class IappParser(object):
 
         if brace_count is not 0:
             raise CurlyBraceMismatchException(
-                'Curly braces mismatch in section {}.'.format(section)
+                'Curly braces mismatch in section %s.' % section
                 )
 
     def get_section_start(self, section):
@@ -78,7 +78,7 @@ class IappParser(object):
                 return found.end() - 1
 
         raise NonextantSectionException(
-            'Section {} not found in template'.format(section)
+            'Section %s not found in template' % section
             )
 
     def get_template_name(self):
