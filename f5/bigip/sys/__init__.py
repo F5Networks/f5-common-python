@@ -13,41 +13,20 @@
 # limitations under the License.
 #
 
+from f5.bigip.resource import OrganizingCollection
+from f5.bigip.sys.folder import FolderCollection
 from f5.bigip.sys.iapp import IApp
 from f5.bigip.sys.stat import Stat
 from f5.bigip.sys.system import System
 
+
 base_uri = 'sys/'
 
 
-class Sys(object):
+class Sys(OrganizingCollection):
     def __init__(self, bigip):
-        self.collections = {}
-        self.bigip = bigip
-
-    @property
-    def iapp(self):
-        if 'iapp' in self.collections:
-            return self.collections['iapp']
-        else:
-            iapp = IApp(self.bigip)
-            self.collections['iapp'] = iapp
-            return iapp
-
-    @property
-    def stat(self):
-        if 'stat' in self.collections:
-            return self.collections['stat']
-        else:
-            stat = Stat(self.bigip)
-            self.collections['stat'] = stat
-            return stat
-
-    @property
-    def system(self):
-        if 'system' in self.collections:
-            return self.collections['system']
-        else:
-            system = System(self.bigip)
-            self.collections['system'] = system
-            return system
+        super(Sys, self).__init__(bigip)
+        self._meta_data['allowed_lazy_attributes'] = [
+            FolderCollection,
+            IApp, Stat, System
+        ]
