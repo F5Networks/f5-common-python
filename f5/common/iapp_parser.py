@@ -39,7 +39,7 @@ class IappParser(object):
         else:
             raise EmptyTemplateException('Template empty or None value.')
 
-    def get_section_end(self, section, section_start):
+    def get_section_end_index(self, section, section_start):
         '''Get end of section's content.
 
         :param section: string name of section
@@ -53,8 +53,9 @@ class IappParser(object):
         for index, char in enumerate(self.template_str[section_start:]):
             if char == u'{':
                 brace_count += 1
-            if char == u'}':
+            elif char == u'}':
                 brace_count -= 1
+
             if brace_count is 0:
                 return index + section_start
 
@@ -63,7 +64,7 @@ class IappParser(object):
                 'Curly braces mismatch in section %s.' % section
                 )
 
-    def get_section_start(self, section):
+    def get_section_start_index(self, section):
         '''Get start of a section's content.
 
         :param section: string name of section
@@ -73,9 +74,9 @@ class IappParser(object):
 
         sec_start_re = '%s\s*\{' % section
 
-        for found in re.finditer(sec_start_re, self.template_str):
-            if found:
-                return found.end() - 1
+        found = re.search(sec_start_re, self.template_str)
+        if found:
+            return found.end() - 1
 
         raise NonextantSectionException(
             'Section %s not found in template' % section
@@ -93,6 +94,8 @@ class IappParser(object):
         template_start = re.search(start_pattern, self.template_str)
         if template_start:
             split_start = template_start.group(0).split()
+            if split_start[3][-1:] == u'{':
+                split_start[3] = split_start[3][:-1]
             return split_start[3]
 
         raise NonextantTemplateNameException('Template name not found.')
@@ -127,8 +130,8 @@ class IappParser(object):
         templ_dict[u'name'] = self.get_template_name()
 
         for section in self.template_sections:
-            sec_start = self.get_section_start(section)
-            sec_end = self.get_section_end(section, sec_start)
+            sec_start = self.get_section_start_index(section)
+            sec_end = self.get_section_end_index(section, sec_start)
             templ_dict[section] = templ[sec_start+1:sec_end].strip()
             templ = templ[:sec_start+1] + templ[sec_end:]
 

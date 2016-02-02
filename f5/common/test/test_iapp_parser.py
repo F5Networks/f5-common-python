@@ -102,7 +102,24 @@ no_name_templ = '''sys application template  {
   partition <partition name>
 }'''
 
-bad_name_templ = '''sys application template bad><{\#updown {
+bad_name_templ = '''sys application template bad#updown {
+  actions {
+    definition {
+      html-help {
+        # HTML Help for the template
+      }
+      implementation {
+        # TMSH implementation code
+      }
+      role-acl {<security role>}
+      run-as <user context>
+    }
+  }
+  description <template description>
+  partition <partition name>
+}'''
+
+name_brace_templ = '''sys application template name_next_to_brace{
   actions {
     definition {
       html-help {
@@ -149,32 +166,40 @@ def test__init__():
 
 def test__init__error():
     prsr = None
-    with pytest.raises(ip.EmptyTemplateException):
-        prsr = ip.IappParser(u'')
+    with pytest.raises(ip.EmptyTemplateException) as EmptyTemplateExceptInfo:
+        prsr = ip.IappParser('')
+    assert EmptyTemplateExceptInfo.value.message == \
+        'Template empty or None value.'
     assert prsr is None
 
 
-def test_get_section_end():
+def test_get_section_end_index():
     prsr = ip.IappParser(good_templ)
-    impl_start = prsr.get_section_start(u'implementation')
-    impl_end = prsr.get_section_end(u'implementation', impl_start)
+    impl_start = prsr.get_section_start_index(u'implementation')
+    impl_end = prsr.get_section_end_index(u'implementation', impl_start)
     templ_impl = unicode('''{
         # TMSH implementation code
       }''')
     assert good_templ[impl_start:impl_end+1] == templ_impl
 
 
-def test_get_section_start_no_open_brace_error():
+def test_get_section_start_index_no_open_brace_error():
     prsr = ip.IappParser(no_open_brace_templ)
-    with pytest.raises(ip.NonextantSectionException):
-        prsr.get_section_start(u'html-help')
+    with pytest.raises(ip.NonextantSectionException) as \
+            NonextantSectionExceptInfo:
+        prsr.get_section_start_index(u'html-help')
+    assert NonextantSectionExceptInfo.value.message == \
+        'Section html-help not found in template'
 
 
 def test_get_section_end_no_close_brace_error():
     prsr = ip.IappParser(no_close_brace_templ)
-    with pytest.raises(ip.CurlyBraceMismatchException):
-        help_start = prsr.get_section_start(u'html-help')
-        prsr.get_section_end(u'html_help', help_start)
+    with pytest.raises(ip.CurlyBraceMismatchException) as \
+            CurlyBraceMismatchExceptInfo:
+        help_start = prsr.get_section_start_index(u'html-help')
+        prsr.get_section_end_index(u'html_help', help_start)
+    assert CurlyBraceMismatchExceptInfo.value.message == \
+        'Curly braces mismatch in section html_help.'
 
 
 def test_get_template_name():
@@ -182,16 +207,27 @@ def test_get_template_name():
     assert prsr.get_template_name() == u'good_templ'
 
 
+def test_get_template_name_next_to_brace():
+    prsr = ip.IappParser(name_brace_templ)
+    assert prsr.get_template_name() == u'name_next_to_brace'
+
+
 def test_get_template_name_error():
     prsr = ip.IappParser(no_name_templ)
-    with pytest.raises(ip.NonextantTemplateNameException):
+    with pytest.raises(ip.NonextantTemplateNameException) as \
+            NonextantTemplateNameExceptInfo:
         prsr.get_template_name()
+    assert NonextantTemplateNameExceptInfo.value.message == \
+        'Template name not found.'
 
 
 def test_get_template_name_bad_name_error():
     prsr = ip.IappParser(bad_name_templ)
-    with pytest.raises(ip.NonextantTemplateNameException):
+    with pytest.raises(ip.NonextantTemplateNameException) as \
+            NonextantTemplateNameExceptInfo:
         prsr.get_template_name()
+    assert NonextantTemplateNameExceptInfo.value.message == \
+        'Template name not found.'
 
 
 def test_parse_template():
