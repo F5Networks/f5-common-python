@@ -19,10 +19,6 @@ from requests import HTTPError
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
-def delete_resource(resource):
-        resource.delete()
-
-
 def setup_folder_test(request, bigip, name, subpath):
     def teardown():
         '''Remove the f1 folder only.
