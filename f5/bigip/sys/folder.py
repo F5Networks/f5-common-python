@@ -40,21 +40,33 @@ class Folder(Resource):
         self._meta_data['allowed_lazy_attributes'] = []
         self._meta_data['required_json_kind'] = 'tm:sys:folder:folderstate'
         # refresh() and load() require partition, not name
-        self._meta_data['required_refresh_parameters'] = set(('partition',))
+        self._meta_data['required_refresh_parameters'] = set()
 
-    def load(self, **kwargs):
-        '''Load the object using the partition name.
-
-        We will pop the name out of kwargs and if there was no partition passed
-        in set partition to name.  If the name is "/" we can ignore it
-        because the root partition has no name.  It looks like:
-        https://localhost/mgmt/tm/sys/folder/~
-        '''
+    def _load(self, **kwargs):
         name = kwargs.pop('name', '')
         partition = kwargs.pop('partition', '')
-        if name and name != '/' and not partition:
-            partition = name
-        return self._load(partition=partition, **kwargs)
+        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['container']._meta_data['uri']
+
+        if not name and not partition:
+            # Root folder - https://localhost/mgmt/tm/sys/folder/~
+            load_uri = base_uri + '~'
+        elif not name and partition:
+            # Top level - https://localhost/mgmt/tm/sys/folder/~partition
+            load_uri = base_uri + '~' + partition
+        elif name and not partition:
+            # Top level - https://localhost/mgmt/tm/sys/folder/~partition
+            load_uri = base_uri + '~' + name
+        else:
+            # Nested Folder (allow for name to be many folders)
+            # https://localhost/mgmt/tm/sys/folder/~partition~f1~f2
+            name = name.replace('/', '~')
+            load_uri = base_uri + '~' + partition + '~' + name
+
+        response = read_session.get(load_uri, uri_as_parts=False, **kwargs)
+        self._local_update(response.json())
+        self._build_meta_data_uri(self.selfLink)
+        return self
 
     def update(self, **kwargs):
         '''Update the object, removing device group if inherited

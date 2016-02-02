@@ -49,8 +49,7 @@ class TestFolder(object):
         # Load - Test with the various partition/name combinations
         f2 = fc1.folder.load(partition='testfolder')
         f3 = fc1.folder.load(name='testfolder')
-        f4 = fc1.folder.load(name='testfolder', partition='testfolder')
-        for f in [f2, f3, f4]:
+        for f in [f2, f3]:
             assert f.name == f1.name
             assert f.generation == f1.generation
 
@@ -67,6 +66,24 @@ class TestFolder(object):
         assert f1.generation == f2.generation
 
         # We assume delete is taken care of by teardown
+
+    def test_load_root_folder_by_name(self, bigip):
+        fc = bigip.sys.foldercollection
+        f = fc.folder.load(name='/')
+        assert f.name == '/'
+        assert f.fullPath == '/'
+
+    def test_load_root_folder_by_partition(self, bigip):
+        fc = bigip.sys.foldercollection
+        f = fc.folder.load(partition='/')
+        assert f.name == '/'
+        assert f.fullPath == '/'
+
+    def test_load_root_no_attributes(self, bigip):
+        fc = bigip.sys.foldercollection
+        f = fc.folder.load()
+        assert f.name == '/'
+        assert f.fullPath == '/'
 
 
 class TestFolderCollection(object):
