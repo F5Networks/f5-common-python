@@ -186,5 +186,5 @@ class TestVLAN(object):
         '''
         setup_interfaces_test(request, bigip, 'v1', 'Common')
         v2 = bigip.net.vlancollection.vlan.load(name='v1', partition='Common')
-        v2_ifcs = v2.interfacecollection.get_collection()
+        v2_ifcs = v2.interfacescollection.get_collection()
         assert len(v2_ifcs) == 1
