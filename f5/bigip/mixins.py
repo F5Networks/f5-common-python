@@ -64,7 +64,8 @@ class LazyAttributeMixin(object):
             error_message = '%r does not have self._meta_data' % cls_name
             raise LazyAttributesRequired(error_message)
         elif 'allowed_lazy_attributes' not in self._meta_data:
-            error_message = '"allowed_lazy_attributes" not in self._meta_data'
+            error_message = ('"allowed_lazy_attributes" not in',
+                             'self._meta_data for class %s' % cls_name)
             raise LazyAttributesRequired(error_message)
 
         # ensure the requested attr is present

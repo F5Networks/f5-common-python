@@ -329,6 +329,7 @@ class Resource(ResourceBase):
 
         # Update the object to have the correct functional uri.
         self._build_meta_data_uri(self.selfLink)
+        self._update_lazy_attributes()
         return self
 
     def create(self, **kwargs):
@@ -350,6 +351,7 @@ class Resource(ResourceBase):
         response = read_session.get(base_uri, **kwargs)
         self._local_update(response.json())
         self._build_meta_data_uri(self.selfLink)
+        self._update_lazy_attributes()
         return self
 
     def load(self, **kwargs):
@@ -429,7 +431,12 @@ class Resource(ResourceBase):
         response = session.get(self._meta_data['uri'])
         current_gen = response.json().get('generation', None)
         if current_gen is not None and current_gen != self.generation:
-            error_message = "The generation of the object on the BigIP (%s)" +\
-                            "does not match the current object (%s)" % (
-                                current_gen, self.generation)
+            error_message = ("The generation of the object on the BigIP " +
+                             "(" + str(current_gen) + ")" +
+                             " does not match the current object" +
+                             "(" + str(self.generation) + ")")
             raise GenerationMismatch(error_message)
+
+    def _update_lazy_attributes(self):
+        collection_reg = self._meta_data.get('collection_registry', {})
+        self._meta_data['allowed_lazy_attributes'] = collection_reg.values()

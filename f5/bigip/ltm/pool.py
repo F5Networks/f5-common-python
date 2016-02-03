@@ -33,12 +33,9 @@ class Pool(Resource):
     def __init__(self, pool_collection):
         super(Pool, self).__init__(pool_collection)
         self._meta_data['required_json_kind'] = 'tm:ltm:pool:poolstate'
-
-    def create(self, **kwargs):
-        self._create(**kwargs)
-        # This idiom is specific to subcollections!
-        self._meta_data['allowed_lazy_attributes'] = [MembersCollection]
-        return self
+        self._meta_data['collection_registry'] = {
+            'tm:ltm:pool:memberscollectionstate': MembersCollection
+        }
 
 
 class MembersCollection(Collection):

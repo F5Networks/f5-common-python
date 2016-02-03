@@ -30,11 +30,8 @@ class VLAN(Resource):
     def __init__(self, vlan_collection):
         super(VLAN, self).__init__(vlan_collection)
         self._meta_data['required_json_kind'] = 'tm:net:vlan:vlanstate'
-
-    def create(self, **kwargs):
-        self._create(**kwargs)
-        self._meta_data['allowed_lazy_attributes'] = [InterfacesCollection]
-        return self
+        self._meta_data['collection_registry'] =\
+            {'tm:net:vlan:interfacescollectionstate': InterfacesCollection}
 
 
 class InterfacesCollection(Collection):
