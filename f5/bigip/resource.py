@@ -250,12 +250,11 @@ class Collection(ResourceBase):
         if 'items' in self.__dict__:
             for item in self.items:
                 kind = item['kind']
-                name = item['name']
-                partition = item.get('partition', '')
                 if kind in self._meta_data['collection_registry']:
                     instance =\
                         self._meta_data['collection_registry'][kind](self)
-                    instance.load(name=name, partition=partition)
+                    instance._local_update(item)
+                    instance._build_meta_data_uri(instance.selfLink)
                     list_of_contents.append(instance)
                 else:
                     error_message = '%r is not registered!' % kind
