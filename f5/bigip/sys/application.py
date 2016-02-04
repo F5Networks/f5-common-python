@@ -77,7 +77,7 @@ class Service(Resource):
     def __init__(self, service_collection):
         super(Service, self).__init__(service_collection)
         self._meta_data['allowed_lazy_attributes'] = []
-	self._meta_data['required_creation_parameters'].update(('template',))
+        self._meta_data['required_creation_parameters'].update(('template',))
         self._meta_data['required_refresh_parameters'].update(('partition',))
         self._meta_data['required_json_kind'] =\
             'tm:sys:application:service:servicestate'
