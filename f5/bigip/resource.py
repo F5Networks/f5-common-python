@@ -79,6 +79,10 @@ class InvalidForceType(ValueError):
     pass
 
 
+class URICreationCollision(Exception):
+    pass
+
+
 class ResourceBase(LazyAttributeMixin, ToDictMixin):
     """Every resource that maps to a uri on the device should inherit this.
 
@@ -300,6 +304,9 @@ class Resource(ResourceBase):
         Object.selfLink with the substring 'localhost' replaced with the value
         of Object._meta_data['bigip']._meta_data['hostname'].
         """
+
+        if 'uri' in self._meta_data:
+            raise URICreationCollision
         key_set = set(kwargs.keys())
         required_minus_received =\
             self._meta_data['required_creation_parameters'] - key_set
@@ -337,13 +344,10 @@ class Resource(ResourceBase):
 
     def _load(self, **kwargs):
         # For vlan.interfacescollection.interface the partition is not valid
-        key_set = set(kwargs.keys())
-        required_minus_received =\
-            self._meta_data['required_refresh_parameters'] - key_set
-        if required_minus_received != set():
-            error_message = 'Missing required params: %r'\
-                % required_minus_received
-            raise MissingRequiredReadParameter(error_message)
+
+        if 'uri' in self._meta_data:
+            raise URICreationCollision
+        self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
         read_session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
@@ -356,6 +360,20 @@ class Resource(ResourceBase):
     def load(self, **kwargs):
         self._load(**kwargs)
         return self
+
+    def _check_load_parameters(self, **kwargs):
+        '''Params given to load should at least satisfy required params.
+
+        :params: kwargs
+        :raises: MissingRequiredReadParameter
+        '''
+        key_set = set(kwargs.keys())
+        required_minus_received =\
+            self._meta_data['required_refresh_parameters'] - key_set
+        if required_minus_received != set():
+            error_message = 'Missing required params: %r'\
+                % required_minus_received
+            raise MissingRequiredReadParameter(error_message)
 
     def _update(self, **kwargs):
         update_uri = self._meta_data['uri']

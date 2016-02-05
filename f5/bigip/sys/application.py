@@ -16,10 +16,9 @@
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import KindTypeMismatch
-from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.resource import MissingRequiredReadParameter
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
+from f5.bigip.resource import URICreationCollision
 
 from requests import HTTPError
 
@@ -92,49 +91,33 @@ class Service(Resource):
         :returns: Python Service object
         '''
 
-        key_set = set(kwargs.keys())
-        required_minus_received =\
-            self._meta_data['required_creation_parameters'] - key_set
-        if required_minus_received != set():
-            error_message = 'Missing required params: %r'\
-                % required_minus_received
-            raise MissingRequiredCreationParameter(error_message)
-
-        # Make convenience variable with short names for this method.
-        _create_uri = self._meta_data['container']._meta_data['uri']
-        session = self._meta_data['bigip']._meta_data['icr_session']
-
-        # Invoke the REST operation on the device.
         try:
-            response = session.post(_create_uri, json=kwargs)
+            super(Service, self)._create(**kwargs)
         except HTTPError as ex:
-            # This call always returns a 404 with the following message
             if "The configuration was updated successfully but could not be " \
                     "retrieved" not in ex.response.text:
                 raise
 
-        # If no partition given on create, use Common
-        if 'partition' not in kwargs:
-            kwargs['partition'] = 'Common'
-        # Popping out template because load was yelling at me with unexpected
-        # keyword argument
-        kwargs.pop('template', '')
+            # BigIP will create in Common partition if none is given.
+            # In order to create the uri properly in this class's load,
+            # drop in Common as the partition in kwargs.
+            if 'partition' not in kwargs:
+                kwargs['partition'] = 'Common'
+            # 'template' kwarg should not be used in the call to load becuase
+            # the BigIP will return an error if it's present
+            kwargs.pop('template')
 
-        # If response was created successfully, do a local_update.
-        # If not, call to overridden _load method via load
-        try:
-            if response:
-                self._local_update(response.json())
-        except NameError as ex:
+            # If response was created successfully, do a local_update.
+            # If not, call to overridden _load method via load
             self.load(**kwargs)
 
-        if self.kind != self._meta_data['required_json_kind']:
-            error_message = "For instances of type '%r' the corresponding" +\
-                " kind must be '%r' but creation returned JSON with kind: %r"\
-                % (self.__class__.__name__,
-                   self._meta_data['required_json_kind'],
-                   self.kind)
-            raise KindTypeMismatch(error_message)
+            if self.kind != self._meta_data['required_json_kind']:
+                error_message = "For instances of type '%r' the corresponding" +\
+                    " kind must be '%r' but creation returned JSON with kind: %r"\
+                    % (self.__class__.__name__,
+                       self._meta_data['required_json_kind'],
+                       self.kind)
+                raise KindTypeMismatch(error_message)
 
         return self
 
@@ -155,18 +138,13 @@ class Service(Resource):
 
         :params kwargs: keyword arguments for talking to the device
         :returns: populated Service object
-        :raises: MissingRequiredReadParameter
         '''
 
-        key_set = set(kwargs.keys())
-        required_minus_received =\
-            self._meta_data['required_refresh_parameters'] - key_set
-        if required_minus_received != set():
-            error_message = 'Missing required params: %r'\
-                % required_minus_received
-            raise MissingRequiredReadParameter(error_message)
-        name = kwargs.pop('name', '')
-        partition = kwargs.pop('partition', '')
+        if 'uri' in self._meta_data:
+            raise URICreationCollision
+        self._check_load_parameters(**kwargs)
+        name = kwargs.pop('name')
+        partition = kwargs.pop('partition')
         read_session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
 
