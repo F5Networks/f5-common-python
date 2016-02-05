@@ -14,7 +14,7 @@
 #
 
 from f5.bigip.resource import OrganizingCollection
-from f5.bigip.sys.application import Application
+from f5.bigip.sys.application import ApplicationCollection
 from f5.bigip.sys.folder import FolderCollection
 from f5.bigip.sys.stat import Stat
 from f5.bigip.sys.system import System
@@ -28,5 +28,5 @@ class Sys(OrganizingCollection):
         super(Sys, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
             FolderCollection,
-            Application, Stat, System
+            ApplicationCollection, Stat, System
         ]

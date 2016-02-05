@@ -27,15 +27,15 @@ definition = {'definition': sections}
 
 
 def setup_application_test(request, bigip):
-    return bigip.sys.application
+    return bigip.sys.applicationcollection
 
 
 def setup_template_collection_test(request, bigip):
-    return bigip.sys.application.templatecollection
+    return bigip.sys.applicationcollection.templatecollection
 
 
 def setup_service_collection_test(request, bigip):
-    return bigip.sys.application.servicecollection
+    return bigip.sys.applicationcollection.servicecollection
 
 
 def delete_resource(resource):

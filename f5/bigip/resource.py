@@ -253,6 +253,9 @@ class Collection(ResourceBase):
         self._refresh()
         if 'items' in self.__dict__:
             for item in self.items:
+                if 'kind' not in item:
+                    list_of_contents.append(item)
+                    continue
                 kind = item['kind']
                 if kind in self._meta_data['collection_registry']:
                     instance =\

@@ -16,16 +16,15 @@
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import KindTypeMismatch
-from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 from f5.bigip.resource import URICreationCollision
 
 from requests import HTTPError
 
 
-class Application(OrganizingCollection):
+class ApplicationCollection(Collection):
     def __init__(self, sys):
-        super(Application, self).__init__(sys)
+        super(ApplicationCollection, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [
             APLScriptCollection,
             CustomStatCollection,

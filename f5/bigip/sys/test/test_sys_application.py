@@ -33,8 +33,8 @@ def FakeService():
 class TestCreate(object):
     def test_create_two(self):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        serv1 = b.sys.application.servicecollection.service
-        serv2 = b.sys.application.servicecollection.service
+        serv1 = b.sys.applicationcollection.servicecollection.service
+        serv2 = b.sys.applicationcollection.servicecollection.service
         assert serv1 is not serv2
 
     def test_create_no_args(self, FakeService):
