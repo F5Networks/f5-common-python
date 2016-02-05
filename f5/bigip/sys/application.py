@@ -114,7 +114,7 @@ class Service(Resource):
                 raise
 
         # If no partition given on create, use Common
-        if 'partition' not in kwargs.keys():
+        if 'partition' not in kwargs:
             kwargs['partition'] = 'Common'
         # Popping out template because load was yelling at me with unexpected
         # keyword argument
@@ -136,19 +136,7 @@ class Service(Resource):
                    self.kind)
             raise KindTypeMismatch(error_message)
 
-        # Update the object to have the correct functional uri.
-        self._build_meta_data_uri(self.selfLink)
         return self
-
-    def build_uri(self):
-        '''Build a uri to access service object on BigIP'''
-        base_uri = self._meta_data['container']._meta_data['uri']
-        return '%s~%s~%s.app~%s' % (
-            base_uri,
-            self.partition,
-            self.name,
-            self.name
-        )
 
     def update(self, **kwargs):
         '''Push local updates to the object on the device.
