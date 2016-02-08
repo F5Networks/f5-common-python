@@ -20,7 +20,19 @@ from f5.bigip import BigIP
 from f5.bigip.resource import KindTypeMismatch
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
+from f5.bigip.resource import URICreationCollision
 from f5.bigip.sys.application import Service
+
+
+kind_mismatch = {
+    "kind": "tm:sys:application:service:servicestate",
+    "name": "tt_serv",
+    "partition": "Common",
+    "subPath": "tt_serv.app",
+    "selfLink": "https://localhost/mgmt/tm/sys/application/service/' \
+        '~Common~tt_serv.app~tt_serv?ver=11.6.0",
+    "template": "/Common/tt"
+}
 
 
 @pytest.fixture
@@ -28,6 +40,10 @@ def FakeService():
     fake_serv_collection = mock.MagicMock()
     fake_serv = Service(fake_serv_collection)
     return fake_serv
+
+
+class FakeContainer(object):
+    pass
 
 
 class TestCreate(object):
@@ -48,7 +64,24 @@ class TestCreate(object):
             FakeService.create(name='test_service')
         assert 'template' in ex.value.message
 
-    def atest_kindtype_mismatch(self, FakeService):
+    def test_create_uri_collision(self, FakeService):
+        FakeService._meta_data = {'uri': 'already_defined'}
+        with pytest.raises(URICreationCollision):
+            FakeService.create(name='test_service', template='tt')
+
+    def test_kindtype_mismatch(self, FakeService):
+        fake_container = FakeContainer()
+        fake_container._meta_data = {
+            'uri': '',
+            'icr_session': mock.MagicMock()
+        }
+        FakeService._meta_data = {
+            'bigip': fake_container,
+            'container': fake_container
+        }
+        FakeService._meta_data['required_creation_parameters'] = \
+            set(('name', 'template'))
+        FakeService.create(name='tt_serv', template='/Common/tt')
         with pytest.raises(KindTypeMismatch) as ex:
             pass
         assert ex is None
