@@ -26,7 +26,7 @@ class SNATCollection(Collection):
     def __init__(self, ltm):
         super(SNATCollection, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [SNAT]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:snat:snatstate': SNAT}
 
 

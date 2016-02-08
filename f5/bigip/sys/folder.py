@@ -21,7 +21,7 @@ class FolderCollection(Collection):
     def __init__(self, sys):
         super(FolderCollection, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [Folder]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:sys:folder:folderstate': Folder}
 
 

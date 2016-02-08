@@ -21,22 +21,23 @@ class PolicyCollection(Collection):
     def __init__(self, ltm):
         super(PolicyCollection, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Policy]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:policy:policystate': Policy}
 
 
 class Policy(Resource):
     def __init__(self, policy_collection):
         super(Policy, self).__init__(policy_collection)
-        self._meta_data['allowed_lazy_attributes'] = [RulesCollection]
         self._meta_data['required_json_kind'] = 'tm:ltm:policy:policystate'
         self._meta_data['required_creation_parameters'].update(('strategy',))
+        temp = {'tm:ltm:policy:rules:rulescollectionstate': RulesCollection}
+        self._meta_data['attribute_registry'] = temp
 
 
 class RulesCollection(Collection):
     def __init__(self, policy):
         super(RulesCollection, self).__init__(policy)
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:policy:rules:rulesstate': Rules}
         self._meta_data['required_json_kind'] =\
             'tm:ltm:policy:rules:rulescollectionstate'

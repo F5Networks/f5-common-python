@@ -30,7 +30,7 @@ class SelfIPCollection(Collection):
     def __init__(self, net):
         super(SelfIPCollection, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [SelfIP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:net:self:selfstate': SelfIP}
         # Override the URI to have self instead of the constructed selfip
         self._meta_data['uri'] =\

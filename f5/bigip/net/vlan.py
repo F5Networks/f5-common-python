@@ -22,7 +22,7 @@ class VLANCollection(Collection):
     def __init__(self, net):
         super(VLANCollection, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [VLAN]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:net:vlan:vlanstate': VLAN}
 
 
@@ -30,7 +30,7 @@ class VLAN(Resource):
     def __init__(self, vlan_collection):
         super(VLAN, self).__init__(vlan_collection)
         self._meta_data['required_json_kind'] = 'tm:net:vlan:vlanstate'
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:net:vlan:interfacescollectionstate': InterfacesCollection}
 
 
@@ -47,7 +47,7 @@ class InterfacesCollection(Collection):
     def __init__(self, vlan):
         super(InterfacesCollection, self).__init__(vlan)
         self._meta_data['allowed_lazy_attributes'] = [Interfaces]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:net:vlan:interfaces:interfacesstate': Interfaces}
 
 

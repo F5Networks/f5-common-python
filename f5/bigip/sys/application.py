@@ -37,7 +37,7 @@ class APLScriptCollection(Collection):
     def __init__(self, application):
         super(APLScriptCollection, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [APLScript]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:sys:application:apl-script:apl-scriptstate': APLScript}
 
 
@@ -52,7 +52,7 @@ class CustomStatCollection(Collection):
     def __init__(self, application):
         super(CustomStatCollection, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [CustomStat]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:sys:application:custom-stat:custom-statstate': CustomStat}
 
 
@@ -67,7 +67,7 @@ class ServiceCollection(Collection):
     def __init__(self, application):
         super(ServiceCollection, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Service]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:sys:application:service:servicestate': Service}
 
 
@@ -160,7 +160,7 @@ class TemplateCollection(Collection):
     def __init__(self, application):
         super(TemplateCollection, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Template]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:sys:application:template:templatestate': Template}
 
 
