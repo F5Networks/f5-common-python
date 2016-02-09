@@ -49,8 +49,11 @@ class Rules(Resource):
         super(Rules, self).__init__(rules_collection)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:policy:rules:rulesstate'
-        self._meta_data['allowed_lazy_attributes'] =\
-            [ActionsCollection, ConditionsCollection]
+        temp = {'tm:ltm:policy:rules:actions:actionscollectionstate':
+                ActionsCollection,
+                'tm:ltm:policy:rules:conditions:conditionscollectionstate':
+                ConditionsCollection}
+        self._meta_data['attribute_registry'] = temp
 
 
 class ActionsCollection(Collection):
@@ -59,6 +62,8 @@ class ActionsCollection(Collection):
         self._meta_data['required_json_kind'] =\
             'tm:ltm:policy:rules:actions:actionscollectionstate'
         self._meta_data['allowed_lazy_attributes'] = [Actions]
+        self._meta_data['attribute_registry'] =\
+            {'tm:ltm:policy:rules:actions:actionsstate': Actions}
 
 
 class Actions(Resource):
@@ -74,6 +79,8 @@ class ConditionsCollection(Collection):
         self._meta_data['required_json_kind'] =\
             'tm:ltm:policy:rules:conditions:conditionscollectionstate'
         self._meta_data['allowed_lazy_attributes'] = [Conditions]
+        self._meta_data['attribute_registry'] =\
+            {'tm:ltm:policy:rules:conditions:conditionsstate': Conditions}
 
 
 class Conditions(Resource):

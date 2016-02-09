@@ -434,7 +434,7 @@ class Resource(ResourceBase):
         session = self._meta_data['bigip']._meta_data['icr_session']
 
         # Check the generation for match before delete
-        force = self._check_force_arg(kwargs.pop('force', False))
+        force = self._check_force_arg(kwargs.pop('force', True))
         if not force:
             self._check_generation()
 
