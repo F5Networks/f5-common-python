@@ -21,7 +21,7 @@ class VirtualCollection(Collection):
     def __init__(self, ltm):
         super(VirtualCollection, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Virtual]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:virtual:virtualstate': Virtual}
 
 

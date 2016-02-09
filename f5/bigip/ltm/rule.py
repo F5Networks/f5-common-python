@@ -21,7 +21,7 @@ class RuleCollection(Collection):
     def __init__(self, ltm):
         super(RuleCollection, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Rule]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:rule:rulestate': Rule}
 
 

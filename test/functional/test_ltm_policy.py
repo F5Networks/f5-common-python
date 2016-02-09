@@ -59,6 +59,7 @@ class TestPolicy(object):
         policy2 = pc1.policy
         policy2.load(partition='Common', name='poltest1')
         assert policy2.selfLink == policy1.selfLink
+        pp('2: %s' % policy2._meta_data['allowed_lazy_attributes'])
         p2rc = policy2.rulescollection
         p2rc.refresh()
         assert p2rc._meta_data['required_json_kind'] == p2rc.kind

@@ -25,7 +25,7 @@ class PoolCollection(Collection):
     def __init__(self, ltm):
         super(PoolCollection, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Pool]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:pool:poolstate': Pool}
 
 
@@ -33,7 +33,7 @@ class Pool(Resource):
     def __init__(self, pool_collection):
         super(Pool, self).__init__(pool_collection)
         self._meta_data['required_json_kind'] = 'tm:ltm:pool:poolstate'
-        self._meta_data['collection_registry'] = {
+        self._meta_data['attribute_registry'] = {
             'tm:ltm:pool:memberscollectionstate': MembersCollection
         }
 
@@ -44,7 +44,7 @@ class MembersCollection(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Member]
         self._meta_data['required_json_kind'] =\
             'tm:ltm:pool:members:memberscollectionstate'
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:pool:members:membersstate': Member}
 
 
