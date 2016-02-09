@@ -295,7 +295,10 @@ class Resource(ResourceBase):
         @functools.wraps(decorated)
         def wrapper(instance, **kwargs):
             if 'uri' in instance._meta_data:
-                raise URICreationCollision
+                error = "There was an attempt to assign a new uri to this ",\
+                        "resource, the _meta_data['uri'] is %s and it should",\
+                        " not be changed." % (instance._meta_data['uri'])
+                raise URICreationCollision(error)
             returned = decorated(instance, **kwargs)
             attribute_reg = instance._meta_data.get('attribute_registry', {})
             attrs = attribute_reg.values()
