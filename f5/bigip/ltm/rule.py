@@ -28,7 +28,7 @@ class RuleCollection(Collection):
 class Rule(Resource):
     def __init__(self, rule_collection):
         super(Rule, self).__init__(rule_collection)
-        self._meta_data['allowed_lazy_attributes'] = []
+        self._meta_data['required_json_kind'] = 'tm:ltm:rule:rulestate'
         self._meta_data['required_creation_parameters'].update(
             ('name', 'partition', 'apiAnonymous'))
 

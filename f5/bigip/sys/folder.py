@@ -37,7 +37,6 @@ class Folder(Resource):
         is no ~partition~name format for the object.
         '''
         super(Folder, self).__init__(folder_collection)
-        self._meta_data['allowed_lazy_attributes'] = []
         self._meta_data['required_json_kind'] = 'tm:sys:folder:folderstate'
         # refresh() and load() require partition, not name
         self._meta_data['required_refresh_parameters'] = set()
