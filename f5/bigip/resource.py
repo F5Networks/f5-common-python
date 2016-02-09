@@ -36,6 +36,7 @@ Available Classes:
       operations, if a caller attempts to invoke an unsupported operation this
       Exception is raised.
 """
+import functools
 import urlparse
 
 from f5.bigip.mixins import LazyAttributeMixin
@@ -216,7 +217,7 @@ class OrganizingCollection(ResourceBase):
             self._meta_data['container']._meta_data['uri'] + base_uri
         # Collections have a registry which must be reified in the
         # subclass constructor.
-        self._meta_data['collection_registry'] = {}
+        self._meta_data['attribute_registry'] = {}
 
     # Because of the behavior of the BigIP REST server different resource types
     # must handle get_collection differently.
@@ -257,9 +258,9 @@ class Collection(ResourceBase):
                     list_of_contents.append(item)
                     continue
                 kind = item['kind']
-                if kind in self._meta_data['collection_registry']:
+                if kind in self._meta_data['attribute_registry']:
                     instance =\
-                        self._meta_data['collection_registry'][kind](self)
+                        self._meta_data['attribute_registry'][kind](self)
                     instance._local_update(item)
                     instance._build_meta_data_uri(instance.selfLink)
                     list_of_contents.append(instance)
@@ -278,8 +279,9 @@ class Resource(ResourceBase):
     2.  call super(Subclass, self).__init__(container) in its __init__
     """
     def __init__(self, container):
-        """Call _create for a Resource resource to have a self._meta_data['uri']!
+        """XXX
 
+        Call _create for a Resource resource to have a self._meta_data['uri']!
         """
         super(Resource, self).__init__(container)
         # All Creation supporting Resources must update the
@@ -289,6 +291,22 @@ class Resource(ResourceBase):
         self._meta_data['exclusive_attributes'] = []
         self._meta_data['read_only_attributes'] = []
 
+    def _manage_local_creation(decorated):
+        @functools.wraps(decorated)
+        def wrapper(instance, **kwargs):
+            if 'uri' in instance._meta_data:
+                error = "There was an attempt to assign a new uri to this ",\
+                        "resource, the _meta_data['uri'] is %s and it should",\
+                        " not be changed." % (instance._meta_data['uri'])
+                raise URICreationCollision(error)
+            returned = decorated(instance, **kwargs)
+            attribute_reg = instance._meta_data.get('attribute_registry', {})
+            attrs = attribute_reg.values()
+            instance._meta_data['allowed_lazy_attributes'] = attrs
+            return returned
+        return wrapper
+
+    @_manage_local_creation
     def _create(self, **kwargs):
         """Call this to create.
 
@@ -308,8 +326,6 @@ class Resource(ResourceBase):
         of Object._meta_data['bigip']._meta_data['hostname'].
         """
 
-        if 'uri' in self._meta_data:
-            raise URICreationCollision
         key_set = set(kwargs.keys())
         required_minus_received =\
             self._meta_data['required_creation_parameters'] - key_set
@@ -338,18 +354,15 @@ class Resource(ResourceBase):
 
         # Update the object to have the correct functional uri.
         self._build_meta_data_uri(self.selfLink)
-        self._update_lazy_attributes()
         return self
 
     def create(self, **kwargs):
         self._create(**kwargs)
         return self
 
+    @_manage_local_creation
     def _load(self, **kwargs):
         # For vlan.interfacescollection.interface the partition is not valid
-
-        if 'uri' in self._meta_data:
-            raise URICreationCollision
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
         read_session = self._meta_data['bigip']._meta_data['icr_session']
@@ -357,7 +370,6 @@ class Resource(ResourceBase):
         response = read_session.get(base_uri, **kwargs)
         self._local_update(response.json())
         self._build_meta_data_uri(self.selfLink)
-        self._update_lazy_attributes()
         return self
 
     def load(self, **kwargs):
@@ -422,7 +434,7 @@ class Resource(ResourceBase):
         session = self._meta_data['bigip']._meta_data['icr_session']
 
         # Check the generation for match before delete
-        force = self._check_force_arg(kwargs.pop('force', False))
+        force = self._check_force_arg(kwargs.pop('force', True))
         if not force:
             self._check_generation()
 
@@ -456,7 +468,3 @@ class Resource(ResourceBase):
                              " does not match the current object" +
                              "(" + str(self.generation) + ")")
             raise GenerationMismatch(error_message)
-
-    def _update_lazy_attributes(self):
-        collection_reg = self._meta_data.get('collection_registry', {})
-        self._meta_data['allowed_lazy_attributes'] = collection_reg.values()

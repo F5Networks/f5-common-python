@@ -21,7 +21,7 @@ class NATCollection(Collection):
     def __init__(self, ltm):
         super(NATCollection, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [NAT]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:nat:natstate': NAT}
 
 

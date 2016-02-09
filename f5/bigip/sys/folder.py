@@ -21,7 +21,7 @@ class FolderCollection(Collection):
     def __init__(self, sys):
         super(FolderCollection, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [Folder]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:sys:folder:folderstate': Folder}
 
 
@@ -37,7 +37,6 @@ class Folder(Resource):
         is no ~partition~name format for the object.
         '''
         super(Folder, self).__init__(folder_collection)
-        self._meta_data['allowed_lazy_attributes'] = []
         self._meta_data['required_json_kind'] = 'tm:sys:folder:folderstate'
         # refresh() and load() require partition, not name
         self._meta_data['required_refresh_parameters'] = set()

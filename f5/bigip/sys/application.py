@@ -37,7 +37,7 @@ class APLScriptCollection(Collection):
     def __init__(self, application):
         super(APLScriptCollection, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [APLScript]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:sys:application:apl-script:apl-scriptstate': APLScript}
 
 
@@ -52,7 +52,7 @@ class CustomStatCollection(Collection):
     def __init__(self, application):
         super(CustomStatCollection, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [CustomStat]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:sys:application:custom-stat:custom-statstate': CustomStat}
 
 
@@ -67,14 +67,13 @@ class ServiceCollection(Collection):
     def __init__(self, application):
         super(ServiceCollection, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Service]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:sys:application:service:servicestate': Service}
 
 
 class Service(Resource):
     def __init__(self, service_collection):
         super(Service, self).__init__(service_collection)
-        self._meta_data['allowed_lazy_attributes'] = []
         self._meta_data['required_creation_parameters'].update(('template',))
         self._meta_data['required_refresh_parameters'].update(('partition',))
         self._meta_data['required_json_kind'] =\
@@ -160,7 +159,7 @@ class TemplateCollection(Collection):
     def __init__(self, application):
         super(TemplateCollection, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Template]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:sys:application:template:templatestate': Template}
 
 

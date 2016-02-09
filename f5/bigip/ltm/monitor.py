@@ -67,7 +67,7 @@ class HTTPCollection(Collection):
     def __init__(self, monitor):
         super(HTTPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [HTTP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:http:httpstate': HTTP}
 
 
@@ -88,7 +88,7 @@ class HTTPSCollection(Collection):
     def __init__(self, monitor):
         super(HTTPSCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [HTTPS]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:https:httpsstate': HTTPS}
 
 
@@ -103,7 +103,7 @@ class DiameterCollection(Collection):
     def __init__(self, monitor):
         super(DiameterCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Diameter]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:diameter:diameterstate': Diameter}
 
 
@@ -118,7 +118,7 @@ class DNSCollection(Collection):
     def __init__(self, monitor):
         super(DNSCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [DNS]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:dns:dnsstate': DNS}
 
 
@@ -134,7 +134,7 @@ class ExternalCollection(Collection):
     def __init__(self, monitor):
         super(ExternalCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [External]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:external:externalstate': External}
 
 
@@ -149,7 +149,7 @@ class FirePassCollection(Collection):
     def __init__(self, monitor):
         super(FirePassCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [FirePass]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:firepass:firepassstate': FirePass}
 
 
@@ -164,7 +164,7 @@ class FTPCollection(Collection):
     def __init__(self, monitor):
         super(FTPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [FTP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:ftp:ftpstate': FTP}
 
 
@@ -181,7 +181,7 @@ class GateWay_ICMPCollection(Collection):
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [GateWay_ICMP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:gateway-icmp:gateway-icmpstate': GateWay_ICMP}
 
 
@@ -196,7 +196,7 @@ class ICMPCollection(Collection):
     def __init__(self, monitor):
         super(ICMPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [ICMP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:icmp:icmpstate': ICMP}
 
 
@@ -211,7 +211,7 @@ class IMAPCollection(Collection):
     def __init__(self, monitor):
         super(IMAPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [IMAP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:imap:imapstate': IMAP}
 
 
@@ -226,7 +226,7 @@ class InBandCollection(Collection):
     def __init__(self, monitor):
         super(InBandCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [InBand]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:inband:inbandstate': InBand}
 
 
@@ -241,7 +241,7 @@ class LDAPCollection(Collection):
     def __init__(self, monitor):
         super(LDAPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [LDAP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:ldap:ldapstate': LDAP}
 
 
@@ -258,7 +258,7 @@ class Module_ScoreCollection(Collection):
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Module_Score]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:module-score:module-scorestate': Module_Score}
 
 
@@ -275,7 +275,7 @@ class MYSQLCollection(Collection):
     def __init__(self, monitor):
         super(MYSQLCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [MYSQL]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:mysql:mysqlstate': MYSQL}
 
 
@@ -290,7 +290,7 @@ class MSSQLCollection(Collection):
     def __init__(self, monitor):
         super(MSSQLCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [MSSQL]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:mssql:mssqlstate': MSSQL}
 
 
@@ -305,7 +305,7 @@ class NNTPCollection(Collection):
     def __init__(self, monitor):
         super(NNTPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [NNTP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:nntp:nntpstate': NNTP}
 
 
@@ -320,7 +320,7 @@ class NONECollection(Collection):
     def __init__(self, monitor):
         super(NONECollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [NONE]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:none:nonestate': NONE}
 
 
@@ -335,7 +335,7 @@ class OracleCollection(Collection):
     def __init__(self, monitor):
         super(OracleCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Oracle]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:oracle:oraclestate': Oracle}
 
 
@@ -350,7 +350,7 @@ class POP3Collection(Collection):
     def __init__(self, monitor):
         super(POP3Collection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [POP3]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:pop3:pop3state': POP3}
 
 
@@ -365,7 +365,7 @@ class PostGRESQLCollection(Collection):
     def __init__(self, monitor):
         super(PostGRESQLCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [PostGRESQL]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:postgresql:postgresqlstate': PostGRESQL}
 
 
@@ -380,7 +380,7 @@ class RadiusCollection(Collection):
     def __init__(self, monitor):
         super(RadiusCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Radius]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:radius:radiusstate': Radius}
 
 
@@ -397,7 +397,7 @@ class Radius_AccountingCollection(Collection):
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Radius_Accounting]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:radius-accounting:radius-accountingstate':
              Radius_Accounting}
 
@@ -415,7 +415,7 @@ class Real_ServerCollection(Collection):
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Real_Server]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:real-server:real-serverstate': Real_Server}
 
 
@@ -436,7 +436,7 @@ class RPCCollection(Collection):
     def __init__(self, monitor):
         super(RPCCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [RPC]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:rpc:rpcstate': RPC}
 
 
@@ -451,7 +451,7 @@ class SASPCollection(Collection):
     def __init__(self, monitor):
         super(SASPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [SASP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:sasp:saspstate': SASP}
 
 
@@ -468,7 +468,7 @@ class ScriptedCollection(Collection):
     def __init__(self, monitor):
         super(ScriptedCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Scripted]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:scripted:scriptedstate': Scripted}
 
 
@@ -483,7 +483,7 @@ class SIPCollection(Collection):
     def __init__(self, monitor):
         super(SIPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [SIP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:sip:sipstate': SIP}
 
 
@@ -498,7 +498,7 @@ class SMBCollection(Collection):
     def __init__(self, monitor):
         super(SMBCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [SMB]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:smb:smbstate': SMB}
 
 
@@ -513,7 +513,7 @@ class SMTPCollection(Collection):
     def __init__(self, monitor):
         super(SMTPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [SMTP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:smtp:smtpstate': SMTP}
 
 
@@ -530,7 +530,7 @@ class SNMP_DCACollection(Collection):
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [SNMP_DCA]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:snmp-dca:snmp-dcastate': SNMP_DCA}
 
 
@@ -547,7 +547,7 @@ class SNMP_DCA_BaseCollection(Collection):
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [SNMP_DCA_Base]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:snmp-dca-base:snmp-dca-basestate': SNMP_DCA_Base}
 
 
@@ -562,7 +562,7 @@ class SOAPCollection(Collection):
     def __init__(self, monitor):
         super(SOAPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [SOAP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:soap:soapstate': SOAP}
 
 
@@ -577,7 +577,7 @@ class TCPCollection(Collection):
     def __init__(self, monitor):
         super(TCPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [TCP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:tcp:tcpstate': TCP}
 
 
@@ -594,7 +594,7 @@ class TCP_EchoCollection(Collection):
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [TCP_Echo]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:tcp-echo:tcp-echostate': TCP_Echo}
 
 
@@ -611,7 +611,7 @@ class TCP_Half_OpenCollection(Collection):
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [TCP_Half_Open]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:tcp-half-open:tcp-half-openstate': TCP_Half_Open}
 
 
@@ -626,7 +626,7 @@ class UDPCollection(Collection):
     def __init__(self, monitor):
         super(UDPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [UDP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:udp:udpstate': UDP}
 
 
@@ -643,7 +643,7 @@ class Virtual_LocationCollection(Collection):
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Virtual_Location]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:virtual-location:virtual-locationstate':
              Virtual_Location}
 
@@ -661,7 +661,7 @@ class WAPCollection(Collection):
     def __init__(self, monitor):
         super(WAPCollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [WAP]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:wap:wapstate': WAP}
 
 
@@ -676,7 +676,7 @@ class WMICollection(Collection):
     def __init__(self, monitor):
         super(WMICollection, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [WMI]
-        self._meta_data['collection_registry'] =\
+        self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:wmi:wmistate': WMI}
 
 
