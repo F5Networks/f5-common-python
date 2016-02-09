@@ -15,6 +15,7 @@
 
 import mock
 import pytest
+from requests import HTTPError
 
 from f5.bigip import BigIP
 from f5.bigip.resource import KindTypeMismatch
@@ -24,7 +25,7 @@ from f5.bigip.resource import URICreationCollision
 from f5.bigip.sys.application import Service
 
 
-kind_mismatch = {
+KIND_MISMATCH = {
     "kind": "tm:sys:application:service:servicestate",
     "name": "tt_serv",
     "partition": "Common",
@@ -43,7 +44,13 @@ def FakeService():
 
 
 class FakeContainer(object):
-    pass
+    def __init__(self):
+        self._meta_data = {'uri': mock.MagicMock(name='uri')}
+
+
+class MockResource(object):
+    def __init__(self, test):
+        self.x = 1
 
 
 class TestCreate(object):
@@ -69,11 +76,22 @@ class TestCreate(object):
         with pytest.raises(URICreationCollision):
             FakeService.create(name='test_service', template='tt')
 
+
+    def test_create_http_error_not_successful(self):
+        with mock.patch(target='f5.bigip.resource.Resource._create') as mock_create:
+            mock_create.side_effect = HTTPError(mock.Mock(response=mock.Mock(status_code=404)), 'testing')
+            sv1 = Service(mock.MagicMock())
+            sv1.create()
+            assert True == False
+
     def test_kindtype_mismatch(self, FakeService):
         fake_container = FakeContainer()
+        session_mock = mock.MagicMock(name='mock_session')
+        mock_response = mock.MagicMock(name='mock_response')
+        mock_response.json.return_value = KIND_MISMATCH
+        session_mock.post.return_value = mock_response
         fake_container._meta_data = {
-            'uri': '',
-            'icr_session': mock.MagicMock()
+            'icr_session': session_mock
         }
         FakeService._meta_data = {
             'bigip': fake_container,
