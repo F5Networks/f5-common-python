@@ -65,7 +65,6 @@ FALSE_INHERITED_DEVGROUP = {
     "name": "test_service",
     "partition": "Common",
     "inheritedDevicegroup": "false",
-    "deviceGroup": "test_dev_group",
     "subPath": "tt_serv.app",
     "selfLink": "https://localhost/mgmt/tm/sys/application/service/' \
         '~Common~tt_serv.app~tt_serv?ver=11.6.0",
@@ -191,7 +190,7 @@ class TestServiceCreate(object):
                     name='test_server', template='test_template'
                 )
 
-    def atest_create_success(self, FakeService):
+    def test_create_success(self, FakeService):
         FakeService = MakeFakeContainer(FakeService, SUCCESSFUL_CREATE)
         with mock.patch(target='f5.bigip.resource.Resource._create') as \
                 mock_create:
@@ -236,10 +235,7 @@ class TestServiceUpdate(object):
             sv1.update()
             assert hasattr(sv1, 'deviceGroup') is False
 
-    # This is tested by functional test. It's not a great test here because
-    # we are patching both the BigIP responses of the POST and PUT for
-    # create and update respectively.
-    def itest_update_inherit_tg(self, FakeService):
+    def test_update_inherit_tg_false(self, FakeService):
         FakeService = MakeFakeContainer(FakeService, FALSE_INHERITED_DEVGROUP)
         with mock.patch(target='f5.bigip.resource.Resource._create') as \
                 mock_create:
@@ -251,7 +247,11 @@ class TestServiceUpdate(object):
                 template='test_template'
             )
             sv1.update()
-            assert sv1.deviceGroup == 'test_dev_group'
+            # Since the SUCCESSFUL_CREATE dictionary is the result of the
+            # update, the inheritedDevicegroup and deviceGroup should not
+            # be there.
+            assert hasattr(sv1, 'deviceGroup') is False
+            assert hasattr(sv1, 'inheritedDevicegroup') is False
 
 
 class TestTemplateCreate(object):
