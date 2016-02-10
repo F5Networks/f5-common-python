@@ -1,5 +1,5 @@
 eventlet==0.17.4
-# f5-icontrol-rest==0.1.0
+f5-icontrol-rest>=1.0.2
 netaddr==0.7.18
 pyopenssl==0.15.1
 requests>=2.8.1
