@@ -295,8 +295,8 @@ class Resource(ResourceBase):
         @functools.wraps(decorated)
         def wrapper(instance, **kwargs):
             if 'uri' in instance._meta_data:
-                error = "There was an attempt to assign a new uri to this ",\
-                        "resource, the _meta_data['uri'] is %s and it should",\
+                error = "There was an attempt to assign a new uri to this "\
+                        "resource, the _meta_data['uri'] is %s and it should"\
                         " not be changed." % (instance._meta_data['uri'])
                 raise URICreationCollision(error)
             returned = decorated(instance, **kwargs)
@@ -345,7 +345,7 @@ class Resource(ResourceBase):
         self._local_update(response.json())
 
         if self.kind != self._meta_data['required_json_kind']:
-            error_message = "For instances of type '%r' the corresponding" +\
+            error_message = "For instances of type '%r' the corresponding"\
                 " kind must be '%r' but creation returned JSON with kind: %r"\
                 % (self.__class__.__name__,
                    self._meta_data['required_json_kind'],

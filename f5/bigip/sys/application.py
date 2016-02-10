@@ -17,7 +17,6 @@
 from f5.bigip.resource import Collection
 from f5.bigip.resource import KindTypeMismatch
 from f5.bigip.resource import Resource
-from f5.bigip.resource import URICreationCollision
 
 from requests import HTTPError
 
@@ -83,7 +82,6 @@ class Service(Resource):
         '''Create service on device and create accompanying Python object.
 
         :params kwargs: keyword arguments passed in from create call
-        :raises: MissingRequiredCreationParameter
         :raises: KindTypeMismatch
         :raises: HTTPError
         :returns: Python Service object
@@ -108,9 +106,8 @@ class Service(Resource):
             # If response was created successfully, do a local_update.
             # If not, call to overridden _load method via load
             self.load(**kwargs)
-
             if self.kind != self._meta_data['required_json_kind']:
-                error_message = "For instances of type '%r' the corresponding" +\
+                error_message = "For instances of type '%r' the corresponding"\
                     " kind must be '%r' but creation returned JSON with kind: %r"\
                     % (self.__class__.__name__,
                        self._meta_data['required_json_kind'],
@@ -138,8 +135,6 @@ class Service(Resource):
         :returns: populated Service object
         '''
 
-        if 'uri' in self._meta_data:
-            raise URICreationCollision
         self._check_load_parameters(**kwargs)
         name = kwargs.pop('name')
         partition = kwargs.pop('partition')
