@@ -1,0 +1,53 @@
+f5.bigip.sys package
+====================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    f5.bigip.sys.test
+
+Submodules
+----------
+
+f5.bigip.sys.application module
+-------------------------------
+
+.. automodule:: f5.bigip.sys.application
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.sys.folder module
+--------------------------
+
+.. automodule:: f5.bigip.sys.folder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.sys.stat module
+------------------------
+
+.. automodule:: f5.bigip.sys.stat
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.sys.system module
+--------------------------
+
+.. automodule:: f5.bigip.sys.system
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip.sys
+    :members:
+    :undoc-members:
+    :show-inheritance:

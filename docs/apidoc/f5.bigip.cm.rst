@@ -1,0 +1,37 @@
+f5.bigip.cm package
+===================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    f5.bigip.cm.test
+
+Submodules
+----------
+
+f5.bigip.cm.cluster module
+--------------------------
+
+.. automodule:: f5.bigip.cm.cluster
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.cm.device module
+-------------------------
+
+.. automodule:: f5.bigip.cm.device
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip.cm
+    :members:
+    :undoc-members:
+    :show-inheritance:

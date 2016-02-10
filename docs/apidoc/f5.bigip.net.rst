@@ -1,0 +1,77 @@
+f5.bigip.net package
+====================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    f5.bigip.net.test
+
+Submodules
+----------
+
+f5.bigip.net.arp module
+-----------------------
+
+.. automodule:: f5.bigip.net.arp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.net.interface module
+-----------------------------
+
+.. automodule:: f5.bigip.net.interface
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.net.l2gre module
+-------------------------
+
+.. automodule:: f5.bigip.net.l2gre
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.net.route module
+-------------------------
+
+.. automodule:: f5.bigip.net.route
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.net.selfip module
+--------------------------
+
+.. automodule:: f5.bigip.net.selfip
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.net.vlan module
+------------------------
+
+.. automodule:: f5.bigip.net.vlan
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.net.vxlan module
+-------------------------
+
+.. automodule:: f5.bigip.net.vxlan
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip.net
+    :members:
+    :undoc-members:
+    :show-inheritance:
