@@ -72,6 +72,8 @@ FALSE_INHERITED_DEVGROUP = {
     "template": "test_template"
 }
 
+SIDE_EFFECT = {'only_key': 'this is the only key'}
+
 
 @pytest.fixture
 def FakeService():
@@ -97,13 +99,14 @@ def FakeCustomStat():
     return CustomStat(fake_custom_stat_collection)
 
 
+@pytest.fixture
 @mock.patch('f5.bigip')
 def MakeFakeContainer(FakeService, mock_json, mock_bigip):
     mock_session = mock.MagicMock(name='mock_session')
     mock_get_response = mock.MagicMock(name='mock_get_response')
     mock_put_response = mock.MagicMock(name='mock_put_response')
-    mock_get_response.json.return_value = mock_json
-    mock_put_response.json.return_value = SUCCESSFUL_CREATE
+    mock_get_response.json.return_value = mock_json.copy()
+    mock_put_response.json.return_value = SUCCESSFUL_CREATE.copy()
     # Mock the get and put when the container calls icr_session.get/put
     mock_session.get.return_value = mock_get_response
     mock_session.put.return_value = mock_put_response
@@ -114,6 +117,13 @@ def MakeFakeContainer(FakeService, mock_json, mock_bigip):
     }
     FakeService._meta_data['bigip'] = mock_bigip
     return FakeService
+
+
+@pytest.fixture
+def SideEffectFixture():
+    # Let's show that fixture side-effects can cause test interactions
+    # that are surprising to the untrained eye.
+    SIDE_EFFECT['new_key'] = 'Added new key to module variable.'
 
 
 class MockHTTPError(HTTPError):
@@ -152,8 +162,11 @@ class TestServiceCreate(object):
 
     def test_create_uri_collision(self, FakeService):
         FakeService._meta_data = {'uri': 'already_defined'}
-        with pytest.raises(URICreationCollision):
+        with pytest.raises(URICreationCollision) as ex:
             FakeService.create(name='test_service', template='tt')
+        assert "There was an attempt to assign a new uri to this resource, " \
+            "the _meta_data['uri'] is already_defined and it should not be " \
+            "changed." in ex.value.message
 
     def test_create_http_error_not_successful(self):
         with mock.patch(target='f5.bigip.resource.Resource._create') as \
@@ -164,6 +177,7 @@ class TestServiceCreate(object):
             sv1 = Service(mock.MagicMock())
             with pytest.raises(HTTPError):
                 sv1.create()
+                assert sv1 is None
 
     def test_create_kindtype_mismatch(self, FakeService):
         FakeService = MakeFakeContainer(FakeService, KIND_MISMATCH)
@@ -222,9 +236,10 @@ class TestServiceUpdate(object):
             sv1.update()
             assert hasattr(sv1, 'deviceGroup') is False
 
-    def itest_update_inherit_tg_false(self, FakeService):
-        # Failing currently because of contamination of the previous test
-        # Need to understand why
+    # This is tested by functional test. It's not a great test here because
+    # we are patching both the BigIP responses of the POST and PUT for
+    # create and update respectively.
+    def itest_update_inherit_tg(self, FakeService):
         FakeService = MakeFakeContainer(FakeService, FALSE_INHERITED_DEVGROUP)
         with mock.patch(target='f5.bigip.resource.Resource._create') as \
                 mock_create:
@@ -236,7 +251,7 @@ class TestServiceUpdate(object):
                 template='test_template'
             )
             sv1.update()
-            assert hasattr(sv1, 'deviceGroup') is False
+            assert sv1.deviceGroup == 'test_dev_group'
 
 
 class TestTemplateCreate(object):
@@ -276,3 +291,13 @@ class TestCustomStat(object):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeCustomStat.create()
         assert 'name' in ex.value.message
+
+
+def test_setup_side_effect_in_fixture(SideEffectFixture):
+    # Show the module dict has the new key while this fixture is in use.
+    assert 'new_key' in SIDE_EFFECT
+
+
+def test_side_effect_from_fixture():
+    # Show the added key from the previous fixture is still there
+    assert 'new_key' in SIDE_EFFECT
