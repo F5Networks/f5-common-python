@@ -1,0 +1,66 @@
+f5.bigip package
+================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    f5.bigip.cm
+    f5.bigip.ltm
+    f5.bigip.net
+    f5.bigip.pycontrol
+    f5.bigip.sys
+    f5.bigip.test
+
+Submodules
+----------
+
+f5.bigip.dynamic_attributes module
+----------------------------------
+
+.. automodule:: f5.bigip.dynamic_attributes
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.exceptions module
+--------------------------
+
+.. automodule:: f5.bigip.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.mixins module
+----------------------
+
+.. automodule:: f5.bigip.mixins
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.resource module
+------------------------
+
+.. automodule:: f5.bigip.resource
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.rest_collection module
+-------------------------------
+
+.. automodule:: f5.bigip.rest_collection
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip
+    :members:
+    :undoc-members:
+    :show-inheritance:

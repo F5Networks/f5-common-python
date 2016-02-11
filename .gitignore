@@ -44,3 +44,6 @@ test/*/logs/*
 
 # Translations
 *.mo
+
+# Docs
+docs/_build

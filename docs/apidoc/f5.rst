@@ -1,0 +1,30 @@
+f5 package
+==========
+
+Subpackages
+-----------
+
+.. toctree::
+
+    f5.bigip
+    f5.common
+
+Submodules
+----------
+
+f5.conftest module
+------------------
+
+.. automodule:: f5.conftest
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: f5
+    :members:
+    :undoc-members:
+    :show-inheritance:
