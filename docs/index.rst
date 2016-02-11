@@ -21,6 +21,9 @@ Installation
 
     $> pip install f5-sdk
 
+*NOTE:* If you are using a pre-release version you must use the ``--pre``
+option with the pip command.
+
 Usage
 -----
 .. code:: python

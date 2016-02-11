@@ -41,9 +41,6 @@ setup(
     packages=find_packages(
         exclude=["*.test", "*.test.*", "test.*", "test_*", "test", "test*"]
     ),
-    exclude_package_data={
-        '': ['conftest.py', "*.pyc"]
-    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: Apache Software License',
