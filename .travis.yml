@@ -14,7 +14,9 @@ script:
     - flake8 .
     - py.test --cov --ignore=test/
     - python setup.py sdist
-    - cd docs; make html
+    - cd docs
+    - make html
+    - cd ../
 deploy:
   provider: pypi
   user: $PYPI_USER
