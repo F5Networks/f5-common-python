@@ -24,6 +24,9 @@ Installation
 
     $> pip install f5-sdk
 
+*NOTE:* If you are using a pre-release version you must use the ``--pre``
+option for the ``pip`` command.
+
 Usage
 -----
 
@@ -36,7 +39,7 @@ Usage
 Documentation
 -------------
 
-Documentation is hosted on `Read the Docs <https://f5-sdk.readthedocs.org>`__
+Documentation is hosted on `Read the Docs <https://f5-python-sdk.readthedocs.org>`__
 
 Filing Issues
 -------------
@@ -171,5 +174,5 @@ completed and submitted the `F5 Contributor License Agreement
 to Openstack_CLA@f5.com prior to their code submission being included in this
 project.
 
-.. |Build Status| image:: https://travis-ci.com/F5Networks/f5-common-python.svg?token=s9yQgrQoSkLe6ec4WQKS&branch=develop
-   :target: https://travis-ci.com/F5Networks/f5-common-python
+.. |Build Status| image:: https://travis-ci.org/F5Networks/f5-common-python.svg?branch=0.1
+    :target: https://travis-ci.org/F5Networks/f5-common-python
