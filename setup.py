@@ -17,6 +17,7 @@
 
 import f5
 
+from setuptools import find_packages
 from setuptools import setup
 
 
@@ -37,7 +38,12 @@ setup(
         'requests',
         'suds > 0.3'
     ],
-    packages=['f5'],
+    packages=find_packages(
+        exclude=["*.test", "*.test.*", "test.*", "test_*", "test", "test*"]
+    ),
+    exclude_package_data={
+        '': ['conftest.py', "*.pyc"]
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: Apache Software License',

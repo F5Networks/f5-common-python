@@ -13,6 +13,7 @@ install:
 script:
     - flake8 .
     - py.test --cov --ignore=test/
+    - python setup.py sdist
 deploy:
   provider: pypi
   user: $PYPI_USER
