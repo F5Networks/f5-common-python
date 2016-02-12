@@ -19,8 +19,8 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
-def delete_resource(resourcecollection):
-    for resource in resourcecollection.get_collection():
+def delete_resource(resources):
+    for resource in resources.get_collection():
         resource.delete()
 
 
@@ -31,8 +31,8 @@ def setup_self_test(request, bigip, partition, name,
         delete_resource(vc1)
     request.addfinalizer(teardown)
 
-    sc1 = bigip.net.selfipcollection
-    vc1 = bigip.net.vlancollection
+    sc1 = bigip.net.selfips
+    vc1 = bigip.net.vlans
     v1 = vc1.vlan
     v1.create(name=vlan, partition=vlan_partition)
     s1 = sc1.selfip
@@ -43,14 +43,14 @@ def setup_self_test(request, bigip, partition, name,
 
 class TestSelfIP(object):
     def test_create_missing_args(self, request, bigip):
-        s1 = bigip.net.selfipcollection.selfip
+        s1 = bigip.net.selfips.selfip
         with pytest.raises(MissingRequiredCreationParameter):
             s1.create(name="s1", partition='Common')
 
     def test_CURDL(self, request, bigip):
         # We will assume that the setup/teardown will test create/delete
         s1, sc1 = setup_self_test(request, bigip, 'Common', 'self1')
-        s2 = bigip.net.selfipcollection.selfip
+        s2 = bigip.net.selfips.selfip
         s2.load(name=s1.name, partition=s1.partition)
         assert s1.name == 'self1'
         assert s2.name == s1.name
@@ -74,7 +74,7 @@ class TestSelfIP(object):
 class TestSelfIPCollection(object):
     def test_get_collection(self, request, bigip):
         setup_self_test(request, bigip, 'Common', 'self1')
-        sc = bigip.net.selfipcollection
+        sc = bigip.net.selfips
         self_ips = sc.get_collection()
         assert len(self_ips) == 1
         assert self_ips[0].name == 'self1'

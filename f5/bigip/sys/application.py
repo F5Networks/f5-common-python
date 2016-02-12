@@ -21,58 +21,58 @@ from f5.bigip.resource import Resource
 from requests import HTTPError
 
 
-class ApplicationCollection(Collection):
+class Applications(Collection):
     def __init__(self, sys):
-        super(ApplicationCollection, self).__init__(sys)
+        super(Applications, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [
-            APLScriptCollection,
-            CustomStatCollection,
-            ServiceCollection,
-            TemplateCollection
+            APLScripts,
+            CustomStats,
+            Services,
+            Templates
         ]
 
 
-class APLScriptCollection(Collection):
+class APLScripts(Collection):
     def __init__(self, application):
-        super(APLScriptCollection, self).__init__(application)
+        super(APLScripts, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [APLScript]
         self._meta_data['attribute_registry'] =\
             {'tm:sys:application:apl-script:apl-scriptstate': APLScript}
 
 
 class APLScript(Resource):
-    def __init__(self, apl_script_collection):
-        super(APLScript, self).__init__(apl_script_collection)
+    def __init__(self, apl_script_s):
+        super(APLScript, self).__init__(apl_script_s)
         self._meta_data['required_json_kind'] =\
             'tm:sys:application:apl-script:apl-scriptstate'
 
 
-class CustomStatCollection(Collection):
+class CustomStats(Collection):
     def __init__(self, application):
-        super(CustomStatCollection, self).__init__(application)
+        super(CustomStats, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [CustomStat]
         self._meta_data['attribute_registry'] =\
             {'tm:sys:application:custom-stat:custom-statstate': CustomStat}
 
 
 class CustomStat(Resource):
-    def __init__(self, custom_stat_collection):
-        super(CustomStat, self).__init__(custom_stat_collection)
+    def __init__(self, custom_stat_s):
+        super(CustomStat, self).__init__(custom_stat_s)
         self._meta_data['required_json_kind'] =\
             'tm:sys:application:custom-stat:custom-statstate'
 
 
-class ServiceCollection(Collection):
+class Services(Collection):
     def __init__(self, application):
-        super(ServiceCollection, self).__init__(application)
+        super(Services, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Service]
         self._meta_data['attribute_registry'] =\
             {'tm:sys:application:service:servicestate': Service}
 
 
 class Service(Resource):
-    def __init__(self, service_collection):
-        super(Service, self).__init__(service_collection)
+    def __init__(self, service_s):
+        super(Service, self).__init__(service_s)
         self._meta_data['required_creation_parameters'].update(('template',))
         self._meta_data['required_refresh_parameters'].update(('partition',))
         self._meta_data['required_json_kind'] =\
@@ -150,16 +150,16 @@ class Service(Resource):
         return self
 
 
-class TemplateCollection(Collection):
+class Templates(Collection):
     def __init__(self, application):
-        super(TemplateCollection, self).__init__(application)
+        super(Templates, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Template]
         self._meta_data['attribute_registry'] =\
             {'tm:sys:application:template:templatestate': Template}
 
 
 class Template(Resource):
-    def __init__(self, template_collection):
-        super(Template, self).__init__(template_collection)
+    def __init__(self, template_s):
+        super(Template, self).__init__(template_s)
         self._meta_data['required_json_kind'] =\
             'tm:sys:application:template:templatestate'

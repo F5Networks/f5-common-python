@@ -50,5 +50,5 @@ def bigip(opt_bigip, opt_username, opt_password, scope="module"):
 
 @pytest.fixture
 def NAT(bigip):
-    n = bigip.ltm.natcollection.nat
+    n = bigip.ltm.nats.nat
     return n

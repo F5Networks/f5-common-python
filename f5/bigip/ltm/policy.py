@@ -17,26 +17,26 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class PolicyCollection(Collection):
+class Policys(Collection):
     def __init__(self, ltm):
-        super(PolicyCollection, self).__init__(ltm)
+        super(Policys, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Policy]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:policy:policystate': Policy}
 
 
 class Policy(Resource):
-    def __init__(self, policy_collection):
-        super(Policy, self).__init__(policy_collection)
+    def __init__(self, policy_s):
+        super(Policy, self).__init__(policy_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:policy:policystate'
         self._meta_data['required_creation_parameters'].update(('strategy',))
-        temp = {'tm:ltm:policy:rules:rulescollectionstate': RulesCollection}
+        temp = {'tm:ltm:policy:rules:rulescollectionstate': Rules_s}
         self._meta_data['attribute_registry'] = temp
 
 
-class RulesCollection(Collection):
+class Rules_s(Collection):
     def __init__(self, policy):
-        super(RulesCollection, self).__init__(policy)
+        super(Rules_s, self).__init__(policy)
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:policy:rules:rulesstate': Rules}
         self._meta_data['required_json_kind'] =\
@@ -45,20 +45,20 @@ class RulesCollection(Collection):
 
 
 class Rules(Resource):
-    def __init__(self, rules_collection):
-        super(Rules, self).__init__(rules_collection)
+    def __init__(self, rules_s):
+        super(Rules, self).__init__(rules_s)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:policy:rules:rulesstate'
         temp = {'tm:ltm:policy:rules:actions:actionscollectionstate':
-                ActionsCollection,
+                Actions_s,
                 'tm:ltm:policy:rules:conditions:conditionscollectionstate':
-                ConditionsCollection}
+                Conditions_s}
         self._meta_data['attribute_registry'] = temp
 
 
-class ActionsCollection(Collection):
+class Actions_s(Collection):
     def __init__(self, rules):
-        super(ActionsCollection, self).__init__(rules)
+        super(Actions_s, self).__init__(rules)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:policy:rules:actions:actionscollectionstate'
         self._meta_data['allowed_lazy_attributes'] = [Actions]
@@ -67,15 +67,15 @@ class ActionsCollection(Collection):
 
 
 class Actions(Resource):
-    def __init__(self, actions_collection):
-        super(Actions, self).__init__(actions_collection)
+    def __init__(self, actions_s):
+        super(Actions, self).__init__(actions_s)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:policy:rules:actions:actionsstate'
 
 
-class ConditionsCollection(Collection):
+class Conditions_s(Collection):
     def __init__(self, rules):
-        super(ConditionsCollection, self).__init__(rules)
+        super(Conditions_s, self).__init__(rules)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:policy:rules:conditions:conditionscollectionstate'
         self._meta_data['allowed_lazy_attributes'] = [Conditions]
@@ -84,7 +84,7 @@ class ConditionsCollection(Collection):
 
 
 class Conditions(Resource):
-    def __init__(self, conditions_collection):
-        super(Conditions, self).__init__(conditions_collection)
+    def __init__(self, conditions_s):
+        super(Conditions, self).__init__(conditions_s)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:policy:rules:conditions:conditionsstate'

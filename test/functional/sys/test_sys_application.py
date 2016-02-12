@@ -27,15 +27,15 @@ definition = {'definition': sections}
 
 
 def setup_application_test(request, bigip):
-    return bigip.sys.applicationcollection
+    return bigip.sys.applications
 
 
 def setup_template_collection_test(request, bigip):
-    return bigip.sys.applicationcollection.templatecollection
+    return bigip.sys.applications.templates
 
 
 def setup_service_collection_test(request, bigip):
-    return bigip.sys.applicationcollection.servicecollection
+    return bigip.sys.applications.services
 
 
 def delete_resource(resource):
@@ -51,9 +51,9 @@ def setup_template_test(request, bigip, name, partition):
         delete_resource(test_template)
 
     request.addfinalizer(teardown)
-    template_collection = setup_template_collection_test(request, bigip)
-    test_template = template_collection.template
-    return template_collection, test_template.create(
+    template_s = setup_template_collection_test(request, bigip)
+    test_template = template_s.template
+    return template_s, test_template.create(
         name=name,
         partition=partition,
         actions=definition
@@ -66,7 +66,7 @@ def setup_service_test(request, bigip, name, partition, template_name):
         delete_resource(test_template)
 
     request.addfinalizer(teardown)
-    service_collection = setup_service_collection_test(request, bigip)
+    service_s = setup_service_collection_test(request, bigip)
     test_template = setup_template_collection_test(request, bigip).template
 
     test_template.create(
@@ -75,10 +75,10 @@ def setup_service_test(request, bigip, name, partition, template_name):
         actions=definition
     )
     test_service = None
-    test_service = service_collection.service.create(
+    test_service = service_s.service.create(
         name=name, partition=partition, template=template_name
     )
-    return service_collection, test_service
+    return service_s, test_service
 
 
 def curdl_check(collection, resource, resource_name, **kwargs):
@@ -100,15 +100,15 @@ def curdl_check(collection, resource, resource_name, **kwargs):
 
 class TestApplication(object):
     def test_get_collection(self, request, bigip):
-        app_org_collection = setup_application_test(request, bigip)
-        app_org_full_collection = app_org_collection.get_collection()
-        assert len(app_org_full_collection) == 4
+        app_org_s = setup_application_test(request, bigip)
+        app_org_full_s = app_org_s.get_collection()
+        assert len(app_org_full_s) == 4
 
 
 class TestTemplateCollection(object):
     def test_get_collection(self, request, bigip):
-        templ_collection = setup_template_collection_test(request, bigip)
-        all_templates = templ_collection.get_collection()
+        templ_s = setup_template_collection_test(request, bigip)
+        all_templates = templ_s.get_collection()
         assert len(all_templates) == 27
         for templ in all_templates:
             assert templ.verificationStatus == 'signature-verified'
@@ -117,14 +117,14 @@ class TestTemplateCollection(object):
 
 class TestTemplate(object):
     def test_template_CURDL(self, request, bigip):
-        templ_collection, test_templ = setup_template_test(
+        templ_s, test_templ = setup_template_test(
             request,
             bigip,
             'test_template',
             'Common'
         )
         curdl_check(
-            templ_collection,
+            templ_s,
             test_templ,
             'template',
             name='test_template'
@@ -133,7 +133,7 @@ class TestTemplate(object):
 
 class TestServiceCollection(object):
     def test_get_collection(self, request, bigip):
-        serv_collection, test_service = setup_service_test(
+        serv_s, test_service = setup_service_test(
             request,
             bigip,
             'test_service',
@@ -141,7 +141,7 @@ class TestServiceCollection(object):
             'test_template'
         )
 
-        all_services = serv_collection.get_collection()
+        all_services = serv_s.get_collection()
         assert len(all_services) is 1
         # Description field does not exist until assigned
         # The creation of this field is tested in check_curdl
@@ -151,7 +151,7 @@ class TestServiceCollection(object):
 
 class TestService(object):
     def test_service_CURDL(self, request, bigip):
-        serv_collection, test_serv = setup_service_test(
+        serv_s, test_serv = setup_service_test(
             request,
             bigip,
             'test_service',
@@ -162,7 +162,7 @@ class TestService(object):
         assert bigip._meta_data['uri'] + 'sys/application/service/~Common' \
             '~test_service.app~test_service' in test_serv._meta_data['uri']
         curdl_check(
-            serv_collection,
+            serv_s,
             test_serv,
             'service',
             name='test_service',

@@ -29,7 +29,7 @@ pool my_pool
 
 
 def delete_rule(bigip, name, partition):
-    r = bigip.ltm.rulecollection.rule
+    r = bigip.ltm.rules.rule
     try:
         r.load(name=name, partition=partition)
     except HTTPError as err:
@@ -49,7 +49,7 @@ def setup_basic_test(request, bigip, name, partition):
     def teardown():
         delete_rule(bigip, name, partition)
 
-    rule1 = bigip.ltm.rulecollection.rule
+    rule1 = bigip.ltm.rules.rule
     rule1.create(name=name, partition=partition, apiAnonymous=RULE)
     request.addfinalizer(teardown)
     return rule1
@@ -57,18 +57,18 @@ def setup_basic_test(request, bigip, name, partition):
 
 class TestCreate(object):
     def test_create_no_args(self, bigip):
-        rule1 = bigip.ltm.rulecollection.rule
+        rule1 = bigip.ltm.rules.rule
         with pytest.raises(MissingRequiredCreationParameter):
             rule1.create()
 
     def test_create_no_apianonymous(self, bigip):
-        rule1 = bigip.ltm.rulecollection.rule
+        rule1 = bigip.ltm.rules.rule
         with pytest.raises(MissingRequiredCreationParameter):
             rule1.create(name='rule1', partition='Common')
 
     def test_create(self, request, bigip):
         setup_create_test(request, bigip, 'rule1', 'Common')
-        rule1 = bigip.ltm.rulecollection.rule
+        rule1 = bigip.ltm.rules.rule
         rule1.create(name='rule1', partition='Common', apiAnonymous=RULE)
         assert rule1.name == 'rule1'
         assert rule1.partition == 'Common'
@@ -84,7 +84,7 @@ class TestCreate(object):
 
     def test_create_optional_args(self, request, bigip):
         setup_create_test(request, bigip, 'rule1', 'Common')
-        rule1 = bigip.ltm.rulecollection.rule
+        rule1 = bigip.ltm.rules.rule
         rule1.create(name='rule1', partition='Common',
                      apiAnonymous=RULE,
                      ignoreVerification=True)
@@ -95,11 +95,11 @@ class TestCreate(object):
 
     def test_create_duplicate(self, request, bigip):
         setup_create_test(request, bigip, 'rule1', 'Common')
-        rule1 = bigip.ltm.rulecollection.rule
+        rule1 = bigip.ltm.rules.rule
         rule1.create(name='rule1', partition='Common',
                      apiAnonymous=RULE,
                      ignoreVerification=True)
-        rule2 = bigip.ltm.rulecollection.rule
+        rule2 = bigip.ltm.rules.rule
         with pytest.raises(HTTPError) as err:
             rule2.create(name='rule1', partition='Common',
                          apiAnonymous=RULE,
@@ -110,9 +110,9 @@ class TestCreate(object):
 class TestRefresh(object):
     def test_refresh(self, request, bigip):
         setup_basic_test(request, bigip, 'rule1', 'Common')
-        r1 = bigip.ltm.rulecollection.rule.load(
+        r1 = bigip.ltm.rules.rule.load(
             name='rule1', partition='Common')
-        r2 = bigip.ltm.rulecollection.rule.load(
+        r2 = bigip.ltm.rules.rule.load(
             name='rule1', partition='Common')
         assert not hasattr(r1, 'ignoreVerification')
         assert not hasattr(r2, 'ignoreVerification')
@@ -128,17 +128,17 @@ class TestRefresh(object):
 class TestLoad(object):
     def test_load_no_object(self, bigip):
         with pytest.raises(HTTPError) as err:
-            bigip.ltm.rulecollection.rule.load(
+            bigip.ltm.rules.rule.load(
                 name='rule1', partition='Common')
             assert err.response.status_code == 404
 
     def test_load(self, request, bigip):
         setup_basic_test(request, bigip, 'rule1', 'Common')
-        rule1 = bigip.ltm.rulecollection.rule.load(
+        rule1 = bigip.ltm.rules.rule.load(
             name='rule1', partition='Common')
         assert not hasattr(rule1, 'ignoreVerification')
         rule1.update(ignoreVerification=True)
-        rule2 = bigip.ltm.rulecollection.rule.load(
+        rule2 = bigip.ltm.rules.rule.load(
             name='rule1', partition='Common')
         assert rule1.ignoreVerification == 'true'
         assert rule2.ignoreVerification == 'true'
@@ -164,14 +164,14 @@ class TestDelete(object):
         r1 = setup_basic_test(request, bigip, 'rule1', 'Common')
         r1.delete()
         with pytest.raises(HTTPError) as err:
-            bigip.ltm.rulecollection.rule.load(
+            bigip.ltm.rules.rule.load(
                 name='rule1', partition='Common')
             assert err.response.status_code == 404
 
 
 class TestRuleCollection(object):
     def test_rule_collection(self, request, bigip):
-        rc = bigip.ltm.rulecollection.get_collection()
+        rc = bigip.ltm.rules.get_collection()
         assert isinstance(rc, list)
         assert len(rc)
         assert isinstance(rc[0], Rule)

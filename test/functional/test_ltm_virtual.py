@@ -18,8 +18,8 @@ from pprint import pprint as pp
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
-def delete_resource(resourcecollection):
-    for resource in resourcecollection.get_collection():
+def delete_resource(resources):
+    for resource in resources.get_collection():
         resource.delete()
 
 
@@ -27,7 +27,7 @@ def setup_virtual_test(request, bigip, partition, name):
     def teardown():
         delete_resource(vc1)
     request.addfinalizer(teardown)
-    vc1 = bigip.ltm.virtualcollection
+    vc1 = bigip.ltm.virtuals
     pp('****')
     virtual1 = vc1.virtual
     virtual1.create(name=name, partition=partition)

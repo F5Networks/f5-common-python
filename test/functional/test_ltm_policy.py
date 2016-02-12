@@ -19,8 +19,8 @@ import pytest
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
-def delete_resource(resourcecollection):
-    for resource in resourcecollection.get_collection():
+def delete_resource(resources):
+    for resource in resources.get_collection():
         system_policy_obj_name = ['_sys_CEC_SSL_client_policy',
                                   '_sys_CEC_SSL_server_policy',
                                   '_sys_CEC_video_policy']
@@ -30,7 +30,7 @@ def delete_resource(resourcecollection):
 
 @pytest.fixture
 def setup(request, bigip):
-    pc1 = bigip.ltm.policycollection
+    pc1 = bigip.ltm.policys
     delete_resource(pc1)
 
 
@@ -38,7 +38,7 @@ def setup_policy_test(request, bigip, partition, name, strategy="first-match"):
     def teardown():
         delete_resource(pc1)
     request.addfinalizer(teardown)
-    pc1 = bigip.ltm.policycollection
+    pc1 = bigip.ltm.policys
     policy1 = pc1.policy
     pp('****')
     policy1.create(name=name, partition=partition, strategy=strategy)
@@ -59,7 +59,7 @@ class TestPolicy(object):
         policy2 = pc1.policy
         policy2.load(partition='Common', name='poltest1')
         assert policy2.selfLink == policy1.selfLink
-        p2rc = policy2.rulescollection
+        p2rc = policy2.rules_s
         p2rc.refresh()
         assert p2rc._meta_data['required_json_kind'] == p2rc.kind
         assert p2rc.get_collection() == []
@@ -67,13 +67,13 @@ class TestPolicy(object):
 
 class TestRulesAndActions(object):
     def test_rules_refresh_update_load(self, setup, request, bigip):
-        rulespc = bigip.ltm.policycollection
+        rulespc = bigip.ltm.policys
         test_pol1 = rulespc.policy.load(partition='Common',
                                         name='_sys_CEC_video_policy')
-        rules_collection1 = test_pol1.rulescollection
-        rules1 = rules_collection1.rules
+        rules_s1 = test_pol1.rules_s
+        rules1 = rules_s1.rules
         rules1.load(name='youporn_web_1')
-        r1actions = rules1.actionscollection.actions
+        r1actions = rules1.actions_s.actions
         r1actions.load(name="1")
         assert r1actions.kind == r1actions._meta_data['required_json_kind']
         delete_resource(rulespc)
@@ -81,13 +81,13 @@ class TestRulesAndActions(object):
 
 class TestRulesAndConditions(object):
     def test_rules_refresh_update_load(self, setup, request, bigip):
-        rulespc = bigip.ltm.policycollection
+        rulespc = bigip.ltm.policys
         test_pol1 = rulespc.policy.load(partition='Common',
                                         name='_sys_CEC_video_policy')
-        rules_collection1 = test_pol1.rulescollection
-        rules1 = rules_collection1.rules
+        rules_s1 = test_pol1.rules_s
+        rules1 = rules_s1.rules
         rules1.load(name='youporn_web_1')
-        r1conditions = rules1.conditionscollection.conditions
+        r1conditions = rules1.conditions_s.conditions
         r1conditions.load(name="1")
         assert r1conditions.kind ==\
             r1conditions._meta_data['required_json_kind']

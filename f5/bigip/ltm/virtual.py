@@ -17,15 +17,15 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class VirtualCollection(Collection):
+class Virtuals(Collection):
     def __init__(self, ltm):
-        super(VirtualCollection, self).__init__(ltm)
+        super(Virtuals, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Virtual]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:virtual:virtualstate': Virtual}
 
 
 class Virtual(Resource):
-    def __init__(self, virtual_collection):
-        super(Virtual, self).__init__(virtual_collection)
+    def __init__(self, virtual_s):
+        super(Virtual, self).__init__(virtual_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:virtual:virtualstate'

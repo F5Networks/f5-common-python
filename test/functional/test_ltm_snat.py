@@ -27,7 +27,7 @@ EXPECTED_ORIGINS_DELETION_MESSAGE = 'one of the following must be ',\
 
 
 def delete_snat(bigip, name, partition):
-    s = bigip.ltm.snatcollection.snat
+    s = bigip.ltm.snats.snat
     try:
         s.load(name=name, partition=partition)
     except HTTPError as err:
@@ -41,7 +41,7 @@ def setup_create_test(request, bigip, name, partition):
     def teardown():
         delete_snat(bigip, name, partition)
     request.addfinalizer(teardown)
-    snat1 = bigip.ltm.snatcollection.snat
+    snat1 = bigip.ltm.snats.snat
     return snat1
 
 
@@ -49,11 +49,11 @@ def setup_basic_test(request, bigip, name, partition, orig='1.1.1.1'):
     def teardown():
         delete_snat(bigip, name, partition)
 
-    snat1 = bigip.ltm.snatcollection.snat
-    snat_collection1 = bigip.ltm.snatcollection
+    snat1 = bigip.ltm.snats.snat
+    snat_s1 = bigip.ltm.snats
     snat1.create(name=name, partition=partition, origins=orig, automap=True)
     request.addfinalizer(teardown)
-    return snat1, snat_collection1
+    return snat1, snat_s1
 
 
 class TestSNAT(object):

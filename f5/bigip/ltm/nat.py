@@ -17,17 +17,17 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import Resource
 
 
-class NATCollection(Collection):
+class NATs(Collection):
     def __init__(self, ltm):
-        super(NATCollection, self).__init__(ltm)
+        super(NATs, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [NAT]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:nat:natstate': NAT}
 
 
 class NAT(Resource):
-    def __init__(self, nat_collection):
-        super(NAT, self).__init__(nat_collection)
+    def __init__(self, nat_s):
+        super(NAT, self).__init__(nat_s)
         self._meta_data['required_creation_parameters'].update(
             ('originatingAddress', 'translationAddress', 'partition'))
         self._meta_data['required_json_kind'] = 'tm:ltm:nat:natstate'

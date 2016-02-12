@@ -17,16 +17,16 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class FolderCollection(Collection):
+class Folders(Collection):
     def __init__(self, sys):
-        super(FolderCollection, self).__init__(sys)
+        super(Folders, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [Folder]
         self._meta_data['attribute_registry'] =\
             {'tm:sys:folder:folderstate': Folder}
 
 
 class Folder(Resource):
-    def __init__(self, folder_collection):
+    def __init__(self, folder_s):
         '''Create a folder resource object.
 
         Folder objects are the same as the partition so we need to deal with
@@ -36,7 +36,7 @@ class Folder(Resource):
         `https://localhost/mgmt/tm/sys/folder/~testfolder`.  Notice that there
         is no ~partition~name format for the object.
         '''
-        super(Folder, self).__init__(folder_collection)
+        super(Folder, self).__init__(folder_s)
         self._meta_data['required_json_kind'] = 'tm:sys:folder:folderstate'
         # refresh() and load() require partition, not name
         self._meta_data['required_refresh_parameters'] = set()
