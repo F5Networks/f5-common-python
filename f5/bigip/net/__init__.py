@@ -13,13 +13,8 @@
 # limitations under the License.
 #
 
-from f5.bigip.net.arp import ARP
-from f5.bigip.net.interface import Interface
-from f5.bigip.net.l2gre import L2GRE
-from f5.bigip.net.route import Route
 from f5.bigip.net.selfip import SelfIPCollection
 from f5.bigip.net.vlan import VLANCollection
-from f5.bigip.net.vxlan import VXLAN
 from f5.bigip.resource import OrganizingCollection
 
 base_uri = 'net/'
@@ -29,6 +24,5 @@ class Net(OrganizingCollection):
     def __init__(self, bigip):
         super(Net, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
-            ARP, Interface, L2GRE,
-            Route, SelfIPCollection, VLANCollection, VXLAN
+            SelfIPCollection, VLANCollection
         ]
