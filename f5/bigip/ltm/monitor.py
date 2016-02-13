@@ -78,8 +78,8 @@ class UpdateMonitorMixin(object):
 
 
 class HTTP(UpdateMonitorMixin, Resource):
-    def __init__(self, http_s):
-        super(HTTP, self).__init__(http_s)
+    def __init__(self, https):
+        super(HTTP, self).__init__(https)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:http:httpstate'
 
@@ -108,8 +108,8 @@ class Diameters(Collection):
 
 
 class Diameter(UpdateMonitorMixin, Resource):
-    def __init__(self, diameter_s):
-        super(Diameter, self).__init__(diameter_s)
+    def __init__(self, diameters):
+        super(Diameter, self).__init__(diameters)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:diameter:diameterstate'
 
@@ -139,8 +139,8 @@ class Externals(Collection):
 
 
 class External(UpdateMonitorMixin, Resource):
-    def __init__(self, external_s):
-        super(External, self).__init__(external_s)
+    def __init__(self, externals):
+        super(External, self).__init__(externals)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:external:externalstate'
 
@@ -169,8 +169,8 @@ class FTPs(Collection):
 
 
 class FTP(UpdateMonitorMixin, Resource):
-    def __init__(self, ftp_s):
-        super(FTP, self).__init__(ftp_s)
+    def __init__(self, ftps):
+        super(FTP, self).__init__(ftps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:ftp:ftpstate'
 
@@ -186,8 +186,8 @@ class GateWay_ICMPs(Collection):
 
 
 class GateWay_ICMP(UpdateMonitorMixin, Resource):
-    def __init__(self, gateway_icmp_s):
-        super(GateWay_ICMP, self).__init__(gateway_icmp_s)
+    def __init__(self, gateway_icmps):
+        super(GateWay_ICMP, self).__init__(gateway_icmps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:gateway-icmp:gateway-icmpstate'
 
@@ -201,8 +201,8 @@ class ICMPs(Collection):
 
 
 class ICMP(UpdateMonitorMixin, Resource):
-    def __init__(self, icmp_s):
-        super(ICMP, self).__init__(icmp_s)
+    def __init__(self, icmps):
+        super(ICMP, self).__init__(icmps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:icmp:icmpstate'
 
@@ -216,8 +216,8 @@ class IMAPs(Collection):
 
 
 class IMAP(UpdateMonitorMixin, Resource):
-    def __init__(self, imap_s):
-        super(IMAP, self).__init__(imap_s)
+    def __init__(self, imaps):
+        super(IMAP, self).__init__(imaps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:imap:imapstate'
 
@@ -231,8 +231,8 @@ class InBands(Collection):
 
 
 class InBand(UpdateMonitorMixin, Resource):
-    def __init__(self, inband_s):
-        super(InBand, self).__init__(inband_s)
+    def __init__(self, inbands):
+        super(InBand, self).__init__(inbands)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:inband:inbandstate'
 
@@ -246,8 +246,8 @@ class LDAPs(Collection):
 
 
 class LDAP(UpdateMonitorMixin, Resource):
-    def __init__(self, ldap_s):
-        super(LDAP, self).__init__(ldap_s)
+    def __init__(self, ldaps):
+        super(LDAP, self).__init__(ldaps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:ldap:ldapstate'
 
@@ -263,8 +263,8 @@ class Module_Scores(Collection):
 
 
 class Module_Score(UpdateMonitorMixin, Resource):
-    def __init__(self, gateway_icmp_s):
-        super(Module_Score, self).__init__(gateway_icmp_s)
+    def __init__(self, gateway_icmps):
+        super(Module_Score, self).__init__(gateway_icmps)
         self._meta_data['required_creation_parameters'].update(
             ('snmp-ip-address',))
         self._meta_data['required_json_kind'] =\
@@ -280,8 +280,8 @@ class MYSQLs(Collection):
 
 
 class MYSQL(UpdateMonitorMixin, Resource):
-    def __init__(self, mysql_s):
-        super(MYSQL, self).__init__(mysql_s)
+    def __init__(self, mysqls):
+        super(MYSQL, self).__init__(mysqls)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:mysql:mysqlstate'
 
@@ -295,8 +295,8 @@ class MSSQLs(Collection):
 
 
 class MSSQL(UpdateMonitorMixin, Resource):
-    def __init__(self, mssql_s):
-        super(MSSQL, self).__init__(mssql_s)
+    def __init__(self, mssqls):
+        super(MSSQL, self).__init__(mssqls)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:mssql:mssqlstate'
 
@@ -310,8 +310,8 @@ class NNTPs(Collection):
 
 
 class NNTP(UpdateMonitorMixin, Resource):
-    def __init__(self, nntp_s):
-        super(NNTP, self).__init__(nntp_s)
+    def __init__(self, nntps):
+        super(NNTP, self).__init__(nntps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:nntp:nntpstate'
 
@@ -325,8 +325,8 @@ class NONEs(Collection):
 
 
 class NONE(UpdateMonitorMixin, Resource):
-    def __init__(self, none_s):
-        super(NONE, self).__init__(none_s)
+    def __init__(self, nones):
+        super(NONE, self).__init__(nones)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:none:nonestate'
 
@@ -340,8 +340,8 @@ class Oracles(Collection):
 
 
 class Oracle(UpdateMonitorMixin, Resource):
-    def __init__(self, oracle_s):
-        super(Oracle, self).__init__(oracle_s)
+    def __init__(self, oracles):
+        super(Oracle, self).__init__(oracles)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:oracle:oraclestate'
 
@@ -355,8 +355,8 @@ class POP3s(Collection):
 
 
 class POP3(UpdateMonitorMixin, Resource):
-    def __init__(self, pop3_s):
-        super(POP3, self).__init__(pop3_s)
+    def __init__(self, pop3s):
+        super(POP3, self).__init__(pop3s)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:pop3:pop3state'
 
@@ -370,8 +370,8 @@ class PostGRESQLs(Collection):
 
 
 class PostGRESQL(UpdateMonitorMixin, Resource):
-    def __init__(self, postgresql_s):
-        super(PostGRESQL, self).__init__(postgresql_s)
+    def __init__(self, postgresqls):
+        super(PostGRESQL, self).__init__(postgresqls)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:postgresql:postgresqlstate'
 
@@ -420,8 +420,8 @@ class Real_Servers(Collection):
 
 
 class Real_Server(UpdateMonitorMixin, Resource):
-    def __init__(self, real_server_s):
-        super(Real_Server, self).__init__(real_server_s)
+    def __init__(self, real_servers):
+        super(Real_Server, self).__init__(real_servers)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:real-server:real-serverstate'
 
@@ -441,8 +441,8 @@ class RPCs(Collection):
 
 
 class RPC(UpdateMonitorMixin, Resource):
-    def __init__(self, rpc_s):
-        super(RPC, self).__init__(rpc_s)
+    def __init__(self, rpcs):
+        super(RPC, self).__init__(rpcs)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:rpc:rpcstate'
 
@@ -456,8 +456,8 @@ class SASPs(Collection):
 
 
 class SASP(UpdateMonitorMixin, Resource):
-    def __init__(self, sasp_s):
-        super(SASP, self).__init__(sasp_s)
+    def __init__(self, sasps):
+        super(SASP, self).__init__(sasps)
         self._meta_data['required_creation_parameters'].update(
             ('primaryAddress',))
         self._meta_data['required_json_kind'] =\
@@ -473,8 +473,8 @@ class Scripteds(Collection):
 
 
 class Scripted(UpdateMonitorMixin, Resource):
-    def __init__(self, scripted_s):
-        super(Scripted, self).__init__(scripted_s)
+    def __init__(self, scripteds):
+        super(Scripted, self).__init__(scripteds)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:scripted:scriptedstate'
 
@@ -488,8 +488,8 @@ class SIPs(Collection):
 
 
 class SIP(UpdateMonitorMixin, Resource):
-    def __init__(self, sip_s):
-        super(SIP, self).__init__(sip_s)
+    def __init__(self, sips):
+        super(SIP, self).__init__(sips)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:sip:sipstate'
 
@@ -503,8 +503,8 @@ class SMBs(Collection):
 
 
 class SMB(UpdateMonitorMixin, Resource):
-    def __init__(self, smb_s):
-        super(SMB, self).__init__(smb_s)
+    def __init__(self, smbs):
+        super(SMB, self).__init__(smbs)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:smb:smbstate'
 
@@ -518,8 +518,8 @@ class SMTPs(Collection):
 
 
 class SMTP(UpdateMonitorMixin, Resource):
-    def __init__(self, smtp_s):
-        super(SMTP, self).__init__(smtp_s)
+    def __init__(self, smtps):
+        super(SMTP, self).__init__(smtps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:smtp:smtpstate'
 
@@ -535,8 +535,8 @@ class SNMP_DCAs(Collection):
 
 
 class SNMP_DCA(UpdateMonitorMixin, Resource):
-    def __init__(self, snmp_dca_s):
-        super(SNMP_DCA, self).__init__(snmp_dca_s)
+    def __init__(self, snmp_dcas):
+        super(SNMP_DCA, self).__init__(snmp_dcas)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:snmp-dca:snmp-dcastate'
 
@@ -552,8 +552,8 @@ class SNMP_DCA_Bases(Collection):
 
 
 class SNMP_DCA_Base(UpdateMonitorMixin, Resource):
-    def __init__(self, snmp_dca_base_s):
-        super(SNMP_DCA_Base, self).__init__(snmp_dca_base_s)
+    def __init__(self, snmp_dca_bases):
+        super(SNMP_DCA_Base, self).__init__(snmp_dca_bases)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:snmp-dca-base:snmp-dca-basestate'
 
@@ -567,8 +567,8 @@ class SOAPs(Collection):
 
 
 class SOAP(UpdateMonitorMixin, Resource):
-    def __init__(self, soap_s):
-        super(SOAP, self).__init__(soap_s)
+    def __init__(self, soaps):
+        super(SOAP, self).__init__(soaps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:soap:soapstate'
 
@@ -582,8 +582,8 @@ class TCPs(Collection):
 
 
 class TCP(UpdateMonitorMixin, Resource):
-    def __init__(self, tcp_s):
-        super(TCP, self).__init__(tcp_s)
+    def __init__(self, tcps):
+        super(TCP, self).__init__(tcps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:tcp:tcpstate'
 
@@ -599,8 +599,8 @@ class TCP_Echos(Collection):
 
 
 class TCP_Echo(UpdateMonitorMixin, Resource):
-    def __init__(self, tcp_echo_s):
-        super(TCP_Echo, self).__init__(tcp_echo_s)
+    def __init__(self, tcp_echos):
+        super(TCP_Echo, self).__init__(tcp_echos)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:tcp-echo:tcp-echostate'
 
@@ -616,8 +616,8 @@ class TCP_Half_Opens(Collection):
 
 
 class TCP_Half_Open(UpdateMonitorMixin, Resource):
-    def __init__(self, tcp_half_open_s):
-        super(TCP_Half_Open, self).__init__(tcp_half_open_s)
+    def __init__(self, tcp_half_opens):
+        super(TCP_Half_Open, self).__init__(tcp_half_opens)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:tcp-half-open:tcp-half-openstate'
 
@@ -631,8 +631,8 @@ class UDPs(Collection):
 
 
 class UDP(UpdateMonitorMixin, Resource):
-    def __init__(self, udp_s):
-        super(UDP, self).__init__(udp_s)
+    def __init__(self, udps):
+        super(UDP, self).__init__(udps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:udp:udpstate'
 
@@ -649,8 +649,8 @@ class Virtual_Locations(Collection):
 
 
 class Virtual_Location(UpdateMonitorMixin, Resource):
-    def __init__(self, virtual_location_s):
-        super(Virtual_Location, self).__init__(virtual_location_s)
+    def __init__(self, virtual_locations):
+        super(Virtual_Location, self).__init__(virtual_locations)
         self._meta_data['required_creation_parameters'].update(
             ('pool',))
         self._meta_data['required_json_kind'] =\
@@ -666,8 +666,8 @@ class WAPs(Collection):
 
 
 class WAP(UpdateMonitorMixin, Resource):
-    def __init__(self, wap_s):
-        super(WAP, self).__init__(wap_s)
+    def __init__(self, waps):
+        super(WAP, self).__init__(waps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:wap:wapstate'
 
@@ -681,8 +681,8 @@ class WMIs(Collection):
 
 
 class WMI(UpdateMonitorMixin, Resource):
-    def __init__(self, wmi_s):
-        super(WMI, self).__init__(wmi_s)
+    def __init__(self, wmis):
+        super(WMI, self).__init__(wmis)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:wmi:wmistate'
         self._meta_data['read_only_attributes'] =\
