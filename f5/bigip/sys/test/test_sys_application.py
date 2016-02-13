@@ -29,7 +29,7 @@ from f5.bigip.sys.application import Template
 
 
 KIND_MISMATCH = {
-    "kind": "tm:sys:application:service:servicesstate",
+    "kind": "tm:sys:application:service:servicecollectionstate",
     "name": "tt_serv",
     "partition": "Common",
     "subPath": "tt_serv.app",
