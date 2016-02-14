@@ -23,8 +23,8 @@ def setup_basic_test(request, bigip):
     return monitor1
 
 
-def delete_resource(resourcecollection):
-    for resource in resourcecollection.get_collection():
+def delete_resource(resources):
+    for resource in resources.get_collection():
         rn = resource.name
         if rn != 'http' and rn != 'http_head_f5' and rn != 'https'\
                 and rn != 'https_443' and rn != 'https_head_f5'\
@@ -50,7 +50,7 @@ def setup_http_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.httpcollection
+    hc1 = bigip.ltm.monitor.https
     http1 = hc1.http
     http1.create(name=name, partition=partition)
     return http1, hc1
@@ -85,7 +85,7 @@ def setup_https_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.httpscollection
+    hc1 = bigip.ltm.monitor.https_s
     https1 = hc1.https
     https1.create(name=name, partition=partition)
     return https1, hc1
@@ -113,7 +113,7 @@ def setup_diameter_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.diametercollection
+    hc1 = bigip.ltm.monitor.diameters
     diameter1 = hc1.diameter
     diameter1.create(name=name, partition=partition)
     return diameter1, hc1
@@ -142,7 +142,7 @@ def setup_dns_test(request, bigip, partition, name, qname):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.dnscollection
+    hc1 = bigip.ltm.monitor.dns_s
     dns1 = hc1.dns
     dns1.create(name=name, partition=partition, qname=qname)
     return dns1, hc1
@@ -170,7 +170,7 @@ def setup_external_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.externalcollection
+    hc1 = bigip.ltm.monitor.externals
     external1 = hc1.external
     external1.create(name=name, partition=partition)
     return external1, hc1
@@ -199,7 +199,7 @@ def setup_firepass_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.firepasscollection
+    hc1 = bigip.ltm.monitor.firepass_s
     firepass1 = hc1.firepass
     firepass1.create(name=name, partition=partition)
     return firepass1, hc1
@@ -228,7 +228,7 @@ def setup_ftp_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.ftpcollection
+    hc1 = bigip.ltm.monitor.ftps
     ftp1 = hc1.ftp
     ftp1.create(name=name, partition=partition)
     return ftp1, hc1
@@ -256,7 +256,7 @@ def setup_gateway_icmp_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.gateway_icmpcollection
+    hc1 = bigip.ltm.monitor.gateway_icmps
     gateway_icmp1 = hc1.gateway_icmp
     gateway_icmp1.create(name=name, partition=partition)
     return gateway_icmp1, hc1
@@ -290,7 +290,7 @@ def setup_icmp_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.icmpcollection
+    hc1 = bigip.ltm.monitor.icmps
     icmp1 = hc1.icmp
     icmp1.create(name=name, partition=partition)
     return icmp1, hc1
@@ -318,7 +318,7 @@ def setup_imap_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.imapcollection
+    hc1 = bigip.ltm.monitor.imaps
     imap1 = hc1.imap
     imap1.create(name=name, partition=partition)
     return imap1, hc1
@@ -346,7 +346,7 @@ def setup_inband_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.inbandcollection
+    hc1 = bigip.ltm.monitor.inbands
     inband1 = hc1.inband
     inband1.create(name=name, partition=partition)
     return inband1, hc1
@@ -375,7 +375,7 @@ def setup_ldap_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.ldapcollection
+    hc1 = bigip.ltm.monitor.ldaps
     ldap1 = hc1.ldap
     ldap1.create(name=name, partition=partition)
     return ldap1, hc1
@@ -403,7 +403,7 @@ def setup_module_score_test(request, bigip, partition, name, snmpaddr):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.module_scorecollection
+    hc1 = bigip.ltm.monitor.module_scores
     module_score1 = hc1.module_score
     creation_params = {'name': name,
                        'partition': partition,
@@ -440,7 +440,7 @@ def setup_mssql_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.mssqlcollection
+    hc1 = bigip.ltm.monitor.mssqls
     mssql1 = hc1.mssql
     creation_params = {'name': name,
                        'partition': partition}
@@ -470,7 +470,7 @@ def setup_mysql_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.mysqlcollection
+    hc1 = bigip.ltm.monitor.mysqls
     mysql1 = hc1.mysql
     creation_params = {'name': name,
                        'partition': partition}
@@ -500,7 +500,7 @@ def setup_nntp_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.nntpcollection
+    hc1 = bigip.ltm.monitor.nntps
     nntp1 = hc1.nntp
     creation_params = {'name': name,
                        'partition': partition}
@@ -530,7 +530,7 @@ def setup_none_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.nonecollection
+    hc1 = bigip.ltm.monitor.nones
     none1 = hc1.none
     creation_params = {'name': name,
                        'partition': partition}
@@ -562,7 +562,7 @@ def setup_oracle_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.oraclecollection
+    hc1 = bigip.ltm.monitor.oracles
     oracle1 = hc1.oracle
     creation_params = {'name': name,
                        'partition': partition}
@@ -593,7 +593,7 @@ def setup_pop3_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.pop3collection
+    hc1 = bigip.ltm.monitor.pop3s
     pop31 = hc1.pop3
     creation_params = {'name': name,
                        'partition': partition}
@@ -623,7 +623,7 @@ def setup_postgresql_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.postgresqlcollection
+    hc1 = bigip.ltm.monitor.postgresqls
     postgresql1 = hc1.postgresql
     creation_params = {'name': name,
                        'partition': partition}
@@ -655,7 +655,7 @@ def setup_radius_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.radiuscollection
+    hc1 = bigip.ltm.monitor.radius_s
     radius1 = hc1.radius
     creation_params = {'name': name,
                        'partition': partition}
@@ -686,7 +686,7 @@ def setup_radius_accounting_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.radius_accountingcollection
+    hc1 = bigip.ltm.monitor.radius_accountings
     radius_accounting1 = hc1.radius_accounting
     creation_params = {'name': name,
                        'partition': partition}
@@ -722,7 +722,7 @@ def setup_real_server_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.real_servercollection
+    hc1 = bigip.ltm.monitor.real_servers
     real_server1 = hc1.real_server
     creation_params = {'name': name,
                        'partition': partition}
@@ -754,7 +754,7 @@ def setup_rpc_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.rpccollection
+    hc1 = bigip.ltm.monitor.rpcs
     rpc1 = hc1.rpc
     creation_params = {'name': name,
                        'partition': partition}
@@ -784,7 +784,7 @@ def setup_sasp_test(request, bigip, partition, name, primaryAddress='1.1.1.1'):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.saspcollection
+    hc1 = bigip.ltm.monitor.sasps
     sasp1 = hc1.sasp
     creation_params = {'name': name,
                        'partition': partition,
@@ -816,7 +816,7 @@ def setup_scripted_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.scriptedcollection
+    hc1 = bigip.ltm.monitor.scripteds
     scripted1 = hc1.scripted
     creation_params = {'name': name,
                        'partition': partition}
@@ -847,7 +847,7 @@ def setup_sip_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.sipcollection
+    hc1 = bigip.ltm.monitor.sips
     sip1 = hc1.sip
     creation_params = {'name': name,
                        'partition': partition}
@@ -877,7 +877,7 @@ def setup_smb_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.smbcollection
+    hc1 = bigip.ltm.monitor.smbs
     smb1 = hc1.smb
     creation_params = {'name': name,
                        'partition': partition}
@@ -907,7 +907,7 @@ def setup_smtp_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.smtpcollection
+    hc1 = bigip.ltm.monitor.smtps
     smtp1 = hc1.smtp
     creation_params = {'name': name,
                        'partition': partition}
@@ -937,7 +937,7 @@ def setup_snmp_dca_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.snmp_dcacollection
+    hc1 = bigip.ltm.monitor.snmp_dcas
     snmp_dca1 = hc1.snmp_dca
     creation_params = {'name': name,
                        'partition': partition}
@@ -968,7 +968,7 @@ def setup_snmp_dca_base_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.snmp_dca_basecollection
+    hc1 = bigip.ltm.monitor.snmp_dca_bases
     snmp_dca_base1 = hc1.snmp_dca_base
     creation_params = {'name': name,
                        'partition': partition}
@@ -1003,7 +1003,7 @@ def setup_soap_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.soapcollection
+    hc1 = bigip.ltm.monitor.soaps
     soap1 = hc1.soap
     creation_params = {'name': name,
                        'partition': partition}
@@ -1033,7 +1033,7 @@ def setup_tcp_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.tcpcollection
+    hc1 = bigip.ltm.monitor.tcps
     tcp1 = hc1.tcp
     creation_params = {'name': name,
                        'partition': partition}
@@ -1063,7 +1063,7 @@ def setup_tcp_echo_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.tcp_echocollection
+    hc1 = bigip.ltm.monitor.tcp_echos
     tcp_echo1 = hc1.tcp_echo
     creation_params = {'name': name,
                        'partition': partition}
@@ -1094,7 +1094,7 @@ def setup_tcp_half_open_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.tcp_half_opencollection
+    hc1 = bigip.ltm.monitor.tcp_half_opens
     tcp_half_open1 = hc1.tcp_half_open
     creation_params = {'name': name,
                        'partition': partition}
@@ -1129,7 +1129,7 @@ def setup_udp_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.udpcollection
+    hc1 = bigip.ltm.monitor.udps
     udp1 = hc1.udp
     creation_params = {'name': name,
                        'partition': partition}
@@ -1159,7 +1159,7 @@ def setup_virtual_location_test(request, bigip, partition, name, pool='tp1'):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.virtual_locationcollection
+    hc1 = bigip.ltm.monitor.virtual_locations
     virtual_location1 = hc1.virtual_location
     creation_params = {'name': name,
                        'partition': partition,
@@ -1195,7 +1195,7 @@ def setup_wap_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.wapcollection
+    hc1 = bigip.ltm.monitor.waps
     wap1 = hc1.wap
     creation_params = {'name': name,
                        'partition': partition}
@@ -1225,7 +1225,7 @@ def setup_wmi_test(request, bigip, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.wmicollection
+    hc1 = bigip.ltm.monitor.wmis
     wmi1 = hc1.wmi
     creation_params = {'name': name,
                        'partition': partition}

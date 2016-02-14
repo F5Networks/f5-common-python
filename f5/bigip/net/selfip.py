@@ -18,17 +18,17 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class SelfIPCollection(Collection):
+class SelfIPs(Collection):
     '''This represents a collection of Self IPs.
 
     NOTE: The objects in the collection are actually called 'self' in
     iControlREST, but obviously this will cause problems in Python so we
-    changed its name to SelfIP. This is why the the SelfIPCollection's uri ends
+    changed its name to SelfIP. This is why the the SelfIPs's uri ends
     in self/ not selfip/.  We override the object's `_meta_data['uri']` to
     account for this.
     '''
     def __init__(self, net):
-        super(SelfIPCollection, self).__init__(net)
+        super(SelfIPs, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [SelfIP]
         self._meta_data['attribute_registry'] =\
             {'tm:net:self:selfstate': SelfIP}
@@ -50,10 +50,10 @@ class SelfIP(Resource):
 
     NOTE: The object is actully called 'self' in iControlREST, but obviously
     this will cause problems in Python so we changed its name to SelfIP.
-    This is why the the SelfIPCollection's uri ends in self/ not selfip/
+    This is why the the SelfIPs's uri ends in self/ not selfip/
     '''
-    def __init__(self, selfip_collection):
-        super(SelfIP, self).__init__(selfip_collection)
+    def __init__(self, selfip_s):
+        super(SelfIP, self).__init__(selfip_s)
         self._meta_data['required_json_kind'] = 'tm:net:self:selfstate'
         self._meta_data['required_creation_parameters'].update(
             ('address', 'vlan'))

@@ -33,7 +33,7 @@ def setup_folder_test(request, bigip, name, subpath):
                 raise
     request.addfinalizer(teardown)
 
-    fc1 = bigip.sys.foldercollection
+    fc1 = bigip.sys.folders
     f1 = fc1.folder.create(name=name, subPath=subpath)
     return f1, fc1
 
@@ -68,19 +68,19 @@ class TestFolder(object):
         # We assume delete is taken care of by teardown
 
     def test_load_root_folder_by_name(self, bigip):
-        fc = bigip.sys.foldercollection
+        fc = bigip.sys.folders
         f = fc.folder.load(name='/')
         assert f.name == '/'
         assert f.fullPath == '/'
 
     def test_load_root_folder_by_partition(self, bigip):
-        fc = bigip.sys.foldercollection
+        fc = bigip.sys.folders
         f = fc.folder.load(partition='/')
         assert f.name == '/'
         assert f.fullPath == '/'
 
     def test_load_root_no_attributes(self, bigip):
-        fc = bigip.sys.foldercollection
+        fc = bigip.sys.folders
         f = fc.folder.load()
         assert f.name == '/'
         assert f.fullPath == '/'
@@ -89,7 +89,7 @@ class TestFolder(object):
 class TestFolderCollection(object):
     def test_get_collection(self, request, bigip):
         setup_folder_test(request, bigip, 'testfolder', '/')
-        fc = bigip.sys.foldercollection
+        fc = bigip.sys.folders
         folders = fc.get_collection()
 
         assert len(folders)

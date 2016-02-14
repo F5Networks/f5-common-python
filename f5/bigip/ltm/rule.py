@@ -17,17 +17,17 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class RuleCollection(Collection):
+class Rules(Collection):
     def __init__(self, ltm):
-        super(RuleCollection, self).__init__(ltm)
+        super(Rules, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Rule]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:rule:rulestate': Rule}
 
 
 class Rule(Resource):
-    def __init__(self, rule_collection):
-        super(Rule, self).__init__(rule_collection)
+    def __init__(self, rule_s):
+        super(Rule, self).__init__(rule_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:rule:rulestate'
         self._meta_data['required_creation_parameters'].update(
             ('name', 'partition', 'apiAnonymous'))

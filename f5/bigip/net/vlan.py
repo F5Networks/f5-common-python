@@ -18,23 +18,23 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class VLANCollection(Collection):
+class VLANs(Collection):
     def __init__(self, net):
-        super(VLANCollection, self).__init__(net)
+        super(VLANs, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [VLAN]
         self._meta_data['attribute_registry'] =\
             {'tm:net:vlan:vlanstate': VLAN}
 
 
 class VLAN(Resource):
-    def __init__(self, vlan_collection):
-        super(VLAN, self).__init__(vlan_collection)
+    def __init__(self, vlan_s):
+        super(VLAN, self).__init__(vlan_s)
         self._meta_data['required_json_kind'] = 'tm:net:vlan:vlanstate'
         self._meta_data['attribute_registry'] =\
-            {'tm:net:vlan:interfacescollectionstate': InterfacesCollection}
+            {'tm:net:vlan:interfacescollectionstate': Interfaces_s}
 
 
-class InterfacesCollection(Collection):
+class Interfaces_s(Collection):
     '''Represents a VLAN interface list.
 
     Not to be confused with tm/mgmt/net/interface.  This is actually called
@@ -45,15 +45,15 @@ class InterfacesCollection(Collection):
     the same.
     '''
     def __init__(self, vlan):
-        super(InterfacesCollection, self).__init__(vlan)
+        super(Interfaces_s, self).__init__(vlan)
         self._meta_data['allowed_lazy_attributes'] = [Interfaces]
         self._meta_data['attribute_registry'] =\
             {'tm:net:vlan:interfaces:interfacesstate': Interfaces}
 
 
 class Interfaces(Resource, ExclusiveAttributesMixin):
-    def __init__(self, interfaces_collection):
-        super(Interfaces, self).__init__(interfaces_collection)
+    def __init__(self, interfaces_s):
+        super(Interfaces, self).__init__(interfaces_s)
         # VLAN intefaces objects do not have a partition
         self._meta_data['required_json_kind'] =\
             'tm:net:vlan:interfaces:interfacesstate'

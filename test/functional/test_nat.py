@@ -20,7 +20,7 @@ from requests.exceptions import HTTPError
 
 
 def delete_nat(bigip, name, partition):
-    nat = bigip.ltm.natcollection.nat
+    nat = bigip.ltm.nats.nat
     try:
         nat.load(name=name, partition=partition)
     except HTTPError as err:
@@ -59,11 +59,11 @@ class TestCreate(object):
     def test_create_two(self, request, bigip):
         setup_create_two(request, bigip)
 
-        n1 = bigip.ltm.natcollection.nat.create(
+        n1 = bigip.ltm.nats.nat.create(
             name='nat1', partition='Common',
             translationAddress='192.168.1.1',
             originatingAddress='192.168.2.1')
-        n2 = bigip.ltm.natcollection.nat.create(
+        n2 = bigip.ltm.nats.nat.create(
             name='nat2', partition='Common',
             translationAddress='192.168.1.2',
             originatingAddress='192.168.2.2')
@@ -73,7 +73,7 @@ class TestCreate(object):
 
     def test_create_no_args(self, bigip):
         '''Test that nat.create() with no options throws a ValueError '''
-        nat1 = bigip.ltm.natcollection.nat
+        nat1 = bigip.ltm.nats.nat
         with pytest.raises(MissingRequiredCreationParameter):
             nat1.create()
 
@@ -85,7 +85,7 @@ class TestCreate(object):
         '''
         setup_create_test(request, bigip)
 
-        nat1 = bigip.ltm.natcollection.nat.create(
+        nat1 = bigip.ltm.nats.nat.create(
             name='nat1', partition='Common',
             translationAddress='192.168.1.1',
             originatingAddress='192.168.2.1')
@@ -294,7 +294,7 @@ class TestLoad(object):
 
     def test_load(self, request, bigip, NAT):
         setup_standard_test(request, bigip, NAT)
-        n1 = bigip.ltm.natcollection.nat.load(name='nat1', partition='Common')
+        n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
         assert n1.name == 'nat1'
         assert n1.partition == 'Common'
         assert isinstance(n1.generation, int)
@@ -305,8 +305,8 @@ class TestRefresh(object):
     def test_refresh(self, request, bigip, NAT):
         setup_standard_test(request, bigip, NAT)
 
-        n1 = bigip.ltm.natcollection.nat.load(name='nat1', partition='Common')
-        n2 = bigip.ltm.natcollection.nat.load(name='nat1', partition='Common')
+        n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
+        n2 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
         assert n1.arp == 'enabled'
         assert n2.arp == 'enabled'
 
@@ -322,25 +322,25 @@ class TestDelete(object):
 
     def test_delete(self, request, bigip, NAT):
         setup_standard_test(request, bigip, NAT)
-        n1 = bigip.ltm.natcollection.nat.load(name='nat1', partition='Common')
+        n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
         n1.delete()
         del(n1)
         with pytest.raises(HTTPError) as err:
-            bigip.ltm.natcollection.nat.load(name='nat1', partition='Common')
+            bigip.ltm.nats.nat.load(name='nat1', partition='Common')
             assert err.response.status_code == 404
 
 
 class TestUpdate(object):
     def test_update_with_args(self, request, bigip, NAT):
         setup_standard_test(request, bigip, NAT)
-        n1 = bigip.ltm.natcollection.nat.load(name='nat1', partition='Common')
+        n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
         assert n1.arp == 'enabled'
         n1.update(arp='disabled')
         assert n1.arp == 'disabled'
 
     def test_update_parameters(self, request, bigip, NAT):
         setup_standard_test(request, bigip, NAT)
-        n1 = bigip.ltm.natcollection.nat.load(name='nat1', partition='Common')
+        n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
         assert n1.arp == 'enabled'
         n1.arp = 'disabled'
         n1.update()
