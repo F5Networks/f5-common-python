@@ -124,7 +124,7 @@ class IappParser(object):
         :returns: dictionary of parsed template
         '''
 
-        templ_dict = {}
+        templ_dict = {'actions': {'definition': {}}}
         templ = self.template_str
 
         templ_dict[u'name'] = self.get_template_name()
@@ -132,7 +132,8 @@ class IappParser(object):
         for section in self.template_sections:
             sec_start = self.get_section_start_index(section)
             sec_end = self.get_section_end_index(section, sec_start)
-            templ_dict[section] = templ[sec_start+1:sec_end].strip()
+            templ_dict['actions']['definition'][section] = \
+                templ[sec_start+1:sec_end].strip()
             templ = templ[:sec_start+1] + templ[sec_end:]
 
         for attr in self.template_attrs:

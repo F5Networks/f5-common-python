@@ -150,12 +150,16 @@ good_attr_templ = '''sys application template good_templ {
 
 good_templ_dict = {
     'name': 'good_templ',
-    'html-help': '# HTML Help for the template',
     'description': '<template description>',
-    'role-acl': '',
-    'implementation': '# TMSH implementation code',
     'partition': '<partition name>',
-    'presentation': '# APL presentation language'
+    'actions': {
+        'definition': {
+            'html-help': '# HTML Help for the template',
+            'role-acl': '',
+            'implementation': '# TMSH implementation code',
+            'presentation': '# APL presentation language'
+        }
+    }
 }
 
 
