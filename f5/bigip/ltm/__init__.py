@@ -13,12 +13,12 @@
 # limitations under the License.
 #
 from f5.bigip.ltm.monitor import Monitor
-from f5.bigip.ltm.nat import NATCollection
-from f5.bigip.ltm.policy import PolicyCollection
-from f5.bigip.ltm.pool import PoolCollection
-from f5.bigip.ltm.rule import RuleCollection
-from f5.bigip.ltm.snat import SNATCollection
-from f5.bigip.ltm.virtual import VirtualCollection
+from f5.bigip.ltm.nat import NATs
+from f5.bigip.ltm.policy import Policys
+from f5.bigip.ltm.pool import Pools
+from f5.bigip.ltm.rule import Rules
+from f5.bigip.ltm.snat import SNATs
+from f5.bigip.ltm.virtual import Virtuals
 from f5.bigip.resource import OrganizingCollection
 
 
@@ -27,10 +27,10 @@ class LTM(OrganizingCollection):
         super(LTM, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
             Monitor,
-            NATCollection,
-            PolicyCollection,
-            PoolCollection,
-            RuleCollection,
-            SNATCollection,
-            VirtualCollection
+            NATs,
+            Policys,
+            Pools,
+            Rules,
+            SNATs,
+            Virtuals
         ]

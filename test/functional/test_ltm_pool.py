@@ -23,7 +23,7 @@ TESTDESCRIPTION = 'TESTDESCRIPTION'
 
 
 def delete_pool(bigip, name, partition):
-    p = bigip.ltm.poolcollection.pool
+    p = bigip.ltm.pools.pool
     try:
         p.load(name=name, partition=partition)
     except HTTPError as err:
@@ -43,7 +43,7 @@ def setup_basic_test(request, bigip, name, partition):
     def teardown():
         delete_pool(bigip, name, partition)
 
-    pool1 = bigip.ltm.poolcollection.pool
+    pool1 = bigip.ltm.pools.pool
     pool1.create(name=name, partition=partition)
     request.addfinalizer(teardown)
     return pool1
@@ -52,7 +52,7 @@ def setup_basic_test(request, bigip, name, partition):
 def setup_member_test(request, bigip, name, partition,
                       memname="192.168.15.15:80"):
     p1 = setup_basic_test(request, bigip, name, partition)
-    member = p1.memberscollection.member
+    member = p1.members_s.member
     member.create(name=memname, partition=partition)
     assert member.name == "192.168.15.15:80"
     return member, p1
@@ -62,10 +62,10 @@ class TestPoolMembersCollection(object):
     def test_get_collection(self, request, bigip):
         member1, pool1 = setup_member_test(request, bigip, 'membertestpool1',
                                            'Common')
-        pool1.memberscollection.member.create(
+        pool1.members_s.member.create(
             name='192.168.16.16:8080', partition='Common')
         selfLinks = []
-        for mem in pool1.memberscollection.get_collection():
+        for mem in pool1.members_s.get_collection():
             selfLinks.append(mem.selfLink)
             mem.delete()
         assert selfLinks[0] == u'https://localhost/mgmt/tm/ltm/pool/' +\
@@ -116,7 +116,7 @@ class TestPoolMembers(object):
                                            'Common')
         member1.description = TESTDESCRIPTION
         member1.update(state=None)
-        member2 = pool1.memberscollection.member
+        member2 = pool1.members_s.member
         member2.load(name='192.168.15.15:80', partition='Common')
         assert member2.description == TESTDESCRIPTION
         assert member2.selfLink == member1.selfLink
@@ -126,13 +126,13 @@ class TestPoolMembers(object):
 
 class TestPool(object):
     def test_create_no_args(self, bigip):
-        pool1 = bigip.ltm.poolcollection.pool
+        pool1 = bigip.ltm.pools.pool
         with pytest.raises(MissingRequiredCreationParameter):
             pool1.create()
 
     def test_create(self, request, bigip):
         setup_create_test(request, bigip, 'pool1', 'Common')
-        pool1 = bigip.ltm.poolcollection.pool
+        pool1 = bigip.ltm.pools.pool
         pool1.create(name='pool1', partition='Common')
         assert pool1.name == 'pool1'
         assert pool1.partition == 'Common'

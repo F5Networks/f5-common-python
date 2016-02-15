@@ -23,16 +23,16 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 
 @pytest.fixture
 def FakeNat():
-    fake_nat_collection = mock.MagicMock()
-    fake_nat = NAT(fake_nat_collection)
+    fake_nat_s = mock.MagicMock()
+    fake_nat = NAT(fake_nat_s)
     return fake_nat
 
 
 class TestCreate(object):
     def test_create_two(self):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        n1 = b.ltm.natcollection.nat
-        n2 = b.ltm.natcollection.nat
+        n1 = b.ltm.nats.nat
+        n2 = b.ltm.nats.nat
         assert n1 is not n2
 
     def test_create_no_args(self, FakeNat):

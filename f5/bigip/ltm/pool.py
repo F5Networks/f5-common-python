@@ -21,26 +21,26 @@ class MemberStateAlwaysRequiredOnUpdate(Exception):
     pass
 
 
-class PoolCollection(Collection):
+class Pools(Collection):
     def __init__(self, ltm):
-        super(PoolCollection, self).__init__(ltm)
+        super(Pools, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Pool]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:pool:poolstate': Pool}
 
 
 class Pool(Resource):
-    def __init__(self, pool_collection):
-        super(Pool, self).__init__(pool_collection)
+    def __init__(self, pool_s):
+        super(Pool, self).__init__(pool_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:pool:poolstate'
         self._meta_data['attribute_registry'] = {
-            'tm:ltm:pool:memberscollectionstate': MembersCollection
+            'tm:ltm:pool:memberscollectionstate': Members_s
         }
 
 
-class MembersCollection(Collection):
+class Members_s(Collection):
     def __init__(self, pool):
-        super(MembersCollection, self).__init__(pool)
+        super(Members_s, self).__init__(pool)
         self._meta_data['allowed_lazy_attributes'] = [Member]
         self._meta_data['required_json_kind'] =\
             'tm:ltm:pool:members:memberscollectionstate'
@@ -49,8 +49,8 @@ class MembersCollection(Collection):
 
 
 class Member(Resource):
-    def __init__(self, member_collection):
-        super(Member, self).__init__(member_collection)
+    def __init__(self, member_s):
+        super(Member, self).__init__(member_s)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:pool:members:membersstate'
         self._meta_data['required_creation_parameters'].update(('partition',))

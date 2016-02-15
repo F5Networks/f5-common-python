@@ -23,16 +23,16 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 
 @pytest.fixture
 def FakeRule():
-    fake_rule_collection = mock.MagicMock()
-    fake_rule = NAT(fake_rule_collection)
+    fake_rule_s = mock.MagicMock()
+    fake_rule = NAT(fake_rule_s)
     return fake_rule
 
 
 class TestCreate(object):
     def test_create_two(self):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        r1 = b.ltm.rulecollection.rule
-        r2 = b.ltm.rulecollection.rule
+        r1 = b.ltm.rules.rule
+        r2 = b.ltm.rules.rule
         assert r1 is not r2
 
     def test_create_no_args(self, FakeRule):

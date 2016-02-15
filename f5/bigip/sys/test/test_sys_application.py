@@ -76,26 +76,26 @@ SIDE_EFFECT = {'only_key': 'this is the only key'}
 
 @pytest.fixture
 def FakeService():
-    fake_serv_collection = mock.MagicMock()
-    return Service(fake_serv_collection)
+    fake_serv_s = mock.MagicMock()
+    return Service(fake_serv_s)
 
 
 @pytest.fixture
 def FakeTemplate():
-    fake_templ_collection = mock.MagicMock()
-    return Template(fake_templ_collection)
+    fake_templ_s = mock.MagicMock()
+    return Template(fake_templ_s)
 
 
 @pytest.fixture
 def FakeAPLScript():
-    fake_apl_collection = mock.MagicMock()
-    return APLScript(fake_apl_collection)
+    fake_apl_s = mock.MagicMock()
+    return APLScript(fake_apl_s)
 
 
 @pytest.fixture
 def FakeCustomStat():
-    fake_custom_stat_collection = mock.MagicMock()
-    return CustomStat(fake_custom_stat_collection)
+    fake_custom_stat_s = mock.MagicMock()
+    return CustomStat(fake_custom_stat_s)
 
 
 @pytest.fixture
@@ -144,8 +144,8 @@ class MockHTTPErrorResponseUnsuccessful(HTTPError):
 class TestServiceCreate(object):
     def test_create_two(self):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        serv1 = b.sys.applicationcollection.servicecollection.service
-        serv2 = b.sys.applicationcollection.servicecollection.service
+        serv1 = b.sys.applications.services.service
+        serv2 = b.sys.applications.services.service
         assert serv1 is not serv2
 
     def test_create_no_args(self, FakeService):
@@ -257,8 +257,8 @@ class TestServiceUpdate(object):
 class TestTemplateCreate(object):
     def test_create_two(self):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.applicationcollection.templatecollection.template
-        templ2 = b.sys.applicationcollection.templatecollection.template
+        templ1 = b.sys.applications.templates.template
+        templ2 = b.sys.applications.templates.template
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeTemplate):
@@ -270,8 +270,8 @@ class TestTemplateCreate(object):
 class TestAPLScript(object):
     def test_create_two(self):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.applicationcollection.aplscriptcollection.aplscript
-        templ2 = b.sys.applicationcollection.aplscriptcollection.aplscript
+        templ1 = b.sys.applications.aplscripts.aplscript
+        templ2 = b.sys.applications.aplscripts.aplscript
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeAPLScript):
@@ -283,8 +283,8 @@ class TestAPLScript(object):
 class TestCustomStat(object):
     def test_create_two(self):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.applicationcollection.customstatcollection.customstat
-        templ2 = b.sys.applicationcollection.customstatcollection.customstat
+        templ1 = b.sys.applications.customstats.customstat
+        templ2 = b.sys.applications.customstats.customstat
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeCustomStat):

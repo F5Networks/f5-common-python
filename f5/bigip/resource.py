@@ -97,17 +97,17 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
     the device object (e.g. `bigip.ltm` or simply `bigip`), an appropriate
     object is instantiated and attributed to the referencing object, so:
     >>> bigip.ltm = LTM(bigip)
-    >>> bigip.ltm.natcollection
-    >>> nat1 = bigip.ltm.natcollection.nat.create('Foo', 'Bar', '0.1.2.3',
+    >>> bigip.ltm.nats
+    >>> nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3',
                                                   '1.2.3.4')
 
     Shortens to just the last line:
-    >>> nat1 = bigip.ltm.natcollection.nat.create('Foo', 'Bar', '0.1.2.3',
+    >>> nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3',
                                                   '1.2.3.4')
 
     More importantly is enforces a convention relating device published uris to
     API objects, in a hierarchy similar to the uri paths.  I.E. the uri
-    corresponding to a `NatCollection` object is `mgmt/tm/ltm/nat/`. If you
+    corresponding to a `Nats` object is `mgmt/tm/ltm/nat/`. If you
     query the bigip's uri (e.g. print(bigip._meta_data['uri']) ), you'll see
     that it ends in:
     `mgmt/tm/`, if you query the `ltm` object's uri
@@ -229,12 +229,15 @@ class OrganizingCollection(ResourceBase):
 class Collection(ResourceBase):
     """Inherit from this class if the corresponding uri lists other resources.
 
-    Note any subclass must have "Collection" at the end of its name!
+    Note any subclass must have "s" at the end of its name!
     """
     def __init__(self, container):
         super(Collection, self).__init__(container)
-        # Handle 'collection'
-        endind = len('collection')
+        # Handle 'terminal s or _s'
+        if self.__class__.__name__.lower()[-2:] == '_s':
+            endind = 2
+        else:
+            endind = 1
         base_uri = self.__class__.__name__.lower()[:-endind] + '/'
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + base_uri
@@ -273,9 +276,9 @@ class Collection(ResourceBase):
 class Resource(ResourceBase):
     """Use this to represent a Configurable Resource on the device.
 
-    1a.  bigip.ltm.natcollection.nat
+    1a.  bigip.ltm.nats.nat
     or
-    1b.  nat_obj = bigip.ltm.natcollection.nat
+    1b.  nat_obj = bigip.ltm.nats.nat
     2.  call super(Subclass, self).__init__(container) in its __init__
     """
     def __init__(self, container):
@@ -406,8 +409,8 @@ class Resource(ResourceBase):
         temp_meta = self.__dict__.pop('_meta_data')
 
         # Need to remove any of the Collection objects from self.__dict__
-        # because these are sub-collections and _meta_data and
-        # other non-BIGIP attrs are not removed from the sub-collections
+        # because these are sub-ss and _meta_data and
+        # other non-BIGIP attrs are not removed from the sub-ss
         # See issue #146 for details
         for key, value in self.__dict__.items():
             if isinstance(value, Collection):

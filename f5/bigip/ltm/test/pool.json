@@ -12,7 +12,7 @@
   "linkQosToServer": "pass-through",
   "loadBalancingMode": "round-robin",
   "membersReference": {
-    "isSubcollection": true,
+    "isSubs": true,
     "items": [
       {
         "address": "1.1.1.1",
@@ -46,6 +46,6 @@
   "queueOnConnectionLimit": "disabled",
   "queueTimeLimit": 0,
   "reselectTries": 0,
-  "selfLink": "https://../tm/ltm/pool/~Common~my-Pool?expandSubcollections=true&ver=11.5.0",
+  "selfLink": "https://../tm/ltm/pool/~Common~my-Pool?expandSubss=true&ver=11.5.0",
   "slowRampTime": 10
 }
