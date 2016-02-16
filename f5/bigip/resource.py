@@ -18,11 +18,11 @@ There are different types of resources published by the BigIP REST Server, they
 are represented by the classes in this module.
 
 Available Classes:
-    * ResourceBase -- only `read` is generally supported in all resource types,
-      this class provides `read`. ResourceBase objects are usually instantiated
-      via setting lazy attributes. ResourceBase provides a contructor to match
-      the lazy constructor. The expected behavior is that all resource
-      subclasses depend on this constructor to correctly set their
+    * ResourceBase -- only `refresh` is generally supported in all resource
+      types, this class provides `refresh`. ResourceBase objects are usually
+      instantiated via setting lazy attributes. ResourceBase provides a
+      contructor to match the lazy constructor. The expected behavior is that
+      all resource subclasses depend on this constructor to correctly set their
       self._meta_data['uri'].
       All ResourceBase objects (except BigIPs) have a container (BigIPs contain
       themselves).  The container is the object the ResourceBase is an
@@ -32,10 +32,10 @@ Available Classes:
       `create`, `update`, and `delete` operations.  Because they support HTTP
       post (via _create) they uniquely depend on 2 uri's, a uri that supports
       the creating post, and the returned uri of the newly created resource.
-    * InvalidResource -- resources do not generally support all 5 Resource
-      operations, if a caller attempts to invoke an unsupported operation this
-      Exception is raised.
 """
+import keyword
+import re
+import tokenize
 import urlparse
 
 from f5.bigip.mixins import LazyAttributeMixin
@@ -53,7 +53,7 @@ class DeviceProvidesIncompatibleKey(Exception):
 class InvalidResource(Exception):
     """Raise this when a caller tries to invoke an unsupported CUD op.
 
-    All resources support `read`.
+    All resources support `refresh`.
     Only Resources support `create`, `update`, and `delete`.
     """
     pass
@@ -123,41 +123,65 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
     The net result is a reasonably succinct mapping between uri's and objects,
     that represents objects in a hierarchical relationship similar to the
     devices uri path hierarchy.
-    This is the class that defines `read` for all ResourceBases.
+    This is the class that defines `refresh` for all ResourceBases.
 
     Public attributes:
-    - read: updates itself with the results of an http GET on the resource
+    - refresh: updates itself with the results of an http GET on the resource
     - others: not to be called here
 
     """
     def __init__(self, container):
         """Call this with containing_object_instance.FOO
 
-        FOO must inherit from this class.  The '.' operator passes "FOO" to
-        the __getattr__ method of the containing_object_instance where it is
-        instantiated as the appropriate type of ResourceBase.
+        Where FOO is a concrete subclass of this class, ResourceBase.  The '.'
+        operator passes "FOO" to the __getattr__ method of the
+        containing_object_instance which instantiates it as the appropriate
+        sub-type of ResourceBase.
 
-        Since all ResourceBases support `read` instances of ResourceBase do as
-        well.
-        The BigIP uri 'mgmt/tm/' uniquely passes itself to this constructor as
-        the "container".
+        Since all ResourceBases sub-types must support the `refresh` method, it
+        is defined here, in the base class.
+        NOTE: The BigIP uri 'mgmt/tm/' uniquely passes itself to this
+        constructor as the "container".
         """
         self._meta_data = {'container': container,
                            'bigip': container._meta_data['bigip']}
 
     def _local_update(self, rdict):
+        """Call this with a response dictionary to update instance attrs.
+
+        If the response has only valid keys, stash meta_data, replace __dict__,
+        and reassign meta_data.
+        """
         sanitized = self._check_keys(rdict)
         temp_meta = self._meta_data
         self.__dict__ = sanitized
         self._meta_data = temp_meta
 
     def _check_keys(self, rdict):
+        """Call this from _local_update to validate response keys
+
+        disallowed server-response json keys:
+        1. The string-literal '_meta_data'
+        2. strings that are not valid Python 2.7 identifiers
+        3. strings that are Python keywords
+        4. strings beginning with '__'.
+        """
         if '_meta_data' in rdict:
-            error_message = "Response contains key '_meta_data' which is " +\
+            error_message = "Response contains key '_meta_data' which is "\
                 "incompatible with this API!!\n Response json: %r" % rdict
             raise DeviceProvidesIncompatibleKey(error_message)
         for x in rdict:
-            if x.startswith('__'):
+            if not re.match(tokenize.Name, x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's not a valid Python 2.7 identifier." % x
+                raise DeviceProvidesIncompatibleKey(x)
+            elif keyword.iskeyword(x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's a Python keyword." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif x.startswith('__'):
+                error_message = "Device provided %r which is disallowed"\
+                    ", it mangles into a Python non-public attribute." % x
                 raise DeviceProvidesIncompatibleKey(x)
         return rdict
 
@@ -169,14 +193,15 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
         attribute __dict__ is replaced with the dict representing the device
         state.  To figure out what that state is, run a subsequest query of the
         object like this:
-        >>> resource_obj.read()
-        >>> print(resource.name)
+        >>> resource_obj.refresh()
+        >>> print(resource.raw)
         """
-        read_session = self._meta_data['bigip']._meta_data['icr_session']
-        response = read_session.get(self._meta_data['uri'])
+        refresh_session = self._meta_data['bigip']._meta_data['icr_session']
+        response = refresh_session.get(self._meta_data['uri'])
         self._local_update(response.json())
 
     def refresh(self):
+        """override this in subclasses for class specific behavior"""
         self._refresh()
 
     def _activate_URI(self, selfLinkuri):
@@ -217,6 +242,7 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
 
     @property
     def raw(self):
+        """override this in subclasses for class specific behavior"""
         return self.__dict__
 
 
@@ -355,6 +381,7 @@ class Resource(ResourceBase):
         return self
 
     def create(self, **kwargs):
+        """override this in subclasses for class specific behavior"""
         self._create(**kwargs)
         return self
 
@@ -362,14 +389,15 @@ class Resource(ResourceBase):
         # For vlan.interfacescollection.interface the partition is not valid
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
-        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        refresh_session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
-        response = read_session.get(base_uri, **kwargs)
+        response = refresh_session.get(base_uri, **kwargs)
         self._local_update(response.json())
         self._activate_URI(self.selfLink)
         return self
 
     def load(self, **kwargs):
+        """override this in subclasses for class specific behavior"""
         self._load(**kwargs)
         return self
 
@@ -423,6 +451,7 @@ class Resource(ResourceBase):
         self._local_update(response.json())
 
     def update(self, **kwargs):
+        """override this in subclasses for class specific behavior"""
         # Need to implement checking for valid params here.
         self._update(**kwargs)
 
@@ -440,6 +469,7 @@ class Resource(ResourceBase):
             self.__dict__ = {'deleted': True}
 
     def delete(self):
+        """override this in subclasses for class specific behavior"""
         # Need to implement checking for ? here.
         self._delete()
         # Need to implement correct teardown here.
