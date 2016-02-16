@@ -36,7 +36,6 @@ Available Classes:
       operations, if a caller attempts to invoke an unsupported operation this
       Exception is raised.
 """
-import functools
 import urlparse
 
 from f5.bigip.mixins import LazyAttributeMixin
@@ -180,13 +179,25 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
     def refresh(self):
         self._refresh()
 
-    def _build_meta_data_uri(self, selfLinkuri):
+    def _activate_URI(self, selfLinkuri):
+        if 'uri' in self._meta_data:
+            error = "There was an attempt to assign a new uri to this "\
+                    "resource, the _meta_data['uri'] is %s and it should"\
+                    " not be changed." % (self._meta_data['uri'])
+            raise URICreationCollision(error)
+        # hostname local alias
         hostname = self._meta_data['bigip']._meta_data['hostname']
+
+        # attrs local alias
+        attribute_reg = self._meta_data.get('attribute_registry', {})
+        attrs = attribute_reg.values()
+
         (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
         path_uri = urlparse.urlunsplit((scheme, hostname, path, '', ''))+'/'
-        self._meta_data['uri'] = path_uri
-        self._meta_data['creation_uri_qarg'] = qarg
-        self._meta_data['creation_uri_frag'] = frag
+        self._meta_data.update({'uri': path_uri,
+                                'creation_uri_qarg': qarg,
+                                'creation_uri_frag': frag,
+                                'allowed_lazy_attributes': attrs})
 
     def load(self, **kwargs):
         error_message = "Only Resources support 'load'."
@@ -265,7 +276,7 @@ class Collection(ResourceBase):
                     instance =\
                         self._meta_data['attribute_registry'][kind](self)
                     instance._local_update(item)
-                    instance._build_meta_data_uri(instance.selfLink)
+                    instance._activate_URI(instance.selfLink)
                     list_of_contents.append(instance)
                 else:
                     error_message = '%r is not registered!' % kind
@@ -294,22 +305,6 @@ class Resource(ResourceBase):
         self._meta_data['exclusive_attributes'] = []
         self._meta_data['read_only_attributes'] = []
 
-    def _manage_local_creation(decorated):
-        @functools.wraps(decorated)
-        def wrapper(instance, **kwargs):
-            if 'uri' in instance._meta_data:
-                error = "There was an attempt to assign a new uri to this "\
-                        "resource, the _meta_data['uri'] is %s and it should"\
-                        " not be changed." % (instance._meta_data['uri'])
-                raise URICreationCollision(error)
-            returned = decorated(instance, **kwargs)
-            attribute_reg = instance._meta_data.get('attribute_registry', {})
-            attrs = attribute_reg.values()
-            instance._meta_data['allowed_lazy_attributes'] = attrs
-            return returned
-        return wrapper
-
-    @_manage_local_creation
     def _create(self, **kwargs):
         """Call this to create.
 
@@ -356,14 +351,13 @@ class Resource(ResourceBase):
             raise KindTypeMismatch(error_message)
 
         # Update the object to have the correct functional uri.
-        self._build_meta_data_uri(self.selfLink)
+        self._activate_URI(self.selfLink)
         return self
 
     def create(self, **kwargs):
         self._create(**kwargs)
         return self
 
-    @_manage_local_creation
     def _load(self, **kwargs):
         # For vlan.interfacescollection.interface the partition is not valid
         self._check_load_parameters(**kwargs)
@@ -372,7 +366,7 @@ class Resource(ResourceBase):
         base_uri = self._meta_data['container']._meta_data['uri']
         response = read_session.get(base_uri, **kwargs)
         self._local_update(response.json())
-        self._build_meta_data_uri(self.selfLink)
+        self._activate_URI(self.selfLink)
         return self
 
     def load(self, **kwargs):

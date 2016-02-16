@@ -146,7 +146,7 @@ class Service(Resource):
 
         response = read_session.get(load_uri, uri_as_parts=False, **kwargs)
         self._local_update(response.json())
-        self._build_meta_data_uri(self.selfLink)
+        self._activate_URI(self.selfLink)
         return self
 
 
