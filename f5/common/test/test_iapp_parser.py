@@ -30,12 +30,33 @@ good_templ = '''sys application template good_templ {
       presentation {
         # APL presentation language
       }
-      role-acl {<security role>}
+      role-acl { hello test }
       run-as <user context>
     }
   }
   description <template description>
   partition <partition name>
+  requires-modules ['ltm']
+}'''
+
+no_desc_templ = '''sys application template good_templ {
+  actions {
+    definition {
+      html-help {
+        # HTML Help for the template
+      }
+      implementation {
+        # TMSH implementation code
+      }
+      presentation {
+        # APL presentation language
+      }
+      role-acl { hello test }
+      run-as <user context>
+    }
+  }
+  partition <partition name>
+  requires-modules ['ltm']
 }'''
 
 no_open_brace_templ = '''sys application template no_open_brace_templ {
@@ -148,19 +169,62 @@ good_attr_templ = '''sys application template good_templ {
   partition just_a_partition name
 }'''
 
+no_help_templ = '''sys application template good_templ {
+  actions {
+    definition {
+      implementation {
+        # TMSH implementation code
+      }
+      presentation {
+        # APL presentation language
+      }
+      role-acl { hello test }
+      run-as <user context>
+    }
+  }
+  description <template description>
+  partition <partition name>
+  requires-modules ['ltm']
+}'''
+
 good_templ_dict = {
-    'name': 'good_templ',
-    'description': '<template description>',
-    'partition': '<partition name>',
+    u'name': u'good_templ',
+    u'description': u'<template description>',
+    u'partition': u'<partition name>',
+    u'requiresModules': [u'ltm'],
     'actions': {
         'definition': {
-            'html-help': '# HTML Help for the template',
-            'role-acl': '',
-            'implementation': '# TMSH implementation code',
-            'presentation': '# APL presentation language'
+            u'htmlHelp': u'# HTML Help for the template',
+            u'roleAcl': u'hello test',
+            u'implementation': u'# TMSH implementation code',
+            u'presentation': u'# APL presentation language'
         }
     }
 }
+
+no_help_templ_dict = {
+    u'name': u'good_templ',
+    u'description': u'<template description>',
+    u'partition': u'<partition name>',
+    u'requiresModules': [u'ltm'],
+    'actions': {
+        'definition': {
+            u'roleAcl': u'hello test',
+            u'implementation': u'# TMSH implementation code',
+            u'presentation': u'# APL presentation language'
+        }
+    }
+}
+
+
+@pytest.fixture
+def TemplateSectionSetup(request):
+    def tearDown():
+        prsr.template_sections.remove('notfound')
+    request.addfinalizer(tearDown)
+    prsr = ip.IappParser(good_templ)
+    prsr.template_sections.append('notfound')
+    return prsr
 
 
 def test__init__():
@@ -179,8 +243,8 @@ def test__init__error():
 
 def test_get_section_end_index():
     prsr = ip.IappParser(good_templ)
-    impl_start = prsr.get_section_start_index(u'implementation')
-    impl_end = prsr.get_section_end_index(u'implementation', impl_start)
+    impl_start = prsr._get_section_start_index(u'implementation')
+    impl_end = prsr._get_section_end_index(u'implementation', impl_start)
     templ_impl = unicode('''{
         # TMSH implementation code
       }''')
@@ -191,7 +255,7 @@ def test_get_section_start_index_no_open_brace_error():
     prsr = ip.IappParser(no_open_brace_templ)
     with pytest.raises(ip.NonextantSectionException) as \
             NonextantSectionExceptInfo:
-        prsr.get_section_start_index(u'html-help')
+        prsr._get_section_start_index(u'html-help')
     assert NonextantSectionExceptInfo.value.message == \
         'Section html-help not found in template'
 
@@ -200,27 +264,27 @@ def test_get_section_end_no_close_brace_error():
     prsr = ip.IappParser(no_close_brace_templ)
     with pytest.raises(ip.CurlyBraceMismatchException) as \
             CurlyBraceMismatchExceptInfo:
-        help_start = prsr.get_section_start_index(u'html-help')
-        prsr.get_section_end_index(u'html_help', help_start)
+        help_start = prsr._get_section_start_index(u'html-help')
+        prsr._get_section_end_index(u'html_help', help_start)
     assert CurlyBraceMismatchExceptInfo.value.message == \
         'Curly braces mismatch in section html_help.'
 
 
 def test_get_template_name():
     prsr = ip.IappParser(good_templ)
-    assert prsr.get_template_name() == u'good_templ'
+    assert prsr._get_template_name() == u'good_templ'
 
 
 def test_get_template_name_next_to_brace():
     prsr = ip.IappParser(name_brace_templ)
-    assert prsr.get_template_name() == u'name_next_to_brace'
+    assert prsr._get_template_name() == u'name_next_to_brace'
 
 
 def test_get_template_name_error():
     prsr = ip.IappParser(no_name_templ)
     with pytest.raises(ip.NonextantTemplateNameException) as \
             NonextantTemplateNameExceptInfo:
-        prsr.get_template_name()
+        prsr._get_template_name()
     assert NonextantTemplateNameExceptInfo.value.message == \
         'Template name not found.'
 
@@ -229,7 +293,7 @@ def test_get_template_name_bad_name_error():
     prsr = ip.IappParser(bad_name_templ)
     with pytest.raises(ip.NonextantTemplateNameException) as \
             NonextantTemplateNameExceptInfo:
-        prsr.get_template_name()
+        prsr._get_template_name()
     assert NonextantTemplateNameExceptInfo.value.message == \
         'Template name not found.'
 
@@ -239,13 +303,34 @@ def test_parse_template():
     assert prsr.parse_template() == good_templ_dict
 
 
+def test_parse_template_no_section_found(TemplateSectionSetup):
+    with pytest.raises(ip.NonextantSectionException) as \
+            NonextantSectionExceptInfo:
+        TemplateSectionSetup.parse_template()
+    assert 'notfound' in TemplateSectionSetup.template_sections
+    assert 'Section notfound not found in template' in \
+        NonextantSectionExceptInfo.value.message
+
+
+def test_parse_template_no_section_found_not_required():
+    prsr = ip.IappParser(no_help_templ)
+    templ_dict = prsr.parse_template()
+    assert templ_dict == no_help_templ_dict
+
+
 def test_get_template_attr():
     prsr = ip.IappParser(good_attr_templ)
-    attr = prsr.get_template_attr(u'partition')
+    attr = prsr._get_template_attr(u'partition')
     assert attr == u'just_a_partition name'
 
 
 def test_get_template_attr_attr_not_exists():
     prsr = ip.IappParser(good_attr_templ)
-    attr = prsr.get_template_attr(u'bad_attr')
+    attr = prsr._get_template_attr(u'bad_attr')
     assert attr is None
+
+
+def test_attr_no_description():
+    prsr = ip.IappParser(no_desc_templ)
+    templ_dict = prsr.parse_template()
+    assert 'description' not in templ_dict

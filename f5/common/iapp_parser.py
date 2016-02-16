@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+import ast
 import re
 
 
@@ -25,7 +26,11 @@ class IappParser(object):
         u'role-acl'
     ]
 
-    template_attrs = [u'description', u'partition']
+    section_map = {u'html-help': u'htmlHelp', u'role-acl': u'roleAcl'}
+    attr_map = {u'requires-modules': u'requiresModules'}
+    sections_not_required = [u'html-help', u'role-acl']
+    list_keys = [u'requires-modules']
+    template_attrs = [u'description', u'partition', u'requires-modules']
 
     def __init__(self, template_str):
         '''Initialize class.
@@ -39,7 +44,7 @@ class IappParser(object):
         else:
             raise EmptyTemplateException('Template empty or None value.')
 
-    def get_section_end_index(self, section, section_start):
+    def _get_section_end_index(self, section, section_start):
         '''Get end of section's content.
 
         :param section: string name of section
@@ -64,7 +69,7 @@ class IappParser(object):
                 'Curly braces mismatch in section %s.' % section
                 )
 
-    def get_section_start_index(self, section):
+    def _get_section_start_index(self, section):
         '''Get start of a section's content.
 
         :param section: string name of section
@@ -82,7 +87,7 @@ class IappParser(object):
             'Section %s not found in template' % section
             )
 
-    def get_template_name(self):
+    def _get_template_name(self):
         '''Find template name.
 
         :returns: string of template name
@@ -100,7 +105,7 @@ class IappParser(object):
 
         raise NonextantTemplateNameException('Template name not found.')
 
-    def get_template_attr(self, attr):
+    def _get_template_attr(self, attr):
         '''Find the attribute value for a specific attribute.
 
         :param attr: string of attribute name
@@ -114,6 +119,58 @@ class IappParser(object):
             attr_value = attr_found.group(0).replace(attr, '', 1)
             return attr_value.strip()
 
+    def _add_sections(self):
+        '''Add the found and required sections to the templ_dict.'''
+        for section in self.template_sections:
+            try:
+                sec_start = self._get_section_start_index(section)
+            except NonextantSectionException:
+                if section in self.sections_not_required:
+                    continue
+                raise
+            sec_end = self._get_section_end_index(section, sec_start)
+            section_value = self.template_str[sec_start+1:sec_end].strip()
+            section, section_value = self._transform_key_value(
+                section,
+                section_value,
+                self.section_map
+            )
+            self.templ_dict['actions']['definition'][section] = section_value
+            self.template_str = self.template_str[:sec_start+1] + \
+                self.template_str[sec_end:]
+
+    def _add_attrs(self):
+        '''Add the found and required attrs to the templ_dict.'''
+        for attr in self.template_attrs:
+            attr_value = self._get_template_attr(attr)
+
+            if not attr_value:
+                continue
+
+            attr, attr_value = self._transform_key_value(
+                attr,
+                attr_value,
+                self.attr_map
+            )
+            self.templ_dict[attr] = attr_value
+
+    def _transform_key_value(self, key, value, map_dict):
+        '''Massage keys and values for iapp dict to look like JSON.
+
+        :param key: string dictionary key
+        :param value: string dictionary value
+        :param map_dict: dictionary to map key names
+        '''
+
+        if key in self.list_keys:
+            value = ast.literal_eval(value)
+            value = [unicode(item) for item in value]
+
+        if key in map_dict:
+            key = map_dict[key]
+
+        return key, value
+
     def parse_template(self):
         '''Parse the template string into a dict.
 
@@ -124,22 +181,14 @@ class IappParser(object):
         :returns: dictionary of parsed template
         '''
 
-        templ_dict = {'actions': {'definition': {}}}
-        templ = self.template_str
+        self.templ_dict = {'actions': {'definition': {}}}
 
-        templ_dict[u'name'] = self.get_template_name()
+        self.templ_dict[u'name'] = self._get_template_name()
 
-        for section in self.template_sections:
-            sec_start = self.get_section_start_index(section)
-            sec_end = self.get_section_end_index(section, sec_start)
-            templ_dict['actions']['definition'][section] = \
-                templ[sec_start+1:sec_end].strip()
-            templ = templ[:sec_start+1] + templ[sec_end:]
+        self._add_sections()
+        self._add_attrs()
 
-        for attr in self.template_attrs:
-            templ_dict[attr] = self.get_template_attr(attr)
-
-        return templ_dict
+        return self.templ_dict
 
 
 class EmptyTemplateException(Exception):
