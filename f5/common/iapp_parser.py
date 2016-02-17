@@ -25,7 +25,16 @@ class IappParser(object):
         u'role-acl'
     ]
 
-    template_attrs = [u'description', u'partition']
+    tcl_list_for_attr_re = '{(\s*\w+\s*)+}'
+    tcl_list_for_section_re = '(\s*\w+\s*)+'
+    section_map = {u'html-help': u'htmlHelp', u'role-acl': u'roleAcl'}
+    attr_map = {u'requires-modules': u'requiresModules'}
+    sections_not_required = [u'html-help', u'role-acl']
+    tcl_list_patterns = {
+        u'requires-modules': tcl_list_for_attr_re,
+        u'role-acl': tcl_list_for_section_re
+    }
+    template_attrs = [u'description', u'partition', u'requires-modules']
 
     def __init__(self, template_str):
         '''Initialize class.
@@ -39,7 +48,7 @@ class IappParser(object):
         else:
             raise EmptyTemplateException('Template empty or None value.')
 
-    def get_section_end_index(self, section, section_start):
+    def _get_section_end_index(self, section, section_start):
         '''Get end of section's content.
 
         :param section: string name of section
@@ -64,7 +73,7 @@ class IappParser(object):
                 'Curly braces mismatch in section %s.' % section
                 )
 
-    def get_section_start_index(self, section):
+    def _get_section_start_index(self, section):
         '''Get start of a section's content.
 
         :param section: string name of section
@@ -82,7 +91,7 @@ class IappParser(object):
             'Section %s not found in template' % section
             )
 
-    def get_template_name(self):
+    def _get_template_name(self):
         '''Find template name.
 
         :returns: string of template name
@@ -100,7 +109,7 @@ class IappParser(object):
 
         raise NonextantTemplateNameException('Template name not found.')
 
-    def get_template_attr(self, attr):
+    def _get_template_attr(self, attr):
         '''Find the attribute value for a specific attribute.
 
         :param attr: string of attribute name
@@ -114,6 +123,80 @@ class IappParser(object):
             attr_value = attr_found.group(0).replace(attr, '', 1)
             return attr_value.strip()
 
+    def _add_sections(self):
+        '''Add the found and required sections to the templ_dict.'''
+        for section in self.template_sections:
+            try:
+                sec_start = self._get_section_start_index(section)
+            except NonextantSectionException:
+                if section in self.sections_not_required:
+                    continue
+                raise
+            sec_end = self._get_section_end_index(section, sec_start)
+            section_value = self.template_str[sec_start+1:sec_end].strip()
+            section, section_value = self._transform_key_value(
+                section,
+                section_value,
+                self.section_map
+            )
+            self.templ_dict['actions']['definition'][section] = section_value
+            self.template_str = self.template_str[:sec_start+1] + \
+                self.template_str[sec_end:]
+
+    def _add_attrs(self):
+        '''Add the found and required attrs to the templ_dict.'''
+        for attr in self.template_attrs:
+            attr_value = self._get_template_attr(attr)
+
+            if not attr_value:
+                continue
+
+            attr, attr_value = self._transform_key_value(
+                attr,
+                attr_value,
+                self.attr_map
+            )
+            self.templ_dict[attr] = attr_value
+
+    def _parse_tcl_list(self, attr, list_str):
+        '''Turns a string representation of a TCL list into a Python list.
+
+        :param attr: string name of attribute
+        :param list_str: string representation of a list
+        :returns: Python list
+        '''
+
+        list_str = list_str.strip()
+        if list_str[0] != '{' and list_str[-1] != '}':
+            if list_str.find('none') >= 0:
+                return list_str
+
+        if not re.search(self.tcl_list_patterns[attr], list_str):
+            raise MalformedTCLListException('TCL list for "%s" is malformed. '
+                                            'If no elements are needed "none" '
+                                            'should be used without curly '
+                                            'braces.' % attr)
+
+        list_str = list_str.strip('{').strip('}')
+        list_str = list_str.strip()
+        return list_str.split()
+
+    def _transform_key_value(self, key, value, map_dict):
+        '''Massage keys and values for iapp dict to look like JSON.
+
+        :param key: string dictionary key
+        :param value: string dictionary value
+        :param map_dict: dictionary to map key names
+        '''
+
+        if key in self.tcl_list_patterns:
+            value = self._parse_tcl_list(key, value)
+
+        if key in map_dict:
+            key = map_dict[key]
+
+        return key, value
+
     def parse_template(self):
         '''Parse the template string into a dict.
 
@@ -124,21 +207,14 @@ class IappParser(object):
         :returns: dictionary of parsed template
         '''
 
-        templ_dict = {}
-        templ = self.template_str
+        self.templ_dict = {'actions': {'definition': {}}}
 
-        templ_dict[u'name'] = self.get_template_name()
+        self.templ_dict[u'name'] = self._get_template_name()
 
-        for section in self.template_sections:
-            sec_start = self.get_section_start_index(section)
-            sec_end = self.get_section_end_index(section, sec_start)
-            templ_dict[section] = templ[sec_start+1:sec_end].strip()
-            templ = templ[:sec_start+1] + templ[sec_end:]
+        self._add_sections()
+        self._add_attrs()
 
-        for attr in self.template_attrs:
-            templ_dict[attr] = self.get_template_attr(attr)
-
-        return templ_dict
+        return self.templ_dict
 
 
 class EmptyTemplateException(Exception):
@@ -154,4 +230,8 @@ class NonextantSectionException(Exception):
 
 
 class NonextantTemplateNameException(Exception):
+    pass
+
+
+class MalformedTCLListException(Exception):
     pass
