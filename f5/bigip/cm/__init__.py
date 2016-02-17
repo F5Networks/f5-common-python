@@ -1,4 +1,4 @@
-# Copyright 2015 F5 Networks Inc.
+# Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,25 +13,15 @@
 # limitations under the License.
 #
 
-from f5.bigip.net.arp import Arps
-from f5.bigip.net.interface import Interfaces
-from f5.bigip.net.route import Routes
-from f5.bigip.net.selfip import SelfIPs
-from f5.bigip.net.tunnels import Tunnels_s
-from f5.bigip.net.vlan import VLANs
+from f5.bigip.cm.device import Devices
+from f5.bigip.cm.device_group import Device_Groups
+from f5.bigip.cm.traffic_group import Traffic_Groups
 from f5.bigip.resource import OrganizingCollection
 
-base_uri = 'net/'
 
-
-class Net(OrganizingCollection):
+class CM(OrganizingCollection):
     def __init__(self, bigip):
-        super(Net, self).__init__(bigip)
+        super(CM, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
-            Arps,
-            Interfaces,
-            Routes,
-            SelfIPs,
-            Tunnels_s,
-            VLANs
+            Devices, Device_Groups, Traffic_Groups,
         ]

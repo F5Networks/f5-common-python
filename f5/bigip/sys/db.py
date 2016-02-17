@@ -32,16 +32,28 @@ class Db(Resource):
         self._meta_data['required_json_kind'] = 'tm:sys:db:dbstate'
 
     def create(self, **kwargs):
+        '''Create is not supported for db resources.
+
+        :raises: UnsupportedOperation
+        '''
         raise UnsupportedOperation(
             "DB resources doesn't support create, only load and refresh"
         )
 
     def update(self, **kwargs):
+        '''Update is not supported for db resources.
+
+        :raises: UnsupportedOperation
+        '''
         raise UnsupportedOperation(
             "DB resources doesn't support update, only load and refresh"
         )
 
     def delete(self, **kwargs):
+        '''Delete is not supported for db resources.
+
+        :raises: UnsupportedOperation
+        '''
         raise UnsupportedOperation(
             "DB resources doesn't support delete, only load and refresh"
         )

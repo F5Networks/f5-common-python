@@ -19,10 +19,50 @@ f5.bigip.sys.application module
     :undoc-members:
     :show-inheritance:
 
+f5.bigip.sys.db module
+----------------------
+
+.. automodule:: f5.bigip.sys.db
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.sys.failover module
+----------------------------
+
+.. automodule:: f5.bigip.sys.failover
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 f5.bigip.sys.folder module
 --------------------------
 
 .. automodule:: f5.bigip.sys.folder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.sys.global_settings module
+-----------------------------------
+
+.. automodule:: f5.bigip.sys.global_settings
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.sys.ntp module
+-----------------------
+
+.. automodule:: f5.bigip.sys.ntp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.sys.performance module
+-------------------------------
+
+.. automodule:: f5.bigip.sys.performance
     :members:
     :undoc-members:
     :show-inheritance:

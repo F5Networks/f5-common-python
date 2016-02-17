@@ -38,7 +38,7 @@ pip-log.txt
 .coverage
 .tox
 nosetests.xml
-htmlcov/*
+htmlcov
 .cache
 test/*/logs/*
 
@@ -47,3 +47,6 @@ test/*/logs/*
 
 # Docs
 docs/_build
+
+# iControl REST logs
+logs

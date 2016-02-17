@@ -4,6 +4,22 @@ f5.bigip.sys.test package
 Submodules
 ----------
 
+f5.bigip.sys.test.test_db module
+--------------------------------
+
+.. automodule:: f5.bigip.sys.test.test_db
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+f5.bigip.sys.test.test_performance module
+-----------------------------------------
+
+.. automodule:: f5.bigip.sys.test.test_performance
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 f5.bigip.sys.test.test_sys_application module
 ---------------------------------------------
 

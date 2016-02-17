@@ -621,8 +621,11 @@ class Resource(ResourceBase):
         # when it fails
         for attr in read_only:
             data_dict.pop(attr, '')
+
+        # Remove params so you can pass it to put
+        params = kwargs.pop('params', {})
         data_dict.update(kwargs)
-        response = session.put(update_uri, json=data_dict)
+        response = session.put(update_uri, json=data_dict, params=params)
         self._meta_data = temp_meta
         self._local_update(response.json())
 

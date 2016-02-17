@@ -1,0 +1,22 @@
+f5.bigip.cm package
+===================
+
+Submodules
+----------
+
+f5.bigip.cm.device module
+-------------------------
+
+.. automodule:: f5.bigip.cm.device
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip.cm
+    :members:
+    :undoc-members:
+    :show-inheritance:

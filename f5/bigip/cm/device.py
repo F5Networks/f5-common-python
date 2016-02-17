@@ -1,4 +1,4 @@
-# Copyright 2014-2015 F5 Networks Inc.
+# Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,17 +17,16 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class Rules(Collection):
-    def __init__(self, ltm):
-        super(Rules, self).__init__(ltm)
-        self._meta_data['allowed_lazy_attributes'] = [Rule]
+class Devices(Collection):
+    def __init__(self, cm):
+        super(Devices, self).__init__(cm)
+        self._meta_data['allowed_lazy_attributes'] = [Device]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:rule:rulestate': Rule}
+            {'tm:cm:device:devicestate': Device}
 
 
-class Rule(Resource):
-    def __init__(self, rule_s):
-        super(Rule, self).__init__(rule_s)
-        self._meta_data['required_json_kind'] = 'tm:ltm:rule:rulestate'
-        self._meta_data['required_creation_parameters'].update(
-            ('name', 'partition', 'apiAnonymous'))
+class Device(Resource):
+    def __init__(self, device_s):
+        super(Device, self).__init__(device_s)
+        self._meta_data['required_json_kind'] = 'tm:cm:device:devicestate'
+        self._meta_data['required_creation_parameters'].update(('partition',))

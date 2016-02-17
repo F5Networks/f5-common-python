@@ -13,8 +13,10 @@
 # limitations under the License.
 #
 import json
+import pytest
 
 from f5.bigip.mixins import ToDictMixin
+from f5.bigip.mixins import UnnamedResourceMixin
 
 
 class MixinTestClass(ToDictMixin):
@@ -101,3 +103,15 @@ def test_TestClass_Basic():
     TDMAttrObj.y = TestClass()
     mtc_as_dict = TDMAttrObj.to_dict()
     assert json.dumps(mtc_as_dict) == '{"y": {"test_attribute": 42}}'
+
+
+class TestUnnamedResourceMixin(object):
+    def test_create_raises(self):
+        unnamed_resource = UnnamedResourceMixin()
+        with pytest.raises(UnnamedResourceMixin.UnsupportedMethod):
+            unnamed_resource.create()
+
+    def test_delete_raises(self):
+        unnamed_resource = UnnamedResourceMixin()
+        with pytest.raises(UnnamedResourceMixin.UnsupportedMethod):
+            unnamed_resource.create()

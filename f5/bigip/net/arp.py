@@ -1,4 +1,4 @@
-# Copyright 2014-2015 F5 Networks Inc.
+# Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,17 +17,20 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class Rules(Collection):
-    def __init__(self, ltm):
-        super(Rules, self).__init__(ltm)
-        self._meta_data['allowed_lazy_attributes'] = [Rule]
-        self._meta_data['attribute_registry'] =\
-            {'tm:ltm:rule:rulestate': Rule}
+class Arps(Collection):
+    def __init__(self, net):
+        super(Arps, self).__init__(net)
+        self._meta_data['allowed_lazy_attributes'] = [Arp]
+        self._meta_data['attribute_registry'] = {
+            'tm:net:arp:arpstate': Arp
+        }
 
 
-class Rule(Resource):
-    def __init__(self, rule_s):
-        super(Rule, self).__init__(rule_s)
-        self._meta_data['required_json_kind'] = 'tm:ltm:rule:rulestate'
+class Arp(Resource):
+    def __init__(self, arp_s):
+        super(Arp, self).__init__(arp_s)
+        self._meta_data['required_json_kind'] = 'tm:net:arp:arpstate'
         self._meta_data['required_creation_parameters'].update(
-            ('name', 'partition', 'apiAnonymous'))
+            ('partition', 'name', 'ipAddress', 'macAddress')
+        )
+        self._meta_data['read_only_attributes'].append('ipAddress')
