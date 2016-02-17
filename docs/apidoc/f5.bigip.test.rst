@@ -12,10 +12,10 @@ f5.bigip.test.big_ip_mock module
     :undoc-members:
     :show-inheritance:
 
-f5.bigip.test.test_REST_interface_collections module
-----------------------------------------------------
+f5.bigip.test.conftest module
+-----------------------------
 
-.. automodule:: f5.bigip.test.test_REST_interface_collections
+.. automodule:: f5.bigip.test.conftest
     :members:
     :undoc-members:
     :show-inheritance:

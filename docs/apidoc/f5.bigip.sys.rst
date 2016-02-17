@@ -27,22 +27,6 @@ f5.bigip.sys.folder module
     :undoc-members:
     :show-inheritance:
 
-f5.bigip.sys.stat module
-------------------------
-
-.. automodule:: f5.bigip.sys.stat
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-f5.bigip.sys.system module
---------------------------
-
-.. automodule:: f5.bigip.sys.system
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------
