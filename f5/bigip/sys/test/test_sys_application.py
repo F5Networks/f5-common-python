@@ -162,7 +162,7 @@ class TestServiceCreate(object):
     def test_create_uri_collision(self, FakeService):
         FakeService._meta_data = {'uri': 'already_defined'}
         with pytest.raises(URICreationCollision) as ex:
-            FakeService.create(name='test_service', template='tt')
+            FakeService._activate_URI('FAKEURI')
         assert "There was an attempt to assign a new uri to this resource, " \
             "the _meta_data['uri'] is already_defined and it should not be " \
             "changed." in ex.value.message
