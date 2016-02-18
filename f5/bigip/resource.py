@@ -39,7 +39,8 @@ BigIP device services.
 
 Methods:
 
-  * create -- uses HTTP POST, creates a new resource and with its own URI on the    device
+  * create -- uses HTTP POST, creates a new resource and with its own URI on
+    the device
   * refresh -- uses HTTP GET, obtains the state of a device resource, and sets
     the representing Python Resource Object track device state via its attrs
   * update -- uses HTTP PUT, submits a new configuration to the device resource
