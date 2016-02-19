@@ -232,7 +232,7 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
             if not re.match(tokenize.Name, x):
                 error_message = "Device provided %r which is disallowed"\
                     " because it's not a valid Python 2.7 identifier." % x
-                raise DeviceProvidesIncompatibleKey(x)
+                raise DeviceProvidesIncompatibleKey(error_message)
             elif keyword.iskeyword(x):
                 error_message = "Device provided %r which is disallowed"\
                     " because it's a Python keyword." % x
@@ -240,7 +240,7 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
             elif x.startswith('__'):
                 error_message = "Device provided %r which is disallowed"\
                     ", it mangles into a Python non-public attribute." % x
-                raise DeviceProvidesIncompatibleKey(x)
+                raise DeviceProvidesIncompatibleKey(error_message)
         return rdict
 
     def _refresh(self):
@@ -259,60 +259,9 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
         with the dict representing the device state.  To figure out what that
         state is, run a subsequest query of the object like this:
         >>> resource_obj.refresh()
-        >>> print(resource.raw)
+        >>> print(resource_obj.raw)
         """
         self._refresh()
-
-    def _activate_URI(self, selfLinkuri):
-        """Call this with a selfLink, after it's returned in _create or _load.
-
-        Each instance is tightly bound to a particular service URI.  When that
-        service is created by this library, or loaded from the device, the URI
-        is set to self._meta_data['uri'].   This operation can only occur once,
-        any subsequent attempt to manipulate self._meta_data['uri'] is
-        probably a mistake.
-
-        self.selfLink references a value that is returned as a JSON value from
-        the device.  This value contains "localhost" as the domain or the uri.
-        "localhost" is only conceivably useful if the client library is run on
-        the device itself, so it is replaced with the domain this API used to
-        communicate with the device.
-
-        self.selfLink correctly contains a complete uri, that is only _now_
-        (post create or load) available to self.
-
-        Now that the complete URI is available to self, it is now possible to
-        reference subcollections, as attributes of self!
-        e.g. a resource with a uri path like:
-        "/mgmt/tm/ltm/pool/~Common~pool_collection1/members"
-        The mechanism used to enable this change is to set
-        the `allowed_lazy_attributes` _meta_data key to hold values of the
-        `attribute_registry` _meta_data key.
-
-        Finally we stash the corrected `uri`, returned hash_fragment, query
-        args, and of course allowed_lazy_attributes in _meta_data.
-
-        :param selfLinkuri: the server provided selfLink (contains localhost)
-        :raises: URICreationCollision
-        """
-        if 'uri' in self._meta_data:
-            error = "There was an attempt to assign a new uri to this "\
-                    "resource, the _meta_data['uri'] is %s and it should"\
-                    " not be changed." % (self._meta_data['uri'])
-            raise URICreationCollision(error)
-        # hostname local alias
-        hostname = self._meta_data['bigip']._meta_data['hostname']
-
-        # attrs local alias
-        attribute_reg = self._meta_data.get('attribute_registry', {})
-        attrs = attribute_reg.values()
-
-        (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
-        path_uri = urlparse.urlunsplit((scheme, hostname, path, '', ''))+'/'
-        self._meta_data.update({'uri': path_uri,
-                                'creation_uri_qarg': qarg,
-                                'creation_uri_frag': frag,
-                                'allowed_lazy_attributes': attrs})
 
     def load(self, **kwargs):
         """Implement this by overriding it in a subclass of `Resource`
@@ -490,6 +439,60 @@ class Resource(ResourceBase):
         # You can't set these attributes, only 'read' them.
         self._meta_data['read_only_attributes'] = []
 
+    def _activate_URI(self, selfLinkuri):
+        """Call this with a selfLink, after it's returned in _create or _load.
+
+        Each instance is tightly bound to a particular service URI.  When that
+        service is created by this library, or loaded from the device, the URI
+        is set to self._meta_data['uri'].   This operation can only occur once,
+        any subsequent attempt to manipulate self._meta_data['uri'] is
+        probably a mistake.
+
+        self.selfLink references a value that is returned as a JSON value from
+        the device.  This value contains "localhost" as the domain or the uri.
+        "localhost" is only conceivably useful if the client library is run on
+        the device itself, so it is replaced with the domain this API used to
+        communicate with the device.
+
+        self.selfLink correctly contains a complete uri, that is only _now_
+        (post create or load) available to self.
+
+        Now that the complete URI is available to self, it is now possible to
+        reference subcollections, as attributes of self!
+        e.g. a resource with a uri path like:
+        "/mgmt/tm/ltm/pool/~Common~pool_collection1/members"
+        The mechanism used to enable this change is to set
+        the `allowed_lazy_attributes` _meta_data key to hold values of the
+        `attribute_registry` _meta_data key.
+
+        Finally we stash the corrected `uri`, returned hash_fragment, query
+        args, and of course allowed_lazy_attributes in _meta_data.
+
+        :param selfLinkuri: the server provided selfLink (contains localhost)
+        :raises: URICreationCollision
+        """
+        if 'uri' in self._meta_data:
+            error = "There was an attempt to assign a new uri to this "\
+                    "resource, the _meta_data['uri'] is %s and it should"\
+                    " not be changed." % (self._meta_data['uri'])
+            raise URICreationCollision(error)
+        # hostname local alias
+        hostname = self._meta_data['bigip']._meta_data['hostname']
+
+        # attrs local alias
+        attribute_reg = self._meta_data.get('attribute_registry', {})
+        attrs = attribute_reg.values()
+
+        (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
+        path_uri = urlparse.urlunsplit((scheme, hostname, path, '', ''))
+        if not path_uri.endswith('/'):
+            path_uri = path_uri + '/'
+        qargs = urlparse.parse_qs(qarg)
+        self._meta_data.update({'uri': path_uri,
+                                'creation_uri_qargs': qargs,
+                                'creation_uri_frag': frag,
+                                'allowed_lazy_attributes': attrs})
+
     def _create(self, **kwargs):
         """wrapped by `create` override that in subclasses to customize"""
         key_set = set(kwargs.keys())
@@ -655,7 +658,7 @@ class Resource(ResourceBase):
         if response.status_code == 200:
             self.__dict__ = {'deleted': True}
 
-    def delete(self):
+    def delete(self, **kwargs):
         """Call this to delete a service on the device.
 
         Uses HTTP DELETE to delete a service on the device.
@@ -664,7 +667,7 @@ class Resource(ResourceBase):
         instance.__dict__ is replace with {'deleted': True}
         """
         # Need to implement checking for ? here.
-        self._delete()
+        self._delete(**kwargs)
         # Need to implement correct teardown here.
 
     def _check_force_arg(self, force):
