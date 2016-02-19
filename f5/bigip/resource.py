@@ -42,7 +42,7 @@ Methods:
   * create -- uses HTTP POST, creates a new resource and with its own URI on
     the device
   * refresh -- uses HTTP GET, obtains the state of a device resource, and sets
-    the representing Python Resource Object track device state via its attrs
+    the representing Python Resource Object tracks device state via its attrs
   * update -- uses HTTP PUT, submits a new configuration to the device resource
      and sets the Resource attrs to the state the device reports
   * load -- uses HTTP GET, obtains the state of an existing resource on the
@@ -54,7 +54,7 @@ Available Classes:
     * ResourceBase -- only `refresh` is generally supported in all resource
       types, this class provides `refresh`. ResourceBase objects are usually
       instantiated via setting lazy attributes. ResourceBase provides a
-      contructor to match its call in LazyAttributeMixin.__getattr__. The
+      constructor to match its call in LazyAttributeMixin.__getattr__. The
       expected behavior is that all resource subclasses depend on this
       constructor to correctly set their self._meta_data['uri'].
       All ResourceBase objects (except BigIPs) have a container (BigIPs contain
