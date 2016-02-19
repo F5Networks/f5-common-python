@@ -279,7 +279,7 @@ class TestCollection_get_collection(object):
 class TestResource_load(object):
     def test_missing_required_params(self):
         r = Resource(mock.MagicMock())
-        r._meta_data['required_refresh_parameters'] = {'IMPOSSIBLE'}
+        r._meta_data['required_refresh_parameters'] = set('IMPOSSIBLE')
         with pytest.raises(MissingRequiredReadParameter) as MRREIO:
             r.load(partition='Common', name='test_load')
         assert MRREIO.value.message ==\
