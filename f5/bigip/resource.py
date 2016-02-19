@@ -34,6 +34,9 @@ Examples:
 There are different types of resources published by the BigIP REST Server, they
 are represented by the classes in this module.
 
+We refer to a server-provided resource as a "service".  Thus far all URI
+referenced resources are "services" in this sense.
+
 We use methods named Create, Refresh, Update, Load, and Delete to manipulate
 BigIP device services.
 
