@@ -14,28 +14,69 @@
 #
 """This module provides classes that specify how RESTful resources are handled.
 
+THE MOST IMPORTANT THING TO KNOW ABOUT THIS API IS THAT YOU CAN DIRECTLY INFER
+REST URIs FROM PYTHON EXPRESSIONS, AND VICE VERSA.
+
+Examples:
+
+ * Expression:     bigip = BigIP('a', 'b', 'c')
+ * URI Returned:   https://a/mgmt/tm/
+
+ * Expression:     bigip.ltm
+ * URI Returned:   https://a/mgmt/tm/ltm/
+
+ * Expression:     pools1 = bigip.ltm.pools
+ * URI Returned:   https://a/mgmt/tm/ltm/pool
+
+ * Expression:     pool_a = pools1.create(partition="Common", name="foo")
+ * URI Returned:   https://a/mgmt/tm/ltm/pool/~Common~foo
+
 There are different types of resources published by the BigIP REST Server, they
 are represented by the classes in this module.
 
+We refer to a server-provided resource as a "service".  Thus far all URI
+referenced resources are "services" in this sense.
+
+We use methods named Create, Refresh, Update, Load, and Delete to manipulate
+BigIP device services.
+
+Methods:
+
+  * create -- uses HTTP POST, creates a new resource and with its own URI on
+    the device
+  * refresh -- uses HTTP GET, obtains the state of a device resource, and sets
+    the representing Python Resource Object tracks device state via its attrs
+  * update -- uses HTTP PUT, submits a new configuration to the device resource
+     and sets the Resource attrs to the state the device reports
+  * load -- uses HTTP GET, obtains the state of an existing resource on the
+    device and sets the Resource attrs to that state
+  * delete -- uses HTTP DELETE, removes the resource from the device, and sets
+    self.__dict__ to {'deleted': True}
+
 Available Classes:
-    * ResourceBase -- only `read` is generally supported in all resource types,
-      this class provides `read`. ResourceBase objects are usually instantiated
-      via setting lazy attributes. ResourceBase provides a contructor to match
-      the lazy constructor. The expected behavior is that all resource
-      subclasses depend on this constructor to correctly set their
-      self._meta_data['uri'].
+    * ResourceBase -- only `refresh` is generally supported in all resource
+      types, this class provides `refresh`. ResourceBase objects are usually
+      instantiated via setting lazy attributes. ResourceBase provides a
+      constructor to match its call in LazyAttributeMixin.__getattr__. The
+      expected behavior is that all resource subclasses depend on this
+      constructor to correctly set their self._meta_data['uri'].
       All ResourceBase objects (except BigIPs) have a container (BigIPs contain
       themselves).  The container is the object the ResourceBase is an
       attribute of.
+    * OrganizingCollection -- These resources support lists of "reference"
+      "links". These are json blobs without a Python class representation.
+        Example URI_path:  /mgmt/tm/ltm/
     * Collection -- These resources support lists of ResourceBase Objects.
+        Example URI_path:  /mgmt/tm/ltm/nat
     * Resource -- These resources are the only resources that support
       `create`, `update`, and `delete` operations.  Because they support HTTP
       post (via _create) they uniquely depend on 2 uri's, a uri that supports
       the creating post, and the returned uri of the newly created resource.
-    * InvalidResource -- resources do not generally support all 5 Resource
-      operations, if a caller attempts to invoke an unsupported operation this
-      Exception is raised.
+        Example URI_path:  /mgmt/tm/ltm/nat/~Common~testnat1
 """
+import keyword
+import re
+import tokenize
 import urlparse
 
 from f5.bigip.mixins import LazyAttributeMixin
@@ -43,43 +84,51 @@ from f5.bigip.mixins import ToDictMixin
 
 
 class KindTypeMismatch(Exception):
+    """Raise this when server JSON keys are incorrect for the Resource type."""
     pass
 
 
 class DeviceProvidesIncompatibleKey(Exception):
+    """Raise this when server JSON keys are incompatible with Python."""
     pass
 
 
 class InvalidResource(Exception):
-    """Raise this when a caller tries to invoke an unsupported CUD op.
+    """Raise this when a caller tries to invoke an unsupported CRUDL op.
 
-    All resources support `read`.
-    Only Resources support `create`, `update`, and `delete`.
+    All resources support `refresh` and `raw`.
+    Only `Resource`'s support `load`, `create`, `update`, and `delete`.
     """
     pass
 
 
 class MissingRequiredCreationParameter(Exception):
+    """Various values MUST be provided to create different Resources."""
     pass
 
 
 class MissingRequiredReadParameter(Exception):
+    """Various values MUST be provided to refresh some Resources."""
     pass
 
 
 class UnregisteredKind(Exception):
+    """The returned server JSON `kind` key wasn't expected by this Resource."""
     pass
 
 
 class GenerationMismatch(Exception):
+    """The server reported BigIP is not the expacted value."""
     pass
 
 
 class InvalidForceType(ValueError):
+    """Must be of type bool."""
     pass
 
 
 class URICreationCollision(Exception):
+    """self._meta_data['uri'] can only be assigned once. In create or load."""
     pass
 
 
@@ -101,89 +150,151 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
     object is instantiated and attributed to the referencing object, so:
     >>> bigip.ltm = LTM(bigip)
     >>> bigip.ltm.nats
-    >>> nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3',
-                                                  '1.2.3.4')
+    >>> nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3', '1.2.3.4')
 
     Shortens to just the last line:
-    >>> nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3',
-                                                  '1.2.3.4')
+    >>> nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3', '1.2.3.4')
 
-    More importantly is enforces a convention relating device published uris to
+    Critically this enforces a convention relating device published uris to
     API objects, in a hierarchy similar to the uri paths.  I.E. the uri
     corresponding to a `Nats` object is `mgmt/tm/ltm/nat/`. If you
     query the bigip's uri (e.g. print(bigip._meta_data['uri']) ), you'll see
     that it ends in:
-    `mgmt/tm/`, if you query the `ltm` object's uri
+    `/mgmt/tm/`, if you query the `ltm` object's uri
     (e.g. print(bigip.ltm._meta_data['uri']) ) you'll see it ends in
-    `mgmt/tm/ltm/.
+    `/mgmt/tm/ltm/.
 
     In general the objects build a required `self._meta_data['uri']` attribute
     by:
     1. Inheriting this class.
     2. calling super(Subclass, self).__init__(container)
-    3. self.uri = self.container_uri + base_uri <-- Always defined in the
-    module that defines the class.
+    3. self.uri = self.container_uri['uri'] + '/' + self.__class__.__name__
 
-    The net result is a reasonably succinct mapping between uri's and objects,
+    The net result is a succinct mapping between uri's and objects,
     that represents objects in a hierarchical relationship similar to the
     devices uri path hierarchy.
-    This is the class that defines `read` for all ResourceBases.
 
     Public attributes:
-    - read: updates itself with the results of an http GET on the resource
+    - refresh: updates itself with the results of an http GET on the resource
+    - raw: a convenience method for inspecting the instance __dict__
     - others: not to be called here
 
     """
     def __init__(self, container):
         """Call this with containing_object_instance.FOO
 
-        FOO must inherit from this class.  The '.' operator passes "FOO" to
-        the __getattr__ method of the containing_object_instance where it is
-        instantiated as the appropriate type of ResourceBase.
+        Where FOO is a concrete subclass of this class, ResourceBase.  The '.'
+        operator passes "FOO" to the __getattr__ method of the
+        containing_object_instance which instantiates it as the appropriate
+        sub-type of ResourceBase.
 
-        Since all ResourceBases support `read` instances of ResourceBase do as
-        well.
-        The BigIP uri 'mgmt/tm/' uniquely passes itself to this constructor as
-        the "container".
+        Since all ResourceBases sub-types must support the `refresh` method, it
+        is defined here, in the base class.
+        NOTE: The BigIP uri 'mgmt/tm/' uniquely passes itself to this
+        constructor as the "container".
+
+        :param container: instance is an attribute of a ResourceBase container
         """
         self._meta_data = {'container': container,
                            'bigip': container._meta_data['bigip']}
 
     def _local_update(self, rdict):
+        """Call this with a response dictionary to update instance attrs.
+
+        If the response has only valid keys, stash meta_data, replace __dict__,
+        and reassign meta_data.
+
+        :param rdict: response attributes derived from server JSON
+        """
         sanitized = self._check_keys(rdict)
         temp_meta = self._meta_data
         self.__dict__ = sanitized
         self._meta_data = temp_meta
 
     def _check_keys(self, rdict):
+        """Call this from _local_update to validate response keys
+
+        disallowed server-response json keys:
+        1. The string-literal '_meta_data'
+        2. strings that are not valid Python 2.7 identifiers
+        3. strings that are Python keywords
+        4. strings beginning with '__'.
+
+        :param rdict: from response.json()
+        :raises: DeviceProvidesIncompatibleKey
+        :returns: checked response rdict
+        """
         if '_meta_data' in rdict:
-            error_message = "Response contains key '_meta_data' which is " +\
+            error_message = "Response contains key '_meta_data' which is "\
                 "incompatible with this API!!\n Response json: %r" % rdict
             raise DeviceProvidesIncompatibleKey(error_message)
         for x in rdict:
-            if x.startswith('__'):
+            if not re.match(tokenize.Name, x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's not a valid Python 2.7 identifier." % x
+                raise DeviceProvidesIncompatibleKey(x)
+            elif keyword.iskeyword(x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's a Python keyword." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif x.startswith('__'):
+                error_message = "Device provided %r which is disallowed"\
+                    ", it mangles into a Python non-public attribute." % x
                 raise DeviceProvidesIncompatibleKey(x)
         return rdict
 
     def _refresh(self):
-        """Use this to make the device resource be represented by self.
+        """wrapped by `refresh` override that in a subclass to customize"""
 
-        This method is run for its side-effects on self.
-        This method makes an HTTP get query against its uri, if successful its
-        attribute __dict__ is replaced with the dict representing the device
-        state.  To figure out what that state is, run a subsequest query of the
-        object like this:
-        >>> resource_obj.read()
-        >>> print(resource.name)
-        """
-        read_session = self._meta_data['bigip']._meta_data['icr_session']
-        response = read_session.get(self._meta_data['uri'])
+        refresh_session = self._meta_data['bigip']._meta_data['icr_session']
+        response = refresh_session.get(self._meta_data['uri'])
         self._local_update(response.json())
 
     def refresh(self):
+        """Use this to make the device resource be represented by self.
+
+        This method makes an HTTP GET query against the device service.
+        This method is run for its side-effects on self.
+        If successful the instance attribute __dict__ is replaced
+        with the dict representing the device state.  To figure out what that
+        state is, run a subsequest query of the object like this:
+        >>> resource_obj.refresh()
+        >>> print(resource.raw)
+        """
         self._refresh()
 
     def _activate_URI(self, selfLinkuri):
+        """Call this with a selfLink, after it's returned in _create or _load.
+
+        Each instance is tightly bound to a particular service URI.  When that
+        service is created by this library, or loaded from the device, the URI
+        is set to self._meta_data['uri'].   This operation can only occur once,
+        any subsequent attempt to manipulate self._meta_data['uri'] is
+        probably a mistake.
+
+        self.selfLink references a value that is returned as a JSON value from
+        the device.  This value contains "localhost" as the domain or the uri.
+        "localhost" is only conceivably useful if the client library is run on
+        the device itself, so it is replaced with the domain this API used to
+        communicate with the device.
+
+        self.selfLink correctly contains a complete uri, that is only _now_
+        (post create or load) available to self.
+
+        Now that the complete URI is available to self, it is now possible to
+        reference subcollections, as attributes of self!
+        e.g. a resource with a uri path like:
+        "/mgmt/tm/ltm/pool/~Common~pool_collection1/members"
+        The mechanism used to enable this change is to set
+        the `allowed_lazy_attributes` _meta_data key to hold values of the
+        `attribute_registry` _meta_data key.
+
+        Finally we stash the corrected `uri`, returned hash_fragment, query
+        args, and of course allowed_lazy_attributes in _meta_data.
+
+        :param selfLinkuri: the server provided selfLink (contains localhost)
+        :raises: URICreationCollision
+        """
         if 'uri' in self._meta_data:
             error = "There was an attempt to assign a new uri to this "\
                     "resource, the _meta_data['uri'] is %s and it should"\
@@ -204,39 +315,70 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
                                 'allowed_lazy_attributes': attrs})
 
     def load(self, **kwargs):
+        """Implement this by overriding it in a subclass of `Resource`
+
+        :param **kwargs: params and values needed and optional for load
+        :raises: InvalidResource
+        """
         error_message = "Only Resources support 'load'."
         raise InvalidResource(error_message)
 
     def create(self):
+        """Implement this by overriding it in a subclass of `Resource`
+
+        :raises: InvalidResource
+        """
         error_message = "Only Resources support 'create'."
         raise InvalidResource(error_message)
 
     def update(self):
+        """Implement this by overriding it in a subclass of `Resource`
+
+        :raises: InvalidResource
+        """
         error_message = "Only Resources support 'update'."
         raise InvalidResource(error_message)
 
     def delete(self):
+        """Implement this by overriding it in a subclass of `Resource`
+
+        :raises: InvalidResource
+        """
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
 
     @property
     def raw(self):
+        """Call this to see your `self`.
+
+        :returns: self.__dict__
+        """
         return self.__dict__
 
 
 class OrganizingCollection(ResourceBase):
+    """Instances of this have an `items` attrbute that contains JSON refs.
+
+    `OrganizingCollection` s fulfill the following functions:
+    1.  represent a uri path fragment immediately 'below' /mgmt/tm
+    2.  provide a list of dictionaries that contain uri's to other resources on
+    the device.
+    """
     def __init__(self, bigip):
+        """Call this to construct an OC. It should be an attribute of BigIP.
+
+        :param bigip: all OCs are attributes of a BigIP instance
+        """
         super(OrganizingCollection, self).__init__(bigip)
         base_uri = self.__class__.__name__.lower() + '/'
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + base_uri
-        # Collections have a registry which must be reified in the
-        # subclass constructor.
-        self._meta_data['attribute_registry'] = {}
 
-    # Because of the behavior of the BigIP REST server different resource types
-    # must handle get_collection differently.
     def get_collection(self):
+        """Call to obtain a list of the reference dicts in the instance `items`
+
+        :returns: self.items
+        """
         self._refresh()
         return self.items
 
@@ -245,8 +387,25 @@ class Collection(ResourceBase):
     """Inherit from this class if the corresponding uri lists other resources.
 
     Note any subclass must have "s" at the end of its name!
+    The Collection Resource is responsible for providing a list of Python
+    objects, where each object represents a unique URI, the URI contains the
+    URI of the Collection at the front of its path, and the 'kind' of the
+    URI-associated-JSON has been registered with the attribute registry of the
+    Collection subclass.
     """
     def __init__(self, container):
+        """Call this with the __get_attr__ of a Resource or OC.
+
+        The contained-by-an-OC-or-Resource pattern is observed, and not a
+        strictly enforced part of the model.
+
+        URIs are constructed _from_ Collection subclass names.  All Collection
+        subclass names MUST end in 's' or '_s', to distinguish them from their
+        associated Resource (which is always accessible as an attribute of the
+        subclass instance.
+
+        :param container: instances of Collection are attributes of container
+        """
         super(Collection, self).__init__(container)
         # Handle 'terminal s or _s'
         if self.__class__.__name__.lower()[-2:] == '_s':
@@ -258,25 +417,33 @@ class Collection(ResourceBase):
             self._meta_data['container']._meta_data['uri'] + base_uri
 
     def get_collection(self):
-        """Get an iterator (list maybe upgrade to generator) of objects.
+        """Get an iterator of Python objects that represent URIs.
 
-        The objects in returned list are Pythonic ResourceBases that map to the
-        most recently `got` state of uris-resources published by the device.
+        The returned objects are Pythonic `Resource`s that map to the most
+        recently `refreshed` state of uris-resources published by the device.
         In order to instantiate the correct types, the concrete subclass must
         populate its registry with acceptable types, based on the `kind` field
         returned by the REST server.
+
+        NOTE:  This method implies a single REST transaction with the
+        Collection subclass URI.
+
+        :raises: UnregisteredKind
+        :returns: list of reference dicts and Python `Resource` objects
         """
         list_of_contents = []
-        # Collections list is likely to become collections.abc.Sequence subtype
-        # with support for field based comparison.
         self._refresh()
         if 'items' in self.__dict__:
             for item in self.items:
+                # It's possible to have non-"kind" JSON returned. We just
+                # append the corresponding dict. PostProcessing is the caller's
+                # responsibility.
                 if 'kind' not in item:
                     list_of_contents.append(item)
                     continue
                 kind = item['kind']
                 if kind in self._meta_data['attribute_registry']:
+                    # If it has a kind, it must be registered.
                     instance =\
                         self._meta_data['attribute_registry'][kind](self)
                     instance._local_update(item)
@@ -291,43 +458,40 @@ class Collection(ResourceBase):
 class Resource(ResourceBase):
     """Use this to represent a Configurable Resource on the device.
 
-    1a.  bigip.ltm.nats.nat
-    or
-    1b.  nat_obj = bigip.ltm.nats.nat
-    2.  call super(Subclass, self).__init__(container) in its __init__
+    Objects instantiated from subclasses of Resource do NOT contain a URI
+    (self._meta_data['uri']) at instantiation!  This is because these objects
+    provide the interface for the Creation of new services on the device. Once
+    a new service has been created, (via self.create or self.load), the
+    instance constructs its URI and stores it as self._meta_data['uri']. It is
+    an error to attempt to call create or load on an instance more than once.
+    self._meta_data['uri'] MUST not be changed after creation or load.
+    NOTE: creation query args, and creation hash fragments are stored as
+    separate _meta_data values.
+
+    By "Configurable" we mean that submitting JSON via the PUT method to the
+    URI managed by subclasses of Resource, changes the state of the
+    corresponding service on the device.
+
+    It also means that the URI supports `DELETE`.
     """
     def __init__(self, container):
-        """XXX
+        """Call to create a client side object to represent a service URI.
 
-        Call _create for a Resource resource to have a self._meta_data['uri']!
+        Call _create or _load for a Resource resource to have a
+        self._meta_data['uri']!
         """
         super(Resource, self).__init__(container)
-        # All Creation supporting Resources must update the
-        # 'required_creation_parameters' set with the appropriate values.
+        # Creation fails without these.
         self._meta_data['required_creation_parameters'] = set(('name',))
+        # Refresh fails without these.
         self._meta_data['required_refresh_parameters'] = set(('name',))
+        # You can't have more than one of the attrs in any of these sets.
         self._meta_data['exclusive_attributes'] = []
+        # You can't set these attributes, only 'read' them.
         self._meta_data['read_only_attributes'] = []
 
     def _create(self, **kwargs):
-        """Call this to create.
-
-        Subclasses, should support this functionality by defining a `create`
-        method that wraps and calls this method with appropriate arguments.
-
-        :params kwargs: All the key-values needed to create the resource
-        :returns: An instance of the Python object that represents the device's
-        uri-published resource.  The uri of the resource is part of the
-        object's _meta_data.
-        :returns: Note this is the only fundamental Resource operation that
-        returns a different uri (in the returned object) than the uri the
-        operation was called on.  The returned uri can be accessed as
-        Object.selfLink, the actual uri used by REST operations on the object
-        is Object._meta_data['uri'].  The _meta_data['uri'] is the same as
-        Object.selfLink with the substring 'localhost' replaced with the value
-        of Object._meta_data['bigip']._meta_data['hostname'].
-        """
-
+        """wrapped by `create` override that in subclasses to customize"""
         key_set = set(kwargs.keys())
         required_minus_received =\
             self._meta_data['required_creation_parameters'] - key_set
@@ -359,21 +523,53 @@ class Resource(ResourceBase):
         return self
 
     def create(self, **kwargs):
+        """Call this to create. Override to customize. Wrapper for _create.
+
+        Uses HTTP POST to 'containing' URI to create a service associated with
+        a new URI on the device.
+        Subclasses can customize  this functionality by defining a `create`
+        method that wraps and calls this method with appropriate arguments.
+        Note this is the one of two fundamental Resource operations that
+        returns a different uri (in the returned object) than the uri the
+        operation was called on.  The returned uri can be accessed as
+        Object.selfLink, the actual uri used by REST operations on the object
+        is Object._meta_data['uri'].  The _meta_data['uri'] is the same as
+        Object.selfLink with the substring 'localhost' replaced with the value
+        of Object._meta_data['bigip']._meta_data['hostname'], and without
+        query args, or hash fragments.
+
+        :param kwargs: All the key-values needed to create the resource
+        :returns: An instance of the Python object that represents the device's
+        uri-published resource.  The uri of the resource is part of the
+        object's _meta_data.
+        """
         self._create(**kwargs)
         return self
 
     def _load(self, **kwargs):
-        # For vlan.interfacescollection.interface the partition is not valid
+        """wrapped with load, override that in a subclass to customize"""
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
-        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        refresh_session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
-        response = read_session.get(base_uri, **kwargs)
+        response = refresh_session.get(base_uri, **kwargs)
         self._local_update(response.json())
         self._activate_URI(self.selfLink)
         return self
 
     def load(self, **kwargs):
+        """Calling this loads an already configured service into this instance
+
+        This method uses HTTP GET to obtain a device service's state.
+
+        The URI of the target service is constructed from the instance's
+        container and **kwargs.  kwargs typically requires the keys "name" and
+        "partition", though this may, or may not, be true for a specific
+        service.
+
+        :param kwargs: typically contains "name" and "partition"
+        :returns: a Resource Instance (with a populated _meta_data['uri'])
+        """
         self._load(**kwargs)
         return self
 
@@ -392,6 +588,7 @@ class Resource(ResourceBase):
             raise MissingRequiredReadParameter(error_message)
 
     def _update(self, **kwargs):
+        """wrapped with update, override that in a subclass to customize"""
         update_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
@@ -407,8 +604,8 @@ class Resource(ResourceBase):
         temp_meta = self.__dict__.pop('_meta_data')
 
         # Need to remove any of the Collection objects from self.__dict__
-        # because these are sub-ss and _meta_data and
-        # other non-BIGIP attrs are not removed from the sub-ss
+        # because these are subCollections and _meta_data and
+        # other non-BIGIP attrs are not removed from the subCollections
         # See issue #146 for details
         for key, value in self.__dict__.items():
             if isinstance(value, Collection):
@@ -427,10 +624,25 @@ class Resource(ResourceBase):
         self._local_update(response.json())
 
     def update(self, **kwargs):
+        """Call this to change the configuration of the service on the device.
+
+        This method uses HTTP PUT alter the service state on the device.
+
+        The attributes of the instance will be packaged as a dictionary.  That
+        dictionary will be updated with kwargs.  It is then submitted as JSON
+        to the device.  Various edge cases are handled:
+
+        read-only attributes that are unchangeable are removed
+
+        :param kwargs: keys and associated values to alter on the device
+
+        """
         # Need to implement checking for valid params here.
         self._update(**kwargs)
 
     def _delete(self, **kwargs):
+        """wrapped with delete, override that in a subclass to customize """
+
         delete_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
 
@@ -444,6 +656,13 @@ class Resource(ResourceBase):
             self.__dict__ = {'deleted': True}
 
     def delete(self):
+        """Call this to delete a service on the device.
+
+        Uses HTTP DELETE to delete a service on the device.
+
+        After this method is called, and status_code 200 response is received
+        instance.__dict__ is replace with {'deleted': True}
+        """
         # Need to implement checking for ? here.
         self._delete()
         # Need to implement correct teardown here.
@@ -460,6 +679,7 @@ class Resource(ResourceBase):
         returned in the JSON matches the one the object currently has.  If it
         does not it will raise the `GenerationMismatch` exception.
         '''
+
         session = self._meta_data['bigip']._meta_data['icr_session']
         response = session.get(self._meta_data['uri'])
         current_gen = response.json().get('generation', None)

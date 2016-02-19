@@ -43,6 +43,8 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 
+autodoc_default_flags = ['inherited-members']
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
