@@ -90,7 +90,7 @@ def test_Resource_refresh():
 class TestResourcecreate(object):
     def test_missing_required_creation_parameter(self):
         r = Resource(mock.MagicMock())
-        r._meta_data['required_creation_parameters'] = {'NONEMPTY'}
+        r._meta_data['required_creation_parameters'] = set(['NONEMPTY'])
         with pytest.raises(MissingRequiredCreationParameter) as MRCPEIO:
             r.create(partition="Common", name='CreateTest')
         assert MRCPEIO.value.message ==\
