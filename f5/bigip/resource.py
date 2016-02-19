@@ -83,6 +83,10 @@ class URICreationCollision(Exception):
     pass
 
 
+class UnsupportedOperation(Exception):
+    pass
+
+
 class ResourceBase(LazyAttributeMixin, ToDictMixin):
     """Every resource that maps to a uri on the device should inherit this.
 

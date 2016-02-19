@@ -1,4 +1,4 @@
-# Copyright 2015 F5 Networks Inc.
+# Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,15 +13,10 @@
 # limitations under the License.
 #
 
-from f5.bigip.resource import OrganizingCollection
-from f5.bigip.sys.application import Applications
-from f5.bigip.sys.db import Dbs
-from f5.bigip.sys.folder import Folders
 
-
-class Sys(OrganizingCollection):
-    def __init__(self, bigip):
-        super(Sys, self).__init__(bigip)
-        self._meta_data['allowed_lazy_attributes'] = [
-            Folders, Applications, Dbs
-        ]
+class TestDb(object):
+    def test_RL(self, bigip):
+        db = bigip.sys.dbs.db.load(name='license.operational')
+        assert db.value == 'true'
+        db.refresh()
+        assert db.value == 'true'
