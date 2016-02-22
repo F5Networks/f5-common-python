@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    f5.bigip.cm
     f5.bigip.ltm
     f5.bigip.net
     f5.bigip.pycontrol
@@ -14,14 +15,6 @@ Subpackages
 
 Submodules
 ----------
-
-f5.bigip.imports module
------------------------
-
-.. automodule:: f5.bigip.imports
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 f5.bigip.mixins module
 ----------------------

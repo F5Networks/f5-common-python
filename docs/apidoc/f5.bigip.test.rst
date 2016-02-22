@@ -36,6 +36,14 @@ f5.bigip.test.test_mixins module
     :undoc-members:
     :show-inheritance:
 
+f5.bigip.test.test_resource module
+----------------------------------
+
+.. automodule:: f5.bigip.test.test_resource
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

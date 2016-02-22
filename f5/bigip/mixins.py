@@ -108,3 +108,52 @@ class ExclusiveAttributesMixin(object):
                     [self.__dict__.pop(n, '') for n in new_set]
         # Now set the attribute
         super(ExclusiveAttributesMixin, self).__setattr__(key, value)
+
+
+class UnnamedResourceMixin(object):
+    '''This makes a resource object work if there is no name.
+
+    These objects do not support create or delete and are often found
+    as Resources that are under an organizing collection.  For example
+    the `mgmt/tm/sys/global-settings` is one of these and has a kind of
+    `tm:sys:global-settings:global-settingsstate` and the URI does not
+    match the kind.
+    '''
+    class UnsupportedMethod(Exception):
+        pass
+
+    def create(self, **kwargs):
+        '''Create is not supported for unnamed resources
+
+        :raises: UnsupportedOperation
+        '''
+        raise self.UnsupportedMethod(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        '''Delete is not supported for unnamed resources
+
+        :raises: UnsupportedOperation
+        '''
+        raise self.UnsupportedMethod(
+            "%s does not support the delete method" % self.__class__.__name__
+        )
+
+    def load(self, **kwargs):
+        return self._load(**kwargs)
+
+    def _load(self, **kwargs):
+        '''Override _load because Unnamed Resources use their uri directly.
+
+        The Unnamed resources don't have URIs that match their kinds so
+        we need to use their URI directly instead of the container's URI
+        with name/partitions.
+        '''
+        self._check_load_parameters(**kwargs)
+        kwargs['uri_as_parts'] = True
+        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['uri']
+        response = read_session.get(base_uri, **kwargs)
+        self._local_update(response.json())
+        return self

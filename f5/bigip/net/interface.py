@@ -1,4 +1,4 @@
-# Copyright 2014 F5 Networks Inc.
+# Copyright 2014-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,68 +13,32 @@
 # limitations under the License.
 #
 
-from f5.bigip import exceptions
-from f5.common import constants as const
-from f5.common.logger import Log
+from f5.bigip.mixins import ExclusiveAttributesMixin
+from f5.bigip.resource import Collection
+from f5.bigip.resource import Resource
+from f5.bigip.resource import UnsupportedOperation
 
-import json
+
+class Interfaces(Collection):
+    def __init__(self, net):
+        super(Interfaces, self).__init__(net)
+        self._meta_data['allowed_lazy_attributes'] = [Interface]
+        self._meta_data['attribute_registry'] = {
+            'tm:net:interface:interfacestate': Interface
+        }
 
 
-class Interface(object):
-    """Class for managing iRules on bigip """
-    def __init__(self, bigip):
-        self.bigip = bigip
+class Interface(Resource, ExclusiveAttributesMixin):
+    def __init__(self, interface_s):
+        super(Interface, self).__init__(interface_s)
+        self._meta_data['required_json_kind'] =\
+            'tm:net:interface:interfacestate'
+        self._meta_data['exclusive_attributes'].append(('enabled', 'disabled'))
 
-    def get_interfaces(self):
-        """Get interface names """
-        request_url = self.bigip.icr_url + '/net/interface/'
-        request_url += '?$select=name'
-        response = self.bigip.icr_session.get(
-            request_url, timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            response_obj = json.loads(response.text)
-            names = []
-            if 'items' in response_obj:
-                for interface in response_obj['items']:
-                    names.append(interface['name'])
-            return names
-        elif response.status_code != 404:
-            Log.error('interface', response.text)
-            raise exceptions.InterfaceQueryException(response.text)
-        return None
+    def create(self, **kwargs):
+        raise UnsupportedOperation(
+            "BigIP interfaces cannot be created by users")
 
-    def get_mac_addresses(self):
-        """Get MAC addresses for all interfaces """
-        request_url = self.bigip.icr_url + '/net/interface/'
-        request_url += '?$select=macAddress'
-        response = self.bigip.icr_session.get(
-            request_url, timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            response_obj = json.loads(response.text)
-            macs = []
-            if 'items' in response_obj:
-                for interface in response_obj['items']:
-                    macs.append(interface['macAddress'])
-            return macs
-        elif response.status_code != 404:
-            Log.error('interface', response.text)
-            raise exceptions.InterfaceQueryException(response.text)
-        return None
-
-    def get_interface_macaddresses_dict(self):
-        """Get dictionary of mac addresses keyed by their interface name """
-        request_url = self.bigip.icr_url + '/net/interface/'
-        request_url += '?$select=name,macAddress'
-        response = self.bigip.icr_session.get(
-            request_url, timeout=const.CONNECTION_TIMEOUT)
-        if response.status_code < 400:
-            return_dict = {}
-            response_obj = json.loads(response.text)
-            if 'items' in response_obj:
-                for interface in response_obj['items']:
-                    return_dict[interface['name']] = interface['macAddress']
-            return return_dict
-        elif response.status_code != 404:
-            Log.error('interface', response.text)
-            raise exceptions.InterfaceQueryException(response.text)
-        return None
+    def delete(self):
+        raise UnsupportedOperation(
+            "BigIP interfaces cannot be deleted by users")

@@ -16,12 +16,22 @@
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.sys.application import Applications
 from f5.bigip.sys.db import Dbs
+from f5.bigip.sys.failover import Failover
 from f5.bigip.sys.folder import Folders
+from f5.bigip.sys.global_settings import Global_Settings
+from f5.bigip.sys.ntp import Ntp
+from f5.bigip.sys.performance import Performance
 
 
 class Sys(OrganizingCollection):
     def __init__(self, bigip):
         super(Sys, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
-            Folders, Applications, Dbs
+            Folders,
+            Applications,
+            Performance,
+            Dbs,
+            Global_Settings,
+            Ntp,
+            Failover,
         ]
