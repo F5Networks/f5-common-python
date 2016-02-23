@@ -73,7 +73,9 @@ class Services(Collection):
 class Service(Resource):
     def __init__(self, service_s):
         super(Service, self).__init__(service_s)
-        self._meta_data['required_creation_parameters'].update(('template',))
+        self._meta_data['required_creation_parameters'].update(
+            ('template', 'partition')
+        )
         self._meta_data['required_refresh_parameters'].update(('partition',))
         self._meta_data['required_json_kind'] =\
             'tm:sys:application:service:servicestate'
@@ -161,5 +163,7 @@ class Templates(Collection):
 class Template(Resource):
     def __init__(self, template_s):
         super(Template, self).__init__(template_s)
+        self._meta_data['required_creation_parameters'].update(('partition',))
+        self._meta_data['required_refresh_parameters'].update(('partition',))
         self._meta_data['required_json_kind'] =\
             'tm:sys:application:template:templatestate'

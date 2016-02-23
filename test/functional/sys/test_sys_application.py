@@ -127,7 +127,8 @@ class TestTemplate(object):
             templ_s,
             test_templ,
             'template',
-            name='test_template'
+            name='test_template',
+            partition='Common'
         )
 
 
