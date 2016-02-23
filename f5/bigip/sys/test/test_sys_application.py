@@ -153,11 +153,17 @@ class TestServiceCreate(object):
             FakeService.create()
         assert 'name' in ex.value.message
         assert 'template' in ex.value.message
+        assert 'partition' in ex.value.message
 
     def test_create_no_template(self, FakeService):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeService.create(name='test_service')
         assert 'template' in ex.value.message
+
+    def test_create_no_partition(self, FakeService):
+        with pytest.raises(MissingRequiredCreationParameter) as ex:
+            FakeService.create(name='test_service', template='test_template')
+        assert 'partition' in ex.value.message
 
     def test_create_uri_collision(self, FakeService):
         FakeService._meta_data = {'uri': 'already_defined'}
@@ -265,6 +271,7 @@ class TestTemplateCreate(object):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeTemplate.create()
         assert 'name' in ex.value.message
+        assert 'partition' in ex.value.message
 
 
 class TestAPLScript(object):
