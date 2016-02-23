@@ -39,7 +39,7 @@ Usage
 Documentation
 -------------
 
-Documentation is hosted on `Read the Docs <https://f5-python-sdk.readthedocs.org>`__
+Documentation is hosted on `Read the Docs <https://f5-sdk.readthedocs.org>`__
 
 Filing Issues
 -------------
