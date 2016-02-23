@@ -40,6 +40,7 @@ class Folder(Resource):
         self._meta_data['required_json_kind'] = 'tm:sys:folder:folderstate'
         # refresh() and load() require partition, not name
         self._meta_data['required_refresh_parameters'] = set()
+        self._meta_data['required_creation_parameters'].update(('subPath',))
 
     def _load(self, **kwargs):
         name = kwargs.pop('name', '')
