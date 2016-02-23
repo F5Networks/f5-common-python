@@ -1,0 +1,50 @@
+# Copyright 2016 F5 Networks Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+from f5.bigip.resource import Collection
+from f5.bigip.resource import Resource
+
+
+class Nodes(Collection):
+    def __init__(self, ltm):
+        super(Nodes, self).__init__(ltm)
+        self._meta_data['allowed_lazy_attributes'] = [Node]
+        self._meta_data['attribute_registry'] =\
+            {'tm:ltm:node:nodestate': Node}
+
+
+class Node(Resource):
+    def __init__(self, nodes):
+        super(Node, self).__init__(nodes)
+        self._meta_data['required_json_kind'] = 'tm:ltm:node:nodestate'
+        self._meta_data['required_creation_parameters'].update(
+            ('partition', 'address',)
+        )
+        self._meta_data['read_only_attributes'].append('ephemeral')
+        self._meta_data['read_only_attributes'].append('state')
+        self._meta_data['read_only_attributes'].append('address')
+
+    def update(self, **kwargs):
+        """Update needs to remove autopopulate from the fqdn attribute
+
+        """
+        # Is autopopulate in kwargs?
+        if 'fqdn' in kwargs:
+            kwargs['fqdn'].pop('autopopulate')
+            kwargs['fqdn'].pop('addressFamily')
+        if 'fqdn' in self.__dict__:
+            self.__dict__['fqdn'].pop('autopopulate')
+            self.__dict__['fqdn'].pop('addressFamily')
+        return self._update(**kwargs)

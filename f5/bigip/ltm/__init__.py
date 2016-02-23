@@ -14,6 +14,7 @@
 #
 from f5.bigip.ltm.monitor import Monitor
 from f5.bigip.ltm.nat import NATs
+from f5.bigip.ltm.node import Nodes
 from f5.bigip.ltm.policy import Policys
 from f5.bigip.ltm.pool import Pools
 from f5.bigip.ltm.rule import Rules
@@ -28,6 +29,7 @@ class LTM(OrganizingCollection):
         self._meta_data['allowed_lazy_attributes'] = [
             Monitor,
             NATs,
+            Nodes,
             Policys,
             Pools,
             Rules,
