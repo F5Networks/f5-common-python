@@ -125,7 +125,7 @@ class TemplateEngine(object):
                        'import_dicts': import_dicts}
         OrgCollstr = OC_template.render(**config_dict)
         imports_as_str = self.import_template.render(import_dicts=import_dicts)
-        imps_as_list = imports_as_str.split('\n')
+        imps_as_list = imports_as_str.splitlines()
         imps_as_list.append(
             'from f5.bigip.resource import OrganizingCollection')
         imps_as_list.sort()
