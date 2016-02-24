@@ -37,10 +37,10 @@ from f5.bigip.ltm.virtual import Virtuals
 from f5.bigip.resource import OrganizingCollection
 
 
-class LTM(OrganizingCollection):
+class Ltm(OrganizingCollection):
     """BigIP Local Traffic Manager (LTM) organizing collection."""
     def __init__(self, bigip):
-        super(LTM, self).__init__(bigip)
+        super(Ltm, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
             Monitor,
             NATs,
