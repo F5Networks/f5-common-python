@@ -180,6 +180,12 @@ class TemplateEngine(object):
         # return python_as_string
 
     def _process_config_with_kind(self, raw_conf):
+        '''Use this to decide which format is called for by the kind.
+
+        NOTE, order matters since subsequent conditions are not evaluated is an
+        earlier condition is met.  In the some cases, e.g. a kind contains both
+        "stats" and "state", this will become an issue.
+        '''
         kind = raw_conf[u"kind"]
         org_match = re.match(self.OC_pattern, kind)
         if org_match:
