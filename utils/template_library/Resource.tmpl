@@ -1,0 +1,8 @@
+
+
+class {{ klass }}(Resource):
+    def __init__(self, {{ container }}):
+        super({{ klass }}, self).__init__({{ container }})
+        self._meta_data['template_generated'] = True
+        self._meta_data['required_json_kind'] = {{ kind }}
+        self._meta_data['attribute_registry'] = {{ attr_reg_dict }}
