@@ -1,0 +1,2 @@
+{% for imp in import_dicts %}
+from f5.bigip{{ imp.OC }}{{ imp.module }} import {{ imp.klass }}{% endfor %}
