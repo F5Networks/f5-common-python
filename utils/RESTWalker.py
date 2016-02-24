@@ -28,24 +28,20 @@ TEMPLATEDIR = os.path.join(UTILSDIR, 'template_library')
 DEVICECONFDIR = os.path.join(UTILSDIR, 'device_configs')
 
 
+class UnexpectedOCItem(Exception):
+    pass
+
+
 class Kindless(Exception):
     pass
 
 
-def load_json_from_pathname(pathname):
-    fp = io.open(pathname)
-    obj = json.load(fp)
-    fp.close()
-    return obj
-
-
-def dump_json(obj, pathname):
-    fp = io.open(pathname, 'wb')
-    json.dump(obj, fp, indent=1)
-    fp.close()
-
-
 class TemplateEngine(object):
+    '''Instantiate this to handle generating Python from JSON
+
+    Currently supports generation of OrganizingCollection, and
+    Collection, strings.  Also produces most of Resource classes.
+    '''
     def __init__(self, template_dir, config_dir):
         self.OC_pattern =\
             r'tm:(?P<OrgColl>\w+):(?P=OrgColl)collectionstate'
@@ -84,38 +80,47 @@ class TemplateEngine(object):
         pp(self.raw_configs.keys())
 
     def process_config(self, config_name):
-        raw_conf = self.raw_configs[config_name]
+        try:
+            raw_conf = self.raw_configs[config_name]
+        except KeyError as ex:
+            error_message = "Expected file named %r.json to exist in"\
+                            " directory %r" % (config_name, DEVICECONFDIR)
+            print(error_message)
+            raise ex
         if 'kind' in raw_conf:
             python_as_string = self._process_config_with_kind(raw_conf)
         else:
             raise Kindless(raw_conf)
         return python_as_string
 
-    def _klassify(self, raw_klass):
-        caps = '_'.join([x.capitalize() for x in raw_klass.split('-')])
-        dotless = '_'.join([x.capitalize() for x in caps.split('.')])
-        return dotless
+    def _handle_dashes_dots_capitals(self, raw_klass):
+        temp_string = '_'.join([x.capitalize() for x in raw_klass.split('-')])
+        KlassName = '_'.join([x.capitalize() for x in temp_string.split('.')])
+        return KlassName
 
-    def _build_import_dicts(self, raw_conf, klass):
+    def _build_orgcoll_import_dicts(self, raw_conf, klass):
         imports = []
         selfLinkstart = raw_conf[u"selfLink"].partition("?")[0]
         items = raw_conf[u"items"]
         for item in items:
             if item[u"reference"][u"link"].startswith(selfLinkstart):
                 tempuri = item[u"reference"][u"link"]
-                pre_qm = tempuri.partition("?")[0]
-                post_sl = pre_qm[len(selfLinkstart)+1:]
-                caps = self._klassify(post_sl)
+                pre_questionmark = tempuri.partition("?")[0]
+                post_selfLink = pre_questionmark[len(selfLinkstart)+1:]
+                KlassName = self._handle_dashes_dots_capitals(post_selfLink)
                 imports.append({'OC': '.'+klass.lower(),
-                                'module': '.'+caps.lower(),
-                                'klass': caps})
+                                'module': '.'+KlassName.lower(),
+                                'klass': KlassName})
+            else:
+                raise UnexpectedOCItem(item)
         return imports
 
     def _format_org_collection(self, org_match, kind, raw_conf):
-        klass = org_match.group('OrgColl').capitalize()
+        KlassName =\
+            self._handle_dashes_dots_capitals(org_match.group('OrgColl'))
         OC_template = self.templates['OrganizingCollection']
-        import_dicts = self._build_import_dicts(raw_conf, klass)
-        config_dict = {'klass': klass,
+        import_dicts = self._build_orgcoll_import_dicts(raw_conf, KlassName)
+        config_dict = {'klass': KlassName,
                        'kind': kind,
                        'import_dicts': import_dicts}
         OrgCollstr = OC_template.render(**config_dict)
@@ -126,37 +131,40 @@ class TemplateEngine(object):
         imps_as_list.sort()
         imports = '\n'.join(imps_as_list)
         python_as_string = self.license_template.render()+imports+OrgCollstr
-        self.formatted_configs = {klass: {'Python_str': python_as_string,
-                                          'config_dict': config_dict,
-                                          'import_dicts': import_dicts}}
+        self.formatted_configs = {KlassName: {'Python_str': python_as_string,
+                                              'config_dict': config_dict,
+                                              'import_dicts': import_dicts}}
         return python_as_string
+
+    def _build_CollectionName_from_KlassName(self, KlassName):
+        if KlassName.endswith('s'):
+            CollectionName = KlassName+'_s'
+        else:
+            CollectionName = KlassName+'s'
+        return CollectionName
 
     def _format_resource(self, kind, raw_conf):
         raw_string = kind.split(':')[-1][:-len('state')]
-        raw_klass = self._klassify(raw_string)
-        if raw_klass.endswith('s'):
-            container = raw_klass+'_s'
-        else:
-            container = raw_klass+'s'
+        assert raw_string == kind.split(':')[-2]
+        KlassName = self._handle_dashes_dots_capitals(raw_string)
+        container = self._build_CollectionName_from_KlassName(KlassName)
         template = self.templates['Resource']
         python_as_string = template.render(container=container,
-                                           klass=raw_klass,
-                                           kind=kind)
+                                           klass=KlassName,
+                                           kind=kind,
+                                           attr_reg_dict={})
         return python_as_string
 
     def _format_collection(self, kind, raw_conf):
         raw_string = kind.split(':')[-1][:-len('collectionstate')]
-        raw_klass = self._klassify(raw_string)
-        if raw_klass.endswith('s'):
-            coll_klass = raw_klass + '_s'
-        else:
-            coll_klass = raw_klass + 's'
-        member_klass = raw_klass
+        KlassName = self._handle_dashes_dots_capitals(raw_string)
+        CollKlassName = self._build_CollectionName_from_KlassName(KlassName)
+        member_klass = KlassName
         collection_template = self.templates['Collection']
         memberkind = kind.replace('collection', '')
-        config_dict = {'coll_klass': coll_klass,
+        config_dict = {'coll_klass': CollKlassName,
                        'member_klass': member_klass,
-                       'collection_container': kind.split(':')[1],
+                       'collection_container': kind.split(':')[-3],
                        'collection_attr_reg_dict': {memberkind: member_klass}}
         import_str = 'from f5.bigip.resource import Collection'
         Collstr = collection_template.render(**config_dict)
