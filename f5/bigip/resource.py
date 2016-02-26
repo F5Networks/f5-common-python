@@ -81,6 +81,7 @@ import urlparse
 
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
+from requests.exceptions import HTTPError
 
 
 class KindTypeMismatch(Exception):
@@ -672,6 +673,33 @@ class Resource(ResourceBase):
         # Need to implement checking for ? here.
         self._delete(**kwargs)
         # Need to implement correct teardown here.
+
+    def exists(self, **kwargs):
+        """Check for the existence of the named object on the BigIP
+
+        Tries to `load()` the object and if it fails checks the exception
+        for 404.  If the `load()` is successful it returns `True` if the
+        exception is :exc:`requests.HTTPError` and the
+        ``status_code`` is ``404``
+        it will return error.  All other errors are raised as is.
+
+        :param kwargs: Keyword arguments required to load objects
+        :returns: bool -- The objects exists on BigIP or not.
+        :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
+            code 404.
+        """
+        self._check_load_parameters(**kwargs)
+        kwargs['uri_as_parts'] = True
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['container']._meta_data['uri']
+        try:
+            session.get(base_uri, **kwargs)
+        except HTTPError as err:
+            if err.response.status_code == 404:
+                return False
+            else:
+                raise
+        return True
 
     def _check_force_arg(self, force):
         if not isinstance(force, bool):
