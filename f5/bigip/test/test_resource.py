@@ -14,6 +14,7 @@
 #
 import mock
 import pytest
+import requests
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import DeviceProvidesIncompatibleKey
@@ -299,6 +300,49 @@ class TestResource_load(object):
         r.load(partition='Common', name='test_load')
         r.raw
         assert r.selfLink == mockuri
+
+
+class TestResource_exists(object):
+    def test_loadable(self):
+        r = Resource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        mockuri = "https://localhost/mgmt/tm/ltm/nat/~Common~test_exists"
+        attrs = {'get.return_value':
+                 MockResponse({u"generation": 0, u"selfLink": mockuri})}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data =\
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME'}
+        r.generation = 0
+        assert r.exists(partition='Common', name='test_exists')
+
+    def test_not_found(self):
+        r = Resource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        response = requests.Response()
+        response.status_code = 404
+        mock_session = mock.MagicMock()
+        mock_session.get.side_effect = requests.HTTPError(response=response)
+        r._meta_data['bigip']._meta_data = {
+            'icr_session': mock_session,
+            'hostname': 'TESTDOMAINNAME'
+        }
+        assert not r.exists(partition='Common', name='test_exists')
+
+    def test_error(self):
+        response = requests.Response()
+        response.status_code = 400
+        mock_session = mock.MagicMock()
+        mock_session.get.side_effect = requests.HTTPError(response=response)
+        r = Resource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['bigip']._meta_data = {
+            'icr_session': mock_session,
+            'hostname': 'TESTDOMAINNAME'
+        }
+        with pytest.raises(requests.HTTPError) as err:
+            r.exists(partition='Common', name='test_exists')
+            assert err.response.status_code == 400
 
 
 def test_OrganizingCollection():

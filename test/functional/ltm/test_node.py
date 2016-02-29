@@ -38,7 +38,7 @@ class TestNode(object):
         with pytest.raises(MissingRequiredCreationParameter):
             n1.create(name="n1", partition='Common')
 
-    def test_CURDL(self, request, bigip):
+    def test_CURDLE(self, request, bigip):
         # We will assume that the setup/teardown will test create/delete
         n1, nc1 = setup_node_test(
             request, bigip, 'Common', 'node1', '192.168.100.1')
@@ -57,6 +57,11 @@ class TestNode(object):
         n2.refresh()
         assert n1.generation == n2.generation
         assert n2.description == n1.description
+
+        # Exists
+        assert bigip.ltm.nodes.node.exists(name='node1', partition='Common')
+        assert not bigip.ltm.nodes.node.exists(name='node2',
+                                               partition='Common')
 
 
 class TestNodes(object):
