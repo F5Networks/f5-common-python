@@ -13,6 +13,18 @@
 # limitations under the License.
 #
 
+"""BigIP Network route module.
+
+REST URI
+    ``http://localhost/mgmt/tm/net/route``
+
+GUI Path
+    ``Network --> Routes``
+
+REST Kind
+    ``tm:net:route:*``
+"""
+
 from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import MissingRequiredCreationParameter
@@ -20,6 +32,7 @@ from f5.bigip.resource import Resource
 
 
 class Routes(Collection):
+    """BigIP network route collection"""
     def __init__(self, net):
         super(Routes, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [Route]
@@ -29,6 +42,7 @@ class Routes(Collection):
 
 
 class Route(Resource, ExclusiveAttributesMixin):
+    """BigIP network route resource"""
     def __init__(self, route_s):
         super(Route, self).__init__(route_s)
         self._meta_data['required_json_kind'] = 'tm:net:route:routestate'
@@ -40,6 +54,9 @@ class Route(Resource, ExclusiveAttributesMixin):
 
     def create(self, **kwargs):
         '''Create a Route on the BigIP and the associated python object.
+
+        One of the following gateways is required when creating the route
+        objects: ``blackhole``, ``gw``, ``tmInterface``, ``pool``.
 
         :params kwargs: keyword arguments passed in from create call
         :raises: KindTypeMismatch

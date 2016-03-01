@@ -37,13 +37,15 @@ VERSION = f5.__version__
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
 ]
 
-autodoc_default_flags = ['inherited-members']
+autodoc_default_flags = ['inherited-members', 'show-inheritance']
+autodoc_member_order = 'bysource'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

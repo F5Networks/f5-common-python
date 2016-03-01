@@ -13,6 +13,18 @@
 # limitations under the License.
 #
 
+"""BigIP system peformance stats module.
+
+REST URI
+    ``http://localhost/mgmt/tm/sys/performance``
+
+GUI Path
+    ``System --> Users --> Partition List``
+
+REST Kind
+    ``tm:sys:performance:*``
+"""
+
 from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
@@ -20,6 +32,7 @@ from f5.bigip.resource import UnsupportedOperation
 
 
 class Performance(Collection):
+    """BigIP system performace stats collection"""
     def __init__(self, sys):
         super(Performance, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [All_Stats]
@@ -29,7 +42,7 @@ class Performance(Collection):
     def get_collection(self):
         '''Performance collections are not proper BigIP collection objects.
 
-        :raises: UnsupportedOperation
+        :raises: :exc:`~f5.bigip.resource.UnsupportedOperation`
         '''
         raise UnsupportedOperation(
             "The iControl REST URI mgmt/sys/performance/ does not respond " +
@@ -38,6 +51,7 @@ class Performance(Collection):
 
 
 class All_Stats(UnnamedResourceMixin, Resource):
+    """BigIP system performace stats unnamed resource"""
     def __init__(self, performance):
         super(All_Stats, self).__init__(performance)
         self._meta_data['required_refresh_parameters'] = set()
@@ -49,7 +63,7 @@ class All_Stats(UnnamedResourceMixin, Resource):
     def update(self, **kwargs):
         '''Update is not supported for statistics.
 
-        :raises: UnsupportedOperation
+        :raises: :exc:`~f5.bigip.resource.UnsupportedOperation`
         '''
         raise UnsupportedOperation(
             'Stats do not support create, only load and refresh')

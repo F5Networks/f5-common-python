@@ -4,19 +4,15 @@ F5 Python SDK Documentation
 
 Introduction
 ------------
-This project implements an SDK for the iControl REST interface for the BigIP.
-Users of this library can create, edit, update, and delete configuration
-objects on a BigIP device.
+This project implements an object model based SDK for the F5 Networks BigIP
+iControl REST interface. Users of this library can create, edit, update, and
+delete configuration objects on a BigIP device.  For more information on the
+basic principals that the SDK uses see the :doc:`userguide/index`.
 
-Submodules
-~~~~~~~~~~
-bigip
-^^^^^
-Python API for configuring objects on a BIG-IP device and gathering information
-from the device via the REST API.
-
+Quick Start
+-----------
 Installation
-------------
+~~~~~~~~~~~~
 .. code:: shell
 
     $> pip install f5-sdk
@@ -24,20 +20,45 @@ Installation
 *NOTE:* If you are using a pre-release version you must use the ``--pre``
 option with the pip command.
 
-Usage
------
+Basic Example
+~~~~~~~~~~~~~
 .. code:: python
 
     from f5.bigip import BigIP
-    bigip = BigIP("bigip.example.com", "admin", "somepassword")
-    pools = bigip.ltm.pool.getcollection()
 
-SDK Contents
-------------
+    # Connect to the BigIP
+    bigip = BigIP("bigip.example.com", "admin", "somepassword")
+
+    # Get a list of all pools on the BigIP and print their name and their
+    # members' name
+    pools = bigip.ltm.pools.get_collection()
+    for pool in pools:
+        print pool.name
+        for member in pool.members:
+            print member.name
+
+    # Create a new pool on the BigIP
+    mypool = bigip.ltm.pools.pool.create(name='mypool', partition='Common')
+
+    # Load an existing pool and update its description
+    pool_a = bigip.ltm.pools.pool.load(name='mypool', partition='Common')
+    pool_a.description = "New description"
+    pool_a.update()
+
+    # Delete a pool if it exists
+    if bigip.ltm.pools.pool.exists(name='mypool', partition='Common'):
+        pool_b = bigip.ltm.pools.pool.load(name='oldpool', partition='Common')
+        pool_b.delete()
+
+Detailed Documentation
+----------------------
+
 .. toctree::
    :maxdepth: 4
 
-   apidoc/modules
+   userguide/index
+   devguide
+   F5 SDK API Docs <apidoc/modules>
 
 
 Contact
@@ -80,5 +101,5 @@ completed and submitted the `F5 Contributor License Agreement
 to Openstack_CLA@f5.com prior to their code submission being included in this
 project.
 
-.. |Build Status| image:: https://travis-ci.com/F5Networks/f5-common-python.svg?token=s9yQgrQoSkLe6ec4WQKS&branch=develop
-   :target: https://travis-ci.com/F5Networks/f5-common-python
+.. |Build Status| image:: https://travis-ci.org/F5Networks/f5-common-python.svg?branch=0.1
+    :target: https://travis-ci.org/F5Networks/f5-common-python

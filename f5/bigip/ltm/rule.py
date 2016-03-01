@@ -13,11 +13,24 @@
 # limitations under the License.
 #
 
+"""BigIP Local Traffic Manager (LTM) rule module.
+
+REST URI
+    ``http://localhost/mgmt/tm/ltm/rule``
+
+GUI Path
+    ``Local Traffic --> Rules``
+
+REST Kind
+    ``tm:ltm:rule:*``
+"""
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
 class Rules(Collection):
+    """BigIP LTM rule collection"""
     def __init__(self, ltm):
         super(Rules, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Rule]
@@ -26,6 +39,7 @@ class Rules(Collection):
 
 
 class Rule(Resource):
+    """BigIP LTM rule resource"""
     def __init__(self, rule_s):
         super(Rule, self).__init__(rule_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:rule:rulestate'

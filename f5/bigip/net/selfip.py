@@ -13,20 +13,36 @@
 # limitations under the License.
 #
 
+"""BigIP Network self-ip module.
+
+.. note::
+
+    Self IPs path does not match their kind or URI because the string ``self``
+    causes problems in Python because it is a reserved word.
+
+REST URI
+    ``http://localhost/mgmt/tm/net/self``
+
+GUI Path
+    ``Network --> Self IPs``
+
+REST Kind
+    ``tm:net:self:*``
+"""
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
 class SelfIPs(Collection):
-    '''This represents a collection of Self IPs.
+    """BigIP network Self-IP collection
 
-    NOTE: The objects in the collection are actually called 'self' in
-    iControlREST, but obviously this will cause problems in Python so we
-    changed its name to SelfIP. This is why the the SelfIPs's uri ends
-    in self/ not selfip/.  We override the object's `_meta_data['uri']` to
-    account for this.
-    '''
+    .. note::
+
+        The objects in the collection are actually called 'self' in
+        iControlREST, but obviously this will cause problems in Python so we
+        changed its name to SelfIP.
+    """
     def __init__(self, net):
         super(SelfIPs, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [SelfIP]
@@ -38,25 +54,24 @@ class SelfIPs(Collection):
 
 
 class SelfIP(Resource):
-    '''This represents a Self IP.
+    '''BigIP Self-IP resource
 
     Use this object to create, refresh, update, delete, and load self ip
-    configuration on the BIGIP.  This requires that a :class:`vlan` object
-    be present on the system and that object's :attrib:`fullPath` be used
-    as the vlan name.
+    configuration on the BIGIP.  This requires that a
+    :class:`~f5.bigip.network.vlan.VLAN` object be present on the system and
+    that object's :attrib:`fullPath` be used as the VLAN name.
 
     The address that is used for create is a *<ipaddress>/<netmask>*.  For
-    example `192.168.1.1/32`.
+    example ``192.168.1.1/32``.
 
-    NOTE: The object is actully called 'self' in iControlREST, but obviously
-    this will cause problems in Python so we changed its name to SelfIP.
-    This is why the the SelfIPs's uri ends in self/ not selfip/
+    .. note::
+
+        The object is actually called ``self`` in iControlREST, but obviously
+        this will cause problems in Python so we changed its name to
+        ``SelfIP``.
     '''
     def __init__(self, selfip_s):
         super(SelfIP, self).__init__(selfip_s)
         self._meta_data['required_json_kind'] = 'tm:net:self:selfstate'
         self._meta_data['required_creation_parameters'].update(
             ('address', 'vlan'))
-
-    def create(self, **kwargs):
-        self._create(**kwargs)

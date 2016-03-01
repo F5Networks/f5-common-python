@@ -1,77 +1,139 @@
-f5.bigip.sys package
-====================
+f5.bigip.sys
+============
 
-Subpackages
------------
+Submodule List
+--------------
+.. py:currentmodule:: f5.bigip.sys
 
-.. toctree::
+.. autosummary::
 
-    f5.bigip.sys.test
+   application
+   db
+   failover
+   folder
+   global_settings
+   ntp
+   performance
 
-Submodules
-----------
-
-f5.bigip.sys.application module
--------------------------------
-
-.. automodule:: f5.bigip.sys.application
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-f5.bigip.sys.db module
-----------------------
-
-.. automodule:: f5.bigip.sys.db
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-f5.bigip.sys.failover module
-----------------------------
-
-.. automodule:: f5.bigip.sys.failover
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-f5.bigip.sys.folder module
---------------------------
-
-.. automodule:: f5.bigip.sys.folder
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-f5.bigip.sys.global_settings module
------------------------------------
-
-.. automodule:: f5.bigip.sys.global_settings
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-f5.bigip.sys.ntp module
------------------------
-
-.. automodule:: f5.bigip.sys.ntp
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-f5.bigip.sys.performance module
--------------------------------
-
-.. automodule:: f5.bigip.sys.performance
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: f5.bigip.sys
     :members:
-    :undoc-members:
-    :show-inheritance:
+
+Submodules
+----------
+
+application
+~~~~~~~~~~~
+
+.. automodule:: f5.bigip.sys.application
+    :members:
+
+    Application Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.sys.application
+
+    .. autosummary::
+
+        Applications
+        APLScripts
+        APLScript
+        CustomStats
+        CustomStat
+        Services
+        Service
+        Templates
+        Template
+
+
+db
+~~
+
+.. automodule:: f5.bigip.sys.db
+    :members:
+
+    DB Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.sys.db
+
+    .. autosummary::
+
+        Dbs
+        Db
+
+failover
+~~~~~~~~
+
+.. automodule:: f5.bigip.sys.failover
+    :members:
+
+    Failover Resources
+    ^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.sys.failover
+
+    .. autosummary::
+
+        Failover
+
+
+folder
+~~~~~~
+
+.. automodule:: f5.bigip.sys.folder
+    :members:
+
+    Folder Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.sys.folder
+
+    .. autosummary::
+
+        Folders
+        Folder
+
+global_settings
+~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.sys.global_settings
+    :members:
+
+    Global_Settings Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.sys.global_settings
+
+    .. autosummary::
+
+        Global_Settings
+
+ntp
+~~~
+
+.. automodule:: f5.bigip.sys.ntp
+    :members:
+
+    NTP Resources and Subcollections
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.sys.ntp
+
+    .. autosummary::
+
+        Ntp
+        Restricts
+        Restrict
+
+
+performance
+~~~~~~~~~~~
+
+.. automodule:: f5.bigip.sys.performance
+    :members:
+
+    Performace Resources and Subcollections
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.sys.performance
+
+    .. autosummary::
+
+        Performance
+        All_Stats

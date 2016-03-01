@@ -13,6 +13,18 @@
 # limitations under the License.
 #
 
+"""BigIP System (sys) module
+
+REST URI
+    ``http://localhost/mgmt/tm/sys/``
+
+GUI Path
+    ``System``
+
+REST Kind
+    ``tm:sys:*``
+"""
+
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.sys.application import Applications
 from f5.bigip.sys.db import Dbs

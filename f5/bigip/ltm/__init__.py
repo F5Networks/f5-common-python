@@ -12,6 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+"""BigIP Local Traffic Monitor (LTM) module.
+
+REST URI
+    ``http://localhost/mgmt/tm/ltm/``
+
+GUI Path
+    ``Local Traffic``
+
+REST Kind
+    ``tm:ltm:*``
+"""
+
+
 from f5.bigip.ltm.monitor import Monitor
 from f5.bigip.ltm.nat import NATs
 from f5.bigip.ltm.node import Nodes
@@ -24,6 +38,7 @@ from f5.bigip.resource import OrganizingCollection
 
 
 class LTM(OrganizingCollection):
+    """BigIP Local Traffic Manager (LTM) organizing collection."""
     def __init__(self, bigip):
         super(LTM, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [

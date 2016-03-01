@@ -1,22 +1,39 @@
-f5.bigip.cm package
-===================
+f5.bigip.cm
+===========
 
-Submodules
-----------
+Submodule List
+--------------
+.. currentmodule:: f5.bigip.cm
 
-f5.bigip.cm.device module
--------------------------
+.. autosummary::
 
-.. automodule:: f5.bigip.cm.device
-    :members:
-    :undoc-members:
-    :show-inheritance:
+    device
+    device_group
+    traffic_group
 
-
-Module contents
+Module Contents
 ---------------
 
 .. automodule:: f5.bigip.cm
     :members:
-    :undoc-members:
-    :show-inheritance:
+
+Submodule Details
+-----------------
+
+device
+~~~~~~
+
+.. automodule:: f5.bigip.cm.device
+    :members:
+
+device_group
+~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.cm.device_group
+    :members:
+
+traffic_group
+~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.cm.traffic_group
+    :members:
