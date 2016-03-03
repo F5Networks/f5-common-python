@@ -27,6 +27,7 @@ REST Kind
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from requests.exceptions import HTTPError
 
 
 class Folders(Collection):
@@ -58,12 +59,10 @@ class Folder(Resource):
         self._meta_data['required_refresh_parameters'] = set()
         self._meta_data['required_creation_parameters'].update(('subPath',))
 
-    def _load(self, **kwargs):
+    def _create_subpath_uri(self, kwargs):
+        base_uri = self._meta_data['container']._meta_data['uri']
         name = kwargs.pop('name', '')
         partition = kwargs.pop('partition', '')
-        read_session = self._meta_data['bigip']._meta_data['icr_session']
-        base_uri = self._meta_data['container']._meta_data['uri']
-
         if not name and not partition:
             # Root folder - https://localhost/mgmt/tm/sys/folder/~
             load_uri = base_uri + '~'
@@ -78,7 +77,11 @@ class Folder(Resource):
             # https://localhost/mgmt/tm/sys/folder/~partition~f1~f2
             name = name.replace('/', '~')
             load_uri = base_uri + '~' + partition + '~' + name
+        return load_uri
 
+    def _load(self, **kwargs):
+        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        load_uri = self._create_subpath_uri(kwargs)
         response = read_session.get(load_uri, uri_as_parts=False, **kwargs)
         self._local_update(response.json())
         self._activate_URI(self.selfLink)
@@ -98,3 +101,35 @@ class Folder(Resource):
         if inherit_device_group == 'true':
             self.__dict__.pop('deviceGroup')
         return self._update(**kwargs)
+
+    def exists(self, **kwargs):
+        """Check for the existence of the named object on the BigIP
+
+        Tries to `load()` the object and if it fails checks the exception
+        for 404.  If the `load()` is successful it returns `True` if the
+        exception is :exc:`requests.HTTPError` and the
+        ``status_code`` is ``404``
+        it will return error.  All other errors are raised as is.
+
+        :param kwargs: Keyword arguments required to get objects
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.get method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
+        :returns: bool -- The objects exists on BigIP or not.
+        :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
+            code 404.
+        """
+        requests_params = self._handle_requests_params(kwargs)
+        self._check_load_parameters(**kwargs)
+        load_uri = self._create_subpath_uri(kwargs)
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        kwargs.update(requests_params)
+        try:
+            session.get(load_uri, **kwargs)
+        except HTTPError as err:
+            print(err.response.text)
+            if err.response.status_code == 404:
+                return False
+            else:
+                raise
+        return True

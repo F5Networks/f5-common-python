@@ -25,6 +25,7 @@ from f5.bigip.resource import KindTypeMismatch
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.resource import RequestParamKwargCollision
 from f5.bigip.resource import Resource
 from f5.bigip.resource import ResourceBase
 from f5.bigip.resource import UnregisteredKind
@@ -285,6 +286,15 @@ class TestResource_load(object):
             r.load(partition='Common', name='test_load')
         assert MRREIO.value.message ==\
             "Missing required params: set(['IMPOSSIBLE'])"
+
+    def test_requests_params_collision(self):
+        r = Resource(mock.MagicMock())
+        with pytest.raises(RequestParamKwargCollision) as RPKCEIO:
+            r.load(partition='Common', name='test_load',
+                   requests_params={'partition': 'ERROR'})
+        assert RPKCEIO.value.message ==\
+            "Requests Parameter 'partition' collides with a load parameter"\
+            " of the same name."
 
     def test_success(self):
         r = Resource(mock.MagicMock())

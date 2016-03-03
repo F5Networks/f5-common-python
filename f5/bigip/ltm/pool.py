@@ -56,17 +56,17 @@ class Members_s(Collection):
     """BigIP LTM pool members sub-collection"""
     def __init__(self, pool):
         super(Members_s, self).__init__(pool)
-        self._meta_data['allowed_lazy_attributes'] = [Member]
+        self._meta_data['allowed_lazy_attributes'] = [Members]
         self._meta_data['required_json_kind'] =\
             'tm:ltm:pool:members:memberscollectionstate'
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:pool:members:membersstate': Member}
+            {'tm:ltm:pool:members:membersstate': Members}
 
 
-class Member(Resource):
+class Members(Resource):
     """BigIP LTM pool members sub-collection resource"""
-    def __init__(self, member_s):
-        super(Member, self).__init__(member_s)
+    def __init__(self, members_s):
+        super(Members, self).__init__(members_s)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:pool:members:membersstate'
         self._meta_data['required_creation_parameters'].update(('partition',))

@@ -52,7 +52,7 @@ def setup_basic_test(request, bigip, name, partition):
 def setup_member_test(request, bigip, name, partition,
                       memname="192.168.15.15:80"):
     p1 = setup_basic_test(request, bigip, name, partition)
-    member = p1.members_s.member
+    member = p1.members_s.members
     member.create(name=memname, partition=partition)
     assert member.name == "192.168.15.15:80"
     return member, p1
@@ -62,7 +62,7 @@ class TestPoolMembersCollection(object):
     def test_get_collection(self, request, bigip):
         member1, pool1 = setup_member_test(request, bigip, 'membertestpool1',
                                            'Common')
-        pool1.members_s.member.create(
+        pool1.members_s.members.create(
             name='192.168.16.16:8080', partition='Common')
         selfLinks = []
         for mem in pool1.members_s.get_collection():
@@ -116,7 +116,7 @@ class TestPoolMembers(object):
                                            'Common')
         member1.description = TESTDESCRIPTION
         member1.update(state=None)
-        member2 = pool1.members_s.member
+        member2 = pool1.members_s.members
         member2.load(name='192.168.15.15:80', partition='Common')
         assert member2.description == TESTDESCRIPTION
         assert member2.selfLink == member1.selfLink

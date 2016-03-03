@@ -52,3 +52,42 @@ def bigip(opt_bigip, opt_username, opt_password, scope="module"):
 def NAT(bigip):
     n = bigip.ltm.nats.nat
     return n
+
+
+def _delete_pools_members(bigip, pool_records):
+    for pr in pool_records:
+        if bigip.ltm.pools.pool.exists(partition=pr.partition, name=pr.name):
+            pool_inst = bigip.ltm.pools.pool.load(partition=pr.partition,
+                                                  name=pr.name)
+            members_list = pool_inst.members_s.get_collection()
+            pool_inst.delete()
+            for mem_inst in members_list:
+                mem_inst.delete()
+
+
+@pytest.fixture
+def pool_factory():
+    def _setup_boilerplate(bigip, request, pool_records):
+        _delete_pools_members(bigip, pool_records)
+        pool_registry = {}
+        members_registry = {}
+        for pr in pool_records:
+            pool_registry[pr.name] =\
+                bigip.ltm.pools.pool.create(partition=pr.partition,
+                                            name=pr.name)
+            if pr.memberconfigs != (tuple(),):
+                members_collection = pool_registry[pr.name].members_s
+                for memconf in pr.memberconfigs:
+                    members_registry[memconf.memname] =\
+                        members_collection.members\
+                        .create(partition=memconf.mempartition,
+                                name=memconf.memname)
+
+        def deleter():
+            for member_instance in members_registry.values():
+                member_instance.delete()
+            for pool_instance in pool_registry.values():
+                pool_instance.delete()
+        request.addfinalizer(deleter)
+        return pool_registry, members_registry
+    return _setup_boilerplate
