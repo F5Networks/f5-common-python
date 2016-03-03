@@ -84,6 +84,10 @@ from f5.bigip.mixins import ToDictMixin
 from requests.exceptions import HTTPError
 
 
+class RequestParamKwargCollision(Exception):
+    pass
+
+
 class KindTypeMismatch(Exception):
     """Raise this when server JSON keys are incorrect for the Resource type."""
     pass
@@ -243,7 +247,13 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
         return rdict
 
     def _handle_requests_params(self, kwargs):
-        return kwargs.pop('requests_params', {})
+        requests_params = kwargs.pop('requests_params', {})
+        for param in requests_params:
+            if param in kwargs:
+                error_message = 'Requests Parameter %r collides with a load'\
+                    ' parameter of the same name.' % param
+                raise RequestParamKwargCollision(error_message)
+        return requests_params
 
     def _refresh(self, **kwargs):
         """wrapped by `refresh` override that in a subclass to customize"""
@@ -372,7 +382,7 @@ class Collection(ResourceBase):
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + base_uri
 
-    def get_collection(self):
+    def get_collection(self, **kwargs):
         """Get an iterator of Python ``Resource`` objects that represent URIs.
 
         The returned objects are Pythonic `Resource`s that map to the most
