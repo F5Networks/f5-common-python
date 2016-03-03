@@ -13,6 +13,18 @@
 # limitations under the License.
 #
 
+"""BigIP Local Traffic Manager (LTM) SNAT module.
+
+REST URI
+    ``http://localhost/mgmt/tm/ltm/snat``
+
+GUI Path
+    ``Local Traffic --> SNAT``
+
+REST Kind
+    ``tm:ltm:snat:*``
+"""
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import Resource
@@ -23,6 +35,7 @@ class RequireOneOf(MissingRequiredCreationParameter):
 
 
 class SNATs(Collection):
+    """BigIP LTM SNAT collection"""
     def __init__(self, ltm):
         super(SNATs, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [SNAT]
@@ -31,6 +44,7 @@ class SNATs(Collection):
 
 
 class SNAT(Resource):
+    """BigIP LTM SNAT resource"""
     def __init__(self, snat_s):
         '''This represents a SNAT.
 
@@ -43,6 +57,29 @@ class SNAT(Resource):
             ('partition', 'origins'))
 
     def create(self, **kwargs):
+        """Call this to create a new snat on the BigIP.
+
+        Uses HTTP POST to 'containing' URI to create a service associated with
+        a new URI on the device.
+
+        Note this is the one of two fundamental Resource operations that
+        returns a different uri (in the returned object) than the uri the
+        operation was called on.  The returned uri can be accessed as
+        Object.selfLink, the actual uri used by REST operations on the object
+        is Object._meta_data['uri'].  The _meta_data['uri'] is the same as
+        Object.selfLink with the substring 'localhost' replaced with the value
+        of Object._meta_data['bigip']._meta_data['hostname'], and without
+        query args, or hash fragments.
+
+        The following is done prior to the POST
+        * Ensures that one of ``automap``, ``snatpool``, ``translastion``
+          parameter is passed in.
+
+        :param kwargs: All the key-values needed to create the resource
+        :returns: An instance of the Python object that represents the device's
+        uri-published resource.  The uri of the resource is part of the
+        object's _meta_data.
+        """
         rcp = self._meta_data['required_creation_parameters']
         required_singles = set(('automap', 'snatpool', 'translation'))
         pre_req_len = len(kwargs.keys())

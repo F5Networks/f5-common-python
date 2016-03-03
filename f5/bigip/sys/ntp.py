@@ -13,12 +13,31 @@
 #   limitations under the License.
 #
 
+"""BigIP system ntp module
+
+REST URI
+    ``http://localhost/mgmt/tm/sys/ntp``
+
+GUI Path
+    ``System --> Configuration --> Device --> NTP``
+
+REST Kind
+    ``tm:sys:ntp:*``
+"""
+
 from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
 class Ntp(UnnamedResourceMixin, Resource):
+    """BigIP system NTP unnamed resource
+
+        .. note::
+
+        This is an unnamed resource so it has not ~Partition~Name pattern
+        at the end of its URI.
+    """
     def __init__(self, sys):
         super(Ntp, self).__init__(sys)
         endpoint = self.__class__.__name__.lower()
@@ -32,6 +51,7 @@ class Ntp(UnnamedResourceMixin, Resource):
 
 
 class Restricts(Collection):
+    """BigIP system NTP restrict sub-collection"""
     def __init__(self, ntp):
         super(Restricts, self).__init__(ntp)
         self._meta_data['allowed_lazy_attributes'] = [Restrict]
@@ -42,6 +62,7 @@ class Restricts(Collection):
 
 
 class Restrict(Resource):
+    """BigIP system NTP restrict sub-collection resource"""
     def __init__(self, restricts):
         super(Restrict, self).__init__(restricts)
         self._meta_data['required_json_kind'] =\

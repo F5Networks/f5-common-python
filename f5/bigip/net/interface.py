@@ -13,6 +13,18 @@
 # limitations under the License.
 #
 
+"""BigIP Network interface module.
+
+REST URI
+    ``http://localhost/mgmt/tm/net/interface``
+
+GUI Path
+    ``Network --> Interfaces``
+
+REST Kind
+    ``tm:net:interface:*``
+"""
+
 from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
@@ -20,6 +32,7 @@ from f5.bigip.resource import UnsupportedOperation
 
 
 class Interfaces(Collection):
+    """BigIP network interface collection"""
     def __init__(self, net):
         super(Interfaces, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [Interface]
@@ -29,6 +42,7 @@ class Interfaces(Collection):
 
 
 class Interface(Resource, ExclusiveAttributesMixin):
+    """BigIP network interface collection"""
     def __init__(self, interface_s):
         super(Interface, self).__init__(interface_s)
         self._meta_data['required_json_kind'] =\
@@ -36,9 +50,17 @@ class Interface(Resource, ExclusiveAttributesMixin):
         self._meta_data['exclusive_attributes'].append(('enabled', 'disabled'))
 
     def create(self, **kwargs):
+        """Create is not supported for interfaces.
+
+        :raises: :exc:`~f5.bigip.resource.UnsupportedOperation`
+        """
         raise UnsupportedOperation(
             "BigIP interfaces cannot be created by users")
 
     def delete(self):
+        """Delete is not supported for interfaces.
+
+        :raises: :exc:`~f5.bigip.resource.UnsupportedOperation`
+        """
         raise UnsupportedOperation(
             "BigIP interfaces cannot be deleted by users")

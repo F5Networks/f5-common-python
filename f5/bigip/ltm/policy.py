@@ -13,11 +13,24 @@
 # limitations under the License.
 #
 
+"""BigIP Local Traffic Manager (LTM) policy module.
+
+REST URI
+    ``http://localhost/mgmt/tm/ltm/policy``
+
+GUI Path
+    ``Local Traffic --> policy``
+
+REST Kind
+    ``tm:ltm:policy:*``
+"""
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
 class Policys(Collection):
+    """BigIP LTM policy collection."""
     def __init__(self, ltm):
         super(Policys, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Policy]
@@ -26,6 +39,7 @@ class Policys(Collection):
 
 
 class Policy(Resource):
+    """BigIP LTM policy resource."""
     def __init__(self, policy_s):
         super(Policy, self).__init__(policy_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:policy:policystate'
@@ -35,6 +49,7 @@ class Policy(Resource):
 
 
 class Rules_s(Collection):
+    """BigIP LTM policy rules sub-collection."""
     def __init__(self, policy):
         super(Rules_s, self).__init__(policy)
         self._meta_data['attribute_registry'] =\
@@ -45,6 +60,7 @@ class Rules_s(Collection):
 
 
 class Rules(Resource):
+    """BigIP LTM policy rules sub-collection resource."""
     def __init__(self, rules_s):
         super(Rules, self).__init__(rules_s)
         self._meta_data['required_json_kind'] =\
@@ -57,6 +73,7 @@ class Rules(Resource):
 
 
 class Actions_s(Collection):
+    """BigIP LTM policy actions sub-collection."""
     def __init__(self, rules):
         super(Actions_s, self).__init__(rules)
         self._meta_data['required_json_kind'] =\
@@ -67,6 +84,7 @@ class Actions_s(Collection):
 
 
 class Actions(Resource):
+    """BigIP LTM policy actions sub-collection resource."""
     def __init__(self, actions_s):
         super(Actions, self).__init__(actions_s)
         self._meta_data['required_json_kind'] =\
@@ -74,6 +92,7 @@ class Actions(Resource):
 
 
 class Conditions_s(Collection):
+    """BigIP LTM policy conditions sub-collection."""
     def __init__(self, rules):
         super(Conditions_s, self).__init__(rules)
         self._meta_data['required_json_kind'] =\
@@ -84,6 +103,7 @@ class Conditions_s(Collection):
 
 
 class Conditions(Resource):
+    """BigIP LTM policy conditions sub-collection resource."""
     def __init__(self, conditions_s):
         super(Conditions, self).__init__(conditions_s)
         self._meta_data['required_json_kind'] =\

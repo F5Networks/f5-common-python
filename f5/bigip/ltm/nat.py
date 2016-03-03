@@ -12,12 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""BigIP Local Traffic Manager (LTM) NAT module.
+
+REST URI
+    ``http://localhost/mgmt/tm/ltm/nat``
+
+GUI Path
+    ``Local Traffic --> NAT``
+
+REST Kind
+    ``tm:ltm:nat:*``
+"""
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import Resource
 
 
 class NATs(Collection):
+    """BigIP LTM NAT collection object"""
     def __init__(self, ltm):
         super(NATs, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [NAT]
@@ -26,6 +39,7 @@ class NATs(Collection):
 
 
 class NAT(Resource):
+    """BigIP LTM NAT collection resource"""
     def __init__(self, nat_s):
         super(NAT, self).__init__(nat_s)
         self._meta_data['required_creation_parameters'].update(

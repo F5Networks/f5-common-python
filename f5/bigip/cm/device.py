@@ -12,12 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""BigIP cluster device submodule
+
+REST URI
+    ``http://localhost/mgmt/tm/cm/device/``
+
+GUI Path
+    ``Device Management --> Devices``
+
+REST Kind
+    ``tm:cm:device:*``
+"""
+
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
 class Devices(Collection):
+    """BigIP cluster devices collection.
+
+    """
     def __init__(self, cm):
         super(Devices, self).__init__(cm)
         self._meta_data['allowed_lazy_attributes'] = [Device]
@@ -26,6 +41,9 @@ class Devices(Collection):
 
 
 class Device(Resource):
+    """BigIP cluster device object.
+
+    """
     def __init__(self, device_s):
         super(Device, self).__init__(device_s)
         self._meta_data['required_json_kind'] = 'tm:cm:device:devicestate'

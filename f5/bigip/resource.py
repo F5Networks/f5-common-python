@@ -134,6 +134,7 @@ class URICreationCollision(Exception):
 
 
 class UnsupportedOperation(Exception):
+    """Object does not support the method that was called."""
     pass
 
 

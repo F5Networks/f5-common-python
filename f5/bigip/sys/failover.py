@@ -12,20 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""BigIP system failover module
+
+REST URI
+    ``http://localhost/mgmt/tm/sys/failover``
+
+GUI Path
+    ``System --> Failover``
+
+REST Kind
+    ``tm:sys:failover:*``
+"""
 
 from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.resource import Resource
 
 
 class Failover(UnnamedResourceMixin, Resource):
-    '''Failover stats and state change.
+    '''BigIP Failover stats and state change.
 
     The failover object only supports load and update because it is an
     unnamed resource.
 
-    To force the unit to standby call the `update()` method as follows:
+    To force the unit to standby call the ``update()`` method as follows:
 
-    ``f.update(command='run', standby=None, trafficGroup='mytrafficgroup')``
+    .. code-block:: python
+        f.update(command='run', standby=None, trafficGroup='mytrafficgroup')
+
+    .. note::
+
+        This is an unnamed resource so it has not ~Partition~Name pattern
+        at the end of its URI.
     '''
     def __init__(self, sys):
         super(Failover, self).__init__(sys)

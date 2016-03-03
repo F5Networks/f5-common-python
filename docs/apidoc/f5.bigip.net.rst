@@ -1,69 +1,124 @@
-f5.bigip.net package
-====================
+f5.bigip.net
+============
 
-Subpackages
------------
+Submodule List
+--------------
+.. py:currentmodule:: f5.bigip.net
 
-.. toctree::
+.. autosummary::
 
-    f5.bigip.net.test
+    arp
+    interface
+    route
+    selfip
+    tunnels
+    vlan
+
+Module Conents
+--------------
+
+.. automodule:: f5.bigip.net
+    :members:
+
 
 Submodules
 ----------
 
-f5.bigip.net.arp module
------------------------
+arp
+~~~
 
 .. automodule:: f5.bigip.net.arp
     :members:
-    :undoc-members:
-    :show-inheritance:
 
-f5.bigip.net.interface module
------------------------------
+    ARP Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.net.arp
+
+    .. autosummary::
+
+        Arps
+        Arp
+
+interface
+~~~~~~~~~
 
 .. automodule:: f5.bigip.net.interface
     :members:
-    :undoc-members:
-    :show-inheritance:
 
-f5.bigip.net.route module
--------------------------
+    Interface Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.net.interface
+
+    .. autosummary::
+
+        Interfaces
+        Interface
+
+
+route
+~~~~~
 
 .. automodule:: f5.bigip.net.route
     :members:
-    :undoc-members:
-    :show-inheritance:
 
-f5.bigip.net.selfip module
---------------------------
+    Route Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.net.route
+
+    .. autosummary::
+
+        Routes
+        Route
+
+selfip
+~~~~~~
 
 .. automodule:: f5.bigip.net.selfip
     :members:
-    :undoc-members:
-    :show-inheritance:
 
-f5.bigip.net.tunnels module
----------------------------
+    SelfIP Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.net.selfip
+
+    .. autosummary::
+
+        SelfIPs
+        SelfIP
+
+
+tunnels
+~~~~~~~
 
 .. automodule:: f5.bigip.net.tunnels
     :members:
-    :undoc-members:
-    :show-inheritance:
 
-f5.bigip.net.vlan module
-------------------------
+    Tunnels Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.net.tunnels
+
+    .. autosummary::
+
+        Tunnels_s
+        Tunnels
+        Tunnel
+        Gres
+        Gre
+        Vxlans
+        Vxlan
+
+vlan
+~~~~
 
 .. automodule:: f5.bigip.net.vlan
     :members:
-    :undoc-members:
-    :show-inheritance:
 
+    VLAN Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.net.vlan
 
-Module contents
----------------
+    .. autosummary::
 
-.. automodule:: f5.bigip.net
-    :members:
-    :undoc-members:
-    :show-inheritance:
+        VLANs
+        VLAN
+        Interfaces_s
+        Interfaces

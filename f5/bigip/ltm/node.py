@@ -13,11 +13,24 @@
 # limitations under the License.
 #
 
+"""BigIP Local Traffic Manager (LTM) node module.
+
+REST URI
+    ``http://localhost/mgmt/tm/ltm/node``
+
+GUI Path
+    ``Local Traffic --> Nodes``
+
+REST Kind
+    ``tm:ltm:node:*``
+"""
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
 class Nodes(Collection):
+    """BigIP LTM node collection"""
     def __init__(self, ltm):
         super(Nodes, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Node]
@@ -26,6 +39,7 @@ class Nodes(Collection):
 
 
 class Node(Resource):
+    """BigIP LTM node resource"""
     def __init__(self, nodes):
         super(Node, self).__init__(nodes)
         self._meta_data['required_json_kind'] = 'tm:ltm:node:nodestate'
@@ -37,7 +51,19 @@ class Node(Resource):
         self._meta_data['read_only_attributes'].append('address')
 
     def update(self, **kwargs):
-        """Update needs to remove autopopulate from the fqdn attribute
+        """Call this to change the configuration of the service on the device.
+
+        This method uses HTTP PUT alter the service state on the device.
+
+        The attributes of the instance will be packaged as a dictionary.  That
+        dictionary will be updated with kwargs.  It is then submitted as JSON
+        to the device.  Various edge cases are handled:
+
+        * read-only attributes that are unchangeable are removed
+        * If ``fqdn`` is in the kwargs or set as an attribute, removes the
+          ``autopopulate`` and ``addressFamily`` keys from it if there.
+
+        :param kwargs: keys and associated values to alter on the device
 
         """
         # Is autopopulate in kwargs?

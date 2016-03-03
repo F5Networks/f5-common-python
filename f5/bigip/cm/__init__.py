@@ -12,6 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""BigIP cluster module
+
+REST URI
+    ``http://localhost/mgmt/tm/cm/``
+
+GUI Path
+    ``Device Management``
+
+REST Kind
+    ``tm:cm:*``
+"""
+
 
 from f5.bigip.cm.device import Devices
 from f5.bigip.cm.device_group import Device_Groups
@@ -20,6 +32,7 @@ from f5.bigip.resource import OrganizingCollection
 
 
 class CM(OrganizingCollection):
+    """BigIP Cluster Organizing Collection."""
     def __init__(self, bigip):
         super(CM, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [

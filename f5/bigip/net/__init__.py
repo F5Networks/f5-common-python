@@ -13,6 +13,18 @@
 # limitations under the License.
 #
 
+"""BigIP net module
+
+REST URI
+    ``http://localhost/mgmt/tm/net/``
+
+GUI Path
+    ``Network``
+
+REST Kind
+    ``tm:net:*``
+"""
+
 from f5.bigip.net.arp import Arps
 from f5.bigip.net.interface import Interfaces
 from f5.bigip.net.route import Routes
@@ -20,8 +32,6 @@ from f5.bigip.net.selfip import SelfIPs
 from f5.bigip.net.tunnels import Tunnels_s
 from f5.bigip.net.vlan import VLANs
 from f5.bigip.resource import OrganizingCollection
-
-base_uri = 'net/'
 
 
 class Net(OrganizingCollection):

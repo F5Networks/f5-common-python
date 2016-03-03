@@ -13,11 +13,24 @@
 # limitations under the License.
 #
 
+"""BigIP Network ARP module.
+
+REST URI
+    ``http://localhost/mgmt/tm/net/arp``
+
+GUI Path
+    ``Network --> ARP``
+
+REST Kind
+    ``tm:net:arp:*``
+"""
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
 class Arps(Collection):
+    """BigIP network ARP collection"""
     def __init__(self, net):
         super(Arps, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [Arp]
@@ -27,6 +40,7 @@ class Arps(Collection):
 
 
 class Arp(Resource):
+    """BigIP network ARP resource"""
     def __init__(self, arp_s):
         super(Arp, self).__init__(arp_s)
         self._meta_data['required_json_kind'] = 'tm:net:arp:arpstate'

@@ -1,18 +1,11 @@
 f5 package
 ==========
 
-Subpackages
------------
-
 .. toctree::
+    :maxdepth: 3
 
     f5.bigip
     f5.common
 
-Module contents
----------------
-
 .. automodule:: f5
     :members:
-    :undoc-members:
-    :show-inheritance:

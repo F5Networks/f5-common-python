@@ -1,4 +1,3 @@
-"""Manage application services on BIG-IP using REST interface """
 # Copyright 2014-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +13,18 @@
 # limitations under the License.
 #
 
+"""BigIP iApp (application) module
+
+REST URI
+    ``http://localhost/mgmt/sys/application/``
+
+GUI Path
+    ``iApps``
+
+REST Kind
+    ``tm:sys:application:*``
+"""
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import KindTypeMismatch
 from f5.bigip.resource import Resource
@@ -22,6 +33,7 @@ from requests import HTTPError
 
 
 class Applications(Collection):
+    """BigIP iApp collection."""
     def __init__(self, sys):
         super(Applications, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [
@@ -33,6 +45,7 @@ class Applications(Collection):
 
 
 class APLScripts(Collection):
+    """BigIP iApp script collection."""
     def __init__(self, application):
         super(APLScripts, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [APLScript]
@@ -41,6 +54,7 @@ class APLScripts(Collection):
 
 
 class APLScript(Resource):
+    """BigIP iApp script resource."""
     def __init__(self, apl_script_s):
         super(APLScript, self).__init__(apl_script_s)
         self._meta_data['required_json_kind'] =\
@@ -48,6 +62,7 @@ class APLScript(Resource):
 
 
 class CustomStats(Collection):
+    """BigIP iApp custom stats sub-collection."""
     def __init__(self, application):
         super(CustomStats, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [CustomStat]
@@ -56,6 +71,7 @@ class CustomStats(Collection):
 
 
 class CustomStat(Resource):
+    """BigIP iApp custom stats sub-collection resource."""
     def __init__(self, custom_stat_s):
         super(CustomStat, self).__init__(custom_stat_s)
         self._meta_data['required_json_kind'] =\
@@ -63,6 +79,7 @@ class CustomStat(Resource):
 
 
 class Services(Collection):
+    """BigIP iApp service sub-collection."""
     def __init__(self, application):
         super(Services, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Service]
@@ -71,6 +88,7 @@ class Services(Collection):
 
 
 class Service(Resource):
+    """BigIP iApp service sub-collection resource"""
     def __init__(self, service_s):
         super(Service, self).__init__(service_s)
         self._meta_data['required_creation_parameters'].update(
@@ -153,6 +171,7 @@ class Service(Resource):
 
 
 class Templates(Collection):
+    """BigIP iApp template sub-collection"""
     def __init__(self, application):
         super(Templates, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Template]
@@ -161,6 +180,7 @@ class Templates(Collection):
 
 
 class Template(Resource):
+    """BigIP iApp template sub-collection resource"""
     def __init__(self, template_s):
         super(Template, self).__init__(template_s)
         self._meta_data['required_creation_parameters'].update(('partition',))

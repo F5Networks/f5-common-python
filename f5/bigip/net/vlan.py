@@ -13,12 +13,25 @@
 # limitations under the License.
 #
 
+"""BigIP Network vlan module.
+
+REST URI
+    ``http://localhost/mgmt/tm/net/vlan``
+
+GUI Path
+    ``Network --> VLANs``
+
+REST Kind
+    ``tm:net:vlan:*``
+"""
+
 from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
 class VLANs(Collection):
+    """BigIP network VLAN collection."""
     def __init__(self, net):
         super(VLANs, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [VLAN]
@@ -27,6 +40,7 @@ class VLANs(Collection):
 
 
 class VLAN(Resource):
+    """BigIP network VLAN resource."""
     def __init__(self, vlan_s):
         super(VLAN, self).__init__(vlan_s)
         self._meta_data['required_json_kind'] = 'tm:net:vlan:vlanstate'
@@ -35,14 +49,12 @@ class VLAN(Resource):
 
 
 class Interfaces_s(Collection):
-    '''Represents a VLAN interface list.
+    '''BigIP network VLAN interface collection.
 
-    Not to be confused with tm/mgmt/net/interface.  This is actually called
-    interfaces with an 's' by the BIGIP's REST API.
-
-    *Note* We may need to come back and revist this if it turns out that
-    the actual representation of the interface and interfaces objects are
-    the same.
+    .. note::
+        Not to be confused with ``tm/mgmt/net/interface``.  This is object
+        is actually called ``interfaces`` with an ``s`` by the BIGIP's REST
+        API.
     '''
     def __init__(self, vlan):
         super(Interfaces_s, self).__init__(vlan)
@@ -52,6 +64,7 @@ class Interfaces_s(Collection):
 
 
 class Interfaces(Resource, ExclusiveAttributesMixin):
+    """BigIP network VLAN interface resource."""
     def __init__(self, interfaces_s):
         super(Interfaces, self).__init__(interfaces_s)
         # VLAN intefaces objects do not have a partition
@@ -59,11 +72,3 @@ class Interfaces(Resource, ExclusiveAttributesMixin):
             'tm:net:vlan:interfaces:interfacesstate'
         # You cannot send both tagged and untagged attributes on update
         self._meta_data['exclusive_attributes'].append(('tagged', 'untagged'))
-
-    def create(self, **kwargs):
-        self._create(**kwargs)
-        return self
-
-    def load(self, **kwargs):
-        self._load(**kwargs)
-        return self

@@ -13,11 +13,24 @@
 # limitations under the License.
 #
 
+"""BigIP Network tunnels module.
+
+REST URI
+    ``http://localhost/mgmt/tm/net/tunnels``
+
+GUI Path
+    ``Network --> tunnels``
+
+REST Kind
+    ``tm:net:tunnels:*``
+"""
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
 class Tunnels_s(Collection):
+    """BigIP network tunnels collection"""
     def __init__(self, net):
         super(Tunnels_s, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [
@@ -28,6 +41,7 @@ class Tunnels_s(Collection):
 
 
 class Tunnels(Collection):
+    """BigIP network tunnels resource (collection for GRE, Tunnel, VXLANs"""
     def __init__(self, tunnels_s):
         super(Tunnels, self).__init__(tunnels_s)
         self._meta_data['allowed_lazy_attributes'] = [Gres, Tunnel, Vxlans]
@@ -36,6 +50,7 @@ class Tunnels(Collection):
 
 
 class Tunnel(Resource):
+    """BigIP tunnels tunnel resource"""
     def __init__(self, tunnels):
         super(Tunnel, self).__init__(tunnels)
         self._meta_data['required_creation_parameters'].update(('partition',))
@@ -44,6 +59,7 @@ class Tunnel(Resource):
 
 
 class Gres(Collection):
+    """BigIP tunnels GRE sub-collection"""
     def __init__(self, tunnels_s):
         super(Gres, self).__init__(tunnels_s)
         self._meta_data['allowed_lazy_attributes'] = [Gre]
@@ -52,6 +68,7 @@ class Gres(Collection):
 
 
 class Gre(Resource):
+    """BigIP tunnels GRE sub-collection resource"""
     def __init__(self, gres):
         super(Gre, self).__init__(gres)
         self._meta_data['required_creation_parameters'].update(('partition',))
@@ -60,6 +77,7 @@ class Gre(Resource):
 
 
 class Vxlans(Collection):
+    """BigIP tunnels VXLAN sub-collection"""
     def __init__(self, tunnels_s):
         super(Vxlans, self).__init__(tunnels_s)
         self._meta_data['allowed_lazy_attributes'] = [Vxlan]
@@ -68,6 +86,7 @@ class Vxlans(Collection):
 
 
 class Vxlan(Resource):
+    """BigIP tunnels VXLAN sub-collection resource"""
     def __init__(self, vxlans):
         super(Vxlan, self).__init__(vxlans)
         self._meta_data['required_creation_parameters'].update(('partition',))

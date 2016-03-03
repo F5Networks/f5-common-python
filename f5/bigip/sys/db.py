@@ -13,12 +13,25 @@
 # limitations under the License.
 #
 
+"""BigIP db module
+
+REST URI
+    ``http://localhost/mgmt/sys/db/``
+
+GUI Path
+    N/A
+
+REST Kind
+    ``tm:sys:db:*``
+"""
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 from f5.bigip.resource import UnsupportedOperation
 
 
 class Dbs(Collection):
+    """BigIP db collection"""
     def __init__(self, sys):
         super(Dbs, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [Db]
@@ -27,6 +40,11 @@ class Dbs(Collection):
 
 
 class Db(Resource):
+    """BigIP db resource
+
+    .. note::
+        db objects are read-only.
+    """
     def __init__(self, dbs):
         super(Db, self).__init__(dbs)
         self._meta_data['required_json_kind'] = 'tm:sys:db:dbstate'

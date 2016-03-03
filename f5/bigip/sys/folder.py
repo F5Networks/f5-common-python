@@ -13,11 +13,27 @@
 # limitations under the License.
 #
 
+"""BigIP system folder (partition) module
+
+REST URI
+    ``http://localhost/mgmt/tm/sys/folder``
+
+GUI Path
+    ``System --> Users --> Partition List``
+
+REST Kind
+    ``tm:sys:folder:*``
+"""
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
 class Folders(Collection):
+    """BigIP system folder collection.
+
+    These are what we refer to as ``partition`` in the SDK.
+    """
     def __init__(self, sys):
         super(Folders, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [Folder]
@@ -27,7 +43,7 @@ class Folders(Collection):
 
 class Folder(Resource):
     def __init__(self, folder_s):
-        '''Create a folder resource object.
+        '''BigIP system folder resource.
 
         Folder objects are the same as the partition so we need to deal with
         them slightly differently than other Resources.  For example when
