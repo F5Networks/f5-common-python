@@ -35,8 +35,8 @@ Basic Example
     pools = bigip.ltm.pools.get_collection()
     for pool in pools:
         print pool.name
-        for member in pool.members:
-            print member.name
+        for member in pool.members_s.get_collection():
+             print member.name
 
     # Create a new pool on the BigIP
     mypool = bigip.ltm.pools.pool.create(name='mypool', partition='Common')
@@ -48,7 +48,7 @@ Basic Example
 
     # Delete a pool if it exists
     if bigip.ltm.pools.pool.exists(name='mypool', partition='Common'):
-        pool_b = bigip.ltm.pools.pool.load(name='oldpool', partition='Common')
+        pool_b = bigip.ltm.pools.pool.load(name='mypool', partition='Common')
         pool_b.delete()
 
 Detailed Documentation
