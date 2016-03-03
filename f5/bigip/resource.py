@@ -139,32 +139,35 @@ class UnsupportedOperation(Exception):
 
 
 class ResourceBase(LazyAttributeMixin, ToDictMixin):
-    """Every resource that maps to a uri on the device should inherit this.
-
-    Instantiate this with ContainerInstance.NewResourceBaseInstance via the
-    LazyAttributeMixin.
+    """Base class for all BigIP iControl REST API endpoints.
 
     The BigIP is represented by an object that converts device published uri's
     into Python objects.  Each uri maps to a Python object. The mechanism for
-    instantatiating these objects is the __getattr__ Special Function in the
+    instantiating these objects is the __getattr__ Special Function in the
     LazyAttributeMixin.  When a registered attribute is `dot` referenced, on
-    the device object (e.g. `bigip.ltm` or simply `bigip`), an appropriate
-    object is instantiated and attributed to the referencing object, so:
-    >>> bigip.ltm = LTM(bigip)
-    >>> bigip.ltm.nats
-    >>> nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3', '1.2.3.4')
+    the device object (e.g. ``bigip.ltm`` or simply ``bigip``), an appropriate
+    object is instantiated and attributed to the referencing object:
 
-    Shortens to just the last line:
-    >>> nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3', '1.2.3.4')
+    .. code-block:: python
+
+        bigip.ltm = LTM(bigip)
+        bigip.ltm.nats
+        nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3', '1.2.3.4')
+
+    This can be shortened to just the last line:
+
+    .. code-block:: python
+
+        nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3', '1.2.3.4')
 
     Critically this enforces a convention relating device published uris to
     API objects, in a hierarchy similar to the uri paths.  I.E. the uri
-    corresponding to a `Nats` object is `mgmt/tm/ltm/nat/`. If you
+    corresponding to a ``Nats`` object is ``mgmt/tm/ltm/nat/``. If you
     query the bigip's uri (e.g. print(bigip._meta_data['uri']) ), you'll see
     that it ends in:
-    `/mgmt/tm/`, if you query the `ltm` object's uri
+    ``/mgmt/tm/``, if you query the ``ltm`` object's uri
     (e.g. print(bigip.ltm._meta_data['uri']) ) you'll see it ends in
-    `/mgmt/tm/ltm/.
+    ``/mgmt/tm/ltm/``.
 
     In general the objects build a required `self._meta_data['uri']` attribute
     by:
@@ -175,12 +178,6 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
     The net result is a succinct mapping between uri's and objects,
     that represents objects in a hierarchical relationship similar to the
     devices uri path hierarchy.
-
-    Public attributes:
-    - refresh: updates itself with the results of an http GET on the resource
-    - raw: a convenience method for inspecting the instance __dict__
-    - others: not to be called here
-
     """
     def __init__(self, container):
         """Call this with containing_object_instance.FOO
@@ -260,60 +257,45 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
         If successful the instance attribute __dict__ is replaced
         with the dict representing the device state.  To figure out what that
         state is, run a subsequest query of the object like this:
-        >>> resource_obj.refresh()
-        >>> print(resource_obj.raw)
+
+            >>> resource_obj.refresh()
+            >>> print(resource_obj.raw)
         """
         self._refresh()
 
     def load(self, **kwargs):
-        """Implement this by overriding it in a subclass of `Resource`
-
-        :param **kwargs: params and values needed and optional for load
-        :raises: InvalidResource
-        """
         error_message = "Only Resources support 'load'."
         raise InvalidResource(error_message)
 
     def create(self):
-        """Implement this by overriding it in a subclass of `Resource`
-
-        :raises: InvalidResource
-        """
         error_message = "Only Resources support 'create'."
         raise InvalidResource(error_message)
 
     def update(self):
-        """Implement this by overriding it in a subclass of `Resource`
-
-        :raises: InvalidResource
-        """
         error_message = "Only Resources support 'update'."
         raise InvalidResource(error_message)
 
     def delete(self):
-        """Implement this by overriding it in a subclass of `Resource`
-
-        :raises: InvalidResource
-        """
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
 
     @property
     def raw(self):
-        """Call this to see your `self`.
+        """Display the attributes that the current object has and their values.
 
-        :returns: self.__dict__
+        :returns: A dictionary of attributes and their values
         """
         return self.__dict__
 
 
 class OrganizingCollection(ResourceBase):
-    """Instances of this have an `items` attrbute that contains JSON refs.
+    """Base class for objects that collect resources under them.
 
-    `OrganizingCollection` s fulfill the following functions:
-    1.  represent a uri path fragment immediately 'below' /mgmt/tm
-    2.  provide a list of dictionaries that contain uri's to other resources on
-    the device.
+    ``OrganizingCollection`` objects fulfill the following functions:
+
+    * represent a uri path fragment immediately 'below' /mgmt/tm
+    * provide a list of dictionaries that contain uri's to other
+      resources on the device.
     """
     def __init__(self, bigip):
         """Call this to construct an OC. It should be an attribute of BigIP.
@@ -326,23 +308,28 @@ class OrganizingCollection(ResourceBase):
             self._meta_data['container']._meta_data['uri'] + base_uri
 
     def get_collection(self):
-        """Call to obtain a list of the reference dicts in the instance `items`
+        """Get a list of the ``Collection`` objects available under this module
 
-        :returns: self.items
+        :returns: List of self.items
         """
         self._refresh()
         return self.items
 
 
 class Collection(ResourceBase):
-    """Inherit from this class if the corresponding uri lists other resources.
+    """Base class for objects that collect a list of ``Resources``
 
-    Note any subclass must have "s" at the end of its name!
     The Collection Resource is responsible for providing a list of Python
     objects, where each object represents a unique URI, the URI contains the
     URI of the Collection at the front of its path, and the 'kind' of the
     URI-associated-JSON has been registered with the attribute registry of the
     Collection subclass.
+
+    .. note::
+
+        Any subclass of this base class must have ``s`` at the end of its name
+        unless it ends in ``s`` then it must have ``_s``.
+
     """
     def __init__(self, container):
         """Call this with the __get_attr__ of a Resource or OC.
@@ -368,7 +355,7 @@ class Collection(ResourceBase):
             self._meta_data['container']._meta_data['uri'] + base_uri
 
     def get_collection(self):
-        """Get an iterator of Python objects that represent URIs.
+        """Get an iterator of Python ``Resource`` objects that represent URIs.
 
         The returned objects are Pythonic `Resource`s that map to the most
         recently `refreshed` state of uris-resources published by the device.
@@ -376,11 +363,12 @@ class Collection(ResourceBase):
         populate its registry with acceptable types, based on the `kind` field
         returned by the REST server.
 
-        NOTE:  This method implies a single REST transaction with the
-        Collection subclass URI.
+        .. note::
+            This method implies a single REST transaction with the
+            Collection subclass URI.
 
         :raises: UnregisteredKind
-        :returns: list of reference dicts and Python `Resource` objects
+        :returns: list of reference dicts and Python ``Resource`` objects
         """
         list_of_contents = []
         self._refresh()
@@ -407,17 +395,25 @@ class Collection(ResourceBase):
 
 
 class Resource(ResourceBase):
-    """Use this to represent a Configurable Resource on the device.
+    """Base class to represent a Configurable Resource on the device.
 
-    Objects instantiated from subclasses of Resource do NOT contain a URI
-    (self._meta_data['uri']) at instantiation!  This is because these objects
-    provide the interface for the Creation of new services on the device. Once
-    a new service has been created, (via self.create or self.load), the
-    instance constructs its URI and stores it as self._meta_data['uri']. It is
-    an error to attempt to call create or load on an instance more than once.
-    self._meta_data['uri'] MUST not be changed after creation or load.
-    NOTE: creation query args, and creation hash fragments are stored as
-    separate _meta_data values.
+    .. warning::
+        Objects instantiated from subclasses of Resource do NOT contain a URI
+        (self._meta_data['uri']) at instantiation!
+
+    Resource objects provide the interface for the Creation of new services on
+    the device. Once a new service has been created, (via ``self.create`` or
+    ``self.load``), the instance constructs its URI and stores it as
+    ``self._meta_data['uri']``.
+
+    It is an error to attempt to call
+    :meth:`~f5.bigip.resource.Resource.create` or
+    :meth:`~f5.bigip.resource.Resource.load` on an instance more than once.
+    ``self._meta_data['uri']`` MUST not be changed after creation or load.
+
+    .. note::
+        creation query args, and creation hash fragments are stored as
+        separate _meta_data values.
 
     By "Configurable" we mean that submitting JSON via the PUT method to the
     URI managed by subclasses of Resource, changes the state of the
@@ -528,25 +524,29 @@ class Resource(ResourceBase):
         return self
 
     def create(self, **kwargs):
-        """Call this to create. Override to customize. Wrapper for _create.
+        """Create the resource on the BigIP.
 
-        Uses HTTP POST to 'containing' URI to create a service associated with
-        a new URI on the device.
-        Subclasses can customize  this functionality by defining a `create`
-        method that wraps and calls this method with appropriate arguments.
-        Note this is the one of two fundamental Resource operations that
-        returns a different uri (in the returned object) than the uri the
-        operation was called on.  The returned uri can be accessed as
-        Object.selfLink, the actual uri used by REST operations on the object
-        is Object._meta_data['uri'].  The _meta_data['uri'] is the same as
-        Object.selfLink with the substring 'localhost' replaced with the value
-        of Object._meta_data['bigip']._meta_data['hostname'], and without
-        query args, or hash fragments.
+        Uses HTTP POST to the `collection` URI to create a resource associated
+        with a new unique URI on the device.
+
+        ..
+            Subclasses can customize  this functionality by defining a `create`
+            method that wraps and calls this method with appropriate arguments.
+
+            Note this is the one of two fundamental Resource operations that
+            returns a different uri (in the returned object) than the uri the
+            operation was called on.  The returned uri can be accessed as
+            Object.selfLink, the actual uri used by REST operations on the
+            object is Object._meta_data['uri'].  The _meta_data['uri'] is the
+            same as Object.selfLink with the substring 'localhost' replaced
+            with the value of
+            Object._meta_data['bigip']._meta_data['hostname'], and without
+            query args, or hash fragments.
 
         :param kwargs: All the key-values needed to create the resource
-        :returns: An instance of the Python object that represents the device's
-        uri-published resource.  The uri of the resource is part of the
-        object's _meta_data.
+        :returns: ``self`` - A python object that represents the object's
+                  configuration and state on the BigIP.
+
         """
         self._create(**kwargs)
         return self
@@ -563,14 +563,15 @@ class Resource(ResourceBase):
         return self
 
     def load(self, **kwargs):
-        """Calling this loads an already configured service into this instance
+        """Load an already configured service into this instance.
 
-        This method uses HTTP GET to obtain a device service's state.
+        This method uses HTTP GET to obtain a resource from the BigIP.
 
-        The URI of the target service is constructed from the instance's
-        container and **kwargs.  kwargs typically requires the keys "name" and
-        "partition", though this may, or may not, be true for a specific
-        service.
+        ..
+            The URI of the target service is constructed from the instance's
+            container and **kwargs.
+            kwargs typically requires the keys "name" and "partition".
+            this may, or may not, be true for a specific service.
 
         :param kwargs: typically contains "name" and "partition"
         :returns: a Resource Instance (with a populated _meta_data['uri'])
@@ -632,15 +633,16 @@ class Resource(ResourceBase):
         self._local_update(response.json())
 
     def update(self, **kwargs):
-        """Call this to change the configuration of the service on the device.
+        """Update the configuration of the resource on the BigIP.
 
-        This method uses HTTP PUT alter the service state on the device.
+        This method uses HTTP PUT alter the resource state on the BigIP.
 
         The attributes of the instance will be packaged as a dictionary.  That
         dictionary will be updated with kwargs.  It is then submitted as JSON
-        to the device.  Various edge cases are handled:
+        to the device.
 
-        read-only attributes that are unchangeable are removed
+        Various edge cases are handled:
+        * read-only attributes that are unchangeable are removed
 
         :param kwargs: keys and associated values to alter on the device
 
@@ -664,12 +666,12 @@ class Resource(ResourceBase):
             self.__dict__ = {'deleted': True}
 
     def delete(self, **kwargs):
-        """Call this to delete a service on the device.
+        """Delete the resource on the BigIP.
 
-        Uses HTTP DELETE to delete a service on the device.
+        Uses HTTP DELETE to delete the resource on the BigIP.
 
         After this method is called, and status_code 200 response is received
-        instance.__dict__ is replace with {'deleted': True}
+        ``instance.__dict__`` is replace with ``{'deleted': True}``
         """
         # Need to implement checking for ? here.
         self._delete(**kwargs)
@@ -678,16 +680,18 @@ class Resource(ResourceBase):
     def exists(self, **kwargs):
         """Check for the existence of the named object on the BigIP
 
-        Tries to `load()` the object and if it fails checks the exception
-        for 404.  If the `load()` is successful it returns `True` if the
-        exception is :exc:`requests.HTTPError` and the
-        ``status_code`` is ``404``
-        it will return error.  All other errors are raised as is.
+        Sends an HTTP GET to the URI of the named object and if it fails with
+        a :exc:~requests.HTTPError` exception it checks the exception for
+        status code of 404 and returns :obj:`False` in that case.
+
+        If the GET is successful it returns :obj:`True`.
+
+        For any other errors are raised as-is.
 
         :param kwargs: Keyword arguments required to load objects
         :returns: bool -- The objects exists on BigIP or not.
         :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
-            code 404.
+                 code 404.
         """
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True

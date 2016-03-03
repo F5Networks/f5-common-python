@@ -1,12 +1,5 @@
 f5.bigip
 ========
-.. toctree::
-    :maxdepth: 3
-
-    f5.bigip.cm
-    f5.bigip.ltm
-    f5.bigip.net
-    f5.bigip.sys
 
 f5.bigip module
 ---------------
@@ -14,14 +7,80 @@ f5.bigip module
 .. automodule:: f5.bigip
     :members:
 
-f5.bigip.mixins module
-----------------------
+    Organizing Collection Modules
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    .. py:currentmodule:: f5.bigip
+
+    .. autosummary::
+
+        cm
+        ltm
+        net
+        sys
+
+
+    Resource Base Classes
+    ~~~~~~~~~~~~~~~~~~~~~
+
+    .. py:currentmodule:: f5.bigip
+
+    .. autosummary::
+
+        resource.ResourceBase
+        resource.OrganizingCollection
+        resource.Collection
+        resource.Resource
+
+    Resource Exceptions
+    ~~~~~~~~~~~~~~~~~~~
+
+    .. py:currentmodule:: f5.bigip
+
+    .. autosummary::
+
+        resource.KindTypeMismatch
+        resource.DeviceProvidesIncompatibleKey
+        resource.InvalidResource
+        resource.MissingRequiredCreationParameter
+        resource.MissingRequiredReadParameter
+        resource.UnregisteredKind
+        resource.GenerationMismatch
+        resource.InvalidForceType
+        resource.URICreationCollision
+        resource.UnsupportedOperation
+
+    Mixins
+    ~~~~~~
+
+    .. py:currentmodule:: f5.bigip
+
+    .. autosummary::
+
+        mixins.ToDictMixin
+        mixins.LazyAttributesMixin
+        mixins.ExclusiveAttributesMixin
+        mixins.UnnamedResourceMixin
+        mixins.LazyAttributesRequired
+
+
+.. toctree::
+    :maxdepth: 3
+    :hidden:
+
+    f5.bigip.cm
+    f5.bigip.ltm
+    f5.bigip.net
+    f5.bigip.sys
+
+resource module
+---------------
+
+.. automodule:: f5.bigip.resource
+    :members:
+
+mixins module
+-------------
 
 .. automodule:: f5.bigip.mixins
     :members:
 
-f5.bigip.resource module
-------------------------
-
-.. automodule:: f5.bigip.resource
-    :members:

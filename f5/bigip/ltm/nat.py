@@ -47,15 +47,33 @@ class NAT(Resource):
         self._meta_data['required_json_kind'] = 'tm:ltm:nat:natstate'
 
     def create(self, **kwargs):
-        # If you do a create with inheritedTrafficGroup set to 'false' you
-        # must also have a trafficGroup.  This pattern generalizes like so:
-        # If the presence of a param implies an additional required param, then
-        # simply self._meta_data['required_creation_params'].update(IMPLIED),
-        # before the call to self._create(**kwargs), wherein req params are
-        # checked.
-        # We refer to this property as "implied-required parameters" because
-        # the presence of one parameter, or parameter value (e.g.
-        # inheritedTrafficGroup), implies that another parameter is required.
+        """Create the resource on the BigIP.
+
+        Uses HTTP POST to the `collection` URI to create a resource associated
+        with a new unique URI on the device.
+
+        ..
+            If you do a create with inheritedTrafficGroup set to 'false' you
+            must also have a trafficGroup.  This pattern generalizes like so:
+            If the presence of a param implies an additional required param,
+            then simply
+            self._meta_data['required_creation_params'].update(IMPLIED),
+            before the call to self._create(**kwargs), wherein req params are
+            checked.
+
+            We refer to this property as "implied-required parameters" because
+            the presence of one parameter, or parameter value (e.g.
+            inheritedTrafficGroup), implies that another parameter is required.
+
+        .. note::
+            If you are creating with ``inheritedTrafficGroup` set to
+            :obj:`False` you just also have a `trafficGroup`.
+
+        :param kwargs: All the key-values needed to create the resource
+        :returns: ``self`` - A python object that represents the object's
+                  configuration and state on the BigIP.
+
+        """
         itg = kwargs.get('inheritedTrafficGroup', None)
         if itg and itg == 'false':
             self._meta_data['required_creation_parameters'].\

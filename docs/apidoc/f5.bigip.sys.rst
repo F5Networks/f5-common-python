@@ -1,25 +1,25 @@
 f5.bigip.sys
 ============
 
-Submodule List
---------------
-.. py:currentmodule:: f5.bigip.sys
-
-.. autosummary::
-
-   application
-   db
-   failover
-   folder
-   global_settings
-   ntp
-   performance
-
 Module Contents
 ---------------
 
 .. automodule:: f5.bigip.sys
     :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. py:currentmodule:: f5.bigip.sys
+
+    .. autosummary::
+
+       application
+       db
+       failover
+       folder
+       global_settings
+       ntp
+       performance
 
 Submodules
 ----------
