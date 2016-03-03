@@ -242,14 +242,18 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
                 raise DeviceProvidesIncompatibleKey(error_message)
         return rdict
 
-    def _refresh(self):
-        """wrapped by `refresh` override that in a subclass to customize"""
+    def _handle_requests_params(self, kwargs):
+        return kwargs.pop('requests_params', {})
 
+    def _refresh(self, **kwargs):
+        """wrapped by `refresh` override that in a subclass to customize"""
+        requests_params = self._handle_requests_params(kwargs)
         refresh_session = self._meta_data['bigip']._meta_data['icr_session']
-        response = refresh_session.get(self._meta_data['uri'])
+        response = refresh_session.get(self._meta_data['uri'],
+                                       **requests_params)
         self._local_update(response.json())
 
-    def refresh(self):
+    def refresh(self, **kwargs):
         """Use this to make the device resource be represented by self.
 
         This method makes an HTTP GET query against the device service.
@@ -257,25 +261,39 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
         If successful the instance attribute __dict__ is replaced
         with the dict representing the device state.  To figure out what that
         state is, run a subsequest query of the object like this:
-
-            >>> resource_obj.refresh()
-            >>> print(resource_obj.raw)
+        As with all CURDLE methods use a "requests_params" dict to pass
+        parameters to requests.session.HTTPMETHOD. See test_requests_params.py
+        for an example.
+        >>> resource_obj.refresh()
+        >>> print(resource_obj.raw)
         """
-        self._refresh()
+        self._refresh(**kwargs)
 
     def load(self, **kwargs):
         error_message = "Only Resources support 'load'."
         raise InvalidResource(error_message)
 
-    def create(self):
+    def create(self, **kwargs):
+        """Implement this by overriding it in a subclass of `Resource`
+
+        :raises: InvalidResource
+        """
         error_message = "Only Resources support 'create'."
         raise InvalidResource(error_message)
 
-    def update(self):
+    def update(self, **kwargs):
+        """Implement this by overriding it in a subclass of `Resource`
+
+        :raises: InvalidResource
+        """
         error_message = "Only Resources support 'update'."
         raise InvalidResource(error_message)
 
-    def delete(self):
+    def delete(self, **kwargs):
+        """Implement this by overriding it in a subclass of `Resource`
+
+        :raises: InvalidResource
+        """
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
 
@@ -307,12 +325,12 @@ class OrganizingCollection(ResourceBase):
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + base_uri
 
-    def get_collection(self):
-        """Get a list of the ``Collection`` objects available under this module
+    def get_collection(self, **kwargs):
+        """Call to obtain a list of the reference dicts in the instance `items`
 
         :returns: List of self.items
         """
-        self._refresh()
+        self.refresh(**kwargs)
         return self.items
 
 
@@ -371,7 +389,7 @@ class Collection(ResourceBase):
         :returns: list of reference dicts and Python ``Resource`` objects
         """
         list_of_contents = []
-        self._refresh()
+        self.refresh(**kwargs)
         if 'items' in self.__dict__:
             for item in self.items:
                 # It's possible to have non-"kind" JSON returned. We just
@@ -493,6 +511,7 @@ class Resource(ResourceBase):
 
     def _create(self, **kwargs):
         """wrapped by `create` override that in subclasses to customize"""
+        requests_params = self._handle_requests_params(kwargs)
         key_set = set(kwargs.keys())
         required_minus_received =\
             self._meta_data['required_creation_parameters'] - key_set
@@ -506,7 +525,7 @@ class Resource(ResourceBase):
         session = self._meta_data['bigip']._meta_data['icr_session']
 
         # Invoke the REST operation on the device.
-        response = session.post(_create_uri, json=kwargs)
+        response = session.post(_create_uri, json=kwargs, **requests_params)
 
         # Post-process the response
         self._local_update(response.json())
@@ -553,10 +572,12 @@ class Resource(ResourceBase):
 
     def _load(self, **kwargs):
         """wrapped with load, override that in a subclass to customize"""
+        requests_params = self._handle_requests_params(kwargs)
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
         refresh_session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
+        kwargs.update(requests_params)
         response = refresh_session.get(base_uri, **kwargs)
         self._local_update(response.json())
         self._activate_URI(self.selfLink)
@@ -595,6 +616,7 @@ class Resource(ResourceBase):
 
     def _update(self, **kwargs):
         """wrapped with update, override that in a subclass to customize"""
+        requests_params = self._handle_requests_params(kwargs)
         update_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
@@ -625,10 +647,8 @@ class Resource(ResourceBase):
         for attr in read_only:
             data_dict.pop(attr, '')
 
-        # Remove params so you can pass it to put
-        params = kwargs.pop('params', {})
         data_dict.update(kwargs)
-        response = session.put(update_uri, json=data_dict, params=params)
+        response = session.put(update_uri, json=data_dict, **requests_params)
         self._meta_data = temp_meta
         self._local_update(response.json())
 
@@ -652,7 +672,7 @@ class Resource(ResourceBase):
 
     def _delete(self, **kwargs):
         """wrapped with delete, override that in a subclass to customize """
-
+        requests_params = self._handle_requests_params(kwargs)
         delete_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
 
@@ -661,7 +681,7 @@ class Resource(ResourceBase):
         if not force:
             self._check_generation()
 
-        response = session.delete(delete_uri)
+        response = session.delete(delete_uri, **requests_params)
         if response.status_code == 200:
             self.__dict__ = {'deleted': True}
 
@@ -693,10 +713,12 @@ class Resource(ResourceBase):
         :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
                  code 404.
         """
+        requests_params = self._handle_requests_params(kwargs)
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
         session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
+        kwargs.update(requests_params)
         try:
             session.get(base_uri, **kwargs)
         except HTTPError as err:
