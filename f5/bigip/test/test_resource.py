@@ -294,7 +294,7 @@ class TestResource_load(object):
                    requests_params={'partition': 'ERROR'})
         assert RPKCEIO.value.message ==\
             "Requests Parameter 'partition' collides with a load parameter"\
-                " of the same name."
+            " of the same name."
 
     def test_success(self):
         r = Resource(mock.MagicMock())

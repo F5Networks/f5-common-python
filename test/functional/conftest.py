@@ -70,24 +70,24 @@ def pool_factory():
     def _setup_boilerplate(bigip, request, pool_records):
         _delete_pools_members(bigip, pool_records)
         pool_registry = {}
-        member_registry = {}
+        members_registry = {}
         for pr in pool_records:
             pool_registry[pr.name] =\
                 bigip.ltm.pools.pool.create(partition=pr.partition,
                                             name=pr.name)
             if pr.memberconfigs != (tuple(),):
-                member_collection = pool_registry[pr.name].members_s
+                members_collection = pool_registry[pr.name].members_s
                 for memconf in pr.memberconfigs:
-                    member_registry[memconf.memname] =\
-                        member_collection.member\
+                    members_registry[memconf.memname] =\
+                        members_collection.members\
                         .create(partition=memconf.mempartition,
                                 name=memconf.memname)
 
         def deleter():
-            for member_instance in member_registry.values():
+            for member_instance in members_registry.values():
                 member_instance.delete()
             for pool_instance in pool_registry.values():
                 pool_instance.delete()
         request.addfinalizer(deleter)
-        return pool_registry, member_registry
+        return pool_registry, members_registry
     return _setup_boilerplate

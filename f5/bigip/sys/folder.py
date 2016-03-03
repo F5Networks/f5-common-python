@@ -111,7 +111,10 @@ class Folder(Resource):
         ``status_code`` is ``404``
         it will return error.  All other errors are raised as is.
 
-        :param kwargs: Keyword arguments required to load objects
+        :param kwargs: Keyword arguments required to get objects
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.get method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
         :returns: bool -- The objects exists on BigIP or not.
         :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
             code 404.

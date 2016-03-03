@@ -573,6 +573,9 @@ class Resource(ResourceBase):
             query args, or hash fragments.
 
         :param kwargs: All the key-values needed to create the resource
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.post method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
         :returns: ``self`` - A python object that represents the object's
                   configuration and state on the BigIP.
 
@@ -605,6 +608,9 @@ class Resource(ResourceBase):
             this may, or may not, be true for a specific service.
 
         :param kwargs: typically contains "name" and "partition"
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.get method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
         :returns: a Resource Instance (with a populated _meta_data['uri'])
         """
         self._load(**kwargs)
@@ -675,6 +681,9 @@ class Resource(ResourceBase):
         * read-only attributes that are unchangeable are removed
 
         :param kwargs: keys and associated values to alter on the device
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.put method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
 
         """
         # Need to implement checking for valid params here.
@@ -702,6 +711,11 @@ class Resource(ResourceBase):
 
         After this method is called, and status_code 200 response is received
         ``instance.__dict__`` is replace with ``{'deleted': True}``
+
+        :param kwargs: The only current use is to pass kwargs to the requests
+        API. If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.delete method where it
+        will be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
         """
         # Need to implement checking for ? here.
         self._delete(**kwargs)
@@ -718,7 +732,10 @@ class Resource(ResourceBase):
 
         For any other errors are raised as-is.
 
-        :param kwargs: Keyword arguments required to load objects
+        :param kwargs: Keyword arguments required to get objects
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.get method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
         :returns: bool -- The objects exists on BigIP or not.
         :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
                  code 404.
