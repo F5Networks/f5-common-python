@@ -1,28 +1,28 @@
 f5.bigip.ltm
 ============
 
-Submodule List
---------------
-.. currentmodule:: f5.bigip.ltm
-
-.. autosummary::
-
-    monitor
-    nat
-    node
-    policy
-    pool
-    rule
-    snat
-    ssl
-    virtual
-
-
 Module Contents
 ---------------
 
 .. automodule:: f5.bigip.ltm
    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. currentmodule:: f5.bigip.ltm
+
+    .. autosummary::
+
+        monitor
+        nat
+        node
+        policy
+        pool
+        rule
+        snat
+        ssl
+        virtual
+
 
 Submodules
 ----------
@@ -124,7 +124,7 @@ nat
     :members:
 
     node Collections and Resources
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     .. py:currentmodule:: f5.bigip.ltm.nat
 
     .. autosummary::
@@ -139,7 +139,7 @@ node
     :members:
 
     node Collections and Resources
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     .. py:currentmodule:: f5.bigip.ltm.node
 
     .. autosummary::

@@ -1,24 +1,24 @@
 f5.bigip.net
 ============
 
-Submodule List
---------------
-.. py:currentmodule:: f5.bigip.net
-
-.. autosummary::
-
-    arp
-    interface
-    route
-    selfip
-    tunnels
-    vlan
-
 Module Conents
 --------------
 
 .. automodule:: f5.bigip.net
     :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. py:currentmodule:: f5.bigip.net
+
+    .. autosummary::
+
+        arp
+        interface
+        route
+        selfip
+        tunnels
+        vlan
 
 
 Submodules

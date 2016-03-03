@@ -1,24 +1,25 @@
 f5.bigip.cm
 ===========
 
-Submodule List
---------------
-.. currentmodule:: f5.bigip.cm
-
-.. autosummary::
-
-    device
-    device_group
-    traffic_group
-
 Module Contents
 ---------------
 
 .. automodule:: f5.bigip.cm
     :members:
 
-Submodule Details
------------------
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. currentmodule:: f5.bigip.cm
+
+    .. autosummary::
+
+        device
+        device_group
+        traffic_group
+
+
+Submodules
+----------
 
 device
 ~~~~~~

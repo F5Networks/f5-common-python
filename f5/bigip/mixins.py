@@ -16,6 +16,7 @@
 
 
 class ToDictMixin(object):
+    """Convert an object's attributes to a dictionary"""
     traversed = {}
     Containers = tuple, list, set, frozenset, dict
 
@@ -53,10 +54,12 @@ class ToDictMixin(object):
 
 
 class LazyAttributesRequired(Exception):
+    """Raised when a object accesses a lazy attribute that is not listed"""
     pass
 
 
 class LazyAttributeMixin(object):
+    """Allow attributes to be created lazily based on the allowed values"""
     def __getattr__(self, name):
         # ensure this object supports lazy attrs.
         cls_name = self.__class__.__name__
@@ -93,6 +96,7 @@ class LazyAttributeMixin(object):
 
 
 class ExclusiveAttributesMixin(object):
+    """Overrides ``__setattr__`` to remove exclusive attrs from the object."""
     def __setattr__(self, key, value):
         '''Remove any of the existing exclusive attrs from the object
 
