@@ -51,6 +51,9 @@ class IappParser(object):
     def _get_section_end_index(self, section, section_start):
         '''Get end of section's content.
 
+        In the loop to match braces, we must not count curly braces that are
+        within a doubly quoted string.
+
         :param section: string name of section
         :param section_start: integer index of section's beginning
         :return: integer index of section's end
@@ -58,11 +61,16 @@ class IappParser(object):
         '''
 
         brace_count = 0
-
+        in_quote = False
         for index, char in enumerate(self.template_str[section_start:]):
-            if char == u'{':
+            if char == '"' and not in_quote:
+                in_quote = True
+            elif char == '"' and in_quote:
+                in_quote = False
+
+            if char == u'{' and not in_quote:
                 brace_count += 1
-            elif char == u'}':
+            elif char == u'}' and not in_quote:
                 brace_count -= 1
 
             if brace_count is 0:

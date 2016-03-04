@@ -39,6 +39,27 @@ good_templ = '''sys application template good_templ {
   requires-modules { ltm }
 }'''
 
+brace_in_quote_templ = '''sys application template good_templ {
+  actions {
+    definition {
+      html-help {
+        # HTML Help for "" the template
+      }
+      implementation {
+        # TMSH"{}{{}}}}}""{{{{}}"implementation code
+      }
+      presentation {
+        # APL"{}{}{{{{{{" presentation language
+      }
+      role-acl { hello test }
+      run-as <user context>
+    }
+  }
+  description <template description>
+  partition <partition name>
+  requires-modules { ltm }
+}'''
+
 no_desc_templ = '''sys application template good_templ {
   actions {
     definition {
@@ -261,6 +282,21 @@ good_templ_dict = {
     }
 }
 
+brace_in_quote_templ_dict = {
+    u'name': u'good_templ',
+    u'description': u'<template description>',
+    u'partition': u'<partition name>',
+    u'requiresModules': [u'ltm'],
+    'actions': {
+        'definition': {
+            u'htmlHelp': u'# HTML Help for "" the template',
+            u'roleAcl': [u'hello', u'test'],
+            u'implementation': u'# TMSH"{}{{}}}}}""{{{{}}"implementation code',
+            u'presentation': u'# APL"{}{}{{{{{{" presentation language'
+        }
+    }
+}
+
 no_help_templ_dict = {
     u'name': u'good_templ',
     u'description': u'<template description>',
@@ -374,6 +410,11 @@ def test_get_template_name_bad_name_error():
 def test_parse_template():
     prsr = ip.IappParser(good_templ)
     assert prsr.parse_template() == good_templ_dict
+
+
+def test_parse_template_brace_in_quote():
+    prsr = ip.IappParser(brace_in_quote_templ)
+    assert prsr.parse_template() == brace_in_quote_templ_dict
 
 
 def test_parse_template_no_section_found(TemplateSectionSetup):
