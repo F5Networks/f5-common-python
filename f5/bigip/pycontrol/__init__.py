@@ -17,10 +17,11 @@ import re
 import suds
 from xml.sax import SAXParseException
 
+from f5.sdk_exception import SDKError
 # Project info
 
 
-class F5Error(Exception):
+class F5Error(SDKError):
     def __init__(self, e):
         self.exception = e
         self.msg = str(e)

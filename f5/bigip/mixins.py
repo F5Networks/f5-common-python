@@ -14,6 +14,8 @@
 #
 # NOTE:  Code taken from Effective Python Item 26
 
+from f5.sdk_exception import SDKError
+
 
 class ToDictMixin(object):
     """Convert an object's attributes to a dictionary"""
@@ -53,7 +55,7 @@ class ToDictMixin(object):
             return value
 
 
-class LazyAttributesRequired(Exception):
+class LazyAttributesRequired(SDKError):
     """Raised when a object accesses a lazy attribute that is not listed"""
     pass
 
@@ -123,7 +125,7 @@ class UnnamedResourceMixin(object):
     `tm:sys:global-settings:global-settingsstate` and the URI does not
     match the kind.
     '''
-    class UnsupportedMethod(Exception):
+    class UnsupportedMethod(SDKError):
         pass
 
     def create(self, **kwargs):
