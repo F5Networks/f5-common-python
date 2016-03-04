@@ -17,7 +17,7 @@ import pytest
 
 from f5.bigip import BigIP
 
-from f5.bigip.ltm import LTM
+from f5.bigip.ltm import Ltm
 from f5.bigip.net import Net
 from f5.bigip.sys import Sys
 
@@ -31,7 +31,7 @@ def FakeBigIP():
 
 def test___get__attr(FakeBigIP):
     bigip_dot_ltm = FakeBigIP.ltm
-    assert isinstance(bigip_dot_ltm, LTM)
+    assert isinstance(bigip_dot_ltm, Ltm)
     bigip_dot_net = FakeBigIP.net
     assert isinstance(bigip_dot_net, Net)
     bigip_dot_sys = FakeBigIP.sys

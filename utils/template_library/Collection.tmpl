@@ -1,8 +1,9 @@
-
-
 class {{ coll_klass }}(Collection):
+    '''A Collection concrete subclass docstring.'''
     def __init__(self, {{ collection_container }}):
+        '''Auto generated constructor.'''
         super({{ coll_klass }}, self).__init__({{ collection_container }})
         self._meta_data['allowed_lazy_attributes'] = [{{ member_klass }}]
-        self._meta_data['attribute_registry'] = {{ collection_attr_reg_dict }}
+        self._meta_data['attribute_registry'] =\
+            {{ collection_attr_reg_dict }}
         self._meta_data['template_generated'] = True

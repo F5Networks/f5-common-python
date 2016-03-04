@@ -16,16 +16,9 @@
 import io
 import jinja2
 import json
+import os
 from pprint import pprint as pp
 import re
-
-import os
-
-UTILSDIR = os.path.abspath(os.path.dirname(__file__))
-COMMONPREFIX = os.path.dirname(UTILSDIR)
-SOURCE_ROOTDIR = os.path.join(COMMONPREFIX, 'f5', 'bigip')
-TEMPLATEDIR = os.path.join(UTILSDIR, 'template_library')
-DEVICECONFDIR = os.path.join(UTILSDIR, 'device_configs')
 
 
 class UnexpectedOCItem(Exception):
@@ -43,12 +36,12 @@ class TemplateEngine(object):
     Collection, strings.  Also produces most of Resource classes.
     '''
     def __init__(self, template_dir, config_dir):
+        self.config_dir = config_dir
         self.OC_pattern =\
             r'tm:(?P<OrgColl>\w+):(?P=OrgColl)collectionstate'
         # Initialize templates
         self.templates = {}
         self._consume_directory(template_dir, self._template_consumer)
-        self.license_template = self.templates['license']
         self.import_template = self.templates['imports']
 
         # Initialize configs
@@ -84,19 +77,20 @@ class TemplateEngine(object):
             raw_conf = self.raw_configs[config_name]
         except KeyError as ex:
             error_message = "Expected file named %r.json to exist in"\
-                            " directory %r" % (config_name, DEVICECONFDIR)
+                            " directory %r" % (config_name, self.config_dir)
             print(error_message)
             raise ex
         if 'kind' in raw_conf:
             python_as_string = self._process_config_with_kind(raw_conf)
         else:
             raise Kindless(raw_conf)
-        return python_as_string
+        return python_as_string, raw_conf['selfLink']
 
     def _handle_dashes_dots_capitals(self, raw_klass):
-        temp_string = '_'.join([x.capitalize() for x in raw_klass.split('-')])
-        KlassName = '_'.join([x.capitalize() for x in temp_string.split('.')])
-        return KlassName
+        print('raw_klass: %r' % raw_klass)
+        dashless_klass = raw_klass.replace('-', '_')
+        dotless_klass = dashless_klass.replace('.', '_')
+        return '_'.join([x.capitalize() for x in dotless_klass.split('_')])
 
     def _build_orgcoll_import_dicts(self, raw_conf, klass):
         imports = []
@@ -108,6 +102,7 @@ class TemplateEngine(object):
                 pre_questionmark = tempuri.partition("?")[0]
                 post_selfLink = pre_questionmark[len(selfLinkstart)+1:]
                 KlassName = self._handle_dashes_dots_capitals(post_selfLink)
+                print(KlassName)
                 imports.append({'OC': '.'+klass.lower(),
                                 'module': '.'+KlassName.lower(),
                                 'klass': KlassName})
@@ -130,7 +125,7 @@ class TemplateEngine(object):
             'from f5.bigip.resource import OrganizingCollection')
         imps_as_list.sort()
         imports = '\n'.join(imps_as_list)
-        python_as_string = self.license_template.render()+imports+OrgCollstr
+        python_as_string = imports + 3*os.linesep + OrgCollstr + os.linesep
         self.formatted_configs = {KlassName: {'Python_str': python_as_string,
                                               'config_dict': config_dict,
                                               'import_dicts': import_dicts}}
@@ -149,10 +144,12 @@ class TemplateEngine(object):
         KlassName = self._handle_dashes_dots_capitals(raw_string)
         container = self._build_CollectionName_from_KlassName(KlassName)
         template = self.templates['Resource']
-        python_as_string = template.render(container=container,
-                                           klass=KlassName,
-                                           kind=kind,
-                                           attr_reg_dict={})
+        Resourcestr = template.render(container=container,
+                                      klass=KlassName,
+                                      kind=kind,
+                                      attr_reg_dict={})
+        import_str = 'from f5.bigip.resource import Resource'
+        python_as_string = import_str + 3*os.linesep + Resourcestr + os.linesep
         return python_as_string
 
     def _format_collection(self, kind, raw_conf):
@@ -168,7 +165,7 @@ class TemplateEngine(object):
                        'collection_attr_reg_dict': {memberkind: member_klass}}
         import_str = 'from f5.bigip.resource import Collection'
         Collstr = collection_template.render(**config_dict)
-        python_as_string = import_str + Collstr
+        python_as_string = import_str + 3*os.linesep + Collstr + os.linesep
         return python_as_string
 
     def _format_stats(self, kind, raw_conf):
@@ -196,13 +193,3 @@ class TemplateEngine(object):
             return self._format_stats(kind, raw_conf)
         elif kind.endswith('state'):
             return self._format_resource(kind, raw_conf)
-
-
-def main():
-    temp_eng = TemplateEngine(TEMPLATEDIR, DEVICECONFDIR)
-    ltm_create_pool = temp_eng.process_config('create_pool_response')
-    print(ltm_create_pool)
-
-
-if __name__ == '__main__':
-    main()

@@ -1,0 +1,1 @@
+{"kind":"tm:auth:radius:radiusstate","name":"system-auth","partition":"Common","fullPath":"/Common/system-auth","generation":11450,"selfLink":"https://localhost/mgmt/tm/auth/radius/~Common~system-auth?ver=11.6.0","accountingBug":"disabled","debug":"disabled","retries":3,"serviceType":"authenticate-only"}
