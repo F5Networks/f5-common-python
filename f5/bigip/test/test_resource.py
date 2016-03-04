@@ -102,7 +102,6 @@ class TestResourcecreate(object):
         r = Resource(mock.MagicMock())
         r._meta_data['bigip']._meta_data['icr_session'].post.return_value =\
             MockResponse({u"kind": u"tm:"})
-        r._meta_data['uri'] = 'URI'
         r._meta_data['required_json_kind'] = 'INCORRECT!'
         with pytest.raises(KindTypeMismatch) as KTMmEIO:
             r.create(partition="Common", name="test_create")
@@ -139,11 +138,11 @@ def test__activate_URI():
     assert r._meta_data['allowed_lazy_attributes'] == [u"SPAM"]
 
 
-def test__activate_URI_with_Collision():
+def test__create_with_Collision():
     r = Resource(mock.MagicMock())
     r._meta_data['uri'] = 'URI'
     with pytest.raises(URICreationCollision) as UCCEIO:
-        r._activate_URI('URI')
+        r.create(uri='URI')
     assert UCCEIO.value.message ==\
         "There was an attempt to assign a new uri to this resource,"\
         " the _meta_data['uri'] is URI and it should not be changed."

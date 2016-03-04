@@ -497,11 +497,6 @@ class Resource(ResourceBase):
         :param selfLinkuri: the server provided selfLink (contains localhost)
         :raises: URICreationCollision
         """
-        if 'uri' in self._meta_data:
-            error = "There was an attempt to assign a new uri to this "\
-                    "resource, the _meta_data['uri'] is %s and it should"\
-                    " not be changed." % (self._meta_data['uri'])
-            raise URICreationCollision(error)
         # hostname local alias
         hostname = self._meta_data['bigip']._meta_data['hostname']
 
@@ -521,6 +516,11 @@ class Resource(ResourceBase):
 
     def _create(self, **kwargs):
         """wrapped by `create` override that in subclasses to customize"""
+        if 'uri' in self._meta_data:
+            error = "There was an attempt to assign a new uri to this "\
+                    "resource, the _meta_data['uri'] is %s and it should"\
+                    " not be changed." % (self._meta_data['uri'])
+            raise URICreationCollision(error)
         requests_params = self._handle_requests_params(kwargs)
         key_set = set(kwargs.keys())
         required_minus_received =\
@@ -585,6 +585,11 @@ class Resource(ResourceBase):
 
     def _load(self, **kwargs):
         """wrapped with load, override that in a subclass to customize"""
+        if 'uri' in self._meta_data:
+            error = "There was an attempt to assign a new uri to this "\
+                    "resource, the _meta_data['uri'] is %s and it should"\
+                    " not be changed." % (self._meta_data['uri'])
+            raise URICreationCollision(error)
         requests_params = self._handle_requests_params(kwargs)
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
