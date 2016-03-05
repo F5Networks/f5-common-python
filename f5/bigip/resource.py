@@ -81,25 +81,25 @@ import urlparse
 
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
-from f5.sdk_exception import SDKError
+from f5.sdk_exception import F5SDKError
 from requests.exceptions import HTTPError
 
 
-class RequestParamKwargCollision(SDKError):
+class RequestParamKwargCollision(F5SDKError):
     pass
 
 
-class KindTypeMismatch(SDKError):
+class KindTypeMismatch(F5SDKError):
     """Raise this when server JSON keys are incorrect for the Resource type."""
     pass
 
 
-class DeviceProvidesIncompatibleKey(SDKError):
+class DeviceProvidesIncompatibleKey(F5SDKError):
     """Raise this when server JSON keys are incompatible with Python."""
     pass
 
 
-class InvalidResource(SDKError):
+class InvalidResource(F5SDKError):
     """Raise this when a caller tries to invoke an unsupported CRUDL op.
 
     All resources support `refresh` and `raw`.
@@ -108,22 +108,22 @@ class InvalidResource(SDKError):
     pass
 
 
-class MissingRequiredCreationParameter(SDKError):
+class MissingRequiredCreationParameter(F5SDKError):
     """Various values MUST be provided to create different Resources."""
     pass
 
 
-class MissingRequiredReadParameter(SDKError):
+class MissingRequiredReadParameter(F5SDKError):
     """Various values MUST be provided to refresh some Resources."""
     pass
 
 
-class UnregisteredKind(SDKError):
+class UnregisteredKind(F5SDKError):
     """The returned server JSON `kind` key wasn't expected by this Resource."""
     pass
 
 
-class GenerationMismatch(SDKError):
+class GenerationMismatch(F5SDKError):
     """The server reported BigIP is not the expacted value."""
     pass
 
@@ -133,12 +133,12 @@ class InvalidForceType(ValueError):
     pass
 
 
-class URICreationCollision(SDKError):
+class URICreationCollision(F5SDKError):
     """self._meta_data['uri'] can only be assigned once. In create or load."""
     pass
 
 
-class UnsupportedOperation(SDKError):
+class UnsupportedOperation(F5SDKError):
     """Object does not support the method that was called."""
     pass
 

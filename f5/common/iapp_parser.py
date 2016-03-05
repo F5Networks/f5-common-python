@@ -15,7 +15,7 @@
 
 import re
 
-from f5.sdk_exception import SDKError
+from f5.sdk_exception import F5SDKError
 
 
 class IappParser(object):
@@ -227,21 +227,21 @@ class IappParser(object):
         return self.templ_dict
 
 
-class EmptyTemplateException(SDKError):
+class EmptyTemplateException(F5SDKError):
     pass
 
 
-class CurlyBraceMismatchException(SDKError):
+class CurlyBraceMismatchException(F5SDKError):
     pass
 
 
-class NonextantSectionException(SDKError):
+class NonextantSectionException(F5SDKError):
     pass
 
 
-class NonextantTemplateNameException(SDKError):
+class NonextantTemplateNameException(F5SDKError):
     pass
 
 
-class MalformedTCLListException(SDKError):
+class MalformedTCLListException(F5SDKError):
     pass

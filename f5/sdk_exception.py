@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+'''A base exception for all exceptions in this library.'''
 
 
-class SDKError(Exception):
+class F5SDKError(Exception):
+    '''Import and subclass this exception in all exceptions in this library.'''
     pass
