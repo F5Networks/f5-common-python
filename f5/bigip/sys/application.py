@@ -161,13 +161,67 @@ class Service(Resource):
         read_session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
 
-        name = name.replace('/', '~')
-        load_uri = '%s~%s~%s.app~%s' % (base_uri, partition, name, name)
-
+        load_uri = self._build_service_uri(base_uri, partition, name)
         response = read_session.get(load_uri, uri_as_parts=False, **kwargs)
         self._local_update(response.json())
         self._activate_URI(self.selfLink)
         return self
+
+    def _build_service_uri(self, base_uri, partition, name):
+        '''Build the proper uri for a service resource.
+
+        This follows the scheme:
+            <base_uri>/~<partition>~<<name>.app>~<name>
+
+        :param base_uri: str -- base uri for container
+        :param partition: str -- partition for this service
+        :param name: str -- name of the service
+        :returns: str -- uri to access this service
+        '''
+        name = name.replace('/', '~')
+        return '%s~%s~%s.app~%s' % (base_uri, partition, name, name)
+
+    def exists(self, **kwargs):
+        '''Check for the existence of the named object on the BigIP
+
+        Override of resource.Resource exists() to build proper URI unique to
+        service resources.
+
+        Sends an HTTP GET to the URI of the named object and if it fails with
+        a :exc:~requests.HTTPError` exception it checks the exception for
+        status code of 404 and returns :obj:`False` in that case.
+
+        If the GET is successful it returns :obj:`True`.
+
+        For any other errors are raised as-is.
+
+        :param kwargs: Keyword arguments required to get objects
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.get method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
+        :returns: bool -- The objects exists on BigIP or not.
+        :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
+                 code 404.
+        '''
+
+        requests_params = self._handle_requests_params(kwargs)
+        self._check_load_parameters(**kwargs)
+        kwargs['uri_as_parts'] = False
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['container']._meta_data['uri']
+        partition = kwargs.pop('partition')
+        name = kwargs.pop('name')
+
+        exists_uri = self._build_service_uri(base_uri, partition, name)
+        kwargs.update(requests_params)
+        try:
+            session.get(exists_uri, **kwargs)
+        except HTTPError as err:
+            if err.response.status_code == 404:
+                return False
+            else:
+                raise
+        return True
 
 
 class Templates(Collection):

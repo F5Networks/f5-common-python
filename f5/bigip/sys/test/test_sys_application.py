@@ -119,6 +119,25 @@ def MakeFakeContainer(FakeService, mock_json, mock_bigip):
 
 
 @pytest.fixture
+@mock.patch('f5.bigip')
+def MakeFakeContainerRaise(FakeService, mock_json, side_effect, mock_bigip):
+    mock_session = mock.MagicMock(name='mock_session')
+    mock_get_response = mock.MagicMock(name='mock_get_response')
+    mock_get_response.json.return_value = mock_json.copy()
+    mock_session.get.side_effect = side_effect
+    mock_bigip._meta_data = {
+        'hostname': 'testhost',
+        'icr_session': mock_session,
+        'uri': ''
+    }
+    FakeService._meta_data['bigip'] = mock_bigip
+    mock_base_uri = mock.MagicMock()
+    mock_base_uri._meta_data = {'uri': 'base_uri'}
+    FakeService._meta_data['container'] = mock_base_uri
+    return FakeService
+
+
+@pytest.fixture
 def SideEffectFixture():
     # Let's show that fixture side-effects can cause test interactions
     # that are surprising to the untrained eye.
@@ -136,9 +155,15 @@ class MockHTTPErrorResponseSuccessful(HTTPError):
             ' be retrieved'
 
 
-class MockHTTPErrorResponseUnsuccessful(HTTPError):
+class MockHTTPErrorResponse404(HTTPError):
     def __init__(self):
         self.text = 'Something else happened.'
+        self.status_code = 404
+
+
+class MockHTTPErrorResponse400(HTTPError):
+    def __init__(self):
+        self.status_code = 400
 
 
 class TestServiceCreate(object):
@@ -177,7 +202,7 @@ class TestServiceCreate(object):
         with mock.patch(target='f5.bigip.resource.Resource._create') as \
                 mock_create:
             mock_create.side_effect = MockHTTPError(
-                MockHTTPErrorResponseUnsuccessful()
+                MockHTTPErrorResponse404()
             )
             sv1 = Service(mock.MagicMock())
             with pytest.raises(HTTPError):
@@ -210,6 +235,39 @@ class TestServiceCreate(object):
             assert sv1 is not None
             assert sv1.name == 'test_service'
             assert sv1.template == 'test_template'
+
+
+class TestServiceExists(object):
+    def test_exists(self, FakeService):
+        FakeService = MakeFakeContainer(FakeService, {})
+        assert FakeService.exists(name='test', partition='test') is True
+
+    def test_exists_failure(self, FakeService):
+        FakeService = MakeFakeContainerRaise(FakeService, {}, Exception())
+        with pytest.raises(Exception):
+            FakeService.exists(name='test', partition='test')
+        assert FakeService._meta_data['bigip']._meta_data['icr_session'].get.\
+            call_args == mock.call(
+                'base_uri~test~test.app~test',
+                uri_as_parts=False
+            )
+
+    def test_exists_false(self, FakeService):
+        FakeService = MakeFakeContainerRaise(
+            FakeService,
+            {},
+            MockHTTPError(MockHTTPErrorResponse404())
+        )
+        assert FakeService.exists(name='test', partition='test') is False
+
+    def test_exists_http_error_raise(self, FakeService):
+        FakeService = MakeFakeContainerRaise(
+            FakeService,
+            {},
+            MockHTTPError(MockHTTPErrorResponse400())
+        )
+        with pytest.raises(HTTPError):
+            FakeService.exists(name='test', partition='test')
 
 
 class TestServiceLoad(object):
