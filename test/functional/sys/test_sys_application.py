@@ -81,7 +81,7 @@ def setup_service_test(request, bigip, name, partition, template_name):
     return service_s, test_service
 
 
-def curdl_check(collection, resource, resource_name, **kwargs):
+def curdle_check(collection, resource, resource_name, **kwargs):
     name = kwargs['name']
     assert resource.name == name
     second_resource = getattr(collection, resource_name).load(**kwargs)
@@ -96,6 +96,8 @@ def curdl_check(collection, resource, resource_name, **kwargs):
 
     second_resource.refresh()
     assert second_resource.generation == resource.generation
+
+    assert getattr(collection, resource_name).exists(**kwargs) is True
 
 
 class TestApplication(object):
@@ -123,7 +125,7 @@ class TestTemplate(object):
             'test_template',
             'Common'
         )
-        curdl_check(
+        curdle_check(
             templ_s,
             test_templ,
             'template',
@@ -162,7 +164,7 @@ class TestService(object):
         # Make sure the uri is what we expect
         assert bigip._meta_data['uri'] + 'sys/application/service/~Common' \
             '~test_service.app~test_service' in test_serv._meta_data['uri']
-        curdl_check(
+        curdle_check(
             serv_s,
             test_serv,
             'service',
