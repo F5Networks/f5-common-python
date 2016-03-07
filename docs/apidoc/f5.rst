@@ -9,3 +9,18 @@ f5 package
 
 .. automodule:: f5
     :members:
+
+f5.sdk_exception
+----------------
+
+.. automodule:: f5.sdk_exception
+    :members:
+
+    Base Exception
+    ~~~~~~~~~~~~~~
+
+    .. py:currentmodule:: f5.sdk_exception
+
+    .. autosummary::
+
+        F5SDKError
