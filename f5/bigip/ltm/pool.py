@@ -27,9 +27,10 @@ REST Kind
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import F5SDKError
 
 
-class MemberStateAlwaysRequiredOnUpdate(Exception):
+class MemberStateAlwaysRequiredOnUpdate(F5SDKError):
     pass
 
 

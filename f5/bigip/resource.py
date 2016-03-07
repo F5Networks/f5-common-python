@@ -81,24 +81,25 @@ import urlparse
 
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
+from f5.sdk_exception import F5SDKError
 from requests.exceptions import HTTPError
 
 
-class RequestParamKwargCollision(Exception):
+class RequestParamKwargCollision(F5SDKError):
     pass
 
 
-class KindTypeMismatch(Exception):
+class KindTypeMismatch(F5SDKError):
     """Raise this when server JSON keys are incorrect for the Resource type."""
     pass
 
 
-class DeviceProvidesIncompatibleKey(Exception):
+class DeviceProvidesIncompatibleKey(F5SDKError):
     """Raise this when server JSON keys are incompatible with Python."""
     pass
 
 
-class InvalidResource(Exception):
+class InvalidResource(F5SDKError):
     """Raise this when a caller tries to invoke an unsupported CRUDL op.
 
     All resources support `refresh` and `raw`.
@@ -107,22 +108,22 @@ class InvalidResource(Exception):
     pass
 
 
-class MissingRequiredCreationParameter(Exception):
+class MissingRequiredCreationParameter(F5SDKError):
     """Various values MUST be provided to create different Resources."""
     pass
 
 
-class MissingRequiredReadParameter(Exception):
+class MissingRequiredReadParameter(F5SDKError):
     """Various values MUST be provided to refresh some Resources."""
     pass
 
 
-class UnregisteredKind(Exception):
+class UnregisteredKind(F5SDKError):
     """The returned server JSON `kind` key wasn't expected by this Resource."""
     pass
 
 
-class GenerationMismatch(Exception):
+class GenerationMismatch(F5SDKError):
     """The server reported BigIP is not the expacted value."""
     pass
 
@@ -132,12 +133,12 @@ class InvalidForceType(ValueError):
     pass
 
 
-class URICreationCollision(Exception):
+class URICreationCollision(F5SDKError):
     """self._meta_data['uri'] can only be assigned once. In create or load."""
     pass
 
 
-class UnsupportedOperation(Exception):
+class UnsupportedOperation(F5SDKError):
     """Object does not support the method that was called."""
     pass
 
