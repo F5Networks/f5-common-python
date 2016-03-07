@@ -27,9 +27,6 @@ LICENSE_AND_MODULE_DOCSTRING = """# Copyright 2016 F5 Networks Inc.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-'''THE MODULE DOCSTRING'''
-
 """
 import ast
 import io
