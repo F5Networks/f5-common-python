@@ -17,7 +17,7 @@
 import logging
 import os
 
-from f5.bigip.cm import CM
+from f5.bigip.cm import Cm
 from f5.bigip.ltm import Ltm
 from f5.bigip.net import Net
 from f5.bigip.pycontrol import pycontrol as pc
@@ -27,7 +27,7 @@ from f5.common import constants as const
 from icontrol.session import iControlRESTSession
 
 LOG = logging.getLogger(__name__)
-allowed_lazy_attributes = [CM, Ltm, Net, Sys]
+allowed_lazy_attributes = [Cm, Ltm, Net, Sys]
 
 
 def _get_icontrol(hostname, username, password, timeout=None):
