@@ -97,6 +97,8 @@ class Service(Resource):
         self._meta_data['required_refresh_parameters'].update(('partition',))
         self._meta_data['required_json_kind'] =\
             'tm:sys:application:service:servicestate'
+        self._meta_data['disallowed_load_parameters'] = \
+            set(['template', 'trafficGroup'])
 
     def _create(self, **kwargs):
         '''Create service on device and create accompanying Python object.
@@ -119,9 +121,6 @@ class Service(Resource):
             # drop in Common as the partition in kwargs.
             if 'partition' not in kwargs:
                 kwargs['partition'] = 'Common'
-            # 'template' kwarg should not be used in the call to load becuase
-            # the BigIP will return an error if it's present
-            kwargs.pop('template')
 
             # If response was created successfully, do a local_update.
             # If not, call to overridden _load method via load
@@ -154,6 +153,10 @@ class Service(Resource):
         :params kwargs: keyword arguments for talking to the device
         :returns: populated Service object
         '''
+        # Some kwargs should be popped before we do a load
+        for key in self._meta_data['disallowed_load_parameters']:
+            if key in kwargs:
+                kwargs.pop(key)
 
         self._check_load_parameters(**kwargs)
         name = kwargs.pop('name')

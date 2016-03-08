@@ -60,7 +60,7 @@ def setup_template_test(request, bigip, name, partition):
     )
 
 
-def setup_service_test(request, bigip, name, partition, template_name):
+def setup_service_test(request, bigip, name, partition, template_name, tgroup):
     def teardown():
         delete_resource(test_service)
         delete_resource(test_template)
@@ -76,7 +76,10 @@ def setup_service_test(request, bigip, name, partition, template_name):
     )
     test_service = None
     test_service = service_s.service.create(
-        name=name, partition=partition, template=template_name
+        name=name,
+        partition=partition,
+        template=template_name,
+        trafficGroup=tgroup
     )
     return service_s, test_service
 
@@ -141,7 +144,8 @@ class TestServiceCollection(object):
             bigip,
             'test_service',
             'Common',
-            'test_template'
+            'test_template',
+            '/Common/traffic-group-local-only'
         )
 
         all_services = serv_s.get_collection()
@@ -159,7 +163,8 @@ class TestService(object):
             bigip,
             'test_service',
             'Common',
-            'test_template'
+            'test_template',
+            '/Common/traffic-group-local-only'
         )
         # Make sure the uri is what we expect
         assert bigip._meta_data['uri'] + 'sys/application/service/~Common' \
