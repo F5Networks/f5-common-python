@@ -110,6 +110,16 @@ class TemplateEngine(object):
                 raise UnexpectedOCItem(item)
         return imports
 
+    def _build_module_docstring(self, kind, raw_conf):
+        kind_split = kind.split(':')
+        conf_dict = {'ORG_COL_DIR': kind_split[1],
+                     'COL_MODULE': kind_split[2],
+                     'REST_URI': raw_conf['selfLink'],
+                     'GUI_PATH': 'XXX',
+                     'KIND_PREFIX': ':'.join(kind_split[:3])}
+        mod_doc_string = self.templates['module_docstring'].render(**conf_dict)
+        return mod_doc_string
+
     def _format_org_collection(self, org_match, kind, raw_conf):
         KlassName =\
             self._handle_dashes_dots_capitals(org_match.group('OrgColl'))
@@ -125,7 +135,10 @@ class TemplateEngine(object):
             'from f5.bigip.resource import OrganizingCollection')
         imps_as_list.sort()
         imports = '\n'.join(imps_as_list)
-        python_as_string = imports + 3*os.linesep + OrgCollstr + os.linesep
+        mdoc_string = self._build_module_docstring(kind, raw_conf)
+        python_as_string =\
+            mdoc_string + 3*os.linesep + imports + 3*os.linesep +\
+            OrgCollstr + os.linesep
         self.formatted_configs = {KlassName: {'Python_str': python_as_string,
                                               'config_dict': config_dict,
                                               'import_dicts': import_dicts}}
@@ -149,7 +162,10 @@ class TemplateEngine(object):
                                       kind=kind,
                                       attr_reg_dict={})
         import_str = 'from f5.bigip.resource import Resource'
-        python_as_string = import_str + 3*os.linesep + Resourcestr + os.linesep
+        mdoc_string = self._build_module_docstring(kind, raw_conf)
+        python_as_string =\
+            mdoc_string + 3*os.linesep + import_str + 3*os.linesep +\
+            Resourcestr + os.linesep
         return python_as_string
 
     def _format_collection(self, kind, raw_conf):
@@ -165,7 +181,10 @@ class TemplateEngine(object):
                        'collection_attr_reg_dict': {memberkind: member_klass}}
         import_str = 'from f5.bigip.resource import Collection'
         Collstr = collection_template.render(**config_dict)
-        python_as_string = import_str + 3*os.linesep + Collstr + os.linesep
+        mdoc_string = self._build_module_docstring(kind, raw_conf)
+        python_as_string =\
+            mdoc_string + 3*os.linesep + import_str + 3*os.linesep +\
+            Collstr + os.linesep
         return python_as_string
 
     def _format_stats(self, kind, raw_conf):

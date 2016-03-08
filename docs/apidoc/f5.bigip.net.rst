@@ -19,6 +19,7 @@ Module Conents
         selfip
         tunnels
         vlan
+        fdb
 
 
 Submodules
@@ -122,3 +123,20 @@ vlan
         VLAN
         Interfaces_s
         Interfaces
+
+fdb
+~~~
+
+.. automodule:: f5.bigip.net.fdb
+    :members:
+
+    FDB Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.net.fdb
+
+    .. autosummary::
+
+        Fdbs
+        Tunnel
+        Tunnels
+        Vlans
