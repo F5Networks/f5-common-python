@@ -26,33 +26,38 @@ Because the REST API endpoints have a hierarchical structure, you need to load/c
     =============   ==================================================
 
 
-In the sections below, we'll walk through the Python object paths using LTM pools and pool members as examples.
+In the sections below, we'll walk through the Python object paths using LTM pools and pool members as examples. You can also skip straight to the |Coding Example|.
 
 .. _oc_section:
 
 |Organizing Collection Section|
 -------------------------------
-The ``mgmt\tm` and ``ltm`` organizing collections define what area of the BIG-IP you're going to work with. The ``mgmt\tm`` organizing collection corresponds to the management plane of your BIG-IP device (TMOS). Loading ``ltm`` indicates that we're going to work with the BIG-IP's :guilabel:`Local Traffic` module.
+The ``mgmt\tm`` and ``ltm`` organizing collections define what area of the BIG-IP you're going to work with. The ``mgmt\tm`` organizing collection corresponds to the management plane of your BIG-IP device (TMOS). Loading ``ltm`` indicates that we're going to work with the BIG-IP's :guilabel:`Local Traffic` module.
 
 .. include:: endpoints/endpoint_table_tm.rst
 .. include:: endpoints/endpoint_table_ltm.rst
 
-.. topic:: Example: Connect to the BIG-IP
+.. topic:: Example: Connect to the BIG-IP and load the LTM module
 
     .. code-block:: python
 
         from f5.bigip import BigIP
         bigip = BigIP('192.168.1.1', 'myuser', 'mypass')
+        ltm = bigip.ltm
 
         >>> print bigip
         <f5.bigip.BigIP object at 0x8a29d0>
+
+        >>> print ltm
+        <f5.bigip.ltm.LTM object at 0x8c0b30>
+
 
 .. _coll_section:
 
 |Collection Section|
 --------------------
 
-Now that the higher-level organizing collections are loaded (in other words, we're signed in to the BIG-IP), we can load the ``pool`` collection.
+Now that the higher-level organizing collections are loaded (in other words, we're signed in to the BIG-IP and accessed the LTM module), we can load the ``pool`` collection.
 
 .. include:: endpoints/endpoint_table_ltm_pool.rst
 
@@ -66,9 +71,13 @@ Now that the higher-level organizing collections are loaded (in other words, we'
         pool_collection = bigip.ltm.pools
         pools = bigip.ltm.pools.get_collection()
 
-        print pools
-        [<f5.bigip.ltm.pool.Pool object at 0x8c0f50>, <f5.bigip.ltm.pool.Pool object at 0x8c0b70>, <f5.bigip.ltm.pool.Pool object at 0x8c0e30>]
+        for pool in pools:
+             print pool.name
 
+        my_newpool
+        mypool
+        pool2
+        pool_1
 
 In the above example, we instantiated the class :class:`f5.bigip.ltm.pool.Pools`, then used the :meth:`f5.bigip.ltm.pool.Pools.get_collection()` method to fetch the collection (in other words, a list of the pool :ref:`resources <res_section>` configured on the BIG-IP).
 
@@ -77,160 +86,87 @@ In the above example, we instantiated the class :class:`f5.bigip.ltm.pool.Pools`
 
 |Resource Section|
 ------------------
-In the SDK, we refer to a single instance of a configuration object as a :ref:`resource <endpoints/_resource_section>`. As shown in the previous sections, we are able to access the ``pool`` resources on the BIG-IP after loading the ``mgmt\tm\ltm`` organizing collections and the ``pools`` collection.
+In the SDK, we refer to a single instance of a configuration object as a resource. As shown in the previous sections, we are able to access the ``pool`` resources on the BIG-IP after loading the ``mgmt\tm\ltm`` organizing collections and the ``pools`` collection.
 
 .. include:: endpoints/endpoint_table_ltm_pool_pools.rst
 
-.. topic:: Example: Load the pool collection
+.. topic:: Example: Load a pools collection
 
     .. code-block:: python
 
         from f5.bigip import BigIP
-
-        bigip = BigIP('192.168.1.1', 'myuser', 'mypass')
-        pool_collection = bigip.ltm.pools
-        pools = bigip.ltm.pools.get_collection()
-
-        print pools
-        [<f5.bigip.ltm.pool.Pool object at 0x8c0f50>, <f5.bigip.ltm.pool.Pool object at 0x8c0b70>, <f5.bigip.ltm.pool.Pool object at 0x8c0e30>]
+        pool = pools.pool.load(partition='Common', name='mypool')
 
 
+In the example above, we instantiated the class :class:`f5.bigip.ltm.pool.Pool` and loaded the :obj:`f5.bigip.ltm.pools.pool` object. The object is a python representation of the BIG-IP pool we loaded (in this case, ``Common/mypool``).
+
+.. tip::
+
+    You can always see the representation of an object using the :meth:`~f5.bigip.ltm.pool.Pool.raw` method.
+
+    .. code-block:: python
+
+        >>> bigip.ltm.pools.pool.raw
+        {
+            '_meta_data': {
+                'attribute_registry': {
+                    'tm:ltm:pool:memberscollectionstate': < class 'f5.bigip.ltm.pool.Members_s' >
+                },
+                'container': < f5.bigip.ltm.pool.Pools object at 0x8c09f0 > ,
+                'exclusive_attributes': [],
+                'read_only_attributes': [],
+                'required_refresh_parameters': set(['name']),
+                'required_json_kind': 'tm:ltm:pool:poolstate',
+                'bigip': < f5.bigip.BigIP object at 0x8a29d0 > ,
+                'required_creation_parameters': set(['name'])
+            }
+         }
 
 
-
-Just like the :class:`~f5.bigip.ltm.pool.Pools` class above, :class:`~f5.bigip.ltm.pool.Pool` is a python class that has methods that allow it to create, manage, and delete pool objects on the BIG-IP. The :obj:`f5.bigip.ltm.pools.pool` instance is a representation of the BIG-IP pool whose attributes are derived from the JSON blob that is returned when
-the object is created, loaded, updated, or refreshed.  You can always see the representation of an object by using the :meth:`~f5.bigip.ltm.pool.Pool.raw` method.
-
-**Code Example**
-
-.. code-block:: python
-
-    from f5.bigip import BigIP
-
-    # Connect to the BigIP
-    bigip = BigIP('192.168.1.1', 'admin', 'admin')
-
-    # Get a pool object and load it
-    pool_obj = bigip.ltm.pools.pool
-    pool_1 = pool_obj.load(partition='Common', name='mypool')
-
-        # We can also skip the object and just load it directly
-    pool_2 = bigip.ltm.pools.pool.load(partition='Common', name='mypool')
-
-    # Print the object
-    print pool_1.raw
-
-    # Make sure 1 and 2 have the same names and generation
-    assert pool_1.name == pool_2.name
-    assert pool_1.generation == pool_2.generation
-
-    # Update the description
-    pool_1.description = "This is my pool"
-    pool_1.update()
-
-    # Since we haven't refreshed pool_2 is shouldn't match pool_1 andy more
-    assert pool_1.generation > pool_2.generation
-
-    # Refresh pool 2 and check that is now equal
-    pool_2.refresh()
-    assert pool_1.generation == pool_2.generation
-
-    # We are done with this pool so remove it from bigip
-    pool_1.delete()
-
-    # Make sure it is gone
-    assert not bigip.ltm.pools.pool.exists(partition='Common', name='mypool')
 
 .. _subcoll_section:
 
-Subcollections
---------------
-A subcollection is a collection of resources that can only be accessed via a
-parent resource.  For example :class:`~f5.bigip.ltm.pool.Pool` objects have
-:class:`~f5.bigip.ltm.pool.Member` objects which are the real-servers attached
-to the pool.  All of the pool's members are stored in a sub-collection that
-follows the same rule as Collections of Objects above (the collection is the
-pluralized version of the object they contain).
+|Subcollection Section|
+-----------------------
+A subcollection is a collection of resources that can only be accessed via its parent resource.
 
-Pool Members Subcollection Example (a.k.a pools.pool.members_s)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-URI Path
-    ``https://192.168.1.1/mgmt/tm/ltm/pool/~Common~mypool/members``
-GUI Path
-    ``Local Traffic --> Pools --> mypool --> Members Tab``
-Python SDK class
-    :class:`f5.bigip.ltm.pool.Members_s`
-Pool Instance
-    :obj:`f5.bigip.ltm.pools.pool.members_s`
-JSON Kind
-    ``tm:ltm:pool:members:memberscollectionstate``
+To continue our example: The :class:`f5.bigip.ltm.pool.Pool` resource object contains :class:`f5.bigip.ltm.pool.Member` :ref:`subcollection resource <subcollres_section>` objects. These subcollection resources -- the real-servers that are attached to the pool, or 'pool members' -- are part of the ``members_s`` subcollection. (Remember, we have to add ``_s`` to the end of collection object names if the name of the resource object it contains already ends in ``s``).
 
-There is no difference in this subcollection than the collection of pools above
-except that you can only access it via the pool object that the subcollection
-is attached to.  Since this is really just a plain old
-:class:`~f5.bigip.resource.Collection` it has the same methods available
-to it.
+.. include:: endpoints/endpoint_table_ltm_pool_members_s.rst
 
-**Code Example**
+.. topic:: Example: Load the members_s collection
 
-.. code-block:: python
+    .. code-block:: python
 
-    from f5.bigip import BigIP
-
-    # Connect to the BigIP
-    bigip = BigIP('192.168.1.1', 'admin', 'admin')
-
-    # Get our pool
-    pool = bigip.ltm.pools.pool.load(partition='Common', name='mypool')
-
-    # Get all of the pool members for the pool and print their name
-    members = pool.members_s.get_collection()
-    for member in members:
-        print member.name
+        from f5.bigip import BigIP
+        members = pool.members_s.get_collection()
+        print members
+        [<f5.bigip.ltm.pool.Members object at 0x9d7ff0>, <f5.bigip.ltm.pool.Members object at 0x9d7830>]
 
 
 .. _subcollres_section:
 
-Subcollection Resources
------------------------
-Just like a subcollection really is no different than a collection the same
-can be said for a subcollection resource and a resource. They have the same
-behavior and methods, the only difference is that you must access them
-through a subcollection that is attached to a resource.  A single member of
-an LTM pool is a great example of this.
+|Subcollection Resource Section|
+--------------------------------
 
-Pool Members Subcollection Resource Example (a.k.a pools.pool.members_s.member)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-URI Path
-    ``https://192.168.1.1/mgmt/tm/ltm/pool/~Common~mypool/members/~Common~m1``
-GUI Path
-    ``Local Traffic --> Pools --> mypool --> Members Tab --> m1``
-Python SDK class
-    :class:`f5.bigip.ltm.pool.Members_s.member`
-Pool Instance
-    :obj:`f5.bigip.ltm.pools.pool.members_s.member`
-JSON Kind
-    ``tm:ltm:pool:members:membersstate``
+As explained in the previous section, a subcollection contains subcollection resources. These subcollection resources can only be loaded after all of the parent objects (organizing collections, resource, and subcollection) have been loaded.
 
-**Code Example**
+.. include:: endpoints/endpoint_table_ltm_pool_members.rst
 
-.. code-block:: python
+.. topic:: Example: Load member objects
 
-    from f5.bigip import BigIP
+    .. code-block:: python
 
-    # Connect to the BigIP
-    bigip = BigIP('192.168.1.1', 'admin', 'admin')
+        from f5.bigip import BigIP
+        member = members_s.members.load(partition='Common', name='m1')
+        print member
+        <f5.bigip.ltm.pool.Members object at 0x9fd530>
 
-    # Load our pool and member m1
-    pool = bigip.ltm.pools.pool.load(partition='Common', name='mypool')
-    m1 = pool.members_s.member.load(partition='Common', name='m1')
 
-    # Create a new pool member
-    m2 = pool.members_s.member.create(partition='Common', name='m1')
 
-    # Delete our old member
-    m1.delete()
+|Coding Example|
 
-    # Make sure it is gone
-    assert pool.members_s.member.exists(partition='Common', name='m1')
 
+
+
+.. |Coding Example| replace:: :ref:`Coding Example <pools-and-members_code-example>`

@@ -1,6 +1,6 @@
 F5 Python SDK Documentation
 ===========================
-|Build Status|
+|Build Status| |Docs Build Status|
 
 Introduction
 ------------
@@ -104,3 +104,8 @@ project.
 
 .. |Build Status| image:: https://travis-ci.org/F5Networks/f5-common-python.svg?branch=0.1
     :target: https://travis-ci.org/F5Networks/f5-common-python
+    :alt: Build Status
+
+.. |Docs Build Status| image:: http://readthedocs.org/projects/f5-sdk/badge/?version=latest
+    :target: http://f5-sdk.readthedocs.org/en/latest/?badge=latest
+    :alt: Documentation Status
