@@ -37,8 +37,8 @@ class Applications(Collection):
     def __init__(self, sys):
         super(Applications, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [
-            APLScripts,
-            CustomStats,
+            Aplscripts,
+            Customstats,
             Services,
             Templates
         ]

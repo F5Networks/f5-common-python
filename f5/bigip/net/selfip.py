@@ -41,13 +41,13 @@ class Selfips(Collection):
 
         The objects in the collection are actually called 'self' in
         iControlREST, but obviously this will cause problems in Python so we
-        changed its name to SelfIP.
+        changed its name to Selfip.
     """
     def __init__(self, net):
         super(Selfips, self).__init__(net)
-        self._meta_data['allowed_lazy_attributes'] = [SelfIP]
+        self._meta_data['allowed_lazy_attributes'] = [Selfip]
         self._meta_data['attribute_registry'] =\
-            {'tm:net:self:selfstate': SelfIP}
+            {'tm:net:self:selfstate': Selfip}
         # Override the URI to have self instead of the constructed selfip
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + "self/"

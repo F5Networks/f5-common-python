@@ -27,12 +27,12 @@ REST Kind
 
 
 from f5.bigip.ltm.monitor import Monitor
-from f5.bigip.ltm.nat import NATs
+from f5.bigip.ltm.nat import Nats
 from f5.bigip.ltm.node import Nodes
 from f5.bigip.ltm.policy import Policys
 from f5.bigip.ltm.pool import Pools
 from f5.bigip.ltm.rule import Rules
-from f5.bigip.ltm.snat import SNATs
+from f5.bigip.ltm.snat import Snats
 from f5.bigip.ltm.virtual import Virtuals
 from f5.bigip.resource import OrganizingCollection
 
@@ -43,11 +43,11 @@ class Ltm(OrganizingCollection):
         super(Ltm, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
             Monitor,
-            NATs,
+            Nats,
             Nodes,
             Policys,
             Pools,
             Rules,
-            SNATs,
+            Snats,
             Virtuals
         ]

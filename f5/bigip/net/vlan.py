@@ -19,7 +19,7 @@ REST URI
     ``http://localhost/mgmt/tm/net/vlan``
 
 GUI Path
-    ``Network --> VLANs``
+    ``Network --> Vlans``
 
 REST Kind
     ``tm:net:vlan:*``
@@ -31,12 +31,12 @@ from f5.bigip.resource import Resource
 
 
 class Vlans(Collection):
-    """BigIP network VLAN collection."""
+    """BigIP network Vlan collection."""
     def __init__(self, net):
         super(Vlans, self).__init__(net)
-        self._meta_data['allowed_lazy_attributes'] = [VLAN]
+        self._meta_data['allowed_lazy_attributes'] = [Vlan]
         self._meta_data['attribute_registry'] =\
-            {'tm:net:vlan:vlanstate': VLAN}
+            {'tm:net:vlan:vlanstate': Vlan}
 
 
 class Vlan(Resource):

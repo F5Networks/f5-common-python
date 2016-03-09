@@ -13,13 +13,13 @@
 # limitations under the License.
 #
 
-"""BigIP Local Traffic Manager (LTM) SNAT module.
+"""BigIP Local Traffic Manager (LTM) Snat module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/snat``
 
 GUI Path
-    ``Local Traffic --> SNAT``
+    ``Local Traffic --> Snat``
 
 REST Kind
     ``tm:ltm:snat:*``
@@ -35,12 +35,12 @@ class RequireOneOf(MissingRequiredCreationParameter):
 
 
 class Snats(Collection):
-    """BigIP LTM SNAT collection"""
+    """BigIP LTM Snat collection"""
     def __init__(self, ltm):
         super(Snats, self).__init__(ltm)
-        self._meta_data['allowed_lazy_attributes'] = [SNAT]
+        self._meta_data['allowed_lazy_attributes'] = [Snat]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:snat:snatstate': SNAT}
+            {'tm:ltm:snat:snatstate': Snat}
 
 
 class Snat(Resource):

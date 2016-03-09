@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""BigIP Local Traffic Manager (LTM) NAT module.
+"""BigIP Local Traffic Manager (LTM) Nat module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/nat``
 
 GUI Path
-    ``Local Traffic --> NAT``
+    ``Local Traffic --> Nat``
 
 REST Kind
     ``tm:ltm:nat:*``
@@ -30,12 +30,12 @@ from f5.bigip.resource import Resource
 
 
 class Nats(Collection):
-    """BigIP LTM NAT collection object"""
+    """BigIP LTM Nat collection object"""
     def __init__(self, ltm):
         super(Nats, self).__init__(ltm)
-        self._meta_data['allowed_lazy_attributes'] = [NAT]
+        self._meta_data['allowed_lazy_attributes'] = [Nat]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:nat:natstate': NAT}
+            {'tm:ltm:nat:natstate': Nat}
 
 
 class Nat(Resource):
