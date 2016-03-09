@@ -71,6 +71,23 @@ route
         Routes
         Route
 
+
+route_domain
+~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.net.route_domain
+    :members:
+
+    Route Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.net.route_domain
+
+    .. autosummary::
+
+        Route_Domains
+        Route_Domain
+
+
 selfip
 ~~~~~~
 

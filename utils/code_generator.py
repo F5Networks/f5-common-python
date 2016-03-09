@@ -27,10 +27,11 @@ DEVICECONFDIR = os.path.join(UTILSDIR, 'device_configs')
 
 def main():
     temp_eng = TemplateEngine(TEMPLATEDIR, DEVICECONFDIR)
-    from_templ_src2, uri2 = temp_eng.process_config('auth_radius_GET')
+    from_templ_src2, uri2 = temp_eng.process_config('net_route_domains_GET')
     src_eng2 = SourceEngine(SOURCE_ROOTDIR, from_templ_src2, uri2)
     src_eng2.integrate()
-    from_templ_src, uri = temp_eng.process_config('auth_radius_POST')
+    from_templ_src, uri =\
+        temp_eng.process_config('net_route_domains_route_domain_POST')
     src_eng = SourceEngine(SOURCE_ROOTDIR, from_templ_src, uri)
     src_eng.integrate()
 
