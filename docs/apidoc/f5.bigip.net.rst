@@ -77,14 +77,14 @@ selfip
 .. automodule:: f5.bigip.net.selfip
     :members:
 
-    SelfIP Collections and Resources
+    Selfip Collections and Resources
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     .. py:currentmodule:: f5.bigip.net.selfip
 
     .. autosummary::
 
-        SelfIPs
-        SelfIP
+        Selfips
+        Selfip
 
 
 tunnels
@@ -113,14 +113,14 @@ vlan
 .. automodule:: f5.bigip.net.vlan
     :members:
 
-    VLAN Collections and Resources
+    Vlan Collections and Resources
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     .. py:currentmodule:: f5.bigip.net.vlan
 
     .. autosummary::
 
-        VLANs
-        VLAN
+        Vlans
+        Vlan
         Interfaces_s
         Interfaces
 
