@@ -32,12 +32,6 @@ class TestDb(object):
         with pytest.raises(UnsupportedOperation):
             db.create()
 
-    def test_update_raises(self):
-        dbs = fake_dbs()
-        db = dbs.db
-        with pytest.raises(UnsupportedOperation):
-            db.update()
-
     def test_delete_raises(self):
         dbs = fake_dbs()
         db = dbs.db

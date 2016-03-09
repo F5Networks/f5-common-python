@@ -58,15 +58,6 @@ class Db(Resource):
             "DB resources doesn't support create, only load and refresh"
         )
 
-    def update(self, **kwargs):
-        '''Update is not supported for db resources.
-
-        :raises: UnsupportedOperation
-        '''
-        raise UnsupportedOperation(
-            "DB resources doesn't support update, only load and refresh"
-        )
-
     def delete(self, **kwargs):
         '''Delete is not supported for db resources.
 
