@@ -13,11 +13,15 @@ We'll start exploring the iControl REST API's endpoints with an example detailin
 
 .. include:: uri_code_breakdown.rst
 
-- **OC**:             :ref:`Organizing Collection <organizing_collection_section>`
-- **Coll**:           :ref:`Collection <collection_section>`
-- **Resource**:       :ref:`Resource <resource_section>`
-- **SC**:             :ref:`Subcollection <subcollection_section>`
-- **SubColl Resrc**:  :ref:`Subcollection Resource <subcollection_resource_section>`
+.. table::
+
+    =============   ==================================================
+    OC              |Organizing Collection Section|
+    Coll            |Collection Section|
+    Resource        |Resource Section|
+    SC              |Subcollection Section|
+    SubColl Resrc   |Subcollection Resource Section|
+    =============   ==================================================
 
 
 .. _endpoint_section:

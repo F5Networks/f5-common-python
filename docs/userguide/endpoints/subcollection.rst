@@ -5,9 +5,9 @@ Subcollection
 
 ``kind``: ``collectionstate``
 
-A subcollection is a |Collection| that's attached to a higher-level |Resource| object. Subcollections are almost exactly the same as collections; the exception is that they can only be accessed via the resource they're attached to (the 'parent' resource). A subcollection can be identified by the value ``isSubcollection: true``, followed by an ``items`` attribute listing the subcollection's resources.
-
-Because the subcollection ``kind`` is ``collectionstate``, the :ref:`methods <methods_section>` available are limited to |exists|.
+A subcollection is a |Collection| that's attached to a higher-level |Resource| object. Subcollections are almost exactly the same as collections; the exception is that they can only be accessed via the resource they're attached to (the 'parent' resource). A subcollection can be identified by the value ``isSubcollection: true``, followed by an ``items`` attribute listing the subcollection's resources. Just as with
+collections, you can use :meth:`~f5.bigip.resource.Collection
+    .get_collection` to get a list of the resources in the subcollection.
 
 .. _subcollection_example:
 
@@ -20,9 +20,15 @@ Because the subcollection ``kind`` is ``collectionstate``, the :ref:`methods <me
    >>> pool = bigip.ltm.pools.pool.load(partition='Common', name='p1')
    >>> members = pool.members_s.get_collection()
 
-   Note that the subcollection -- ``members`` -- is plural, so the subcollection object name ends in ``_s``.
+.. note::
 
-The JSON returned for a pool with one member is shown below. Notice the highlighted rows which indicate the subcollection.
+   In the above example, the subcollection object -- ``members_s`` -- ends
+   in ``_s`` because the subcollection resource object name  (``members``)
+   is already plural.
+
+
+The JSON returned for a pool with one member is shown below. Note the
+highlighted rows, which indicate the subcollection.
 
 .. topic:: Example
 

@@ -24,7 +24,6 @@ sys.path.insert(0, os.path.abspath('.'))
 
 import f5
 
-
 VERSION = f5.__version__
 
 # -- General configuration ------------------------------------------------
@@ -77,17 +76,21 @@ release = VERSION
 
 # links to sections
 rst_epilog = """
-.. |Organizing Collection Section| replace:: :ref:`Organizing Collection <organizing_collection_section>`
+.. |Organizing Collection Section| replace:: :ref:`Organizing Collection
+<organizing_collection_section>`
 
 .. |Collection Section| replace:: :ref:`Collection <collection_section>`
 
 .. |Resource Section| replace:: :ref:`Resource <resource_section>`
 
-.. |Subcollection Section| replace:: :ref:`Subcollection <subcollection_section>`
+.. |Subcollection Section| replace:: :ref:`Subcollection
+<subcollection_section>`
 
-.. |Subcollection Resource Section| replace:: :ref:`Subcollection Resource <subcollection_resource_section>`
+.. |Subcollection Resource Section| replace:: :ref:`Subcollection Resource
+<subcollection_resource_section>`
 
-.. |Organizing Collection| replace:: :class:`~f5.bigip.resource.OrganizingCollection`
+.. |Organizing Collection| replace::
+:class:`~f5.bigip.resource.OrganizingCollection>`
 
 .. |Collection| replace:: :class:`~f5.bigip.resource.Collection`
 
@@ -95,7 +98,8 @@ rst_epilog = """
 
 .. |Subcollection| replace:: :class:`~f5.bigip.resource.Subcollection`
 
-.. |Subcollection Resource| replace:: :class:`~f5.bigip.resource.SubcollectionResource`
+.. |Subcollection Resource| replace::
+:class:`~f5.bigip.resource.SubcollectionResource`
 
 .. |create| replace:: :meth:`~f5.bigip.resource.Resource.create`
 
@@ -153,7 +157,6 @@ pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
-
 
 # -- Options for HTML output ----------------------------------------------
 

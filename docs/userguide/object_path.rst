@@ -32,7 +32,7 @@ In the sections below, we'll walk through the Python object paths using LTM pool
 
 |Organizing Collection Section|
 -------------------------------
-The ``mgmt\tm`` and ``ltm`` organizing collections define what area of the BIG-IP you're going to work with. The ``mgmt\tm`` organizing collection corresponds to the management plane of your BIG-IP device (TMOS). Loading ``ltm`` indicates that we're going to work with the BIG-IP's :guilabel:`Local Traffic` module.
+The ``mgmt/tm`` and ``ltm`` organizing collections define what area of the BIG-IP you're going to work with. The ``mgmt/tm`` organizing collection corresponds to the management plane of your BIG-IP device (TMOS). Loading ``ltm`` indicates that we're going to work with the BIG-IP's :guilabel:`Local Traffic` module.
 
 .. include:: endpoints/endpoint_table_tm.rst
 .. include:: endpoints/endpoint_table_ltm.rst
@@ -102,26 +102,57 @@ In the example above, we instantiated the class :class:`f5.bigip.ltm.pool.Pool` 
 
 .. tip::
 
-    You can always see the representation of an object using the :meth:`~f5.bigip.ltm.pool.Pool.raw` method.
+    You can always see the representation of an object using the :meth:`~f5
+    .bigip.ltm.pool.Pools.raw` method.
 
     .. code-block:: python
 
-        >>> bigip.ltm.pools.pool.raw
+        >>> pool.raw
         {
+         u'generation': 123,
+         u'minActiveMembers': 0,
+         u'ipTosToServer': u'pass-through',
+         u'loadBalancingMode': u'round-robin',
+         u'allowNat': u'yes',
+         u'queueDepthLimit': 0,
+         u'membersReference': {
+            u'isSubcollection': True,
+            u'link': u'https://localhost/mgmt/tm/ltm/pool/~Common~mypool/members?ver=11.6.0'},
+            u'minUpMembers': 0, u'slowRampTime': 10,
+            u'minUpMembersAction': u'failover',
             '_meta_data': {
                 'attribute_registry': {
-                    'tm:ltm:pool:memberscollectionstate': < class 'f5.bigip.ltm.pool.Members_s' >
+                    'tm:ltm:pool:memberscollectionstate': <class 'f5.bigip.ltm
+                .pool.Members_s'>
                 },
-                'container': < f5.bigip.ltm.pool.Pools object at 0x8c09f0 > ,
+                'container': <f5.bigip.ltm.pool.Pools object at 0x835ef0>,
+                'uri': u'https://10.190.6.253/mgmt/tm/ltm/pool/~Common~mypool/',
                 'exclusive_attributes': [],
                 'read_only_attributes': [],
+                'allowed_lazy_attributes': [<class 'f5.bigip.ltm.pool.Members_s'>],
                 'required_refresh_parameters': set(['name']),
                 'required_json_kind': 'tm:ltm:pool:poolstate',
-                'bigip': < f5.bigip.BigIP object at 0x8a29d0 > ,
-                'required_creation_parameters': set(['name'])
-            }
-         }
-
+                'bigip': <f5.bigip.BigIP object at 0x5826f0>,
+                'required_creation_parameters': set(['name']),
+                'creation_uri_frag': '',
+                'creation_uri_qargs': {u'ver': [u'11.6.0']}
+            },
+            u'minUpMembersChecking': u'disabled',
+            u'queueTimeLimit': 0,
+            u'linkQosToServer': u'pass-through',
+            u'queueOnConnectionLimit': u'disabled',
+            u'fullPath': u'/Common/mypool',
+            u'kind': u'tm:ltm:pool:poolstate',
+            u'name': u'mypool',
+            u'partition': u'Common',
+            u'allowSnat': u'yes',
+            u'ipTosToClient': u'pass-through',
+            u'reselectTries': 0,
+            u'selfLink': u'https://localhost/mgmt/tm/ltm/pool/~Common~mypool?ver=11.6.0',
+            u'serviceDownAction': u'none',
+            u'ignorePersistedWeight': u'disabled',
+            u'linkQosToClient': u'pass-through'
+           }
 
 
 .. _subcoll_section:

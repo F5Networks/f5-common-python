@@ -9,69 +9,85 @@ A collection is similar to an |Organizing Collection Section| in that no configu
 
 .. include:: ../SDK_plural_note.rst
 
-Because the collection ``kind`` is ``collectionstate``, only the |exists| method is supported for these objects. This method returns a list of the objects in the collection. For example, :meth:`~f5.bigip.resource.Collection.get_collection`.
+You can use :meth:`~f5.bigip.resource.Collection.get_collection` to get a list of the objects in the collection.
 
-The example below shows the JSON you would get back from a collection endpoint. Note that it contains an ``items`` attribute that contains |Resource| objects (we know the objects are resources because their ``kind`` ends in ``state``).
+The example below shows the JSON you would get back from a REST collection
+endpoint. Note that it contains an ``items`` attribute that contains
+|Resource| objects (we know the objects are resources because their ``kind`` ends in ``state``).
 
 .. topic:: Example
 
     .. code-block:: json
-        :emphasize-lines: 6, 30
+        :emphasize-lines: 4, 6, 37
 
         {
-          "kind": "tm:ltm:node:nodecollectionstate",
-          "selfLink": "https://localhost/mgmt/tm/ltm/node?ver=11.6.0",
-          "items": [
-            {
-              "kind": "tm:ltm:node:nodestate",
-              "name": "192.168.15.15",
-              "partition": "Common",
-              "fullPath": "/Common/192.168.15.15",
-              "generation": 16684,
-              "selfLink": "https://localhost/mgmt/tm/ltm/node/~Common~192.168.15.15?ver=11.6.0",
-              "address": "192.168.15.15",
-              "connectionLimit": 0,
-              "dynamicRatio": 1,
-              "ephemeral": "false",
-              "fqdn": {
-                "addressFamily": "ipv4",
-                "autopopulate": "disabled",
-                "downInterval": 5,
-                "interval": 3600
-              }
-             "logging": "disabled",
-             "monitor": "default",
-             "rateLimit": "disabled",
-             "ratio": 1,
-             "session": "user-enabled",
-             "state": "unchecked"
-          },
-          {
-            "kind": "tm:ltm:node:nodestate",
-            "name": "192.168.16.16",
-            "partition": "Common",
-            "fullPath": "/Common/192.168.16.16",
-            "generation": 16685,
-            "selfLink": "https://localhost/mgmt/tm/ltm/node/~Common~192.168.16.16?ver=11.6.0",
-            "address": "192.168.16.16",
-            "connectionLimit": 0,
-            "dynamicRatio": 1,
-            "ephemeral": "false",
-            "fqdn": {
-              "addressFamily": "ipv4",
-              "autopopulate": "disabled",
-              "downInterval": 5,
-              "interval": 3600
-            },
-            "logging": "disabled",
-            "monitor": "default",
-            "rateLimit": "disabled",
-            "ratio": 1,
-            "session": "user-enabled",
-            "state": "unchecked"
-          }
-         ]
+            kind: "tm:ltm:pool:poolcollectionstate",
+            selfLink: "https://localhost/mgmt/tm/ltm/pool?ver=11.6.0",
+            items: [
+                {
+                    kind: "tm:ltm:pool:poolstate",
+                    name: "my_newpool",
+                    partition: "Common",
+                    fullPath: "/Common/my_newpool",
+                    generation: 76,
+                    selfLink: "https://localhost/mgmt/tm/ltm/pool/~Common~my_newpool?ver=11.6.0",
+                    allowNat: "yes",
+                    allowSnat: "yes",
+                    description: "This is my pool",
+                    ignorePersistedWeight: "disabled",
+                    ipTosToClient: "pass-through",
+                    ipTosToServer: "pass-through",
+                    linkQosToClient: "pass-through",
+                    linkQosToServer: "pass-through",
+                    loadBalancingMode: "round-robin",
+                    minActiveMembers: 0,
+                    minUpMembers: 0,
+                    minUpMembersAction: "failover",
+                    minUpMembersChecking: "disabled",
+                    queueDepthLimit: 0,
+                    queueOnConnectionLimit: "disabled",
+                    queueTimeLimit: 0,
+                    reselectTries: 0,
+                    serviceDownAction: "none",
+                    slowRampTime: 10,
+                    membersReference: {
+                    link: "https://localhost/mgmt/tm/ltm/pool/~Common~my_newpool/members?ver=11.6.0",
+                    isSubcollection: true
+                    }
+                },
+                {
+                    kind: "tm:ltm:pool:poolstate",
+                    name: "mypool",
+                    partition: "Common",
+                    fullPath: "/Common/mypool",
+                    generation: 121,
+                    selfLink: "https://localhost/mgmt/tm/ltm/pool/~Common~mypool?ver=11.6.0",
+                    allowNat: "yes",
+                    allowSnat: "yes",
+                    ignorePersistedWeight: "disabled",
+                    ipTosToClient: "pass-through",
+                    ipTosToServer: "pass-through",
+                    linkQosToClient: "pass-through",
+                    linkQosToServer: "pass-through",
+                    loadBalancingMode: "round-robin",
+                    minActiveMembers: 0,
+                    minUpMembers: 0,
+                    minUpMembersAction: "failover",
+                    minUpMembersChecking: "disabled",
+                    queueDepthLimit: 0,
+                    queueOnConnectionLimit: "disabled",
+                    queueTimeLimit: 0,
+                    reselectTries: 0,
+                    serviceDownAction: "none",
+                    slowRampTime: 10,
+                    membersReference: {
+                    link: "https://localhost/mgmt/tm/ltm/pool/~Common~mypool/members?ver=11.6.0",
+                    isSubcollection: true
+                    }
+                },
+            ]
         }
+
 
 
 

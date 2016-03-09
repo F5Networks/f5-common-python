@@ -67,14 +67,15 @@ Coding Example
         m1.delete()
 
         # Make sure it is gone
-        assert pool_1.members_s.members.exists(partition='Common', name='m1:80')
-
-        for member in members:
-            print member.name
+        if pool_1.members_s.members.exists(partition='Common', name='m1:80'):
+        raise Exception("Object should have been deleted")
 
         # We are done with this pool so remove it from bigip
         pool_1.delete()
 
         # Make sure it is gone
-        assert not bigip.ltm.pools.pool.exists(partition='Common', name='mypool')
+
+        if bigip.ltm.pools.pool.exists(partition='Common', name='mypool'):
+            raise Exception("Object should have been deleted")
+
 
