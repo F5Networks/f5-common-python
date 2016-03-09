@@ -13,13 +13,13 @@
 # limitations under the License.
 #
 
-"""BigIP Local Traffic Manager (LTM) SNAT module.
+"""BigIP Local Traffic Manager (LTM) Snat module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/snat``
 
 GUI Path
-    ``Local Traffic --> SNAT``
+    ``Local Traffic --> Snat``
 
 REST Kind
     ``tm:ltm:snat:*``
@@ -34,24 +34,24 @@ class RequireOneOf(MissingRequiredCreationParameter):
     pass
 
 
-class SNATs(Collection):
-    """BigIP LTM SNAT collection"""
+class Snats(Collection):
+    """BigIP LTM Snat collection"""
     def __init__(self, ltm):
-        super(SNATs, self).__init__(ltm)
-        self._meta_data['allowed_lazy_attributes'] = [SNAT]
+        super(Snats, self).__init__(ltm)
+        self._meta_data['allowed_lazy_attributes'] = [Snat]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:snat:snatstate': SNAT}
+            {'tm:ltm:snat:snatstate': Snat}
 
 
-class SNAT(Resource):
-    """BigIP LTM SNAT resource"""
+class Snat(Resource):
+    """BigIP LTM Snat resource"""
     def __init__(self, snat_s):
-        '''This represents a SNAT.
+        '''This represents a Snat.
 
         "origins" is our first example of a dict attribute, it appears to
         behave as expected.
         '''
-        super(SNAT, self).__init__(snat_s)
+        super(Snat, self).__init__(snat_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:snat:snatstate'
         self._meta_data['required_creation_parameters'].update(
             ('partition', 'origins'))

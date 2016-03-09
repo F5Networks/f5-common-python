@@ -17,14 +17,14 @@ import mock
 import pytest
 
 from f5.bigip import BigIP
-from f5.bigip.ltm.nat import NAT
+from f5.bigip.ltm.nat import Nat
 from f5.bigip.resource import MissingRequiredCreationParameter
 
 
 @pytest.fixture
 def FakeNat():
     fake_nat_s = mock.MagicMock()
-    fake_nat = NAT(fake_nat_s)
+    fake_nat = Nat(fake_nat_s)
     return fake_nat
 
 

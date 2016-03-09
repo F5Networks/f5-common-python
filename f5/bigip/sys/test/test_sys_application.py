@@ -22,8 +22,8 @@ from f5.bigip.resource import KindTypeMismatch
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
 from f5.bigip.resource import URICreationCollision
-from f5.bigip.sys.application import APLScript
-from f5.bigip.sys.application import CustomStat
+from f5.bigip.sys.application import Aplscript
+from f5.bigip.sys.application import Customstat
 from f5.bigip.sys.application import Service
 from f5.bigip.sys.application import Template
 
@@ -87,15 +87,15 @@ def FakeTemplate():
 
 
 @pytest.fixture
-def FakeAPLScript():
+def FakeAplscript():
     fake_apl_s = mock.MagicMock()
-    return APLScript(fake_apl_s)
+    return Aplscript(fake_apl_s)
 
 
 @pytest.fixture
-def FakeCustomStat():
+def FakeCustomstat():
     fake_custom_stat_s = mock.MagicMock()
-    return CustomStat(fake_custom_stat_s)
+    return Customstat(fake_custom_stat_s)
 
 
 @pytest.fixture
@@ -332,29 +332,29 @@ class TestTemplateCreate(object):
         assert 'partition' in ex.value.message
 
 
-class TestAPLScript(object):
+class TestAplscript(object):
     def test_create_two(self):
         b = BigIP('192.168.1.1', 'admin', 'admin')
         templ1 = b.sys.applications.aplscripts.aplscript
         templ2 = b.sys.applications.aplscripts.aplscript
         assert templ1 is not templ2
 
-    def test_create_no_args(self, FakeAPLScript):
+    def test_create_no_args(self, FakeAplscript):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
-            FakeAPLScript.create()
+            FakeAplscript.create()
         assert 'name' in ex.value.message
 
 
-class TestCustomStat(object):
+class TestCustomstat(object):
     def test_create_two(self):
         b = BigIP('192.168.1.1', 'admin', 'admin')
         templ1 = b.sys.applications.customstats.customstat
         templ2 = b.sys.applications.customstats.customstat
         assert templ1 is not templ2
 
-    def test_create_no_args(self, FakeCustomStat):
+    def test_create_no_args(self, FakeCustomstat):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
-            FakeCustomStat.create()
+            FakeCustomstat.create()
         assert 'name' in ex.value.message
 
 

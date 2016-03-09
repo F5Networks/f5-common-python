@@ -38,6 +38,7 @@ def test_get_collection(request, bigip, pool_factory):
 
 
 def test_get_dollar_filtered_collection(request, bigip, pool_factory):
+    hostname = bigip._meta_data['hostname']
     if bigip.sys.folders.folder.exists(name='za', partition=''):
         bigip.sys.folders.folder.load(name='za', partition='')
     else:
@@ -50,4 +51,4 @@ def test_get_dollar_filtered_collection(request, bigip, pool_factory):
     rp = {'params': {'$filter': 'partition eq za'}}
     pools_in_za = bigip.ltm.pools.get_collection(requests_params=rp)
     muri = pools_in_za[0]._meta_data['uri']
-    assert muri == 'https://host-vm-15/mgmt/tm/ltm/pool/~za~TEST/'
+    assert muri == 'https://'+hostname+'/mgmt/tm/ltm/pool/~za~TEST/'

@@ -34,61 +34,61 @@ class Monitor(OrganizingCollection):
     def __init__(self, ltm):
         super(Monitor, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [
-            HTTPs,
-            HTTPS_s,
+            Https,
+            Https_s,
             Diameters,
-            DNS_s,
+            Dns_s,
             Externals,
-            FirePass_s,
-            FTPs,
-            GateWay_ICMPs,
-            ICMPs,
-            IMAPs,
-            InBands,
-            LDAPs,
+            Firepass_s,
+            Ftps,
+            Gateway_Icmps,
+            Icmps,
+            Imaps,
+            Inbands,
+            Ldaps,
             Module_Scores,
-            MSSQLs,
-            MYSQLs,
-            NNTPs,
-            NONEs,
+            Mssqls,
+            Mysqls,
+            Nntps,
+            Nones,
             Oracles,
-            POP3s,
-            PostGRESQLs,
+            Pop3s,
+            Postgresqls,
             Radius_s,
             Radius_Accountings,
             Real_Servers,
-            RPCs,
-            SASPs,
+            Rpcs,
+            Sasps,
             Scripteds,
-            SIPs,
-            SMBs,
-            SMTPs,
-            SNMP_DCAs,
-            SNMP_DCA_Bases,
-            SOAPs,
-            TCPs,
-            TCP_Echos,
-            TCP_Half_Opens,
-            UDPs,
+            Sips,
+            Smbs,
+            Smtps,
+            Snmp_Dcas,
+            Snmp_Dca_Bases,
+            Soaps,
+            Tcps,
+            Tcp_Echos,
+            Tcp_Half_Opens,
+            Udps,
             Virtual_Locations,
-            WAPs,
-            WMIs]
+            Waps,
+            Wmis]
 
 
-class HTTPs(Collection):
-    """BigIP HTTP monitor collection."""
+class Https(Collection):
+    """BigIP Http monitor collection."""
     def __init__(self, monitor):
-        super(HTTPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [HTTP]
+        super(Https, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Http]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:http:httpstate': HTTP}
+            {'tm:ltm:monitor:http:httpstate': Http}
 
 
 class UpdateMonitorMixin(object):
     def update(self, **kwargs):
         """Change the configuration of the resource on the device.
 
-        This method uses HTTP PUT alter the service state on the device.
+        This method uses Http PUT alter the service state on the device.
 
         The attributes of the instance will be packaged as a dictionary.  That
         dictionary will be updated with kwargs.  It is then submitted as JSON
@@ -104,27 +104,27 @@ class UpdateMonitorMixin(object):
         self._update(**kwargs)
 
 
-class HTTP(UpdateMonitorMixin, Resource):
-    """BigIP HTTP monitor resource."""
+class Http(UpdateMonitorMixin, Resource):
+    """BigIP Http monitor resource."""
     def __init__(self, https):
-        super(HTTP, self).__init__(https)
+        super(Http, self).__init__(https)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:http:httpstate'
 
 
-class HTTPS_s(Collection):
-    """BigIP HTTPS monitor collection."""
+class Https_s(Collection):
+    """BigIP Https monitor collection."""
     def __init__(self, monitor):
-        super(HTTPS_s, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [HTTPS]
+        super(Https_s, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [HttpS]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:https:httpsstate': HTTPS}
+            {'tm:ltm:monitor:https:httpsstate': HttpS}
 
 
-class HTTPS(UpdateMonitorMixin, Resource):
-    """BigIP HTTPS monitor resource."""
+class HttpS(UpdateMonitorMixin, Resource):
+    """BigIP Https monitor resource."""
     def __init__(self, https_s):
-        super(HTTPS, self).__init__(https_s)
+        super(HttpS, self).__init__(https_s)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:https:httpsstate'
 
@@ -146,19 +146,19 @@ class Diameter(UpdateMonitorMixin, Resource):
             'tm:ltm:monitor:diameter:diameterstate'
 
 
-class DNS_s(Collection):
-    """BigIP DNS monitor collection."""
+class Dns_s(Collection):
+    """BigIP Dns monitor collection."""
     def __init__(self, monitor):
-        super(DNS_s, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [DNS]
+        super(Dns_s, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Dns]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:dns:dnsstate': DNS}
+            {'tm:ltm:monitor:dns:dnsstate': Dns}
 
 
-class DNS(UpdateMonitorMixin, Resource):
-    """BigIP DNS monitor resource."""
+class Dns(UpdateMonitorMixin, Resource):
+    """BigIP Dns monitor resource."""
     def __init__(self, dns_s):
-        super(DNS, self).__init__(dns_s)
+        super(Dns, self).__init__(dns_s)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:dns:dnsstate'
         self._meta_data['required_creation_parameters'].update(('qname',))
@@ -181,123 +181,123 @@ class External(UpdateMonitorMixin, Resource):
             'tm:ltm:monitor:external:externalstate'
 
 
-class FirePass_s(Collection):
+class Firepass_s(Collection):
     """BigIP Fire Pass monitor collection."""
     def __init__(self, monitor):
-        super(FirePass_s, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [FirePass]
+        super(Firepass_s, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Firepass]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:firepass:firepassstate': FirePass}
+            {'tm:ltm:monitor:firepass:firepassstate': Firepass}
 
 
-class FirePass(UpdateMonitorMixin, Resource):
+class Firepass(UpdateMonitorMixin, Resource):
     """BigIP external monitor resource."""
     def __init__(self, firepass_s):
-        super(FirePass, self).__init__(firepass_s)
+        super(Firepass, self).__init__(firepass_s)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:firepass:firepassstate'
 
 
-class FTPs(Collection):
-    """BigIP FTP monitor collection."""
+class Ftps(Collection):
+    """BigIP Ftp monitor collection."""
     def __init__(self, monitor):
-        super(FTPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [FTP]
+        super(Ftps, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Ftp]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:ftp:ftpstate': FTP}
+            {'tm:ltm:monitor:ftp:ftpstate': Ftp}
 
 
-class FTP(UpdateMonitorMixin, Resource):
-    """BigIP FTP monitor resource."""
+class Ftp(UpdateMonitorMixin, Resource):
+    """BigIP Ftp monitor resource."""
     def __init__(self, ftps):
-        super(FTP, self).__init__(ftps)
+        super(Ftp, self).__init__(ftps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:ftp:ftpstate'
 
 
-class GateWay_ICMPs(Collection):
-    """BigIP Gateway ICMP monitor collection."""
+class Gateway_Icmps(Collection):
+    """BigIP Gateway Icmp monitor collection."""
     def __init__(self, monitor):
-        super(GateWay_ICMPs, self).__init__(monitor)
+        super(Gateway_Icmps, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
-        self._meta_data['allowed_lazy_attributes'] = [GateWay_ICMP]
+        self._meta_data['allowed_lazy_attributes'] = [Gateway_Icmp]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:gateway-icmp:gateway-icmpstate': GateWay_ICMP}
+            {'tm:ltm:monitor:gateway-icmp:gateway-icmpstate': Gateway_Icmp}
 
 
-class GateWay_ICMP(UpdateMonitorMixin, Resource):
-    """BigIP Gateway ICMP monitor resource."""
+class Gateway_Icmp(UpdateMonitorMixin, Resource):
+    """BigIP Gateway Icmp monitor resource."""
     def __init__(self, gateway_icmps):
-        super(GateWay_ICMP, self).__init__(gateway_icmps)
+        super(Gateway_Icmp, self).__init__(gateway_icmps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:gateway-icmp:gateway-icmpstate'
 
 
-class ICMPs(Collection):
-    """BigIP ICMP monitor collection."""
+class Icmps(Collection):
+    """BigIP Icmp monitor collection."""
     def __init__(self, monitor):
-        super(ICMPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [ICMP]
+        super(Icmps, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Icmp]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:icmp:icmpstate': ICMP}
+            {'tm:ltm:monitor:icmp:icmpstate': Icmp}
 
 
-class ICMP(UpdateMonitorMixin, Resource):
-    """BigIP ICMP monitor resource."""
+class Icmp(UpdateMonitorMixin, Resource):
+    """BigIP Icmp monitor resource."""
     def __init__(self, icmps):
-        super(ICMP, self).__init__(icmps)
+        super(Icmp, self).__init__(icmps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:icmp:icmpstate'
 
 
-class IMAPs(Collection):
-    """BigIP IMAP monitor collection."""
+class Imaps(Collection):
+    """BigIP Imap monitor collection."""
     def __init__(self, monitor):
-        super(IMAPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [IMAP]
+        super(Imaps, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Imap]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:imap:imapstate': IMAP}
+            {'tm:ltm:monitor:imap:imapstate': Imap}
 
 
-class IMAP(UpdateMonitorMixin, Resource):
-    """BigIP IMAP monitor resource."""
+class Imap(UpdateMonitorMixin, Resource):
+    """BigIP Imap monitor resource."""
     def __init__(self, imaps):
-        super(IMAP, self).__init__(imaps)
+        super(Imap, self).__init__(imaps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:imap:imapstate'
 
 
-class InBands(Collection):
+class Inbands(Collection):
     """BigIP in band monitor collection."""
     def __init__(self, monitor):
-        super(InBands, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [InBand]
+        super(Inbands, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Inband]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:inband:inbandstate': InBand}
+            {'tm:ltm:monitor:inband:inbandstate': Inband}
 
 
-class InBand(UpdateMonitorMixin, Resource):
+class Inband(UpdateMonitorMixin, Resource):
     """BigIP in band monitor resource."""
     def __init__(self, inbands):
-        super(InBand, self).__init__(inbands)
+        super(Inband, self).__init__(inbands)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:inband:inbandstate'
 
 
-class LDAPs(Collection):
-    """BigIP LDAP monitor collection."""
+class Ldaps(Collection):
+    """BigIP Ldap monitor collection."""
     def __init__(self, monitor):
-        super(LDAPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [LDAP]
+        super(Ldaps, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Ldap]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:ldap:ldapstate': LDAP}
+            {'tm:ltm:monitor:ldap:ldapstate': Ldap}
 
 
-class LDAP(UpdateMonitorMixin, Resource):
-    """BigIP LDAP monitor resource."""
+class Ldap(UpdateMonitorMixin, Resource):
+    """BigIP Ldap monitor resource."""
     def __init__(self, ldaps):
-        super(LDAP, self).__init__(ldaps)
+        super(Ldap, self).__init__(ldaps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:ldap:ldapstate'
 
@@ -323,61 +323,61 @@ class Module_Score(UpdateMonitorMixin, Resource):
             'tm:ltm:monitor:module-score:module-scorestate'
 
 
-class MYSQLs(Collection):
+class Mysqls(Collection):
     """BigIP MySQL monitor collection."""
     def __init__(self, monitor):
-        super(MYSQLs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [MYSQL]
+        super(Mysqls, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Mysql]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:mysql:mysqlstate': MYSQL}
+            {'tm:ltm:monitor:mysql:mysqlstate': Mysql}
 
 
-class MYSQL(UpdateMonitorMixin, Resource):
+class Mysql(UpdateMonitorMixin, Resource):
     """BigIP MySQL monitor resource."""
     def __init__(self, mysqls):
-        super(MYSQL, self).__init__(mysqls)
+        super(Mysql, self).__init__(mysqls)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:mysql:mysqlstate'
 
 
-class MSSQLs(Collection):
-    """BigIP MSSQL monitor collection."""
+class Mssqls(Collection):
+    """BigIP Mssql monitor collection."""
     def __init__(self, monitor):
-        super(MSSQLs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [MSSQL]
+        super(Mssqls, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Mssql]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:mssql:mssqlstate': MSSQL}
+            {'tm:ltm:monitor:mssql:mssqlstate': Mssql}
 
 
-class MSSQL(UpdateMonitorMixin, Resource):
-    """BigIP MSSQL monitor resource."""
+class Mssql(UpdateMonitorMixin, Resource):
+    """BigIP Mssql monitor resource."""
     def __init__(self, mssqls):
-        super(MSSQL, self).__init__(mssqls)
+        super(Mssql, self).__init__(mssqls)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:mssql:mssqlstate'
 
 
-class NNTPs(Collection):
-    """BigIP NNTPs monitor collection."""
+class Nntps(Collection):
+    """BigIP Nntps monitor collection."""
     def __init__(self, monitor):
-        super(NNTPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [NNTP]
+        super(Nntps, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Nntp]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:nntp:nntpstate': NNTP}
+            {'tm:ltm:monitor:nntp:nntpstate': Nntp}
 
 
-class NNTP(UpdateMonitorMixin, Resource):
-    """BigIP NNTPs monitor resource."""
+class Nntp(UpdateMonitorMixin, Resource):
+    """BigIP Nntps monitor resource."""
     def __init__(self, nntps):
-        super(NNTP, self).__init__(nntps)
+        super(Nntp, self).__init__(nntps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:nntp:nntpstate'
 
 
-class NONEs(Collection):
+class Nones(Collection):
     """BigIP None monitor collection."""
     def __init__(self, monitor):
-        super(NONEs, self).__init__(monitor)
+        super(Nones, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [NONE]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:none:nonestate': NONE}
@@ -408,36 +408,36 @@ class Oracle(UpdateMonitorMixin, Resource):
             'tm:ltm:monitor:oracle:oraclestate'
 
 
-class POP3s(Collection):
-    """BigIP POP3 monitor collection."""
+class Pop3s(Collection):
+    """BigIP Pop3 monitor collection."""
     def __init__(self, monitor):
-        super(POP3s, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [POP3]
+        super(Pop3s, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Pop3]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:pop3:pop3state': POP3}
+            {'tm:ltm:monitor:pop3:pop3state': Pop3}
 
 
-class POP3(UpdateMonitorMixin, Resource):
-    """BigIP POP3 monitor resource."""
+class Pop3(UpdateMonitorMixin, Resource):
+    """BigIP Pop3 monitor resource."""
     def __init__(self, pop3s):
-        super(POP3, self).__init__(pop3s)
+        super(Pop3, self).__init__(pop3s)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:pop3:pop3state'
 
 
-class PostGRESQLs(Collection):
+class Postgresqls(Collection):
     """BigIP PostGRES SQL monitor collection."""
     def __init__(self, monitor):
-        super(PostGRESQLs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [PostGRESQL]
+        super(Postgresqls, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Postgresql]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:postgresql:postgresqlstate': PostGRESQL}
+            {'tm:ltm:monitor:postgresql:postgresqlstate': Postgresql}
 
 
-class PostGRESQL(UpdateMonitorMixin, Resource):
+class Postgresql(UpdateMonitorMixin, Resource):
     """BigIP PostGRES SQL monitor resource."""
     def __init__(self, postgresqls):
-        super(PostGRESQL, self).__init__(postgresqls)
+        super(Postgresql, self).__init__(postgresqls)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:postgresql:postgresqlstate'
 
@@ -500,7 +500,7 @@ class Real_Server(UpdateMonitorMixin, Resource):
     def update(self, **kwargs):
         """Change the configuration of the resource on the device.
 
-        This method uses HTTP PUT alter the service state on the device.
+        This method uses Http PUT alter the service state on the device.
 
         The attributes of the instance will be packaged as a dictionary.  That
         dictionary will be updated with kwargs.  It is then submitted as JSON
@@ -521,36 +521,36 @@ class Real_Server(UpdateMonitorMixin, Resource):
         super(Real_Server, self).update(**kwargs)
 
 
-class RPCs(Collection):
-    """BigIP RPC monitor collection."""
+class Rpcs(Collection):
+    """BigIP Rpc monitor collection."""
     def __init__(self, monitor):
-        super(RPCs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [RPC]
+        super(Rpcs, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Rpc]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:rpc:rpcstate': RPC}
+            {'tm:ltm:monitor:rpc:rpcstate': Rpc}
 
 
-class RPC(UpdateMonitorMixin, Resource):
-    """BigIP RPC monitor resource."""
+class Rpc(UpdateMonitorMixin, Resource):
+    """BigIP Rpc monitor resource."""
     def __init__(self, rpcs):
-        super(RPC, self).__init__(rpcs)
+        super(Rpc, self).__init__(rpcs)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:rpc:rpcstate'
 
 
-class SASPs(Collection):
-    """BigIP SASP monitor collection."""
+class Sasps(Collection):
+    """BigIP Sasp monitor collection."""
     def __init__(self, monitor):
-        super(SASPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [SASP]
+        super(Sasps, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Sasp]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:sasp:saspstate': SASP}
+            {'tm:ltm:monitor:sasp:saspstate': Sasp}
 
 
-class SASP(UpdateMonitorMixin, Resource):
-    """BigIP SASP monitor resource."""
+class Sasp(UpdateMonitorMixin, Resource):
+    """BigIP Sasp monitor resource."""
     def __init__(self, sasps):
-        super(SASP, self).__init__(sasps)
+        super(Sasp, self).__init__(sasps)
         self._meta_data['required_creation_parameters'].update(
             ('primaryAddress',))
         self._meta_data['required_json_kind'] =\
@@ -574,180 +574,180 @@ class Scripted(UpdateMonitorMixin, Resource):
             'tm:ltm:monitor:scripted:scriptedstate'
 
 
-class SIPs(Collection):
-    """BigIP SIP monitor collection."""
+class Sips(Collection):
+    """BigIP Sip monitor collection."""
     def __init__(self, monitor):
-        super(SIPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [SIP]
+        super(Sips, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Sip]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:sip:sipstate': SIP}
+            {'tm:ltm:monitor:sip:sipstate': Sip}
 
 
-class SIP(UpdateMonitorMixin, Resource):
-    """BigIP SIP monitor resource."""
+class Sip(UpdateMonitorMixin, Resource):
+    """BigIP Sip monitor resource."""
     def __init__(self, sips):
-        super(SIP, self).__init__(sips)
+        super(Sip, self).__init__(sips)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:sip:sipstate'
 
 
-class SMBs(Collection):
-    """BigIP SMB monitor collection."""
+class Smbs(Collection):
+    """BigIP Smb monitor collection."""
     def __init__(self, monitor):
-        super(SMBs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [SMB]
+        super(Smbs, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Smb]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:smb:smbstate': SMB}
+            {'tm:ltm:monitor:smb:smbstate': Smb}
 
 
-class SMB(UpdateMonitorMixin, Resource):
-    """BigIP SMB monitor resource."""
+class Smb(UpdateMonitorMixin, Resource):
+    """BigIP Smb monitor resource."""
     def __init__(self, smbs):
-        super(SMB, self).__init__(smbs)
+        super(Smb, self).__init__(smbs)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:smb:smbstate'
 
 
-class SMTPs(Collection):
-    """BigIP SMTP monitor collection."""
+class Smtps(Collection):
+    """BigIP Smtp monitor collection."""
     def __init__(self, monitor):
-        super(SMTPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [SMTP]
+        super(Smtps, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Smtp]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:smtp:smtpstate': SMTP}
+            {'tm:ltm:monitor:smtp:smtpstate': Smtp}
 
 
-class SMTP(UpdateMonitorMixin, Resource):
-    """BigIP SMTP monitor resource."""
+class Smtp(UpdateMonitorMixin, Resource):
+    """BigIP Smtp monitor resource."""
     def __init__(self, smtps):
-        super(SMTP, self).__init__(smtps)
+        super(Smtp, self).__init__(smtps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:smtp:smtpstate'
 
 
-class SNMP_DCAs(Collection):
+class Snmp_Dcas(Collection):
     """BigIP SNMP DCA monitor collection."""
     def __init__(self, monitor):
-        super(SNMP_DCAs, self).__init__(monitor)
+        super(Snmp_Dcas, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
-        self._meta_data['allowed_lazy_attributes'] = [SNMP_DCA]
+        self._meta_data['allowed_lazy_attributes'] = [Snmp_Dca]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:snmp-dca:snmp-dcastate': SNMP_DCA}
+            {'tm:ltm:monitor:snmp-dca:snmp-dcastate': Snmp_Dca}
 
 
-class SNMP_DCA(UpdateMonitorMixin, Resource):
+class Snmp_Dca(UpdateMonitorMixin, Resource):
     """BigIP SNMP DCA monitor resource."""
     def __init__(self, snmp_dcas):
-        super(SNMP_DCA, self).__init__(snmp_dcas)
+        super(Snmp_Dca, self).__init__(snmp_dcas)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:snmp-dca:snmp-dcastate'
 
 
-class SNMP_DCA_Bases(Collection):
+class Snmp_Dca_Bases(Collection):
     """BigIP SNMP DCA bases monitor collection."""
     def __init__(self, monitor):
-        super(SNMP_DCA_Bases, self).__init__(monitor)
+        super(Snmp_Dca_Bases, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
-        self._meta_data['allowed_lazy_attributes'] = [SNMP_DCA_Base]
+        self._meta_data['allowed_lazy_attributes'] = [Snmp_Dca_Base]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:snmp-dca-base:snmp-dca-basestate': SNMP_DCA_Base}
+            {'tm:ltm:monitor:snmp-dca-base:snmp-dca-basestate': Snmp_Dca_Base}
 
 
-class SNMP_DCA_Base(UpdateMonitorMixin, Resource):
+class Snmp_Dca_Base(UpdateMonitorMixin, Resource):
     """BigIP SNMP DCA monitor resource."""
     def __init__(self, snmp_dca_bases):
-        super(SNMP_DCA_Base, self).__init__(snmp_dca_bases)
+        super(Snmp_Dca_Base, self).__init__(snmp_dca_bases)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:snmp-dca-base:snmp-dca-basestate'
 
 
-class SOAPs(Collection):
-    """BigIP SOAP monitor collection."""
+class Soaps(Collection):
+    """BigIP Soap monitor collection."""
     def __init__(self, monitor):
-        super(SOAPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [SOAP]
+        super(Soaps, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Soap]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:soap:soapstate': SOAP}
+            {'tm:ltm:monitor:soap:soapstate': Soap}
 
 
-class SOAP(UpdateMonitorMixin, Resource):
-    """BigIP SOAP monitor resource."""
+class Soap(UpdateMonitorMixin, Resource):
+    """BigIP Soap monitor resource."""
     def __init__(self, soaps):
-        super(SOAP, self).__init__(soaps)
+        super(Soap, self).__init__(soaps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:soap:soapstate'
 
 
-class TCPs(Collection):
-    """BigIP TCP monitor collection."""
+class Tcps(Collection):
+    """BigIP Tcp monitor collection."""
     def __init__(self, monitor):
-        super(TCPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [TCP]
+        super(Tcps, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Tcp]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:tcp:tcpstate': TCP}
+            {'tm:ltm:monitor:tcp:tcpstate': Tcp}
 
 
-class TCP(UpdateMonitorMixin, Resource):
-    """BigIP TCP monitor resource."""
+class Tcp(UpdateMonitorMixin, Resource):
+    """BigIP Tcp monitor resource."""
     def __init__(self, tcps):
-        super(TCP, self).__init__(tcps)
+        super(Tcp, self).__init__(tcps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:tcp:tcpstate'
 
 
-class TCP_Echos(Collection):
-    """BigIP TCP echo monitor collection."""
+class Tcp_Echos(Collection):
+    """BigIP Tcp echo monitor collection."""
     def __init__(self, monitor):
-        super(TCP_Echos, self).__init__(monitor)
+        super(Tcp_Echos, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
-        self._meta_data['allowed_lazy_attributes'] = [TCP_Echo]
+        self._meta_data['allowed_lazy_attributes'] = [Tcp_Echo]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:tcp-echo:tcp-echostate': TCP_Echo}
+            {'tm:ltm:monitor:tcp-echo:tcp-echostate': Tcp_Echo}
 
 
-class TCP_Echo(UpdateMonitorMixin, Resource):
-    """BigIP TCP echo monitor resource."""
+class Tcp_Echo(UpdateMonitorMixin, Resource):
+    """BigIP Tcp echo monitor resource."""
     def __init__(self, tcp_echos):
-        super(TCP_Echo, self).__init__(tcp_echos)
+        super(Tcp_Echo, self).__init__(tcp_echos)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:tcp-echo:tcp-echostate'
 
 
-class TCP_Half_Opens(Collection):
-    """BigIP TCP half open monitor collection."""
+class Tcp_Half_Opens(Collection):
+    """BigIP Tcp half open monitor collection."""
     def __init__(self, monitor):
-        super(TCP_Half_Opens, self).__init__(monitor)
+        super(Tcp_Half_Opens, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
         self._meta_data['uri'] = fixed
-        self._meta_data['allowed_lazy_attributes'] = [TCP_Half_Open]
+        self._meta_data['allowed_lazy_attributes'] = [Tcp_Half_Open]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:tcp-half-open:tcp-half-openstate': TCP_Half_Open}
+            {'tm:ltm:monitor:tcp-half-open:tcp-half-openstate': Tcp_Half_Open}
 
 
-class TCP_Half_Open(UpdateMonitorMixin, Resource):
-    """BigIP TCP half open monitor resource."""
+class Tcp_Half_Open(UpdateMonitorMixin, Resource):
+    """BigIP Tcp half open monitor resource."""
     def __init__(self, tcp_half_opens):
-        super(TCP_Half_Open, self).__init__(tcp_half_opens)
+        super(Tcp_Half_Open, self).__init__(tcp_half_opens)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:tcp-half-open:tcp-half-openstate'
 
 
-class UDPs(Collection):
-    """BigIP UDP monitor collection."""
+class Udps(Collection):
+    """BigIP Udp monitor collection."""
     def __init__(self, monitor):
-        super(UDPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [UDP]
+        super(Udps, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Udp]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:udp:udpstate': UDP}
+            {'tm:ltm:monitor:udp:udpstate': Udp}
 
 
-class UDP(UpdateMonitorMixin, Resource):
-    """BigIP UDP monitor resource."""
+class Udp(UpdateMonitorMixin, Resource):
+    """BigIP Udp monitor resource."""
     def __init__(self, udps):
-        super(UDP, self).__init__(udps)
+        super(Udp, self).__init__(udps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:udp:udpstate'
 
@@ -774,36 +774,36 @@ class Virtual_Location(UpdateMonitorMixin, Resource):
             'tm:ltm:monitor:virtual-location:virtual-locationstate'
 
 
-class WAPs(Collection):
-    """BigIP WAP monitor collection."""
+class Waps(Collection):
+    """BigIP Wap monitor collection."""
     def __init__(self, monitor):
-        super(WAPs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [WAP]
+        super(Waps, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Wap]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:wap:wapstate': WAP}
+            {'tm:ltm:monitor:wap:wapstate': Wap}
 
 
-class WAP(UpdateMonitorMixin, Resource):
-    """BigIP WAP monitor resource."""
+class Wap(UpdateMonitorMixin, Resource):
+    """BigIP Wap monitor resource."""
     def __init__(self, waps):
-        super(WAP, self).__init__(waps)
+        super(Wap, self).__init__(waps)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:wap:wapstate'
 
 
-class WMIs(Collection):
-    """BigIP WMI monitor collection."""
+class Wmis(Collection):
+    """BigIP Wmi monitor collection."""
     def __init__(self, monitor):
-        super(WMIs, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [WMI]
+        super(Wmis, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Wmi]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:wmi:wmistate': WMI}
+            {'tm:ltm:monitor:wmi:wmistate': Wmi}
 
 
-class WMI(UpdateMonitorMixin, Resource):
-    """BigIP WMI monitor resource."""
+class Wmi(UpdateMonitorMixin, Resource):
+    """BigIP Wmi monitor resource."""
     def __init__(self, wmis):
-        super(WMI, self).__init__(wmis)
+        super(Wmi, self).__init__(wmis)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:wmi:wmistate'
         self._meta_data['read_only_attributes'] =\
@@ -812,7 +812,7 @@ class WMI(UpdateMonitorMixin, Resource):
     def update(self, **kwargs):
         """Change the configuration of the resource on the device.
 
-        This method uses HTTP PUT alter the service state on the device.
+        This method uses Http PUT alter the service state on the device.
 
         The attributes of the instance will be packaged as a dictionary.  That
         dictionary will be updated with kwargs.  It is then submitted as JSON
@@ -829,4 +829,4 @@ class WMI(UpdateMonitorMixin, Resource):
         self.__dict__.pop('agent', '')
         self.__dict__.pop('post', '')
         self.__dict__.pop('method', '')
-        super(WMI, self).update(**kwargs)
+        super(Wmi, self).update(**kwargs)

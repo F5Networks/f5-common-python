@@ -37,43 +37,43 @@ class Applications(Collection):
     def __init__(self, sys):
         super(Applications, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [
-            APLScripts,
-            CustomStats,
+            Aplscripts,
+            Customstats,
             Services,
             Templates
         ]
 
 
-class APLScripts(Collection):
+class Aplscripts(Collection):
     """BigIP iApp script collection."""
     def __init__(self, application):
-        super(APLScripts, self).__init__(application)
-        self._meta_data['allowed_lazy_attributes'] = [APLScript]
+        super(Aplscripts, self).__init__(application)
+        self._meta_data['allowed_lazy_attributes'] = [Aplscript]
         self._meta_data['attribute_registry'] =\
-            {'tm:sys:application:apl-script:apl-scriptstate': APLScript}
+            {'tm:sys:application:apl-script:apl-scriptstate': Aplscript}
 
 
-class APLScript(Resource):
+class Aplscript(Resource):
     """BigIP iApp script resource."""
     def __init__(self, apl_script_s):
-        super(APLScript, self).__init__(apl_script_s)
+        super(Aplscript, self).__init__(apl_script_s)
         self._meta_data['required_json_kind'] =\
             'tm:sys:application:apl-script:apl-scriptstate'
 
 
-class CustomStats(Collection):
+class Customstats(Collection):
     """BigIP iApp custom stats sub-collection."""
     def __init__(self, application):
-        super(CustomStats, self).__init__(application)
-        self._meta_data['allowed_lazy_attributes'] = [CustomStat]
+        super(Customstats, self).__init__(application)
+        self._meta_data['allowed_lazy_attributes'] = [Customstat]
         self._meta_data['attribute_registry'] =\
-            {'tm:sys:application:custom-stat:custom-statstate': CustomStat}
+            {'tm:sys:application:custom-stat:custom-statstate': Customstat}
 
 
-class CustomStat(Resource):
+class Customstat(Resource):
     """BigIP iApp custom stats sub-collection resource."""
     def __init__(self, custom_stat_s):
-        super(CustomStat, self).__init__(custom_stat_s)
+        super(Customstat, self).__init__(custom_stat_s)
         self._meta_data['required_json_kind'] =\
             'tm:sys:application:custom-stat:custom-statstate'
 

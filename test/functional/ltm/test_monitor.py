@@ -51,6 +51,7 @@ def setup_http_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.https
+    pp(hc1._meta_data)
     http1 = hc1.http
     http1.create(name=name, partition=partition)
     return http1, hc1

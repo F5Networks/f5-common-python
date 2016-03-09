@@ -17,14 +17,14 @@ import mock
 import pytest
 
 from f5.bigip import BigIP
-from f5.bigip.ltm.nat import NAT
+from f5.bigip.ltm.nat import Nat
 from f5.bigip.resource import MissingRequiredCreationParameter
 
 
 @pytest.fixture
 def FakeRule():
     fake_rule_s = mock.MagicMock()
-    fake_rule = NAT(fake_rule_s)
+    fake_rule = Nat(fake_rule_s)
     return fake_rule
 
 

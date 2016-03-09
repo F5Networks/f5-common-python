@@ -37,10 +37,10 @@ application
     .. autosummary::
 
         Applications
-        APLScripts
-        APLScript
-        CustomStats
-        CustomStat
+        Aplscripts
+        Aplscript
+        Customstats
+        Customstat
         Services
         Service
         Templates

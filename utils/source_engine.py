@@ -13,6 +13,8 @@
 # limitations under the License.
 #
 
+'''Source engine container, combines code on filesystem with other sources.'''
+
 LICENSE_AND_MODULE_DOCSTRING = """# Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,6 +37,7 @@ from urlparse import urlparse
 
 
 class UnexpectedNodeInFromImports(Exception):
+    '''If a nonstring, nonimport is found before imports end raise this.'''
     pass
 
 
