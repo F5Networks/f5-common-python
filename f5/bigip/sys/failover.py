@@ -31,8 +31,8 @@ from f5.bigip.resource import Resource
 class Failover(UnnamedResourceMixin, Resource):
     '''BigIP Failover stats and state change.
 
-    The failover object only supports load and update because it is an
-    unnamed resource.
+    The failover object only supports load, update, and refresh because it is
+     an unnamed resource.
 
     To force the unit to standby call the ``update()`` method as follows:
 
@@ -52,3 +52,38 @@ class Failover(UnnamedResourceMixin, Resource):
             'tm:sys:failover:failoverstats'
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + endpoint + '/'
+
+    def update(self, **kwargs):
+        '''Update is not supported for Failover
+
+        :raises: UnsupportedOperation
+        '''
+        raise self.UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+    def toggle_standby(self, **kwargs):
+        '''Toggle the standby status of a traffic group.
+
+        WARNING: This method which used POST obtains json keys from the device
+        that are not available in the response to a GET against the same URI.
+
+        Unique to refresh/GET:
+        u"apiRawValues"
+        u"selfLink"
+        Unique to toggle_standby/POST:
+        u"command"
+        u"standby"
+        u"traffic-group"
+        '''
+        state = kwargs.pop('state')
+        trafficgroup = kwargs.pop('trafficgroup')
+        if kwargs:
+            raise TypeError('Unexpected **kwargs: %r' % kwargs)
+        payload = {u"command": u"run",
+                   u"standby": state,
+                   u"traffic-group": trafficgroup}
+        standby_session = self._meta_data["bigip"]._meta_data["icr_session"]
+        uri = self._meta_data['uri']
+        response = standby_session.post(uri, json=payload)
+        self._local_update(response.json())

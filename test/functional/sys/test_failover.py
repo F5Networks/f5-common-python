@@ -13,6 +13,8 @@
 # limitations under the License.
 #
 
+from pprint import pprint as pp
+
 
 class TestFailover(object):
     def test_failover_LR(self, bigip):
@@ -28,3 +30,17 @@ class TestFailover(object):
         assert f.apiRawValues['apiAnonymous'].startswith('Failover active')
         f.refresh()
         assert f.apiRawValues['apiAnonymous'].startswith('Failover active')
+
+    def test_toggle_standby(self, bigip):
+        f = bigip.sys.failover
+        f.toggle_standby(trafficgroup="traffic-group-1", state=None)
+        assert f.standby is None
+        assert f.command == u"run"
+        pp(f.raw)
+        f.toggle_standby(trafficgroup="traffic-group-1", state=True)
+        assert f.standby is True
+        assert f.command == u"run"
+        pp('************')
+        f.refresh()
+        pp(f.raw)
+        assert 'Failover active' in f.apiRawValues['apiAnonymous']
