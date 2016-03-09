@@ -11,7 +11,7 @@ install:
     - pip install hacking pytest pytest-cov
     - pip install -r requirements.test.txt
 script:
-    - flake8 .
+    - flake8 --exclude=docs .
     - py.test --cov --ignore=test/
     - python setup.py sdist
     - cd docs
