@@ -20,3 +20,10 @@ class TestDb(object):
         assert db.value == 'true'
         db.refresh()
         assert db.value == 'true'
+
+    def test_update(self, bigip):
+        db1 = bigip.sys.dbs.db.load(name='iptunnel.configsync')
+        db1.update(value='enable')
+        assert db1.value == 'enable'
+        db1.update(value='disable')
+        assert db1.value == 'disable'
