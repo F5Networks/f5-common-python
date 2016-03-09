@@ -1,6 +1,6 @@
 F5 Python SDK Documentation
 ===========================
-|Build Status|
+|Build Status| |Docs Build Status|
 
 Introduction
 ------------
@@ -35,8 +35,8 @@ Basic Example
     pools = bigip.ltm.pools.get_collection()
     for pool in pools:
         print pool.name
-        for member in pool.members:
-            print member.name
+        for member in pool.members_s.get_collection():
+             print member.name
 
     # Create a new pool on the BigIP
     mypool = bigip.ltm.pools.pool.create(name='mypool', partition='Common')
@@ -48,7 +48,7 @@ Basic Example
 
     # Delete a pool if it exists
     if bigip.ltm.pools.pool.exists(name='mypool', partition='Common'):
-        pool_b = bigip.ltm.pools.pool.load(name='oldpool', partition='Common')
+        pool_b = bigip.ltm.pools.pool.load(name='mypool', partition='Common')
         pool_b.delete()
 
 Detailed Documentation
@@ -104,3 +104,8 @@ project.
 
 .. |Build Status| image:: https://travis-ci.org/F5Networks/f5-common-python.svg?branch=0.1
     :target: https://travis-ci.org/F5Networks/f5-common-python
+    :alt: Build Status
+
+.. |Docs Build Status| image:: http://readthedocs.org/projects/f5-sdk/badge/?version=latest
+    :target: http://f5-sdk.readthedocs.org/en/latest/?badge=latest
+    :alt: Documentation Status

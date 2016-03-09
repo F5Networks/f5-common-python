@@ -1,7 +1,7 @@
 f5-common-python
 ================
 
-|Build Status|
+|Build Status| |Docs Build Status|
 
 Introduction
 ------------
@@ -42,7 +42,7 @@ Usage
     pools = bigip.ltm.pools.get_collection()
     for pool in pools:
         print pool.name
-        for member in pool.members:
+        for member in pool.members_s.get_collection():
             print member.name
 
     # Create a new pool on the BigIP
@@ -55,13 +55,13 @@ Usage
 
     # Delete a pool if it exists
     if bigip.ltm.pools.pool.exists(name='mypool', partition='Common'):
-        pool_b = bigip.ltm.pools.pool.load(name='oldpool', partition='Common')
+        pool_b = bigip.ltm.pools.pool.load(name='mypool', partition='Common')
         pool_b.delete()
+
 
 Documentation
 -------------
-
-Documentation is hosted on `Read the Docs <https://f5-sdk.readthedocs.org>`__
+Documentation is hosted on `Read the Docs <https://f5-sdk.readthedocs.org>`_
 
 Filing Issues
 -------------
@@ -81,7 +81,6 @@ below.
 
 Unit Tests
 ~~~~~~~~~~
-
 We use pytest for our unit tests.
 
 #. If you haven't already, install the required test packages and the
@@ -101,9 +100,9 @@ We use pytest for our unit tests.
        py.test --cov ./icontrol --cov-report=html
        open htmlcov/index.html
 
+
 Style Checks
 ~~~~~~~~~~~~
-
 We use the hacking module for our style checks (installed as part of step 1 in
 the Unit Test section).
 
@@ -111,19 +110,17 @@ the Unit Test section).
 
     flake8 ./
 
+
 Contact
 -------
-
 f5_common_python@f5.com
 
 Copyright
 ---------
-
 Copyright 2014-2016 F5 Networks Inc.
 
 Support
 -------
-
 See `Support <SUPPORT.md>`__
 
 License
@@ -131,7 +128,6 @@ License
 
 Apache V2.0
 ~~~~~~~~~~~
-
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License. You may obtain a copy of the
 License at
@@ -146,7 +142,6 @@ under the License.
 
 Contributor License Agreement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 Individuals or business entities who contribute to this project must have
 completed and submitted the `F5 Contributor License Agreement
 <http://f5-openstack-docs.readthedocs.org/en/latest/cla_landing.html>`__
@@ -155,3 +150,8 @@ project.
 
 .. |Build Status| image:: https://travis-ci.org/F5Networks/f5-common-python.svg?branch=0.1
     :target: https://travis-ci.org/F5Networks/f5-common-python
+    :alt: Build Status
+
+.. |Docs Build Status| image:: http://readthedocs.org/projects/f5-sdk/badge/?version=latest
+    :target: http://f5-sdk.readthedocs.org/en/latest/?badge=latest
+    :alt: Documentation Status
