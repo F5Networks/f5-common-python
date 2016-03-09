@@ -47,6 +47,8 @@ test/*/logs/*
 
 # Docs
 docs/_build
+venv/*
+docs/venv/*
 
 # iControl REST logs
 logs
