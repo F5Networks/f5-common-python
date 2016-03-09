@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+from pprint import pprint as pp
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
@@ -30,7 +31,7 @@ def delete_nat(bigip, name, partition):
     nat.delete()
 
 
-def setup_standard_test(request, bigip, nat):
+def setup_loadable_nat_test(request, bigip, nat):
     def teardown():
         delete_nat(bigip, 'nat1', 'Common')
 
@@ -177,7 +178,7 @@ class TestCreate(object):
                    disabled=True)
         assert NAT.disabled is True
 
-    def itest_create_disabled_false(self, request, bigip, NAT):
+    def test_create_disabled_false(self, request, bigip, NAT):
         '''Test that you can set enabled to false and create nat as disabled
 
         This will fail until some fixups are made to the create function for
@@ -189,7 +190,18 @@ class TestCreate(object):
                    translationAddress='192.168.1.1',
                    originatingAddress='192.168.2.1',
                    disabled=False)
-        assert NAT.disabled is False
+        pp(NAT.raw)
+        assert 'disabled' not in NAT.raw
+        assert NAT.enabled is True
+        NAT.enabled = False
+        NAT.update()
+        assert 'enabled' not in NAT.raw
+        assert NAT.disabled is True
+
+        NAT.disabled = False
+        NAT.update()
+        assert 'disabled' not in NAT.raw
+        assert NAT.enabled is True
 
     def test_create_inheritedtrafficgroup_true(self, request, bigip, NAT):
         '''Test that you can set inheritedTrafficGroup to True on create
@@ -293,7 +305,7 @@ class TestLoad(object):
             assert err.response.status == 404
 
     def test_load(self, request, bigip, NAT):
-        setup_standard_test(request, bigip, NAT)
+        setup_loadable_nat_test(request, bigip, NAT)
         n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
         assert n1.name == 'nat1'
         assert n1.partition == 'Common'
@@ -303,7 +315,7 @@ class TestLoad(object):
 class TestRefresh(object):
 
     def test_refresh(self, request, bigip, NAT):
-        setup_standard_test(request, bigip, NAT)
+        setup_loadable_nat_test(request, bigip, NAT)
 
         n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
         n2 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
@@ -321,7 +333,7 @@ class TestRefresh(object):
 class TestDelete(object):
 
     def test_delete(self, request, bigip, NAT):
-        setup_standard_test(request, bigip, NAT)
+        setup_loadable_nat_test(request, bigip, NAT)
         n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
         n1.delete()
         del(n1)
@@ -332,14 +344,14 @@ class TestDelete(object):
 
 class TestUpdate(object):
     def test_update_with_args(self, request, bigip, NAT):
-        setup_standard_test(request, bigip, NAT)
+        setup_loadable_nat_test(request, bigip, NAT)
         n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
         assert n1.arp == 'enabled'
         n1.update(arp='disabled')
         assert n1.arp == 'disabled'
 
     def test_update_parameters(self, request, bigip, NAT):
-        setup_standard_test(request, bigip, NAT)
+        setup_loadable_nat_test(request, bigip, NAT)
         n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
         assert n1.arp == 'enabled'
         n1.arp = 'disabled'

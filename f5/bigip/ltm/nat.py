@@ -24,6 +24,7 @@ REST Kind
     ``tm:ltm:nat:*``
 """
 
+from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import Resource
@@ -38,13 +39,14 @@ class Nats(Collection):
             {'tm:ltm:nat:natstate': Nat}
 
 
-class Nat(Resource):
+class Nat(Resource, ExclusiveAttributesMixin):
     """BigIP LTM Nat collection resource"""
     def __init__(self, nat_s):
         super(Nat, self).__init__(nat_s)
         self._meta_data['required_creation_parameters'].update(
             ('originatingAddress', 'translationAddress', 'partition'))
         self._meta_data['required_json_kind'] = 'tm:ltm:nat:natstate'
+        self._meta_data['exclusive_attributes'].append(('enable', 'disable'))
 
     def create(self, **kwargs):
         """Create the resource on the BigIP.
@@ -85,11 +87,24 @@ class Nat(Resource):
                         % kwargs['trafficGroup'])
             except KeyError:
                 pass
+        kwargs = self._endis_able(kwargs)
         self._create(**kwargs)
         return self
+
+    def _endis_able(self, config_dict):
+        if 'enabled' in config_dict and not config_dict['enabled']:
+            config_dict['disabled'] = True
+        elif 'disabled' in config_dict and not config_dict['disabled']:
+            config_dict['enabled'] = True
+        return config_dict
 
     def update(self, **kwargs):
         # This is an example implementation of read-only params
         stash_translation_address = self.__dict__.pop('translationAddress')
+        if 'enabled' in self.__dict__ and 'enabled' not in kwargs:
+            kwargs['enabled'] = self.__dict__.pop('enabled')
+        elif 'disabled' in self.__dict__ and 'disabled' not in kwargs:
+            kwargs['disabled'] = self.__dict__.pop('disabled')
+        kwargs = self._endis_able(kwargs)
         self._update(**kwargs)
         self.__dict__['translationAddress'] = stash_translation_address
