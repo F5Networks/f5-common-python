@@ -34,24 +34,24 @@ class RequireOneOf(MissingRequiredCreationParameter):
     pass
 
 
-class SNATs(Collection):
+class Snats(Collection):
     """BigIP LTM SNAT collection"""
     def __init__(self, ltm):
-        super(SNATs, self).__init__(ltm)
+        super(Snats, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [SNAT]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:snat:snatstate': SNAT}
 
 
-class SNAT(Resource):
-    """BigIP LTM SNAT resource"""
+class Snat(Resource):
+    """BigIP LTM Snat resource"""
     def __init__(self, snat_s):
-        '''This represents a SNAT.
+        '''This represents a Snat.
 
         "origins" is our first example of a dict attribute, it appears to
         behave as expected.
         '''
-        super(SNAT, self).__init__(snat_s)
+        super(Snat, self).__init__(snat_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:snat:snatstate'
         self._meta_data['required_creation_parameters'].update(
             ('partition', 'origins'))

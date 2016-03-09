@@ -30,26 +30,26 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class VLANs(Collection):
+class Vlans(Collection):
     """BigIP network VLAN collection."""
     def __init__(self, net):
-        super(VLANs, self).__init__(net)
+        super(Vlans, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [VLAN]
         self._meta_data['attribute_registry'] =\
             {'tm:net:vlan:vlanstate': VLAN}
 
 
-class VLAN(Resource):
-    """BigIP network VLAN resource."""
+class Vlan(Resource):
+    """BigIP network Vlan resource."""
     def __init__(self, vlan_s):
-        super(VLAN, self).__init__(vlan_s)
+        super(Vlan, self).__init__(vlan_s)
         self._meta_data['required_json_kind'] = 'tm:net:vlan:vlanstate'
         self._meta_data['attribute_registry'] =\
             {'tm:net:vlan:interfacescollectionstate': Interfaces_s}
 
 
 class Interfaces_s(Collection):
-    '''BigIP network VLAN interface collection.
+    '''BigIP network Vlan interface collection.
 
     .. note::
         Not to be confused with ``tm/mgmt/net/interface``.  This is object
@@ -64,10 +64,10 @@ class Interfaces_s(Collection):
 
 
 class Interfaces(Resource, ExclusiveAttributesMixin):
-    """BigIP network VLAN interface resource."""
+    """BigIP network Vlan interface resource."""
     def __init__(self, interfaces_s):
         super(Interfaces, self).__init__(interfaces_s)
-        # VLAN intefaces objects do not have a partition
+        # Vlan intefaces objects do not have a partition
         self._meta_data['required_json_kind'] =\
             'tm:net:vlan:interfaces:interfacesstate'
         # You cannot send both tagged and untagged attributes on update

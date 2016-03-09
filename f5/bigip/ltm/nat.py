@@ -29,19 +29,19 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import Resource
 
 
-class NATs(Collection):
+class Nats(Collection):
     """BigIP LTM NAT collection object"""
     def __init__(self, ltm):
-        super(NATs, self).__init__(ltm)
+        super(Nats, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [NAT]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:nat:natstate': NAT}
 
 
-class NAT(Resource):
-    """BigIP LTM NAT collection resource"""
+class Nat(Resource):
+    """BigIP LTM Nat collection resource"""
     def __init__(self, nat_s):
-        super(NAT, self).__init__(nat_s)
+        super(Nat, self).__init__(nat_s)
         self._meta_data['required_creation_parameters'].update(
             ('originatingAddress', 'translationAddress', 'partition'))
         self._meta_data['required_json_kind'] = 'tm:ltm:nat:natstate'

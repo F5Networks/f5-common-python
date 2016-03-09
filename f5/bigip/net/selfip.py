@@ -34,7 +34,7 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class SelfIPs(Collection):
+class Selfips(Collection):
     """BigIP network Self-IP collection
 
     .. note::
@@ -44,7 +44,7 @@ class SelfIPs(Collection):
         changed its name to SelfIP.
     """
     def __init__(self, net):
-        super(SelfIPs, self).__init__(net)
+        super(Selfips, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [SelfIP]
         self._meta_data['attribute_registry'] =\
             {'tm:net:self:selfstate': SelfIP}
@@ -53,7 +53,7 @@ class SelfIPs(Collection):
             self._meta_data['container']._meta_data['uri'] + "self/"
 
 
-class SelfIP(Resource):
+class Selfip(Resource):
     '''BigIP Self-IP resource
 
     Use this object to create, refresh, update, delete, and load self ip
@@ -68,10 +68,10 @@ class SelfIP(Resource):
 
         The object is actually called ``self`` in iControlREST, but obviously
         this will cause problems in Python so we changed its name to
-        ``SelfIP``.
+        ``Selfip``.
     '''
     def __init__(self, selfip_s):
-        super(SelfIP, self).__init__(selfip_s)
+        super(Selfip, self).__init__(selfip_s)
         self._meta_data['required_json_kind'] = 'tm:net:self:selfstate'
         self._meta_data['required_creation_parameters'].update(
             ('address', 'vlan'))

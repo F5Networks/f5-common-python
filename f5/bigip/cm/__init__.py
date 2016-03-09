@@ -31,10 +31,10 @@ from f5.bigip.cm.traffic_group import Traffic_Groups
 from f5.bigip.resource import OrganizingCollection
 
 
-class CM(OrganizingCollection):
+class Cm(OrganizingCollection):
     """BigIP Cluster Organizing Collection."""
     def __init__(self, bigip):
-        super(CM, self).__init__(bigip)
+        super(Cm, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
             Devices, Device_Groups, Traffic_Groups,
         ]
