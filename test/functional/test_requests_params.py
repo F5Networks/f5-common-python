@@ -19,7 +19,6 @@ MemberConfig = namedtuple('MemberConfig', 'mempartition memname')
 
 
 def test_get_collection(request, bigip, pool_factory):
-    hostname = bigip._meta_data['hostname']
     Pool1MemberConfigs = (MemberConfig('Common', '192.168.15.15:80'),
                           MemberConfig('Common', '192.168.16.16:8080'),)
     Pool1Config = PoolConfig('Common', 'TEST', Pool1MemberConfigs)
@@ -30,7 +29,6 @@ def test_get_collection(request, bigip, pool_factory):
     for pool_inst in pool_registry.values():
         for mem in pool_inst.members_s.get_collection():
             selfLinks.append(mem.selfLink)
-    print hostname
     assert selfLinks[0] == u'https://localhost/mgmt/tm/ltm/pool/' +\
         '~Common~TEST/members/~Common~192.168.15.15:80' +\
         '?ver=11.6.0'
@@ -53,5 +51,4 @@ def test_get_dollar_filtered_collection(request, bigip, pool_factory):
     rp = {'params': {'$filter': 'partition eq za'}}
     pools_in_za = bigip.ltm.pools.get_collection(requests_params=rp)
     muri = pools_in_za[0]._meta_data['uri']
-    print hostname
     assert muri == 'https://'+hostname+'/mgmt/tm/ltm/pool/~za~TEST/'

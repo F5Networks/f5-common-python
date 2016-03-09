@@ -116,15 +116,15 @@ class Https_s(Collection):
     """BigIP Https monitor collection."""
     def __init__(self, monitor):
         super(Https_s, self).__init__(monitor)
-        self._meta_data['allowed_lazy_attributes'] = [Https]
+        self._meta_data['allowed_lazy_attributes'] = [HttpS]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:monitor:https:httpsstate': Https}
+            {'tm:ltm:monitor:https:httpsstate': HttpS}
 
 
-class Https(UpdateMonitorMixin, Resource):
+class HttpS(UpdateMonitorMixin, Resource):
     """BigIP Https monitor resource."""
     def __init__(self, https_s):
-        super(Https, self).__init__(https_s)
+        super(HttpS, self).__init__(https_s)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:https:httpsstate'
 

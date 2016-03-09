@@ -48,9 +48,9 @@ class Aplscripts(Collection):
     """BigIP iApp script collection."""
     def __init__(self, application):
         super(Aplscripts, self).__init__(application)
-        self._meta_data['allowed_lazy_attributes'] = [APLScript]
+        self._meta_data['allowed_lazy_attributes'] = [Aplscript]
         self._meta_data['attribute_registry'] =\
-            {'tm:sys:application:apl-script:apl-scriptstate': APLScript}
+            {'tm:sys:application:apl-script:apl-scriptstate': Aplscript}
 
 
 class Aplscript(Resource):
@@ -65,9 +65,9 @@ class Customstats(Collection):
     """BigIP iApp custom stats sub-collection."""
     def __init__(self, application):
         super(Customstats, self).__init__(application)
-        self._meta_data['allowed_lazy_attributes'] = [CustomStat]
+        self._meta_data['allowed_lazy_attributes'] = [Customstat]
         self._meta_data['attribute_registry'] =\
-            {'tm:sys:application:custom-stat:custom-statstate': CustomStat}
+            {'tm:sys:application:custom-stat:custom-statstate': Customstat}
 
 
 class Customstat(Resource):
