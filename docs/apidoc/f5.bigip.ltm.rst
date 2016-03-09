@@ -38,84 +38,84 @@ monitor
 
     .. autosummary::
 
-        HTTPs
-        HTTP
-        HTTPS_s
-        HTTPS
+        Https
+        Http
+        Https_s
+        HttpS
         Diameters
         Diameter
-        DNS_s
-        DNS
+        Dns_s
+        Dns
         Externals
         External
-        FirePass_s
-        FirePass
-        FTPs
-        FTP
-        GateWay_ICMPs
-        GateWay_ICMP
-        ICMPs
-        ICMP
-        IMAPs
-        IMAP
-        InBands
-        InBand
-        LDAPs
-        LDAP
+        Firepass_s
+        Firepass
+        Ftps
+        Ftp
+        Gateway_Icmps
+        Gateway_Icmp
+        Icmps
+        Icmp
+        Imaps
+        Imap
+        Inbands
+        Inband
+        Ldaps
+        Ldap
         Module_Scores
         Module_Score
-        MSSQLs
-        MSSQL
-        MYSQLs
-        MYSQL
-        NNTPs
-        NNTP
-        NONEs
+        Mssqls
+        Mssql
+        Mysqls
+        Mysql
+        Nntps
+        Nntp
+        Nones
         NONE
         Oracles
         Oracle
-        POP3s
-        POP3
-        PostGRESQLs
-        PostGRESQL
+        Pop3s
+        Pop3
+        Postgresqls
+        Postgresql
         Radius_s
         Radius
         Radius_Accountings
         Radius_Accounting
         Real_Servers
         Real_Server
-        RPCs
-        RPC
-        SASPs
-        SASP
+        Rpcs
+        Rpc
+        Sasps
+        Sasp
         Scripteds
         Scripted
-        SIPs
-        SIP
-        SMBs
-        SMB
-        SMTPs
-        SMTP
-        SNMP_DCAs
-        SNMP_DCA
-        SNMP_DCA_Bases
-        SNMP_DCA_Base
-        SOAPs
-        SOAP
-        TCPs
-        TCP
-        TCP_Echos
-        TCP_Echo
-        TCP_Half_Opens
-        TCP_Half_Open
-        UDPs
-        UDP
+        Sips
+        Sip
+        Smbs
+        Smb
+        Smtps
+        Smtp
+        Snmp_Dcas
+        Snmp_Dca
+        Snmp_Dca_Bases
+        Snmp_Dca_Base
+        Soaps
+        Soap
+        Tcps
+        Tcp
+        Tcp_Echos
+        Tcp_Echo
+        Tcp_Half_Opens
+        Tcp_Half_Open
+        Udps
+        Udp
         Virtual_Locations
         Virtual_Location
-        WAPs
-        WAP
-        WMIs
-        WMI
+        Waps
+        Wap
+        Wmis
+        Wmi
 
 nat
 ~~~
@@ -129,8 +129,8 @@ nat
 
     .. autosummary::
 
-        NATs
-        NAT
+        Nats
+        Nat
 
 node
 ~~~~
@@ -207,14 +207,14 @@ snat
 .. automodule:: f5.bigip.ltm.snat
     :members:
 
-    SNAT Collections and Resources
+    Snat Collections and Resources
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     .. py:currentmodule:: f5.bigip.ltm.snat
 
     .. autosummary::
 
-        SNATs
-        SNAT
+        Snats
+        Snat
 
 
 ssl
@@ -229,7 +229,7 @@ virtual
 .. automodule:: f5.bigip.ltm.virtual
     :members:
 
-    SNAT Collections and Resources
+    Snat Collections and Resources
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     .. py:currentmodule:: f5.bigip.ltm.virtual
 
