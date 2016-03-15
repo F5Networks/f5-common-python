@@ -38,6 +38,17 @@ pip-log.txt
 .coverage
 .tox
 nosetests.xml
+htmlcov
+.cache
+test/*/logs/*
 
 # Translations
 *.mo
+
+# Docs
+docs/_build
+venv/*
+docs/venv/*
+
+# iControl REST logs
+logs

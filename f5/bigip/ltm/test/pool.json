@@ -1,0 +1,51 @@
+{
+  "allowNat": "yes",
+  "allowSnat": "yes",
+  "description": "sdfds",
+  "fullPath": "/Common/my-Pool",
+  "generation": 1,
+  "ignorePersistedWeight": "disabled",
+  "ipTosToClient": "pass-through",
+  "ipTosToServer": "pass-through",
+  "kind": "tm:ltm:pool:poolstate",
+  "linkQosToClient": "pass-through",
+  "linkQosToServer": "pass-through",
+  "loadBalancingMode": "round-robin",
+  "membersReference": {
+    "isSubs": true,
+    "items": [
+      {
+        "address": "1.1.1.1",
+        "connectionLimit": 0,
+        "dynamicRatio": 1,
+        "fullPath": "/Common/block:0",
+        "generation": 1,
+        "inheritProfile": "enabled",
+        "kind": "tm:ltm:pool:members:membersstate",
+        "logging": "disabled",
+        "monitor": "default",
+        "name": "block:0",
+        "partition": "Common",
+        "priorityGroup": 0,
+        "rateLimit": "disabled",
+        "ratio": 1,
+        "selfLink": "https://../tm/ltm/pool/~Common~my-Pool/members/~Common~block:0?ver=11.5.0",
+        "session": "user-enabled",
+        "state": "unchecked"
+      }
+    ],
+    "link": "https://../tm/ltm/pool/~Common~my-Pool/members?ver=11.5.0"
+  },
+  "minActiveMembers": 0,
+  "minUpMembers": 0,
+  "minUpMembersAction": "failover",
+  "minUpMembersChecking": "disabled",
+  "name": "my-Pool",
+  "partition": "Common",
+  "queueDepthLimit": 0,
+  "queueOnConnectionLimit": "disabled",
+  "queueTimeLimit": 0,
+  "reselectTries": 0,
+  "selfLink": "https://../tm/ltm/pool/~Common~my-Pool?expandSubss=true&ver=11.5.0",
+  "slowRampTime": 10
+}

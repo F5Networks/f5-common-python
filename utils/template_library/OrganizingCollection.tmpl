@@ -1,0 +1,12 @@
+class {{ klass }}(OrganizingCollection):
+    '''An OrganizingCollection concrete subclass.'''
+    def __init__(self, bigip):
+        '''Auto-generated constructor.'''
+        super({{ klass }}, self).__init__(bigip)
+        self._meta_data['template_generated'] = True
+        self._meta_data['allowed_lazy_attributes'] = [{%
+            for imp in import_dicts %}
+            {{ imp.klass }}{% if not loop.last %},{% endif %}{% endfor %}
+        ]
+        self._meta_data['required_json_kind'] =\
+            u'{{ kind }}'

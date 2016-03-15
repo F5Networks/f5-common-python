@@ -1,5 +1,8 @@
-# Include both the bug ID and headline on the first line
-Fixes:
+# Headline or summary  of the issue you are fixing
+
+# Using the Fixes #<issueid> will close the issue on commit to repo
+Issues:
+Fixes #<issueid>
 
 # Describe the issue that this change addresses
 Problem:
@@ -8,5 +11,5 @@ Problem:
 Analysis:
 
 # Describe the tests you ran and/or created to test this change
-Unit/Robot tests:
+Tests:
 

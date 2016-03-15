@@ -1,0 +1,26 @@
+f5 package
+==========
+
+.. toctree::
+    :maxdepth: 3
+
+    f5.bigip
+    f5.common
+
+.. automodule:: f5
+    :members:
+
+f5.sdk_exception
+----------------
+
+.. automodule:: f5.sdk_exception
+    :members:
+
+    Base Exception
+    ~~~~~~~~~~~~~~
+
+    .. py:currentmodule:: f5.sdk_exception
+
+    .. autosummary::
+
+        F5SDKError
