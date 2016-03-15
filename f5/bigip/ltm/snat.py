@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-"""BigIP Local Traffic Manager (LTM) Snat module.
+"""BIG-IP Local Traffic Manager (LTM) Snat module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/snat``
@@ -35,7 +35,7 @@ class RequireOneOf(MissingRequiredCreationParameter):
 
 
 class Snats(Collection):
-    """BigIP LTM Snat collection"""
+    """BIG-IP LTM Snat collection"""
     def __init__(self, ltm):
         super(Snats, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Snat]
@@ -44,7 +44,7 @@ class Snats(Collection):
 
 
 class Snat(Resource):
-    """BigIP LTM Snat resource"""
+    """BIG-IP LTM Snat resource"""
     def __init__(self, snat_s):
         '''This represents a Snat.
 
@@ -57,7 +57,7 @@ class Snat(Resource):
             ('partition', 'origins'))
 
     def create(self, **kwargs):
-        """Call this to create a new snat on the BigIP.
+        """Call this to create a new snat on the BIG-IP.
 
         Uses HTTP POST to 'containing' URI to create a service associated with
         a new URI on the device.
@@ -68,7 +68,7 @@ class Snat(Resource):
         Object.selfLink, the actual uri used by REST operations on the object
         is Object._meta_data['uri'].  The _meta_data['uri'] is the same as
         Object.selfLink with the substring 'localhost' replaced with the value
-        of Object._meta_data['bigip']._meta_data['hostname'], and without
+        of Object._meta_data['BIG-IP']._meta_data['hostname'], and without
         query args, or hash fragments.
 
         The following is done prior to the POST

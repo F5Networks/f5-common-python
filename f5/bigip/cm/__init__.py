@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""BigIP cluster module
+"""BIG-IP cluster module
 
 REST URI
     ``http://localhost/mgmt/tm/cm/``
@@ -32,7 +32,7 @@ from f5.bigip.resource import OrganizingCollection
 
 
 class Cm(OrganizingCollection):
-    """BigIP Cluster Organizing Collection."""
+    """BIG-IP Cluster Organizing Collection."""
     def __init__(self, bigip):
         super(Cm, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [

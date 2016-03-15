@@ -70,7 +70,7 @@ Coding Example
         if pool_1.members_s.members.exists(partition='Common', name='m1:80'):
         raise Exception("Object should have been deleted")
 
-        # We are done with this pool so remove it from bigip
+        # We are done with this pool so remove it from BIG-IP
         pool_1.delete()
 
         # Make sure it is gone

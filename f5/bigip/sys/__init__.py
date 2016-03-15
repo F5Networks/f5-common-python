@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-"""BigIP System (sys) module
+"""BIG-IP System (sys) module
 
 REST URI
     ``http://localhost/mgmt/tm/sys/``

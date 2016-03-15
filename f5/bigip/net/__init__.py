@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-"""BigIP net module
+"""BIG-IP net module
 
 REST URI
     ``http://localhost/mgmt/tm/net/``

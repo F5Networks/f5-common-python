@@ -17,12 +17,12 @@ import mock
 
 
 class BigIPMock(object):
-    """Mock BigIP object
+    """Mock BIG-IP object
 
-    Mocks a BigIP object by substituting a mock icr_session object which
+    Mocks a BIG-IP object by substituting a mock icr_session object which
     returns a user created mock response object. To use, create a mock response
     object which will get returned by any icr_session HTTP method, then create
-    an interface object, passing in this BigIPMock object.
+    an interface object, passing in this BIG-IPMock object.
 
     Example:
 
@@ -30,11 +30,12 @@ class BigIPMock(object):
         # read_json_file() is used to get mock JSON, but you can always pass
         # in a JSON string, or create a dictionary object and convert to JSON
         # using json.loads().
-        response = BigIPMock.create_mock_response(
-          200, BigIPMock.read_json_file("f5/bigip/interfaces/test/pool.json"))
+        response = BIG-IPMock.create_mock_response(
+          200, BIG-IPMock.read_json_file("f5/BIG-IP/interfaces/test/pool.json")
+        )
 
-        # Create BigIP object, passing in mocked response object
-        big_ip = BigIPMock(response)
+        # Create BIG-IP object, passing in mocked response object
+        big_ip = BIG-IPMock(response)
 
         # Create interface object
         test_pool = Pool(big_ip)
@@ -45,7 +46,7 @@ class BigIPMock(object):
     """
 
     def __init__(self, response=mock.Mock()):
-        """Initializes BigIPMock object.
+        """Initializes BIG-IPMock object.
 
         :param response: Mock response object to return from icr_session calls.
         :return:
@@ -63,7 +64,7 @@ class BigIPMock(object):
 
         This mocked icr_session substitutes basic request library
         methods (get, put, post, etc.) with a method that simply
-        returns a mocked response object. Set the response on the BigIPMock
+        returns a mocked response object. Set the response on the BIG-IPMock
         object before calling one of the icr_session methods.
 
         :rtype object: mock session object.

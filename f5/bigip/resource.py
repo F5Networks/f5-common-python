@@ -31,14 +31,14 @@ Examples:
  * Expression:     pool_a = pools1.create(partition="Common", name="foo")
  * URI Returned:   https://a/mgmt/tm/ltm/pool/~Common~foo
 
-There are different types of resources published by the BigIP REST Server, they
-are represented by the classes in this module.
+There are different types of resources published by the BIG-IP REST Server,
+they are represented by the classes in this module.
 
 We refer to a server-provided resource as a "service".  Thus far all URI
 referenced resources are "services" in this sense.
 
 We use methods named Create, Refresh, Update, Load, and Delete to manipulate
-BigIP device services.
+BIG-IP device services.
 
 Methods:
 
@@ -60,8 +60,8 @@ Available Classes:
       constructor to match its call in LazyAttributeMixin.__getattr__. The
       expected behavior is that all resource subclasses depend on this
       constructor to correctly set their self._meta_data['uri'].
-      All ResourceBase objects (except BigIPs) have a container (BigIPs contain
-      themselves).  The container is the object the ResourceBase is an
+      All ResourceBase objects (except BIG-IPs) have a container (BIG-IPs
+      contain themselves).  The container is the object the ResourceBase is an
       attribute of.
     * OrganizingCollection -- These resources support lists of "reference"
       "links". These are json blobs without a Python class representation.
@@ -124,7 +124,7 @@ class UnregisteredKind(F5SDKError):
 
 
 class GenerationMismatch(F5SDKError):
-    """The server reported BigIP is not the expacted value."""
+    """The server reported BIG-IP is not the expacted value."""
     pass
 
 
@@ -144,9 +144,9 @@ class UnsupportedOperation(F5SDKError):
 
 
 class ResourceBase(LazyAttributeMixin, ToDictMixin):
-    """Base class for all BigIP iControl REST API endpoints.
+    """Base class for all BIG-IP iControl REST API endpoints.
 
-    The BigIP is represented by an object that converts device published uri's
+    The BIG-IP is represented by an object that converts device published uri's
     into Python objects.  Each uri maps to a Python object. The mechanism for
     instantiating these objects is the __getattr__ Special Function in the
     LazyAttributeMixin.  When a registered attribute is `dot` referenced, on
@@ -168,7 +168,7 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
     Critically this enforces a convention relating device published uris to
     API objects, in a hierarchy similar to the uri paths.  I.E. the uri
     corresponding to a ``Nats`` object is ``mgmt/tm/ltm/nat/``. If you
-    query the bigip's uri (e.g. print(bigip._meta_data['uri']) ), you'll see
+    query the BIG-IP's uri (e.g. print(bigip._meta_data['uri']) ), you'll see
     that it ends in:
     ``/mgmt/tm/``, if you query the ``ltm`` object's uri
     (e.g. print(bigip.ltm._meta_data['uri']) ) you'll see it ends in
@@ -194,7 +194,7 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
 
         Since all ResourceBases sub-types must support the `refresh` method, it
         is defined here, in the base class.
-        NOTE: The BigIP uri 'mgmt/tm/' uniquely passes itself to this
+        NOTE: The BIG-IP uri 'mgmt/tm/' uniquely passes itself to this
         constructor as the "container".
 
         :param container: instance is an attribute of a ResourceBase container
@@ -327,9 +327,9 @@ class OrganizingCollection(ResourceBase):
       resources on the device.
     """
     def __init__(self, bigip):
-        """Call this to construct an OC. It should be an attribute of BigIP.
+        """Call this to construct an OC. It should be an attribute of BIG-IP.
 
-        :param bigip: all OCs are attributes of a BigIP instance
+        :param bigip: all OCs are attributes of a BIG-IP instance
         """
         super(OrganizingCollection, self).__init__(bigip)
         base_uri = self.__class__.__name__.lower() + '/'
@@ -554,7 +554,7 @@ class Resource(ResourceBase):
         return self
 
     def create(self, **kwargs):
-        """Create the resource on the BigIP.
+        """Create the resource on the BIG-IP.
 
         Uses HTTP POST to the `collection` URI to create a resource associated
         with a new unique URI on the device.
@@ -578,7 +578,7 @@ class Resource(ResourceBase):
         be passed to the underlying requests.session.post method where it will
         be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
         :returns: ``self`` - A python object that represents the object's
-                  configuration and state on the BigIP.
+                  configuration and state on the BIG-IP.
 
         """
         self._create(**kwargs)
@@ -605,7 +605,7 @@ class Resource(ResourceBase):
     def load(self, **kwargs):
         """Load an already configured service into this instance.
 
-        This method uses HTTP GET to obtain a resource from the BigIP.
+        This method uses HTTP GET to obtain a resource from the BIG-IP.
 
         ..
             The URI of the target service is constructed from the instance's
@@ -643,8 +643,8 @@ class Resource(ResourceBase):
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
 
-        # Get the current state of the object on BigIP and check the generation
-        # Use pop here because we don't want force in the data_dict
+        # Get the current state of the object on BIG-IP and check the
+        # generation Use pop here because we don't want force in the data_dict
         force = self._check_force_arg(kwargs.pop('force', False))
         if not force:
             self._check_generation()
@@ -655,7 +655,7 @@ class Resource(ResourceBase):
 
         # Need to remove any of the Collection objects from self.__dict__
         # because these are subCollections and _meta_data and
-        # other non-BIGIP attrs are not removed from the subCollections
+        # other non-BIG-IP attrs are not removed from the subCollections
         # See issue #146 for details
         for key, value in self.__dict__.items():
             if isinstance(value, Collection):
@@ -664,7 +664,7 @@ class Resource(ResourceBase):
 
         # Remove any read-only attributes from our data_dict before we update
         # the data dict with the attributes.  If they pass in read-only attrs
-        # in the method call we are going to let BIGIP let them know about it
+        # in the method call we are going to let BIG-IP let them know about it
         # when it fails
         for attr in read_only:
             data_dict.pop(attr, '')
@@ -675,9 +675,9 @@ class Resource(ResourceBase):
         self._local_update(response.json())
 
     def update(self, **kwargs):
-        """Update the configuration of the resource on the BigIP.
+        """Update the configuration of the resource on the BIG-IP.
 
-        This method uses HTTP PUT alter the resource state on the BigIP.
+        This method uses HTTP PUT alter the resource state on the BIG-IP.
 
         The attributes of the instance will be packaged as a dictionary.  That
         dictionary will be updated with kwargs.  It is then submitted as JSON
@@ -711,9 +711,9 @@ class Resource(ResourceBase):
             self.__dict__ = {'deleted': True}
 
     def delete(self, **kwargs):
-        """Delete the resource on the BigIP.
+        """Delete the resource on the BIG-IP.
 
-        Uses HTTP DELETE to delete the resource on the BigIP.
+        Uses HTTP DELETE to delete the resource on the BIG-IP.
 
         After this method is called, and status_code 200 response is received
         ``instance.__dict__`` is replace with ``{'deleted': True}``
@@ -728,7 +728,7 @@ class Resource(ResourceBase):
         # Need to implement correct teardown here.
 
     def exists(self, **kwargs):
-        """Check for the existence of the named object on the BigIP
+        """Check for the existence of the named object on the BIG-IP
 
         Sends an HTTP GET to the URI of the named object and if it fails with
         a :exc:~requests.HTTPError` exception it checks the exception for
@@ -742,7 +742,7 @@ class Resource(ResourceBase):
         NOTE: If kwargs has a 'requests_params' key the corresponding dict will
         be passed to the underlying requests.session.get method where it will
         be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-        :returns: bool -- The objects exists on BigIP or not.
+        :returns: bool -- The objects exists on BIG-IP or not.
         :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
                  code 404.
         """
@@ -767,7 +767,7 @@ class Resource(ResourceBase):
         return force
 
     def _check_generation(self):
-        '''Check that the generation on the BigIP matches the object
+        '''Check that the generation on the BIG-IP matches the object
 
         This will do a get to the objects URI and check that the generation
         returned in the JSON matches the one the object currently has.  If it
