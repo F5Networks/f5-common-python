@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-"""BigIP system global-settings module
+"""BIG-IP system global-settings module
 
 REST URI
     ``http://localhost/mgmt/tm/sys/global-settings``
@@ -30,7 +30,7 @@ from f5.bigip.resource import Resource
 
 
 class Global_Settings(UnnamedResourceMixin, Resource):
-    """BigIP system global-settings resource
+    """BIG-IP system global-settings resource
 
     The global_settings object only supports load and update because it is an
     unnamed resource.

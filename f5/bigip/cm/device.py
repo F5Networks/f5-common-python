@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""BigIP cluster device submodule
+"""BIG-IP cluster device submodule
 
 REST URI
     ``http://localhost/mgmt/tm/cm/device/``
@@ -30,7 +30,7 @@ from f5.bigip.resource import Resource
 
 
 class Devices(Collection):
-    """BigIP cluster devices collection.
+    """BIG-IP cluster devices collection.
 
     """
     def __init__(self, cm):
@@ -41,7 +41,7 @@ class Devices(Collection):
 
 
 class Device(Resource):
-    """BigIP cluster device object.
+    """BIG-IP cluster device object.
 
     """
     def __init__(self, device_s):

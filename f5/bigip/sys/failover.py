@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""BigIP system failover module
+"""BIG-IP system failover module
 
 REST URI
     ``http://localhost/mgmt/tm/sys/failover``
@@ -29,7 +29,7 @@ from f5.bigip.resource import Resource
 
 
 class Failover(UnnamedResourceMixin, Resource):
-    '''BigIP Failover stats and state change.
+    '''BIG-IP Failover stats and state change.
 
     The failover object only supports load, update, and refresh because it is
      an unnamed resource.

@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-"""BigIP Local Traffic Manager (LTM) node module.
+"""BIG-IP Local Traffic Manager (LTM) node module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/node``
@@ -30,7 +30,7 @@ from f5.bigip.resource import Resource
 
 
 class Nodes(Collection):
-    """BigIP LTM node collection"""
+    """BIG-IP LTM node collection"""
     def __init__(self, ltm):
         super(Nodes, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Node]
@@ -39,7 +39,7 @@ class Nodes(Collection):
 
 
 class Node(Resource):
-    """BigIP LTM node resource"""
+    """BIG-IP LTM node resource"""
     def __init__(self, nodes):
         super(Node, self).__init__(nodes)
         self._meta_data['required_json_kind'] = 'tm:ltm:node:nodestate'

@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-"""BigIP Network self-ip module.
+"""BIG-IP Network self-ip module.
 
 .. note::
 
@@ -35,7 +35,7 @@ from f5.bigip.resource import Resource
 
 
 class Selfips(Collection):
-    """BigIP network Self-IP collection
+    """BIG-IP network Self-IP collection
 
     .. note::
 
@@ -54,11 +54,11 @@ class Selfips(Collection):
 
 
 class Selfip(Resource):
-    '''BigIP Self-IP resource
+    '''BIG-IP Self-IP resource
 
     Use this object to create, refresh, update, delete, and load self ip
-    configuration on the BIGIP.  This requires that a
-    :class:`~f5.bigip.network.vlan.VLAN` object be present on the system and
+    configuration on the BIG-IP.  This requires that a
+    :class:`~f5.BIG-IP.network.vlan.VLAN` object be present on the system and
     that object's :attrib:`fullPath` be used as the VLAN name.
 
     The address that is used for create is a *<ipaddress>/<netmask>*.  For
