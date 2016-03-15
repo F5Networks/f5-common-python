@@ -1,0 +1,40 @@
+f5.bigip.cm
+===========
+
+Module Contents
+---------------
+
+.. automodule:: f5.bigip.cm
+    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. currentmodule:: f5.bigip.cm
+
+    .. autosummary::
+
+        device
+        device_group
+        traffic_group
+
+
+Submodules
+----------
+
+device
+~~~~~~
+
+.. automodule:: f5.bigip.cm.device
+    :members:
+
+device_group
+~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.cm.device_group
+    :members:
+
+traffic_group
+~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.cm.traffic_group
+    :members:

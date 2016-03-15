@@ -1,0 +1,60 @@
+when HTTP_REQUEST {
+        if {not [info exists tmm_auth_http_sids(ldap)]} {
+            set tmm_auth_sid [AUTH::start pam default_ldap]
+            set tmm_auth_http_sids(ldap) $tmm_auth_sid
+            if {[info exists tmm_auth_subscription]} {
+                AUTH::subscribe $tmm_auth_sid
+            }
+        } else {
+            set tmm_auth_sid $tmm_auth_http_sids(ldap)
+        }
+        AUTH::username_credential $tmm_auth_sid [HTTP::username]
+        AUTH::password_credential $tmm_auth_sid [HTTP::password]
+        AUTH::authenticate $tmm_auth_sid
+
+        if {not [info exists tmm_auth_http_collect_count]} {
+            HTTP::collect
+            set tmm_auth_http_successes 0
+            set tmm_auth_http_collect_count 1
+        } else {
+            incr tmm_auth_http_collect_count
+        }
+    }
+    when AUTH_RESULT {
+        if {not [info exists tmm_auth_http_sids(ldap)] or \
+           ($tmm_auth_http_sids(ldap) != [AUTH::last_event_session_id]) or \
+           (not [info exists tmm_auth_http_collect_count])} {
+            return
+        }
+        if {[AUTH::status] == 0} {
+            incr tmm_auth_http_successes
+        }
+        # If multiple auth sessions are pending and
+        # one failure results in termination and this is a failure
+        # or enough successes have now occurred
+        if {([array size tmm_auth_http_sids] > 1) and \
+            ((not [info exists tmm_auth_http_sufficient_successes] or \
+             ($tmm_auth_http_successes >= $tmm_auth_http_sufficient_successes)))} {
+            # Abort the other auth sessions
+            foreach {type sid} [array get tmm_auth_http_sids] {
+                unset tmm_auth_http_sids($type)
+                if {($type ne "ldap") and ($sid != -1)} {
+                    AUTH::abort $sid
+                    incr tmm_auth_http_collect_count -1
+                }
+            }
+        }
+
+        # If this is the last outstanding auth then either
+        # release or respond to this session
+        incr tmm_auth_http_collect_count -1
+        if {$tmm_auth_http_collect_count == 0} {
+            unset tmm_auth_http_collect_count
+            if {[AUTH::status] == 0} {
+                HTTP::release
+            } else {
+                HTTP::respond 401
+            }
+        }
+    }
+definition-signature d+BwFQlDUIY7Jf5jfpCFuEkwn/jJ+3ZjEQLQej71v7TxzQpxJps4rDaU2YxBNyM9CTAIWT3DRdLqYZAnIHqVpOIRIE/ALk0v0o79IxJIES4nUTE9UTHKM8GN13VBkihf1I8O9DmwOHgB1s0HV+A/dy5mDiyBFpbamyv6rJCASItyPp2Y7iKfcMHEFe+qgvZFA2B131QVAosIn6pFribwU5LSvArIul5pIgX1tcuI+BLPkaJy6xoN9AQcah/ufgUCOmAvkc/K5LteBkxG3ItldFNaxOtAPXDt5IDhrBuMxsvRs7P+vMbfNiGb+QSakipxML2EmwCRiacxQTZn/0DDrw==
