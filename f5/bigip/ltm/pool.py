@@ -25,6 +25,8 @@ REST Kind
     ``tm:ltm:pools:*``
 """
 
+from requests.exceptions import HTTPError
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 from f5.sdk_exception import F5SDKError
@@ -104,3 +106,49 @@ class Members(Resource):
         self.__dict__.pop(u'ephemeral', '')
         self.__dict__.pop(u'address', '')
         self._update(**kwargs)
+
+    def exists(self, **kwargs):
+        """Check for the existence of the named object on the BigIP
+
+        Sends an HTTP GET to the URI of the named object and if it fails with
+        a :exc:~requests.HTTPError` exception it checks the exception for
+        status code of 404 and returns :obj:`False` in that case.
+
+        If the GET is successful it must then check the contents of the json
+        contained in the response, this is because the "pool/... /members"
+        resource provided by the server returns a status code of 200 for
+        queries that do not correspond to an existing configuration.  Therefore
+        this method checks for the presence of the "address" key in the
+        response JSON...  of course, this means that exists depends on an
+        unexpected idiosyncrancy of the server, and might break with version
+        updates, edge cases, or other unpredictable changes.
+
+        :param kwargs: Keyword arguments required to get objects, "partition"
+        and "name" are required
+
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.get method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
+        :returns: bool -- The objects exists on BigIP or not.
+        :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
+                 code 404.
+        """
+        requests_params = self._handle_requests_params(kwargs)
+        self._check_load_parameters(**kwargs)
+        kwargs['uri_as_parts'] = True
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['container']._meta_data['uri']
+        kwargs.update(requests_params)
+        try:
+            response = session.get(base_uri, **kwargs)
+        except HTTPError as err:
+            if err.response.status_code == 404:
+                return False
+            else:
+                raise
+        rdict = response.json()
+        if u"address" not in rdict:
+            # We can add 'or' conditions to be more restrictive.
+            return False
+        # Only after all conditions are met...
+        return True
