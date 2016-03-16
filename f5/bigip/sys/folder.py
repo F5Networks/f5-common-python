@@ -56,7 +56,7 @@ class Folder(Resource):
         super(Folder, self).__init__(folder_s)
         self._meta_data['required_json_kind'] = 'tm:sys:folder:folderstate'
         # refresh() and load() require partition, not name
-        self._meta_data['required_refresh_parameters'] = set()
+        self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_creation_parameters'].update(('subPath',))
 
     def _create_subpath_uri(self, kwargs):
