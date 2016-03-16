@@ -24,9 +24,9 @@ class TestSyncStatus(object):
             u"/mgmt/tm/cm/sync-status")
         sync_status.refresh()
         des =\
-            sync_status.entries['https://localhost/mgmt/tm/cm/sync-status/0']\
-            ['nestedStats']\
-            ['entries']\
-            ['status']\
-            ['description']
+            (sync_status.entries['https://localhost/mgmt/tm/cm/sync-status/0']
+            ['nestedStats']
+            ['entries']
+            ['status']
+            ['description'])
         assert des == u"Standalone"
