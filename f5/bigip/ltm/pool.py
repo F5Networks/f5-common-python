@@ -25,6 +25,8 @@ REST Kind
     ``tm:ltm:pools:*``
 """
 
+from requests.exceptions import HTTPError
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 from f5.sdk_exception import F5SDKError
@@ -119,9 +121,11 @@ class Members(Resource):
         this method checks for the presence of the "address" key in the
         response JSON...  of course, this means that exists depends on an
         unexpected idiosyncrancy of the server, and might break with version
-        updates, edge cases, or other unpredictable changes. 
+        updates, edge cases, or other unpredictable changes.
 
-        :param kwargs: Keyword arguments required to get objects
+        :param kwargs: Keyword arguments required to get objects, "partition"
+        and "name" are required
+
         NOTE: If kwargs has a 'requests_params' key the corresponding dict will
         be passed to the underlying requests.session.get method where it will
         be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
