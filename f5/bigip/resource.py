@@ -460,7 +460,7 @@ class Resource(ResourceBase):
         # Creation fails without these.
         self._meta_data['required_creation_parameters'] = set(('name',))
         # Refresh fails without these.
-        self._meta_data['required_refresh_parameters'] = set(('name',))
+        self._meta_data['required_load_parameters'] = set(('name',))
         # You can't have more than one of the attrs in any of these sets.
         self._meta_data['exclusive_attributes'] = []
         # You can't set these attributes, only 'read' them.
@@ -630,7 +630,7 @@ class Resource(ResourceBase):
         '''
         key_set = set(kwargs.keys())
         required_minus_received =\
-            self._meta_data['required_refresh_parameters'] - key_set
+            self._meta_data['required_load_parameters'] - key_set
         if required_minus_received != set():
             error_message = 'Missing required params: %r'\
                 % required_minus_received

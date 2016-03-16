@@ -54,7 +54,7 @@ class All_Stats(UnnamedResourceMixin, Resource):
     """BIG-IP system performace stats unnamed resource"""
     def __init__(self, performance):
         super(All_Stats, self).__init__(performance)
-        self._meta_data['required_refresh_parameters'] = set()
+        self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
             'tm:sys:performance:all-stats:all-statsstats'
         self._meta_data['uri'] =\
