@@ -31,12 +31,14 @@ class BigIP(OrganizingCollection):
     """An interface to a single BIG-IP"""
     def __init__(self, hostname, username, password, **kwargs):
         timeout = kwargs.pop('timeout', 30)
+        loglevel = kwargs.pop('loglevel', logging.WARNING)
         allowed_lazy_attrs = kwargs.pop('allowed_lazy_attributes',
                                         allowed_lazy_attributes)
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
         # _meta_data variable values
-        iCRS = iControlRESTSession(username, password, timeout=timeout)
+        iCRS = iControlRESTSession(username, password, timeout=timeout,
+                                   loglevel=loglevel)
         # define _meta_data
         self._meta_data = {'allowed_lazy_attributes': allowed_lazy_attrs,
                            'hostname': hostname,
