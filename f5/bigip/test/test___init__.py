@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import mock
 import pytest
 
@@ -38,3 +39,9 @@ def test___get__attr(FakeBigIP):
     assert isinstance(bigip_dot_sys, Sys)
     with pytest.raises(AttributeError):
         FakeBigIP.this_is_not_a_real_attribute
+
+
+def test_setlog_level():
+    RealBIP = BigIP('FakeHostName', 'admin', 'admin', loglevel=logging.DEBUG)
+    iCRS = RealBIP._meta_data['icr_session']
+    iCRS.session.get('http://httpbin.org/headers')
