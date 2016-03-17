@@ -24,8 +24,8 @@ def setup_ntp_test(request, bigip):
     return n, servers
 
 
-class TestGlobal_Setting(object):
-    def test_RUL(self, request, bigip):
+class iTestGlobal_Setting(object):
+    def itest_RUL(self, request, bigip):
         # Load
         ip = '192.168.1.1'
         ntp1, orig_servers = setup_ntp_test(request, bigip)

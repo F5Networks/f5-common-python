@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-"""BigIP iApp (application) module
+"""BIG-IP iApp (application) module
 
 REST URI
     ``http://localhost/mgmt/sys/application/``
@@ -33,7 +33,7 @@ from requests import HTTPError
 
 
 class Applications(Collection):
-    """BigIP iApp collection."""
+    """BIG-IP iApp collection."""
     def __init__(self, sys):
         super(Applications, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [
@@ -45,7 +45,7 @@ class Applications(Collection):
 
 
 class Aplscripts(Collection):
-    """BigIP iApp script collection."""
+    """BIG-IP iApp script collection."""
     def __init__(self, application):
         super(Aplscripts, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Aplscript]
@@ -54,7 +54,7 @@ class Aplscripts(Collection):
 
 
 class Aplscript(Resource):
-    """BigIP iApp script resource."""
+    """BIG-IP iApp script resource."""
     def __init__(self, apl_script_s):
         super(Aplscript, self).__init__(apl_script_s)
         self._meta_data['required_json_kind'] =\
@@ -62,7 +62,7 @@ class Aplscript(Resource):
 
 
 class Customstats(Collection):
-    """BigIP iApp custom stats sub-collection."""
+    """BIG-IP iApp custom stats sub-collection."""
     def __init__(self, application):
         super(Customstats, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Customstat]
@@ -71,7 +71,7 @@ class Customstats(Collection):
 
 
 class Customstat(Resource):
-    """BigIP iApp custom stats sub-collection resource."""
+    """BIG-IP iApp custom stats sub-collection resource."""
     def __init__(self, custom_stat_s):
         super(Customstat, self).__init__(custom_stat_s)
         self._meta_data['required_json_kind'] =\
@@ -79,7 +79,7 @@ class Customstat(Resource):
 
 
 class Services(Collection):
-    """BigIP iApp service sub-collection."""
+    """BIG-IP iApp service sub-collection."""
     def __init__(self, application):
         super(Services, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Service]
@@ -88,13 +88,13 @@ class Services(Collection):
 
 
 class Service(Resource):
-    """BigIP iApp service sub-collection resource"""
+    """BIG-IP iApp service sub-collection resource"""
     def __init__(self, service_s):
         super(Service, self).__init__(service_s)
         self._meta_data['required_creation_parameters'].update(
             ('template', 'partition')
         )
-        self._meta_data['required_refresh_parameters'].update(('partition',))
+        self._meta_data['required_load_parameters'].update(('partition',))
         self._meta_data['required_json_kind'] =\
             'tm:sys:application:service:servicestate'
         self._meta_data['disallowed_load_parameters'] = \
@@ -116,12 +116,17 @@ class Service(Resource):
                     "retrieved" not in ex.response.text:
                 raise
 
-            # BigIP will create in Common partition if none is given.
+            # BIG-IP will create in Common partition if none is given.
             # In order to create the uri properly in this class's load,
             # drop in Common as the partition in kwargs.
             if 'partition' not in kwargs:
                 kwargs['partition'] = 'Common'
-
+            # Pop all but the necessary load kwargs from the kwargs given to
+            # create. Otherwise, load may fail.
+            kwargs_copy = kwargs.copy()
+            for key in kwargs_copy:
+                if key not in self._meta_data['required_load_parameters']:
+                    kwargs.pop(key)
             # If response was created successfully, do a local_update.
             # If not, call to overridden _load method via load
             self.load(**kwargs)
@@ -148,7 +153,7 @@ class Service(Resource):
         return self._update(**kwargs)
 
     def _load(self, **kwargs):
-        '''Load python Service object with response JSON from BigIP.
+        '''Load python Service object with response JSON from BIG-IP.
 
         :params kwargs: keyword arguments for talking to the device
         :returns: populated Service object
@@ -185,7 +190,7 @@ class Service(Resource):
         return '%s~%s~%s.app~%s' % (base_uri, partition, name, name)
 
     def exists(self, **kwargs):
-        '''Check for the existence of the named object on the BigIP
+        '''Check for the existence of the named object on the BIG-IP
 
         Override of resource.Resource exists() to build proper URI unique to
         service resources.
@@ -202,7 +207,7 @@ class Service(Resource):
         NOTE: If kwargs has a 'requests_params' key the corresponding dict will
         be passed to the underlying requests.session.get method where it will
         be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-        :returns: bool -- The objects exists on BigIP or not.
+        :returns: bool -- The objects exists on BIG-IP or not.
         :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
                  code 404.
         '''
@@ -228,7 +233,7 @@ class Service(Resource):
 
 
 class Templates(Collection):
-    """BigIP iApp template sub-collection"""
+    """BIG-IP iApp template sub-collection"""
     def __init__(self, application):
         super(Templates, self).__init__(application)
         self._meta_data['allowed_lazy_attributes'] = [Template]
@@ -237,10 +242,10 @@ class Templates(Collection):
 
 
 class Template(Resource):
-    """BigIP iApp template sub-collection resource"""
+    """BIG-IP iApp template sub-collection resource"""
     def __init__(self, template_s):
         super(Template, self).__init__(template_s)
         self._meta_data['required_creation_parameters'].update(('partition',))
-        self._meta_data['required_refresh_parameters'].update(('partition',))
+        self._meta_data['required_load_parameters'].update(('partition',))
         self._meta_data['required_json_kind'] =\
             'tm:sys:application:template:templatestate'

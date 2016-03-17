@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-"""BigIP cluster traffic-group submodule
+"""BIG-IP cluster traffic-group submodule
 
 REST URI
     ``http://localhost/mgmt/tm/cm/traffic-group``
@@ -30,7 +30,7 @@ from f5.bigip.resource import Resource
 
 
 class Traffic_Groups(Collection):
-    """BigIP cluster traffic-group collection"""
+    """BIG-IP cluster traffic-group collection"""
     def __init__(self, cm):
         super(Traffic_Groups, self).__init__(cm)
         endpoint = 'traffic-group'
@@ -42,7 +42,7 @@ class Traffic_Groups(Collection):
 
 
 class Traffic_Group(Resource):
-    """BigIP cluster traffic-group resource"""
+    """BIG-IP cluster traffic-group resource"""
     def __init__(self, traffic_groups):
         super(Traffic_Group, self).__init__(traffic_groups)
         self._meta_data['required_json_kind'] =\

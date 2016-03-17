@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-"""BigIP Local Traffic Manager (LTM) virtual module.
+"""BIG-IP Local Traffic Manager (LTM) virtual module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/virtual``
@@ -30,7 +30,7 @@ from f5.bigip.resource import Resource
 
 
 class Virtuals(Collection):
-    """BigIP LTM virtual collection"""
+    """BIG-IP LTM virtual collection"""
     def __init__(self, ltm):
         super(Virtuals, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Virtual]
@@ -39,7 +39,7 @@ class Virtuals(Collection):
 
 
 class Virtual(Resource):
-    """BigIP LTM virtual resource"""
+    """BIG-IP LTM virtual resource"""
     def __init__(self, virtual_s):
         super(Virtual, self).__init__(virtual_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:virtual:virtualstate'

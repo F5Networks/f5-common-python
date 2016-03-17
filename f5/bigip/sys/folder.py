@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-"""BigIP system folder (partition) module
+"""BIG-IP system folder (partition) module
 
 REST URI
     ``http://localhost/mgmt/tm/sys/folder``
@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError
 
 
 class Folders(Collection):
-    """BigIP system folder collection.
+    """BIG-IP system folder collection.
 
     These are what we refer to as ``partition`` in the SDK.
     """
@@ -44,7 +44,7 @@ class Folders(Collection):
 
 class Folder(Resource):
     def __init__(self, folder_s):
-        '''BigIP system folder resource.
+        '''BIG-IP system folder resource.
 
         Folder objects are the same as the partition so we need to deal with
         them slightly differently than other Resources.  For example when
@@ -56,7 +56,7 @@ class Folder(Resource):
         super(Folder, self).__init__(folder_s)
         self._meta_data['required_json_kind'] = 'tm:sys:folder:folderstate'
         # refresh() and load() require partition, not name
-        self._meta_data['required_refresh_parameters'] = set()
+        self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_creation_parameters'].update(('subPath',))
 
     def _create_subpath_uri(self, kwargs):
@@ -103,7 +103,7 @@ class Folder(Resource):
         return self._update(**kwargs)
 
     def exists(self, **kwargs):
-        """Check for the existence of the named object on the BigIP
+        """Check for the existence of the named object on the BIG-IP
 
         Tries to `load()` the object and if it fails checks the exception
         for 404.  If the `load()` is successful it returns `True` if the
@@ -115,7 +115,7 @@ class Folder(Resource):
         NOTE: If kwargs has a 'requests_params' key the corresponding dict will
         be passed to the underlying requests.session.get method where it will
         be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-        :returns: bool -- The objects exists on BigIP or not.
+        :returns: bool -- The objects exists on BIG-IP or not.
         :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
             code 404.
         """

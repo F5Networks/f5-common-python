@@ -12,4 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-__version__ = '0.1.2'
+
+from pprint import pprint as pp
+
+
+class TestSyncStatus(object):
+    def test_get_status(self, request, bigip):
+        sync_status = bigip.cm.sync_status
+        pp(sync_status.raw)
+        assert sync_status._meta_data['uri'].endswith(
+            u"/mgmt/tm/cm/sync-status")
+        sync_status.refresh()
+        des =\
+            (sync_status.entries['https://localhost/mgmt/tm/cm/sync-status/0']
+             ['nestedStats']
+             ['entries']
+             ['status']
+             ['description'])
+        assert des == u"Standalone"

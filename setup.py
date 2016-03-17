@@ -34,7 +34,6 @@ setup(
         'eventlet',
         'f5-icontrol-rest >= 1.0.2',
         'netaddr',
-        'pyopenssl',
         'requests',
         'suds > 0.3'
     ],

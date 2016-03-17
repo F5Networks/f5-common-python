@@ -5,9 +5,9 @@ f5-common-python
 
 Introduction
 ------------
-F5 Networks BIG-IP python SDK. This project implements an SDK for the iControl
-REST interface for the BigIP. Users of this library can create, edit, update,
-and delete configuration objects on a BigIP device.
+This project implements an SDK for the iControl REST interface for the BIG-IP.
+Users of this library can create, edit, update, and delete configuration objects
+on a BIG-IP device.
 
 Submodules
 ~~~~~~~~~~

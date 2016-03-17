@@ -13,7 +13,7 @@
 #   limitations under the License.
 #
 
-"""BigIP system ntp module
+"""BIG-IP system ntp module
 
 REST URI
     ``http://localhost/mgmt/tm/sys/ntp``
@@ -31,7 +31,7 @@ from f5.bigip.resource import Resource
 
 
 class Ntp(UnnamedResourceMixin, Resource):
-    """BigIP system NTP unnamed resource
+    """BIG-IP system NTP unnamed resource
 
         .. note::
 
@@ -41,7 +41,7 @@ class Ntp(UnnamedResourceMixin, Resource):
     def __init__(self, sys):
         super(Ntp, self).__init__(sys)
         endpoint = self.__class__.__name__.lower()
-        self._meta_data['required_refresh_parameters'] = set()
+        self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] = 'tm:sys:ntp:ntpstate'
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + endpoint + '/'
@@ -51,7 +51,7 @@ class Ntp(UnnamedResourceMixin, Resource):
 
 
 class Restricts(Collection):
-    """BigIP system NTP restrict sub-collection"""
+    """BIG-IP system NTP restrict sub-collection"""
     def __init__(self, ntp):
         super(Restricts, self).__init__(ntp)
         self._meta_data['allowed_lazy_attributes'] = [Restrict]
@@ -62,7 +62,7 @@ class Restricts(Collection):
 
 
 class Restrict(Resource):
-    """BigIP system NTP restrict sub-collection resource"""
+    """BIG-IP system NTP restrict sub-collection resource"""
     def __init__(self, restricts):
         super(Restrict, self).__init__(restricts)
         self._meta_data['required_json_kind'] =\
