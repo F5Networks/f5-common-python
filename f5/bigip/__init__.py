@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-import logging
 
 from f5.bigip.cm import Cm
 from f5.bigip.ltm import Ltm
@@ -23,7 +22,6 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.sys import Sys
 from icontrol.session import iControlRESTSession
 
-LOG = logging.getLogger(__name__)
 allowed_lazy_attributes = [Cm, Ltm, Net, Sys]
 
 
@@ -31,14 +29,12 @@ class BigIP(OrganizingCollection):
     """An interface to a single BIG-IP"""
     def __init__(self, hostname, username, password, **kwargs):
         timeout = kwargs.pop('timeout', 30)
-        loglevel = kwargs.pop('loglevel', logging.WARNING)
         allowed_lazy_attrs = kwargs.pop('allowed_lazy_attributes',
                                         allowed_lazy_attributes)
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
         # _meta_data variable values
-        iCRS = iControlRESTSession(username, password, timeout=timeout,
-                                   loglevel=loglevel)
+        iCRS = iControlRESTSession(username, password, timeout=timeout)
         # define _meta_data
         self._meta_data = {'allowed_lazy_attributes': allowed_lazy_attrs,
                            'hostname': hostname,
