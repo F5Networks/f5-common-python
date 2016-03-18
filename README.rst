@@ -83,13 +83,12 @@ Unit Tests
 ~~~~~~~~~~
 We use pytest for our unit tests.
 
-#. If you haven't already, install the required test packages and the
-   requirements.txt in your virtual environment.
+#. If you haven't already, install the required test packages listed in
+   requirements.test.txt in your virtual environment.
 
    .. code:: shell
 
-       $ pip install hacking pytest pytest-cov
-       $ pip install -r requirements.txt
+       $ pip install -r requirements.test.txt
 
 #. Run the tests and produce a coverage report. The ``--cov-report=html`` will
    create a ``htmlcov/`` directory that you can view in your browser to see the
