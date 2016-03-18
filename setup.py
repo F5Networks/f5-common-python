@@ -32,7 +32,7 @@ setup(
     keywords=['F5', 'sdk', 'api', 'icontrol', 'bigip', 'api', 'ltm'],
     install_requires=[
         'eventlet',
-        'f5-icontrol-rest >= 1.0.2',
+        'f5-icontrol-rest >= 1.0.4',
         'netaddr',
         'requests',
         'suds > 0.3'
