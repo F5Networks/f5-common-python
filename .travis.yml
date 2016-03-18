@@ -10,6 +10,7 @@ before_install:
 install:
     - pip install hacking pytest pytest-cov
     - pip install -r requirements.test.txt
+    - pip install -r requirements.docs.txt
 script:
     - flake8 --exclude=docs .
     - py.test --cov --ignore=test/
