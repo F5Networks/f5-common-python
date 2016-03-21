@@ -72,7 +72,10 @@ class TemplateEngine(object):
     def list_raw_configs(self):
         pp(self.raw_configs.keys())
 
-    def process_config(self, config_name):
+    def process_config_from_fname(self, fname):
+        if not fname.endswith('.json'):
+            raise Exception
+        config_name = fname[:-len('.json')]
         try:
             raw_conf = self.raw_configs[config_name]
         except KeyError as ex:
