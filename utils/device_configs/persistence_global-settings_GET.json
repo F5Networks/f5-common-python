@@ -1,0 +1,1 @@
+{"kind": "tm:ltm:persistence:global-settings:global-settingsstate", "destAddrMax": 2048, "destAddrLimitMode": "timeout", "selfLink": "https://localhost/mgmt/tm/ltm/persistence/global-settings?ver=11.6.0", "proxyGroup": "/Common/aol"}
