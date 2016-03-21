@@ -30,13 +30,7 @@ setup(
     author_email='f5_common_python@f5.com',
     url='https://github.com/F5Networks/f5-common-python',
     keywords=['F5', 'sdk', 'api', 'icontrol', 'bigip', 'api', 'ltm'],
-    install_requires=[
-        'eventlet',
-        'f5-icontrol-rest >= 1.0.4',
-        'netaddr',
-        'requests',
-        'suds > 0.3'
-    ],
+    install_requires=['f5-icontrol-rest >= 1.0.4'],
     packages=find_packages(
         exclude=["*.test", "*.test.*", "test.*", "test_*", "test", "test*"]
     ),
