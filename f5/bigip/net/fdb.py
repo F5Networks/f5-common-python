@@ -37,7 +37,7 @@ class Fdbs(Collection):
         super(Fdbs, self).__init__(net)
         # self._meta_data['allowed_lazy_attributes'] = [Fdb]
         # self._meta_data['attribute_registry'] =\
-        #    {u'tm:net:fdb:fdbstate': u'Fdb'}
+        #    {u'tm:net:fdb:fdbstate': Fdb}
         self._meta_data['template_generated'] = True
 
 
@@ -60,7 +60,7 @@ class Tunnels(Collection):
         super(Tunnels, self).__init__(fdb)
         self._meta_data['allowed_lazy_attributes'] = [Tunnel]
         self._meta_data['attribute_registry'] =\
-            {u'tm:net:fdb:tunnel:tunnelstate': u'Tunnel'}
+            {u'tm:net:fdb:tunnel:tunnelstate': Tunnel}
         self._meta_data['template_generated'] = True
 
 
@@ -71,5 +71,5 @@ class Vlans(Collection):
         super(Vlans, self).__init__(fdb)
         # self._meta_data['allowed_lazy_attributes'] = [Vlan]
         # self._meta_data['attribute_registry'] =\
-        #     {u'tm:net:fdb:vlan:vlanstate': u'Vlan'}
+        #     {u'tm:net:fdb:vlan:vlanstate': Vlan}
         self._meta_data['template_generated'] = True
