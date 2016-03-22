@@ -1,0 +1,1 @@
+{"kind":"tm:net:fdb:fdbcollectionstate","selfLink":"https://localhost/mgmt/tm/net/fdb?ver=11.6.0","items":[{"reference":{"link":"https://localhost/mgmt/tm/net/fdb/tunnel?ver=11.6.0"}},{"reference":{"link":"https://localhost/mgmt/tm/net/fdb/vlan?ver=11.6.0"}}]}
