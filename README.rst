@@ -118,9 +118,6 @@ Copyright
 ---------
 Copyright 2014-2016 F5 Networks Inc.
 
-Support
--------
-See `Support <SUPPORT.md>`__
 
 License
 -------
