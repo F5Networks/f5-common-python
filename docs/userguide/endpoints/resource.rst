@@ -14,7 +14,7 @@ A resource is a fully configurable object for which the CURDLE :ref:`methods <me
 * |load|
 * |exists|
 
-When using the SDK, you will notice that resources are instantiated via their :ref:`collection <collection_section>`. Once created or loaded, resources contain attributes that map to the JSON fields returned by the BIG-IP.
+When using the SDK, you will notice that resources are instantiated via their :ref:`collection <collection_section>`. Once created or loaded, resources contain attributes that map to the JSON fields returned by the BIG-IP®.
 
 .. topic:: Example
 
