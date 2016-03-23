@@ -54,9 +54,9 @@ class Source_Addrs(Collection):
         '''Auto generated constructor.'''
         super(Source_Addrs, self).__init__(persistence)
         # self._meta_data['allowed_lazy_attributes'] = [Source_Addr]
-        self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:persistence:source-addr:source-addrstate':
-             u'Source_Addr'}
+        # self._meta_data['attribute_registry'] =\
+        #     {u'tm:ltm:persistence:source-addr:source-addrstate':
+        #      Source_Addr}
         self._meta_data['template_generated'] = True
 
 
@@ -66,8 +66,8 @@ class Hashs(Collection):
         '''Auto generated constructor.'''
         super(Hashs, self).__init__(persistence)
         # self._meta_data['allowed_lazy_attributes'] = [Hash]
-        self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:persistence:hash:hashstate': u'Hash'}
+        # self._meta_data['attribute_registry'] =\
+        #     {u'tm:ltm:persistence:hash:hashstate': Hash}
         self._meta_data['template_generated'] = True
 
 
@@ -77,8 +77,8 @@ class Sips(Collection):
         '''Auto generated constructor.'''
         super(Sips, self).__init__(persistence)
         # self._meta_data['allowed_lazy_attributes'] = [Sip]
-        self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:persistence:sip:sipstate': u'Sip'}
+        # self._meta_data['attribute_registry'] =\
+        #     {u'tm:ltm:persistence:sip:sipstate': Sip}
         self._meta_data['template_generated'] = True
 
 
@@ -88,8 +88,8 @@ class Ssls(Collection):
         '''Auto generated constructor.'''
         super(Ssls, self).__init__(persistence)
         # self._meta_data['allowed_lazy_attributes'] = [Ssl]
-        self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:persistence:ssl:sslstate': u'Ssl'}
+        # self._meta_data['attribute_registry'] =\
+        #     {u'tm:ltm:persistence:ssl:sslstate': Ssl}
         self._meta_data['template_generated'] = True
 
 
@@ -111,8 +111,8 @@ class Dest_Addrs(Collection):
         '''Auto generated constructor.'''
         super(Dest_Addrs, self).__init__(persistence)
         # self._meta_data['allowed_lazy_attributes'] = [Dest_Addr]
-        self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:persistence:dest-addr:dest-addrstate': u'Dest_Addr'}
+        # self._meta_data['attribute_registry'] =\
+        #     {u'tm:ltm:persistence:dest-addr:dest-addrstate': Dest_Addr}
         self._meta_data['template_generated'] = True
 
 
@@ -122,8 +122,8 @@ class Msrdps(Collection):
         '''Auto generated constructor.'''
         super(Msrdps, self).__init__(persistence)
         # self._meta_data['allowed_lazy_attributes'] = [Msrdp]
-        self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:persistence:msrdp:msrdpstate': u'Msrdp'}
+        # self._meta_data['attribute_registry'] =\
+        #     {u'tm:ltm:persistence:msrdp:msrdpstate': Msrdp}
         self._meta_data['template_generated'] = True
 
 
@@ -133,8 +133,8 @@ class Cookies(Collection):
         '''Auto generated constructor.'''
         super(Cookies, self).__init__(persistence)
         self._meta_data['allowed_lazy_attributes'] = [Cookie]
-        self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:persistence:cookie:cookiestate': u'Cookie'}
+        # self._meta_data['attribute_registry'] =\
+        #     {u'tm:ltm:persistence:cookie:cookiestate': Cookie}
         self._meta_data['template_generated'] = True
 
 
@@ -156,8 +156,8 @@ class Universals(Collection):
         '''Auto generated constructor.'''
         super(Universals, self).__init__(persistence)
         self._meta_data['allowed_lazy_attributes'] = [Universal]
-        self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:persistence:universal:universalstate': u'Universal'}
+        # self._meta_data['attribute_registry'] =\
+        #     {u'tm:ltm:persistence:universal:universalstate': Universal}
         self._meta_data['template_generated'] = True
 
 
