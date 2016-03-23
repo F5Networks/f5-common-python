@@ -4,9 +4,9 @@ F5 Python SDK Documentation
 
 Introduction
 ------------
-This project implements an object model based SDK for the F5 Networks BIG-IP
+This project implements an object model based SDK for the F5 Networks BIG-IP®
 iControl REST interface. Users of this library can create, edit, update, and
-delete configuration objects on a BIG-IP device.  For more information on the
+delete configuration objects on a BIG-IP® device.  For more information on the
 basic principals that the SDK uses see the :doc:`userguide/index`.
 
 Quick Start
