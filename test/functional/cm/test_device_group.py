@@ -68,3 +68,14 @@ class TestDeviceGroup(object):
             name=this_device.name, partition=this_device.partition)
         assert len(dg1.devices_s.get_collection()) == 1
         assert d1.name == this_device.name
+
+    def test_sync(self, request, bigip):
+        dg1, dgs = setup_device_group_test(
+            request, bigip, name='test-group', partition='Common')
+
+        assert dg1.sync() is None
+
+    def test_cm_sync(self, request, bigip):
+        dg1, dgs = setup_device_group_test(
+            request, bigip, name='test-group', partition='Common')
+        assert bigip.cm.sync(dg1.name) is None

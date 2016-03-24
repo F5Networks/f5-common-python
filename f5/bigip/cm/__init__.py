@@ -39,3 +39,20 @@ class Cm(OrganizingCollection):
         self._meta_data['allowed_lazy_attributes'] = [
             Devices, Device_Groups, Traffic_Groups, Sync_Status
         ]
+
+    def sync(self, device_group_name):
+        '''Sync the configuration of the device-group.
+
+        Execute the run command via the iControl REST session with the
+        config-sync to group device-group options.  Any exceptions triggered
+        by the POST to the iControl REST server are raised back to the caller.
+
+        :param device_group_name: Name of the device group to sync.
+        :type device_group_name: str
+        '''
+        data = {
+            'command': 'run',
+            'options': [{'config-sync': 'to-group %s' % device_group_name}]
+        }
+        icr_session = self._meta_data['container']._meta_data['icr_session']
+        icr_session.post(self._meta_data['uri'], json=data)
