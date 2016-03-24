@@ -19,6 +19,7 @@ from f5.bigip import BigIP
 
 from f5.bigip.ltm import Ltm
 from f5.bigip.net import Net
+from f5.bigip.shared import Shared
 from f5.bigip.sys import Sys
 
 
@@ -34,6 +35,8 @@ def test___get__attr(FakeBigIP):
     assert isinstance(bigip_dot_ltm, Ltm)
     bigip_dot_net = FakeBigIP.net
     assert isinstance(bigip_dot_net, Net)
+    bigip_dot_shared = FakeBigIP.shared
+    assert isinstance(bigip_dot_shared, Shared)
     bigip_dot_sys = FakeBigIP.sys
     assert isinstance(bigip_dot_sys, Sys)
     with pytest.raises(AttributeError):

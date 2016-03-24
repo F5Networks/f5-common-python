@@ -143,7 +143,24 @@ class UnsupportedOperation(F5SDKError):
     pass
 
 
-class ResourceBase(LazyAttributeMixin, ToDictMixin):
+class PathElement(LazyAttributeMixin):
+    def __init__(self, container):
+        self._meta_data = {'container': container,
+                           'bigip': container._meta_data['bigip']}
+        base_uri = self.__class__.__name__.lower() + '/'
+        self._meta_data['uri'] =\
+            self._meta_data['container']._meta_data['uri'] + base_uri
+
+    @property
+    def raw(self):
+        """Display the attributes that the current object has and their values.
+
+        :returns: A dictionary of attributes and their values
+        """
+        return self.__dict__
+
+
+class ResourceBase(PathElement, ToDictMixin):
     """Base class for all BIG-IP iControl REST API endpoints.
 
     The BIG-IP is represented by an object that converts device published uri's
@@ -199,8 +216,7 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
 
         :param container: instance is an attribute of a ResourceBase container
         """
-        self._meta_data = {'container': container,
-                           'bigip': container._meta_data['bigip']}
+        super(ResourceBase, self).__init__(container)
 
     def _local_update(self, rdict):
         """Call this with a response dictionary to update instance attrs.
@@ -308,14 +324,6 @@ class ResourceBase(LazyAttributeMixin, ToDictMixin):
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
 
-    @property
-    def raw(self):
-        """Display the attributes that the current object has and their values.
-
-        :returns: A dictionary of attributes and their values
-        """
-        return self.__dict__
-
 
 class OrganizingCollection(ResourceBase):
     """Base class for objects that collect resources under them.
@@ -332,9 +340,6 @@ class OrganizingCollection(ResourceBase):
         :param bigip: all OCs are attributes of a BIG-IP instance
         """
         super(OrganizingCollection, self).__init__(bigip)
-        base_uri = self.__class__.__name__.lower() + '/'
-        self._meta_data['uri'] =\
-            self._meta_data['container']._meta_data['uri'] + base_uri
 
     def get_collection(self, **kwargs):
         """Call to obtain a list of the reference dicts in the instance `items`
@@ -457,6 +462,7 @@ class Resource(ResourceBase):
         self._meta_data['uri']!
         """
         super(Resource, self).__init__(container)
+        self._meta_data.pop('uri')
         # Creation fails without these.
         self._meta_data['required_creation_parameters'] = set(('name',))
         # Refresh fails without these.
