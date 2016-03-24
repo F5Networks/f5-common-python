@@ -22,6 +22,10 @@ def test_shared(request, bigip):
     pp(s.raw)
     assert isinstance(s._meta_data['container'], BigIP)
     assert s._meta_data['allowed_lazy_attributes'][0].__name__ == "Licensing"
+    suri = s._meta_data['uri']
+    assert suri.endswith('/mgmt/tm/shared/')
     l = bigip.shared.licensing
     pp(l.raw)
     assert isinstance(l._meta_data['container'], Shared)
+    luri = l._meta_data['uri']
+    assert luri.endswith('/mgmt/tm/shared/licensing/')
