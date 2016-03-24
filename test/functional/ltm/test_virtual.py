@@ -47,3 +47,23 @@ class TestVirtual(object):
         virtual2 = vc1.virtual
         virtual2.load(partition='Common', name='vstest1')
         assert virtual2.selfLink == virtual1.selfLink
+
+
+def test_profiles_CE(bigip):
+    v1 = bigip.ltm.virtuals.virtual
+    v1.create(name="tv1", partition="Common")
+    p1 = v1.profiles_s.profiles
+    p1.create(name="http")
+    pp(p1.raw)
+    test_profiles_s = v1.profiles_s
+    pp(test_profiles_s.raw)
+    test_profiles_s.context = 'all'
+    pp(test_profiles_s.raw)
+    assert p1.selfLink ==\
+        u"https://localhost/mgmt/tm/ltm/virtual/"\
+        "~Common~tv1/profiles/http?ver=11.6.0"
+
+    p2 = v1.profiles_s.profiles
+    assert p2.exists(name='http')
+
+    v1.delete()
