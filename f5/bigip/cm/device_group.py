@@ -53,6 +53,16 @@ class Device_Group(Resource):
             'tm:cm:device-group:devices:devicescollectionstate': Devices_s
         }
 
+    def sync(self):
+        '''Sync the configuration of the device-group
+
+        Executes the containing object's cm :meth:`~f5.bigip.cm.Cm.sync`
+        method to sync the configuration of the device-group.
+        '''
+        device_group_collection = self._meta_data['container']
+        cm = device_group_collection._meta_data['container']
+        cm.sync(self.name)
+
 
 class Devices_s(Collection):
     """BIG-IP cluster devices-group devices subcollection."""
