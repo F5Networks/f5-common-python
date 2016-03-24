@@ -62,38 +62,33 @@ class LazyAttributesRequired(F5SDKError):
 
 class LazyAttributeMixin(object):
     """Allow attributes to be created lazily based on the allowed values"""
-    def __getattr__(self, name):
+    def __getattr__(container, name):
         # ensure this object supports lazy attrs.
-        cls_name = self.__class__.__name__
-        if '_meta_data' not in self.__dict__:
-            error_message = '%r does not have self._meta_data' % cls_name
-            raise LazyAttributesRequired(error_message)
-        elif 'allowed_lazy_attributes' not in self._meta_data:
+        cls_name = container.__class__.__name__
+        if 'allowed_lazy_attributes' not in container._meta_data:
             error_message = ('"allowed_lazy_attributes" not in',
-                             'self._meta_data for class %s' % cls_name)
+                             'container._meta_data for class %s' % cls_name)
             raise LazyAttributesRequired(error_message)
 
         # ensure the requested attr is present
         lower_attr_names =\
             [la.__name__.lower() for la in
-                self._meta_data['allowed_lazy_attributes']]
+                container._meta_data['allowed_lazy_attributes']]
         if name not in lower_attr_names:
             error_message = "'%s' object has no attribute '%s'"\
-                % (self.__class__, name)
+                % (container.__class__, name)
             raise AttributeError(error_message)
 
         # Instantiate and potentially set the attr on the object
         # Issue #112 -- Only call setattr here if the lazy attribute
         # is NOT a `Resource`.  This should allow for only 1 ltm attribute
         # but many nat attributes just like the BIGIP device.
-        for lazy_attribute in self._meta_data['allowed_lazy_attributes']:
+        for lazy_attribute in container._meta_data['allowed_lazy_attributes']:
             if name == lazy_attribute.__name__.lower():
-                attribute = lazy_attribute(self)
-                # Use the name of ResourceResource because importing causes
-                # a circular reference
+                attribute = lazy_attribute(container)
                 bases = [base.__name__ for base in lazy_attribute.__bases__]
                 if 'Resource' not in bases:
-                    setattr(self, name, attribute)
+                    setattr(container, name, attribute)
                 return attribute
 
 
