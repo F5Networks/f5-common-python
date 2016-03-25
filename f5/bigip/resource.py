@@ -144,6 +144,13 @@ class UnsupportedOperation(F5SDKError):
 
 
 class PathElement(LazyAttributeMixin):
+    """Base class to represent a URI path element that does not contain data.
+
+    The BIG-IP iControl REST API has URIs that are made up of path components
+    that do not return data when they are queried.  This class represents
+    those elements and does not support any of the CURDLE methods that
+    the other objects do.
+    """
     def __init__(self, container):
         self._meta_data = {'container': container,
                            'bigip': container._meta_data['bigip']}
