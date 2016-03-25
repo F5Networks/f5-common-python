@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2014-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Network vlan module.
+"""BIG-IP® Network vlan module.
 
 REST URI
     ``http://localhost/mgmt/tm/net/vlan``
@@ -31,7 +33,7 @@ from f5.bigip.resource import Resource
 
 
 class Vlans(Collection):
-    """BIG-IP network Vlan collection."""
+    """BIG-IP® network Vlan collection."""
     def __init__(self, net):
         super(Vlans, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [Vlan]
@@ -40,7 +42,7 @@ class Vlans(Collection):
 
 
 class Vlan(Resource):
-    """BIG-IP network Vlan resource."""
+    """BIG-IP® network Vlan resource."""
     def __init__(self, vlan_s):
         super(Vlan, self).__init__(vlan_s)
         self._meta_data['required_json_kind'] = 'tm:net:vlan:vlanstate'
@@ -49,7 +51,7 @@ class Vlan(Resource):
 
 
 class Interfaces_s(Collection):
-    '''BIG-IP network Vlan interface collection.
+    '''BIG-IP® network Vlan interface collection.
 
     .. note::
         Not to be confused with ``tm/mgmt/net/interface``.  This is object
@@ -64,7 +66,7 @@ class Interfaces_s(Collection):
 
 
 class Interfaces(Resource, ExclusiveAttributesMixin):
-    """BIG-IP network Vlan interface resource."""
+    """BIG-IP® network Vlan interface resource."""
     def __init__(self, interfaces_s):
         super(Interfaces, self).__init__(interfaces_s)
         # Vlan intefaces objects do not have a partition

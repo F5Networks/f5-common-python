@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Network route module.
+"""BIG-IP® Network route module.
 
 REST URI
     ``http://localhost/mgmt/tm/net/route``
@@ -32,7 +34,7 @@ from f5.bigip.resource import Resource
 
 
 class Routes(Collection):
-    """BIG-IP network route collection"""
+    """BIG-IP® network route collection"""
     def __init__(self, net):
         super(Routes, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [Route]
@@ -42,7 +44,7 @@ class Routes(Collection):
 
 
 class Route(Resource, ExclusiveAttributesMixin):
-    """BIG-IP network route resource"""
+    """BIG-IP® network route resource"""
     def __init__(self, route_s):
         super(Route, self).__init__(route_s)
         self._meta_data['required_json_kind'] = 'tm:net:route:routestate'
@@ -53,7 +55,7 @@ class Route(Resource, ExclusiveAttributesMixin):
             ('blackhole', 'gw', 'tmInterface', 'pool'))
 
     def create(self, **kwargs):
-        '''Create a Route on the BIG-IP and the associated python object.
+        '''Create a Route on the BIG-IP® and the associated python object.
 
         One of the following gateways is required when creating the route
         objects: ``blackhole``, ``gw``, ``tmInterface``, ``pool``.

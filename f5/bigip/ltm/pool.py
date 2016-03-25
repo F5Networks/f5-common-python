@@ -1,4 +1,6 @@
-# Copyright 2014-2016 F5 Networks Inc.
+# coding=utf-8
+#
+#  Copyright 2014-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Local Traffic Manager (LTM) pool module.
+"""BIG-IP® Local Traffic Manager™ (LTM®) pool module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/pool``
@@ -37,7 +39,7 @@ class MemberStateAlwaysRequiredOnUpdate(F5SDKError):
 
 
 class Pools(Collection):
-    """BIG-IP LTM pool collection"""
+    """BIG-IP® LTM pool collection"""
     def __init__(self, ltm):
         super(Pools, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Pool]
@@ -46,7 +48,7 @@ class Pools(Collection):
 
 
 class Pool(Resource):
-    """BIG-IP LTM pool resource"""
+    """BIG-IP® LTM pool resource"""
     def __init__(self, pool_s):
         super(Pool, self).__init__(pool_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:pool:poolstate'
@@ -56,7 +58,7 @@ class Pool(Resource):
 
 
 class Members_s(Collection):
-    """BIG-IP LTM pool members sub-collection"""
+    """BIG-IP® LTM pool members sub-collection"""
     def __init__(self, pool):
         super(Members_s, self).__init__(pool)
         self._meta_data['allowed_lazy_attributes'] = [Members]
@@ -67,7 +69,7 @@ class Members_s(Collection):
 
 
 class Members(Resource):
-    """BIG-IP LTM pool members sub-collection resource"""
+    """BIG-IP® LTM pool members sub-collection resource"""
     def __init__(self, members_s):
         super(Members, self).__init__(members_s)
         self._meta_data['required_json_kind'] =\

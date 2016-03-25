@@ -1,4 +1,6 @@
-# Copyright 2014-2016 F5 Networks Inc.
+# coding=utf-8
+#
+#  Copyright 2014-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Local Traffic Manager (LTM) policy module.
+"""BIG-IP® Local Traffic Manager (LTM) policy module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/policy``
@@ -30,7 +32,7 @@ from f5.bigip.resource import Resource
 
 
 class Policys(Collection):
-    """BIG-IP LTM policy collection."""
+    """BIG-IP® LTM policy collection."""
     def __init__(self, ltm):
         super(Policys, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Policy]
@@ -39,7 +41,7 @@ class Policys(Collection):
 
 
 class Policy(Resource):
-    """BIG-IP LTM policy resource."""
+    """BIG-IP® LTM policy resource."""
     def __init__(self, policy_s):
         super(Policy, self).__init__(policy_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:policy:policystate'
@@ -49,7 +51,7 @@ class Policy(Resource):
 
 
 class Rules_s(Collection):
-    """BIG-IP LTM policy rules sub-collection."""
+    """BIG-IP® LTM policy rules sub-collection."""
     def __init__(self, policy):
         super(Rules_s, self).__init__(policy)
         self._meta_data['attribute_registry'] =\
@@ -60,7 +62,7 @@ class Rules_s(Collection):
 
 
 class Rules(Resource):
-    """BIG-IP LTM policy rules sub-collection resource."""
+    """BIG-IP® LTM policy rules sub-collection resource."""
     def __init__(self, rules_s):
         super(Rules, self).__init__(rules_s)
         self._meta_data['required_json_kind'] =\
@@ -73,7 +75,7 @@ class Rules(Resource):
 
 
 class Actions_s(Collection):
-    """BIG-IP LTM policy actions sub-collection."""
+    """BIG-IP® LTM policy actions sub-collection."""
     def __init__(self, rules):
         super(Actions_s, self).__init__(rules)
         self._meta_data['required_json_kind'] =\
@@ -84,7 +86,7 @@ class Actions_s(Collection):
 
 
 class Actions(Resource):
-    """BIG-IP LTM policy actions sub-collection resource."""
+    """BIG-IP® LTM policy actions sub-collection resource."""
     def __init__(self, actions_s):
         super(Actions, self).__init__(actions_s)
         self._meta_data['required_json_kind'] =\
@@ -92,7 +94,7 @@ class Actions(Resource):
 
 
 class Conditions_s(Collection):
-    """BIG-IP LTM policy conditions sub-collection."""
+    """BIG-IP® LTM policy conditions sub-collection."""
     def __init__(self, rules):
         super(Conditions_s, self).__init__(rules)
         self._meta_data['required_json_kind'] =\
@@ -103,7 +105,7 @@ class Conditions_s(Collection):
 
 
 class Conditions(Resource):
-    """BIG-IP LTM policy conditions sub-collection resource."""
+    """BIG-IP® LTM policy conditions sub-collection resource."""
     def __init__(self, conditions_s):
         super(Conditions, self).__init__(conditions_s)
         self._meta_data['required_json_kind'] =\

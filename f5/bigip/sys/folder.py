@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP system folder (partition) module
+"""BIG-IP® system folder (partition) module
 
 REST URI
     ``http://localhost/mgmt/tm/sys/folder``
@@ -31,7 +33,7 @@ from requests.exceptions import HTTPError
 
 
 class Folders(Collection):
-    """BIG-IP system folder collection.
+    """BIG-IP® system folder collection.
 
     These are what we refer to as ``partition`` in the SDK.
     """
@@ -44,7 +46,7 @@ class Folders(Collection):
 
 class Folder(Resource):
     def __init__(self, folder_s):
-        '''BIG-IP system folder resource.
+        '''BIG-IP® system folder resource.
 
         Folder objects are the same as the partition so we need to deal with
         them slightly differently than other Resources.  For example when
@@ -115,7 +117,7 @@ class Folder(Resource):
         NOTE: If kwargs has a 'requests_params' key the corresponding dict will
         be passed to the underlying requests.session.get method where it will
         be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-        :returns: bool -- The objects exists on BIG-IP or not.
+        :returns: bool -- The objects exists on BIG-IP® or not.
         :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
             code 404.
         """

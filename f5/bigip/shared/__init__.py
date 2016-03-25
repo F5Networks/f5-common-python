@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Shared (shared) module
+"""BIG-IP® Shared (shared) module
 
 REST URI
     ``http://localhost/mgmt/tm/shared/``

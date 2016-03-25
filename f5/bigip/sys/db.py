@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP db module
+"""BIG-IP® db module
 
 REST URI
     ``http://localhost/mgmt/sys/db/``
@@ -31,7 +33,7 @@ from f5.bigip.resource import UnsupportedOperation
 
 
 class Dbs(Collection):
-    """BIG-IP db collection"""
+    """BIG-IP® db collection"""
     def __init__(self, sys):
         super(Dbs, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [Db]
@@ -40,7 +42,7 @@ class Dbs(Collection):
 
 
 class Db(Resource):
-    """BIG-IP db resource
+    """BIG-IP® db resource
 
     .. note::
         db objects are read-only.

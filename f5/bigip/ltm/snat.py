@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2014-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Local Traffic Manager (LTM) Snat module.
+"""BIG-IP® Local Traffic Manager (LTM) Snat module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/snat``
@@ -35,7 +37,7 @@ class RequireOneOf(MissingRequiredCreationParameter):
 
 
 class Snats(Collection):
-    """BIG-IP LTM Snat collection"""
+    """BIG-IP® LTM Snat collection"""
     def __init__(self, ltm):
         super(Snats, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Snat]
@@ -44,7 +46,7 @@ class Snats(Collection):
 
 
 class Snat(Resource):
-    """BIG-IP LTM Snat resource"""
+    """BIG-IP® LTM Snat resource"""
     def __init__(self, snat_s):
         '''This represents a Snat.
 
@@ -57,7 +59,7 @@ class Snat(Resource):
             ('partition', 'origins'))
 
     def create(self, **kwargs):
-        """Call this to create a new snat on the BIG-IP.
+        """Call this to create a new snat on the BIG-IP®.
 
         Uses HTTP POST to 'containing' URI to create a service associated with
         a new URI on the device.

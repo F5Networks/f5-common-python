@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Network tunnels module.
+"""BIG-IP® Network tunnels module.
 
 REST URI
     ``http://localhost/mgmt/tm/net/tunnels``
@@ -30,7 +32,7 @@ from f5.bigip.resource import Resource
 
 
 class Tunnels_s(Collection):
-    """BIG-IP network tunnels collection"""
+    """BIG-IP® network tunnels collection"""
     def __init__(self, net):
         super(Tunnels_s, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [
@@ -41,7 +43,7 @@ class Tunnels_s(Collection):
 
 
 class Tunnels(Collection):
-    """BIG-IP network tunnels resource (collection for GRE, Tunnel, VXLANs"""
+    """BIG-IP® network tunnels resource (collection for GRE, Tunnel, VXLANs"""
     def __init__(self, tunnels_s):
         super(Tunnels, self).__init__(tunnels_s)
         self._meta_data['allowed_lazy_attributes'] = [Gres, Tunnel, Vxlans]
@@ -50,7 +52,7 @@ class Tunnels(Collection):
 
 
 class Tunnel(Resource):
-    """BIG-IP tunnels tunnel resource"""
+    """BIG-IP® tunnels tunnel resource"""
     def __init__(self, tunnels):
         super(Tunnel, self).__init__(tunnels)
         self._meta_data['required_creation_parameters'].update(('partition',))
@@ -59,7 +61,7 @@ class Tunnel(Resource):
 
 
 class Gres(Collection):
-    """BIG-IP tunnels GRE sub-collection"""
+    """BIG-IP® tunnels GRE sub-collection"""
     def __init__(self, tunnels_s):
         super(Gres, self).__init__(tunnels_s)
         self._meta_data['allowed_lazy_attributes'] = [Gre]
@@ -68,7 +70,7 @@ class Gres(Collection):
 
 
 class Gre(Resource):
-    """BIG-IP tunnels GRE sub-collection resource"""
+    """BIG-IP® tunnels GRE sub-collection resource"""
     def __init__(self, gres):
         super(Gre, self).__init__(gres)
         self._meta_data['required_creation_parameters'].update(('partition',))
@@ -77,7 +79,7 @@ class Gre(Resource):
 
 
 class Vxlans(Collection):
-    """BIG-IP tunnels VXLAN sub-collection"""
+    """BIG-IP® tunnels VXLAN sub-collection"""
     def __init__(self, tunnels_s):
         super(Vxlans, self).__init__(tunnels_s)
         self._meta_data['allowed_lazy_attributes'] = [Vxlan]
@@ -86,7 +88,7 @@ class Vxlans(Collection):
 
 
 class Vxlan(Resource):
-    """BIG-IP tunnels VXLAN sub-collection resource"""
+    """BIG-IP® tunnels VXLAN sub-collection resource"""
     def __init__(self, vxlans):
         super(Vxlan, self).__init__(vxlans)
         self._meta_data['required_creation_parameters'].update(('partition',))

@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2014-2015 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Local Traffic Manager (LTM) rule module.
+"""BIG-IP® Local Traffic Manager (LTM) rule module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/rule``
@@ -30,7 +32,7 @@ from f5.bigip.resource import Resource
 
 
 class Rules(Collection):
-    """BIG-IP LTM rule collection"""
+    """BIG-IP® LTM rule collection"""
     def __init__(self, ltm):
         super(Rules, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Rule]
@@ -39,7 +41,7 @@ class Rules(Collection):
 
 
 class Rule(Resource):
-    """BIG-IP LTM rule resource"""
+    """BIG-IP® LTM rule resource"""
     def __init__(self, rule_s):
         super(Rule, self).__init__(rule_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:rule:rulestate'

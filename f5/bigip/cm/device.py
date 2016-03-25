@@ -1,4 +1,6 @@
-# Copyright 2016 F5 Networks Inc.
+# coding=utf-8
+#
+#  Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""BIG-IP cluster device submodule
+"""BIG-IP® cluster device submodule
 
 REST URI
     ``http://localhost/mgmt/tm/cm/device/``
@@ -30,7 +32,7 @@ from f5.bigip.resource import Resource
 
 
 class Devices(Collection):
-    """BIG-IP cluster devices collection.
+    """BIG-IP® cluster devices collection.
 
     """
     def __init__(self, cm):
@@ -41,7 +43,7 @@ class Devices(Collection):
 
 
 class Device(Resource):
-    """BIG-IP cluster device object.
+    """BIG-IP® cluster device object.
 
     """
     def __init__(self, device_s):

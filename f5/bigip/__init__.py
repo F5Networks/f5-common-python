@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 """Classes and functions for configuring BIG-IP"""
 # Copyright 2014 F5 Networks Inc.
 #
