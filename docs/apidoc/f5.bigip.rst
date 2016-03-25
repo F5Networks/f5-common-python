@@ -16,8 +16,8 @@ f5.bigip module
         cm
         ltm
         net
+        shared
         sys
-
 
     Resource Base Classes
     ~~~~~~~~~~~~~~~~~~~~~
@@ -30,6 +30,7 @@ f5.bigip module
         resource.OrganizingCollection
         resource.Collection
         resource.Resource
+        resource.PathElement
 
     Resource Exceptions
     ~~~~~~~~~~~~~~~~~~~
@@ -70,6 +71,7 @@ f5.bigip module
     f5.bigip.cm
     f5.bigip.ltm
     f5.bigip.net
+    f5.bigip.shared
     f5.bigip.sys
 
 resource module

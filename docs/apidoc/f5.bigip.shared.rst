@@ -1,0 +1,33 @@
+f5.bigip.shared
+===============
+
+Module Contents
+---------------
+
+.. automodule:: f5.bigip.shared
+    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. currentmodule:: f5.bigip.shared
+
+    .. autosummary::
+
+        bigip_failover_state
+        licensing
+
+
+Submodules
+----------
+
+bigip_failover_state
+~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.shared.bigip_failover_state
+    :members:
+
+licensing
+~~~~~~~~~
+
+.. automodule:: f5.bigip.shared.licensing
+    :members:
