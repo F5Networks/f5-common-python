@@ -11,29 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-"""BIG-IP Shared (shared) module
+import pytest
 
-REST URI
-    ``http://localhost/mgmt/tm/shared/``
-
-GUI Path
-    ``System``
-
-REST Kind
-    N/A -- HTTP GET returns an error
-"""
-
-from f5.bigip.resource import PathElement
-from f5.bigip.shared.bigip_failover_state import Bigip_Failover_State
-from f5.bigip.shared.licensing import Licensing
+from f5.bigip.mixins import UnnamedResourceMixin
 
 
-class Shared(PathElement):
-    def __init__(self, bigip):
-        super(Shared, self).__init__(bigip)
-        self._meta_data['allowed_lazy_attributes'] = [
-            Licensing,
-            Bigip_Failover_State,
-        ]
+class TestBigIPFailoverState(object):
+    def test_load(self, request, bigip):
+        a = bigip.shared.bigip_failover_state.load()
+        assert hasattr(a, 'generation')
+
+    def test_update(self, request, bigip):
+        with pytest.raises(UnnamedResourceMixin.UnsupportedMethod):
+            bigip.shared.bigip_failover_state.update()

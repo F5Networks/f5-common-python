@@ -158,3 +158,7 @@ class UnnamedResourceMixin(object):
         response = read_session.get(base_uri, **kwargs)
         self._local_update(response.json())
         return self
+
+    def _get_meta_data_uri(self):
+        endpoint = self.__class__.__name__.lower()
+        return self._meta_data['container']._meta_data['uri'] + endpoint + '/'
