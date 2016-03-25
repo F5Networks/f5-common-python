@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""BIG-IP system failover module
+"""BIG-IP® system failover module
 
 REST URI
     ``http://localhost/mgmt/tm/shared/license``
@@ -30,7 +32,7 @@ from f5.bigip.resource import Resource
 
 
 class Licensing(PathElement):
-    """BIG-IP licensing stats and states.
+    """BIG-IP® licensing stats and states.
 
     Licensing objects themselves do not support any methods and are just
     containers for lower level objects.
@@ -55,7 +57,7 @@ class Licensing(PathElement):
 
 
 class Activation(UnnamedResourceMixin, Resource):
-    """BIG-IP license activation status
+    """BIG-IP® license activation status
 
     Activation state objects only support the
     :meth:`~f5.bigip.resource.Resource.load` method because they cannot be
@@ -85,7 +87,7 @@ class Activation(UnnamedResourceMixin, Resource):
 
 
 class Registration(UnnamedResourceMixin, Resource):
-    """BIG-IP license registration status
+    """BIG-IP® license registration status
 
     Registration state objects only support the
     :meth:`~f5.bigip.resource.Resource.load` method because they cannot be

@@ -5,16 +5,16 @@ f5-common-python
 
 Introduction
 ------------
-This project implements an SDK for the iControl REST interface for the BIG-IP.
+This project implements an SDK for the iControl REST interface for BIG-IP®.
 Users of this library can create, edit, update, and delete configuration objects
-on a BIG-IP device.
+on a BIG-IP®.
 
 Submodules
 ~~~~~~~~~~
 
 bigip
 ^^^^^
-Python API for configuring objects on a BIG-IP device and gathering information
+Python API for configuring objects on a BIG-IP® device and gathering information
 from the device via the REST API.
 
 Installation
@@ -24,8 +24,11 @@ Installation
 
     $> pip install f5-sdk
 
-*NOTE:* If you are using a pre-release version you must use the ``--pre``
-option for the ``pip`` command.
+.. note::
+
+    If you are using a pre-release version you must use the ``--pre``
+    option for the ``pip`` command.
+
 
 Usage
 -----
@@ -107,7 +110,7 @@ the Unit Test section).
 
 .. code:: shell
 
-    flake8 ./
+    $ flake8 ./
 
 
 Contact

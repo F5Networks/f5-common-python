@@ -1,4 +1,6 @@
-# Copyright 2014-2016 F5 Networks Inc.
+# coding=utf-8
+#
+#  Copyright 2014-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP LTM monitor submodule.
+"""BIG-IP® LTM monitor submodule.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/monitors/``
@@ -76,7 +78,7 @@ class Monitor(OrganizingCollection):
 
 
 class Https(Collection):
-    """BIG-IP Http monitor collection."""
+    """BIG-IP® Http monitor collection."""
     def __init__(self, monitor):
         super(Https, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Http]
@@ -105,7 +107,7 @@ class UpdateMonitorMixin(object):
 
 
 class Http(UpdateMonitorMixin, Resource):
-    """BIG-IP Http monitor resource."""
+    """BIG-IP® Http monitor resource."""
     def __init__(self, https):
         super(Http, self).__init__(https)
         self._meta_data['required_json_kind'] =\
@@ -113,7 +115,7 @@ class Http(UpdateMonitorMixin, Resource):
 
 
 class Https_s(Collection):
-    """BIG-IP Https monitor collection."""
+    """BIG-IP® Https monitor collection."""
     def __init__(self, monitor):
         super(Https_s, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [HttpS]
@@ -122,7 +124,7 @@ class Https_s(Collection):
 
 
 class HttpS(UpdateMonitorMixin, Resource):
-    """BIG-IP Https monitor resource."""
+    """BIG-IP® Https monitor resource."""
     def __init__(self, https_s):
         super(HttpS, self).__init__(https_s)
         self._meta_data['required_json_kind'] =\
@@ -130,7 +132,7 @@ class HttpS(UpdateMonitorMixin, Resource):
 
 
 class Diameters(Collection):
-    """BIG-IP diameter monitor collection."""
+    """BIG-IP® diameter monitor collection."""
     def __init__(self, monitor):
         super(Diameters, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Diameter]
@@ -139,7 +141,7 @@ class Diameters(Collection):
 
 
 class Diameter(UpdateMonitorMixin, Resource):
-    """BIG-IP diameter monitor resource."""
+    """BIG-IP® diameter monitor resource."""
     def __init__(self, diameters):
         super(Diameter, self).__init__(diameters)
         self._meta_data['required_json_kind'] =\
@@ -147,7 +149,7 @@ class Diameter(UpdateMonitorMixin, Resource):
 
 
 class Dns_s(Collection):
-    """BIG-IP Dns monitor collection."""
+    """BIG-IP® Dns monitor collection."""
     def __init__(self, monitor):
         super(Dns_s, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Dns]
@@ -156,7 +158,7 @@ class Dns_s(Collection):
 
 
 class Dns(UpdateMonitorMixin, Resource):
-    """BIG-IP Dns monitor resource."""
+    """BIG-IP® Dns monitor resource."""
     def __init__(self, dns_s):
         super(Dns, self).__init__(dns_s)
         self._meta_data['required_json_kind'] =\
@@ -165,7 +167,7 @@ class Dns(UpdateMonitorMixin, Resource):
 
 
 class Externals(Collection):
-    """BIG-IP external monitor collection."""
+    """BIG-IP® external monitor collection."""
     def __init__(self, monitor):
         super(Externals, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [External]
@@ -174,7 +176,7 @@ class Externals(Collection):
 
 
 class External(UpdateMonitorMixin, Resource):
-    """BIG-IP external monitor resrouce."""
+    """BIG-IP® external monitor resrouce."""
     def __init__(self, externals):
         super(External, self).__init__(externals)
         self._meta_data['required_json_kind'] =\
@@ -182,7 +184,7 @@ class External(UpdateMonitorMixin, Resource):
 
 
 class Firepass_s(Collection):
-    """BIG-IP Fire Pass monitor collection."""
+    """BIG-IP® Fire Pass monitor collection."""
     def __init__(self, monitor):
         super(Firepass_s, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Firepass]
@@ -191,7 +193,7 @@ class Firepass_s(Collection):
 
 
 class Firepass(UpdateMonitorMixin, Resource):
-    """BIG-IP external monitor resource."""
+    """BIG-IP® external monitor resource."""
     def __init__(self, firepass_s):
         super(Firepass, self).__init__(firepass_s)
         self._meta_data['required_json_kind'] =\
@@ -199,7 +201,7 @@ class Firepass(UpdateMonitorMixin, Resource):
 
 
 class Ftps(Collection):
-    """BIG-IP Ftp monitor collection."""
+    """BIG-IP® Ftp monitor collection."""
     def __init__(self, monitor):
         super(Ftps, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Ftp]
@@ -208,7 +210,7 @@ class Ftps(Collection):
 
 
 class Ftp(UpdateMonitorMixin, Resource):
-    """BIG-IP Ftp monitor resource."""
+    """BIG-IP® Ftp monitor resource."""
     def __init__(self, ftps):
         super(Ftp, self).__init__(ftps)
         self._meta_data['required_json_kind'] =\
@@ -216,7 +218,7 @@ class Ftp(UpdateMonitorMixin, Resource):
 
 
 class Gateway_Icmps(Collection):
-    """BIG-IP Gateway Icmp monitor collection."""
+    """BIG-IP® Gateway Icmp monitor collection."""
     def __init__(self, monitor):
         super(Gateway_Icmps, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
@@ -227,7 +229,7 @@ class Gateway_Icmps(Collection):
 
 
 class Gateway_Icmp(UpdateMonitorMixin, Resource):
-    """BIG-IP Gateway Icmp monitor resource."""
+    """BIG-IP® Gateway Icmp monitor resource."""
     def __init__(self, gateway_icmps):
         super(Gateway_Icmp, self).__init__(gateway_icmps)
         self._meta_data['required_json_kind'] =\
@@ -235,7 +237,7 @@ class Gateway_Icmp(UpdateMonitorMixin, Resource):
 
 
 class Icmps(Collection):
-    """BIG-IP Icmp monitor collection."""
+    """BIG-IP® Icmp monitor collection."""
     def __init__(self, monitor):
         super(Icmps, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Icmp]
@@ -244,7 +246,7 @@ class Icmps(Collection):
 
 
 class Icmp(UpdateMonitorMixin, Resource):
-    """BIG-IP Icmp monitor resource."""
+    """BIG-IP® Icmp monitor resource."""
     def __init__(self, icmps):
         super(Icmp, self).__init__(icmps)
         self._meta_data['required_json_kind'] =\
@@ -252,7 +254,7 @@ class Icmp(UpdateMonitorMixin, Resource):
 
 
 class Imaps(Collection):
-    """BIG-IP Imap monitor collection."""
+    """BIG-IP® Imap monitor collection."""
     def __init__(self, monitor):
         super(Imaps, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Imap]
@@ -261,7 +263,7 @@ class Imaps(Collection):
 
 
 class Imap(UpdateMonitorMixin, Resource):
-    """BIG-IP Imap monitor resource."""
+    """BIG-IP® Imap monitor resource."""
     def __init__(self, imaps):
         super(Imap, self).__init__(imaps)
         self._meta_data['required_json_kind'] =\
@@ -269,7 +271,7 @@ class Imap(UpdateMonitorMixin, Resource):
 
 
 class Inbands(Collection):
-    """BIG-IP in band monitor collection."""
+    """BIG-IP® in band monitor collection."""
     def __init__(self, monitor):
         super(Inbands, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Inband]
@@ -278,7 +280,7 @@ class Inbands(Collection):
 
 
 class Inband(UpdateMonitorMixin, Resource):
-    """BIG-IP in band monitor resource."""
+    """BIG-IP® in band monitor resource."""
     def __init__(self, inbands):
         super(Inband, self).__init__(inbands)
         self._meta_data['required_json_kind'] =\
@@ -286,7 +288,7 @@ class Inband(UpdateMonitorMixin, Resource):
 
 
 class Ldaps(Collection):
-    """BIG-IP Ldap monitor collection."""
+    """BIG-IP® Ldap monitor collection."""
     def __init__(self, monitor):
         super(Ldaps, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Ldap]
@@ -295,7 +297,7 @@ class Ldaps(Collection):
 
 
 class Ldap(UpdateMonitorMixin, Resource):
-    """BIG-IP Ldap monitor resource."""
+    """BIG-IP® Ldap monitor resource."""
     def __init__(self, ldaps):
         super(Ldap, self).__init__(ldaps)
         self._meta_data['required_json_kind'] =\
@@ -303,7 +305,7 @@ class Ldap(UpdateMonitorMixin, Resource):
 
 
 class Module_Scores(Collection):
-    """BIG-IP module scores monitor collection."""
+    """BIG-IP® module scores monitor collection."""
     def __init__(self, monitor):
         super(Module_Scores, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
@@ -314,7 +316,7 @@ class Module_Scores(Collection):
 
 
 class Module_Score(UpdateMonitorMixin, Resource):
-    """BIG-IP module scores monitor resource."""
+    """BIG-IP® module scores monitor resource."""
     def __init__(self, gateway_icmps):
         super(Module_Score, self).__init__(gateway_icmps)
         self._meta_data['required_creation_parameters'].update(
@@ -324,7 +326,7 @@ class Module_Score(UpdateMonitorMixin, Resource):
 
 
 class Mysqls(Collection):
-    """BIG-IP MySQL monitor collection."""
+    """BIG-IP® MySQL monitor collection."""
     def __init__(self, monitor):
         super(Mysqls, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Mysql]
@@ -333,7 +335,7 @@ class Mysqls(Collection):
 
 
 class Mysql(UpdateMonitorMixin, Resource):
-    """BIG-IP MySQL monitor resource."""
+    """BIG-IP® MySQL monitor resource."""
     def __init__(self, mysqls):
         super(Mysql, self).__init__(mysqls)
         self._meta_data['required_json_kind'] =\
@@ -341,7 +343,7 @@ class Mysql(UpdateMonitorMixin, Resource):
 
 
 class Mssqls(Collection):
-    """BIG-IP Mssql monitor collection."""
+    """BIG-IP® Mssql monitor collection."""
     def __init__(self, monitor):
         super(Mssqls, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Mssql]
@@ -350,7 +352,7 @@ class Mssqls(Collection):
 
 
 class Mssql(UpdateMonitorMixin, Resource):
-    """BIG-IP Mssql monitor resource."""
+    """BIG-IP® Mssql monitor resource."""
     def __init__(self, mssqls):
         super(Mssql, self).__init__(mssqls)
         self._meta_data['required_json_kind'] =\
@@ -358,7 +360,7 @@ class Mssql(UpdateMonitorMixin, Resource):
 
 
 class Nntps(Collection):
-    """BIG-IP Nntps monitor collection."""
+    """BIG-IP® Nntps monitor collection."""
     def __init__(self, monitor):
         super(Nntps, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Nntp]
@@ -367,7 +369,7 @@ class Nntps(Collection):
 
 
 class Nntp(UpdateMonitorMixin, Resource):
-    """BIG-IP Nntps monitor resource."""
+    """BIG-IP® Nntps monitor resource."""
     def __init__(self, nntps):
         super(Nntp, self).__init__(nntps)
         self._meta_data['required_json_kind'] =\
@@ -375,7 +377,7 @@ class Nntp(UpdateMonitorMixin, Resource):
 
 
 class Nones(Collection):
-    """BIG-IP None monitor collection."""
+    """BIG-IP® None monitor collection."""
     def __init__(self, monitor):
         super(Nones, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [NONE]
@@ -384,7 +386,7 @@ class Nones(Collection):
 
 
 class NONE(UpdateMonitorMixin, Resource):
-    """BIG-IP None monitor resource."""
+    """BIG-IP® None monitor resource."""
     def __init__(self, nones):
         super(NONE, self).__init__(nones)
         self._meta_data['required_json_kind'] =\
@@ -392,7 +394,7 @@ class NONE(UpdateMonitorMixin, Resource):
 
 
 class Oracles(Collection):
-    """BIG-IP Oracle monitor collection."""
+    """BIG-IP® Oracle monitor collection."""
     def __init__(self, monitor):
         super(Oracles, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Oracle]
@@ -401,7 +403,7 @@ class Oracles(Collection):
 
 
 class Oracle(UpdateMonitorMixin, Resource):
-    """BIG-IP Oracle monitor resource."""
+    """BIG-IP® Oracle monitor resource."""
     def __init__(self, oracles):
         super(Oracle, self).__init__(oracles)
         self._meta_data['required_json_kind'] =\
@@ -409,7 +411,7 @@ class Oracle(UpdateMonitorMixin, Resource):
 
 
 class Pop3s(Collection):
-    """BIG-IP Pop3 monitor collection."""
+    """BIG-IP® Pop3 monitor collection."""
     def __init__(self, monitor):
         super(Pop3s, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Pop3]
@@ -418,7 +420,7 @@ class Pop3s(Collection):
 
 
 class Pop3(UpdateMonitorMixin, Resource):
-    """BIG-IP Pop3 monitor resource."""
+    """BIG-IP® Pop3 monitor resource."""
     def __init__(self, pop3s):
         super(Pop3, self).__init__(pop3s)
         self._meta_data['required_json_kind'] =\
@@ -426,7 +428,7 @@ class Pop3(UpdateMonitorMixin, Resource):
 
 
 class Postgresqls(Collection):
-    """BIG-IP PostGRES SQL monitor collection."""
+    """BIG-IP® PostGRES SQL monitor collection."""
     def __init__(self, monitor):
         super(Postgresqls, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Postgresql]
@@ -435,7 +437,7 @@ class Postgresqls(Collection):
 
 
 class Postgresql(UpdateMonitorMixin, Resource):
-    """BIG-IP PostGRES SQL monitor resource."""
+    """BIG-IP® PostGRES SQL monitor resource."""
     def __init__(self, postgresqls):
         super(Postgresql, self).__init__(postgresqls)
         self._meta_data['required_json_kind'] =\
@@ -443,7 +445,7 @@ class Postgresql(UpdateMonitorMixin, Resource):
 
 
 class Radius_s(Collection):
-    """BIG-IP radius monitor collection."""
+    """BIG-IP® radius monitor collection."""
     def __init__(self, monitor):
         super(Radius_s, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Radius]
@@ -452,7 +454,7 @@ class Radius_s(Collection):
 
 
 class Radius(UpdateMonitorMixin, Resource):
-    """BIG-IP radius monitor resource."""
+    """BIG-IP® radius monitor resource."""
     def __init__(self, radius_s):
         super(Radius, self).__init__(radius_s)
         self._meta_data['required_json_kind'] =\
@@ -460,7 +462,7 @@ class Radius(UpdateMonitorMixin, Resource):
 
 
 class Radius_Accountings(Collection):
-    """BIG-IP radius accounting monitor collection."""
+    """BIG-IP® radius accounting monitor collection."""
     def __init__(self, monitor):
         super(Radius_Accountings, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
@@ -472,7 +474,7 @@ class Radius_Accountings(Collection):
 
 
 class Radius_Accounting(UpdateMonitorMixin, Resource):
-    """BIG-IP radius accounting monitor resource."""
+    """BIG-IP® radius accounting monitor resource."""
     def __init__(self, radius_accountings):
         super(Radius_Accounting, self).__init__(radius_accountings)
         self._meta_data['required_json_kind'] =\
@@ -480,7 +482,7 @@ class Radius_Accounting(UpdateMonitorMixin, Resource):
 
 
 class Real_Servers(Collection):
-    """BIG-IP real-server monitor collection."""
+    """BIG-IP® real-server monitor collection."""
     def __init__(self, monitor):
         super(Real_Servers, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
@@ -491,7 +493,7 @@ class Real_Servers(Collection):
 
 
 class Real_Server(UpdateMonitorMixin, Resource):
-    """BIG-IP real-server monitor resource."""
+    """BIG-IP® real-server monitor resource."""
     def __init__(self, real_servers):
         super(Real_Server, self).__init__(real_servers)
         self._meta_data['required_json_kind'] =\
@@ -522,7 +524,7 @@ class Real_Server(UpdateMonitorMixin, Resource):
 
 
 class Rpcs(Collection):
-    """BIG-IP Rpc monitor collection."""
+    """BIG-IP® Rpc monitor collection."""
     def __init__(self, monitor):
         super(Rpcs, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Rpc]
@@ -531,7 +533,7 @@ class Rpcs(Collection):
 
 
 class Rpc(UpdateMonitorMixin, Resource):
-    """BIG-IP Rpc monitor resource."""
+    """BIG-IP® Rpc monitor resource."""
     def __init__(self, rpcs):
         super(Rpc, self).__init__(rpcs)
         self._meta_data['required_json_kind'] =\
@@ -539,7 +541,7 @@ class Rpc(UpdateMonitorMixin, Resource):
 
 
 class Sasps(Collection):
-    """BIG-IP Sasp monitor collection."""
+    """BIG-IP® Sasp monitor collection."""
     def __init__(self, monitor):
         super(Sasps, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Sasp]
@@ -548,7 +550,7 @@ class Sasps(Collection):
 
 
 class Sasp(UpdateMonitorMixin, Resource):
-    """BIG-IP Sasp monitor resource."""
+    """BIG-IP® Sasp monitor resource."""
     def __init__(self, sasps):
         super(Sasp, self).__init__(sasps)
         self._meta_data['required_creation_parameters'].update(
@@ -558,7 +560,7 @@ class Sasp(UpdateMonitorMixin, Resource):
 
 
 class Scripteds(Collection):
-    """BIG-IP scripted monitor collection."""
+    """BIG-IP® scripted monitor collection."""
     def __init__(self, monitor):
         super(Scripteds, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Scripted]
@@ -567,7 +569,7 @@ class Scripteds(Collection):
 
 
 class Scripted(UpdateMonitorMixin, Resource):
-    """BIG-IP scripted monitor resource."""
+    """BIG-IP® scripted monitor resource."""
     def __init__(self, scripteds):
         super(Scripted, self).__init__(scripteds)
         self._meta_data['required_json_kind'] =\
@@ -575,7 +577,7 @@ class Scripted(UpdateMonitorMixin, Resource):
 
 
 class Sips(Collection):
-    """BIG-IP Sip monitor collection."""
+    """BIG-IP® Sip monitor collection."""
     def __init__(self, monitor):
         super(Sips, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Sip]
@@ -584,7 +586,7 @@ class Sips(Collection):
 
 
 class Sip(UpdateMonitorMixin, Resource):
-    """BIG-IP Sip monitor resource."""
+    """BIG-IP® Sip monitor resource."""
     def __init__(self, sips):
         super(Sip, self).__init__(sips)
         self._meta_data['required_json_kind'] =\
@@ -592,7 +594,7 @@ class Sip(UpdateMonitorMixin, Resource):
 
 
 class Smbs(Collection):
-    """BIG-IP Smb monitor collection."""
+    """BIG-IP® Smb monitor collection."""
     def __init__(self, monitor):
         super(Smbs, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Smb]
@@ -601,7 +603,7 @@ class Smbs(Collection):
 
 
 class Smb(UpdateMonitorMixin, Resource):
-    """BIG-IP Smb monitor resource."""
+    """BIG-IP® Smb monitor resource."""
     def __init__(self, smbs):
         super(Smb, self).__init__(smbs)
         self._meta_data['required_json_kind'] =\
@@ -609,7 +611,7 @@ class Smb(UpdateMonitorMixin, Resource):
 
 
 class Smtps(Collection):
-    """BIG-IP Smtp monitor collection."""
+    """BIG-IP® Smtp monitor collection."""
     def __init__(self, monitor):
         super(Smtps, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Smtp]
@@ -618,7 +620,7 @@ class Smtps(Collection):
 
 
 class Smtp(UpdateMonitorMixin, Resource):
-    """BIG-IP Smtp monitor resource."""
+    """BIG-IP® Smtp monitor resource."""
     def __init__(self, smtps):
         super(Smtp, self).__init__(smtps)
         self._meta_data['required_json_kind'] =\
@@ -626,7 +628,7 @@ class Smtp(UpdateMonitorMixin, Resource):
 
 
 class Snmp_Dcas(Collection):
-    """BIG-IP SNMP DCA monitor collection."""
+    """BIG-IP® SNMP DCA monitor collection."""
     def __init__(self, monitor):
         super(Snmp_Dcas, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
@@ -637,7 +639,7 @@ class Snmp_Dcas(Collection):
 
 
 class Snmp_Dca(UpdateMonitorMixin, Resource):
-    """BIG-IP SNMP DCA monitor resource."""
+    """BIG-IP® SNMP DCA monitor resource."""
     def __init__(self, snmp_dcas):
         super(Snmp_Dca, self).__init__(snmp_dcas)
         self._meta_data['required_json_kind'] =\
@@ -645,7 +647,7 @@ class Snmp_Dca(UpdateMonitorMixin, Resource):
 
 
 class Snmp_Dca_Bases(Collection):
-    """BIG-IP SNMP DCA bases monitor collection."""
+    """BIG-IP® SNMP DCA bases monitor collection."""
     def __init__(self, monitor):
         super(Snmp_Dca_Bases, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
@@ -656,7 +658,7 @@ class Snmp_Dca_Bases(Collection):
 
 
 class Snmp_Dca_Base(UpdateMonitorMixin, Resource):
-    """BIG-IP SNMP DCA monitor resource."""
+    """BIG-IP® SNMP DCA monitor resource."""
     def __init__(self, snmp_dca_bases):
         super(Snmp_Dca_Base, self).__init__(snmp_dca_bases)
         self._meta_data['required_json_kind'] =\
@@ -664,7 +666,7 @@ class Snmp_Dca_Base(UpdateMonitorMixin, Resource):
 
 
 class Soaps(Collection):
-    """BIG-IP Soap monitor collection."""
+    """BIG-IP® Soap monitor collection."""
     def __init__(self, monitor):
         super(Soaps, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Soap]
@@ -673,7 +675,7 @@ class Soaps(Collection):
 
 
 class Soap(UpdateMonitorMixin, Resource):
-    """BIG-IP Soap monitor resource."""
+    """BIG-IP® Soap monitor resource."""
     def __init__(self, soaps):
         super(Soap, self).__init__(soaps)
         self._meta_data['required_json_kind'] =\
@@ -681,7 +683,7 @@ class Soap(UpdateMonitorMixin, Resource):
 
 
 class Tcps(Collection):
-    """BIG-IP Tcp monitor collection."""
+    """BIG-IP® Tcp monitor collection."""
     def __init__(self, monitor):
         super(Tcps, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Tcp]
@@ -690,7 +692,7 @@ class Tcps(Collection):
 
 
 class Tcp(UpdateMonitorMixin, Resource):
-    """BIG-IP Tcp monitor resource."""
+    """BIG-IP® Tcp monitor resource."""
     def __init__(self, tcps):
         super(Tcp, self).__init__(tcps)
         self._meta_data['required_json_kind'] =\
@@ -698,7 +700,7 @@ class Tcp(UpdateMonitorMixin, Resource):
 
 
 class Tcp_Echos(Collection):
-    """BIG-IP Tcp echo monitor collection."""
+    """BIG-IP® Tcp echo monitor collection."""
     def __init__(self, monitor):
         super(Tcp_Echos, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
@@ -709,7 +711,7 @@ class Tcp_Echos(Collection):
 
 
 class Tcp_Echo(UpdateMonitorMixin, Resource):
-    """BIG-IP Tcp echo monitor resource."""
+    """BIG-IP® Tcp echo monitor resource."""
     def __init__(self, tcp_echos):
         super(Tcp_Echo, self).__init__(tcp_echos)
         self._meta_data['required_json_kind'] =\
@@ -717,7 +719,7 @@ class Tcp_Echo(UpdateMonitorMixin, Resource):
 
 
 class Tcp_Half_Opens(Collection):
-    """BIG-IP Tcp half open monitor collection."""
+    """BIG-IP® Tcp half open monitor collection."""
     def __init__(self, monitor):
         super(Tcp_Half_Opens, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
@@ -728,7 +730,7 @@ class Tcp_Half_Opens(Collection):
 
 
 class Tcp_Half_Open(UpdateMonitorMixin, Resource):
-    """BIG-IP Tcp half open monitor resource."""
+    """BIG-IP® Tcp half open monitor resource."""
     def __init__(self, tcp_half_opens):
         super(Tcp_Half_Open, self).__init__(tcp_half_opens)
         self._meta_data['required_json_kind'] =\
@@ -736,7 +738,7 @@ class Tcp_Half_Open(UpdateMonitorMixin, Resource):
 
 
 class Udps(Collection):
-    """BIG-IP Udp monitor collection."""
+    """BIG-IP® Udp monitor collection."""
     def __init__(self, monitor):
         super(Udps, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Udp]
@@ -745,7 +747,7 @@ class Udps(Collection):
 
 
 class Udp(UpdateMonitorMixin, Resource):
-    """BIG-IP Udp monitor resource."""
+    """BIG-IP® Udp monitor resource."""
     def __init__(self, udps):
         super(Udp, self).__init__(udps)
         self._meta_data['required_json_kind'] =\
@@ -753,7 +755,7 @@ class Udp(UpdateMonitorMixin, Resource):
 
 
 class Virtual_Locations(Collection):
-    """BIG-IP virtual-locations monitor collection."""
+    """BIG-IP® virtual-locations monitor collection."""
     def __init__(self, monitor):
         super(Virtual_Locations, self).__init__(monitor)
         fixed = self._meta_data['uri'].replace('_', '-')
@@ -765,7 +767,7 @@ class Virtual_Locations(Collection):
 
 
 class Virtual_Location(UpdateMonitorMixin, Resource):
-    """BIG-IP virtual-locations monitor resource."""
+    """BIG-IP® virtual-locations monitor resource."""
     def __init__(self, virtual_locations):
         super(Virtual_Location, self).__init__(virtual_locations)
         self._meta_data['required_creation_parameters'].update(
@@ -775,7 +777,7 @@ class Virtual_Location(UpdateMonitorMixin, Resource):
 
 
 class Waps(Collection):
-    """BIG-IP Wap monitor collection."""
+    """BIG-IP® Wap monitor collection."""
     def __init__(self, monitor):
         super(Waps, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Wap]
@@ -784,7 +786,7 @@ class Waps(Collection):
 
 
 class Wap(UpdateMonitorMixin, Resource):
-    """BIG-IP Wap monitor resource."""
+    """BIG-IP® Wap monitor resource."""
     def __init__(self, waps):
         super(Wap, self).__init__(waps)
         self._meta_data['required_json_kind'] =\
@@ -792,7 +794,7 @@ class Wap(UpdateMonitorMixin, Resource):
 
 
 class Wmis(Collection):
-    """BIG-IP Wmi monitor collection."""
+    """BIG-IP® Wmi monitor collection."""
     def __init__(self, monitor):
         super(Wmis, self).__init__(monitor)
         self._meta_data['allowed_lazy_attributes'] = [Wmi]
@@ -801,7 +803,7 @@ class Wmis(Collection):
 
 
 class Wmi(UpdateMonitorMixin, Resource):
-    """BIG-IP Wmi monitor resource."""
+    """BIG-IP® Wmi monitor resource."""
     def __init__(self, wmis):
         super(Wmi, self).__init__(wmis)
         self._meta_data['required_json_kind'] =\

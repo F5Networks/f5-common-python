@@ -1,4 +1,6 @@
-# Copyright 2014-2016 F5 Networks Inc.
+# coding=utf-8
+#
+#  Copyright 2014-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""BIG-IP Local Traffic Manager (LTM) Nat module.
+"""BIG-IP® Local Traffic Manager (LTM) Nat module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/nat``
@@ -31,7 +33,7 @@ from f5.bigip.resource import Resource
 
 
 class Nats(Collection):
-    """BIG-IP LTM Nat collection object"""
+    """BIG-IP® LTM Nat collection object"""
     def __init__(self, ltm):
         super(Nats, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Nat]
@@ -40,7 +42,7 @@ class Nats(Collection):
 
 
 class Nat(Resource, ExclusiveAttributesMixin):
-    """BIG-IP LTM Nat collection resource"""
+    """BIG-IP® LTM Nat collection resource"""
     def __init__(self, nat_s):
         super(Nat, self).__init__(nat_s)
         self._meta_data['required_creation_parameters'].update(
@@ -49,7 +51,7 @@ class Nat(Resource, ExclusiveAttributesMixin):
         self._meta_data['exclusive_attributes'].append(('enable', 'disable'))
 
     def create(self, **kwargs):
-        """Create the resource on the BIG-IP.
+        """Create the resource on the BIG-IP®.
 
         Uses HTTP POST to the `collection` URI to create a resource associated
         with a new unique URI on the device.
@@ -73,7 +75,7 @@ class Nat(Resource, ExclusiveAttributesMixin):
 
         :param kwargs: All the key-values needed to create the resource
         :returns: ``self`` - A python object that represents the object's
-                  configuration and state on the BIG-IP.
+                  configuration and state on the BIG-IP®.
 
         """
         itg = kwargs.get('inheritedTrafficGroup', None)

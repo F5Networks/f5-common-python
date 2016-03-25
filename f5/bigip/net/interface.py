@@ -1,4 +1,6 @@
-# Copyright 2014-2016 F5 Networks Inc.
+# coding=utf-8
+#
+#  Copyright 2014-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Network interface module.
+"""BIG-IP® Network interface module.
 
 REST URI
     ``http://localhost/mgmt/tm/net/interface``
@@ -32,7 +34,7 @@ from f5.bigip.resource import UnsupportedOperation
 
 
 class Interfaces(Collection):
-    """BIG-IP network interface collection"""
+    """BIG-IP® network interface collection"""
     def __init__(self, net):
         super(Interfaces, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [Interface]
@@ -42,7 +44,7 @@ class Interfaces(Collection):
 
 
 class Interface(Resource, ExclusiveAttributesMixin):
-    """BIG-IP network interface collection"""
+    """BIG-IP® network interface collection"""
     def __init__(self, interface_s):
         super(Interface, self).__init__(interface_s)
         self._meta_data['required_json_kind'] =\

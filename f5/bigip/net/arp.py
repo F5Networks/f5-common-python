@@ -1,4 +1,6 @@
-# Copyright 2016 F5 Networks Inc.
+# coding=utf-8
+#
+#  Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Network ARP module.
+"""BIG-IP® Network ARP module.
 
 REST URI
     ``http://localhost/mgmt/tm/net/arp``
@@ -30,7 +32,7 @@ from f5.bigip.resource import Resource
 
 
 class Arps(Collection):
-    """BIG-IP network ARP collection"""
+    """BIG-IP® network ARP collection"""
     def __init__(self, net):
         super(Arps, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [Arp]
@@ -40,7 +42,7 @@ class Arps(Collection):
 
 
 class Arp(Resource):
-    """BIG-IP network ARP resource"""
+    """BIG-IP® network ARP resource"""
     def __init__(self, arp_s):
         super(Arp, self).__init__(arp_s)
         self._meta_data['required_json_kind'] = 'tm:net:arp:arpstate'

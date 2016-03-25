@@ -28,7 +28,7 @@ Creating issues is good, creating good issues is even better. By filing meaningf
 TODO: What do we want in our bug reports and an example?
 
 ### Feature Requests and Enhancements
-TODO: What do we want in our bug reports and an example?
+TODO: What do we want in our feature requests and an example?
 
 ## Pull Requests
 If you are submitting a pull request you need to make sure that you have done a few things first.
@@ -38,7 +38,7 @@ If you are submitting a pull request you need to make sure that you have done a 
 _The Hat_ because your request fails unit tests.
 * A reasonable set of unit tests is required, and the approver of the pull request is expecting to review them along with the product code.
 * Functional tests are nice-to-have but not required to complete a pull request. Note that not having functional tests will make your pull request end up in an integration branch and be held out of the main develop branch until someone writes an appropriate set of tests.
-* Clean up your git history because no one wants to see 75 commits for one issue
+* Clean up your git history;  no one wants to see 75 commits for one issue.
 * Use our [commit template](.git-commit-template.txt).
 * Use our pull request template.
 
@@ -75,7 +75,8 @@ shell
  $ open htmlcov/index.html
 ```
 
-If you are running our functional tests, you will need a real BIG-IP to run them against. You can get one of those pretty easily in [Amazon EC2](https://aws.amazon.com/marketplace/pp/B00JL3UASY/ref=srh_res_product_title?ie=UTF8&sr=0-10&qid=1449332167461).
+If you are running our functional tests, you will need a real BIG-IP® to run
+ them against. You can get one of those pretty easily in [Amazon EC2](https://aws.amazon.com/marketplace/pp/B00JL3UASY/ref=srh_res_product_title?ie=UTF8&sr=0-10&qid=1449332167461).
 
 Here's an example of how to run functional tests.
 

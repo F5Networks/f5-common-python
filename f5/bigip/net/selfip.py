@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Network self-ip module.
+"""BIG-IP® Network self-ip module.
 
 .. note::
 
@@ -35,7 +37,7 @@ from f5.bigip.resource import Resource
 
 
 class Selfips(Collection):
-    """BIG-IP network Self-IP collection
+    """BIG-IP® network Self-IP collection
 
     .. note::
 
@@ -54,10 +56,10 @@ class Selfips(Collection):
 
 
 class Selfip(Resource):
-    '''BIG-IP Self-IP resource
+    '''BIG-IP® Self-IP resource
 
     Use this object to create, refresh, update, delete, and load self ip
-    configuration on the BIG-IP.  This requires that a
+    configuration on the BIG-IP®.  This requires that a
     :class:`~f5.BIG-IP.network.vlan.VLAN` object be present on the system and
     that object's :attrib:`fullPath` be used as the VLAN name.
 

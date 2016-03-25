@@ -1,4 +1,6 @@
-# Copyright 2016 F5 Networks Inc.
+# coding=utf-8
+#
+#  Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP cluster device-group submodule
+"""BIG-IP® cluster device-group submodule
 
 REST URI
     ``http://localhost/mgmt/tm/cm/device-group``
@@ -30,7 +32,7 @@ from f5.bigip.resource import Resource
 
 
 class Device_Groups(Collection):
-    """BIG-IP cluster device-groups collection."""
+    """BIG-IP® cluster device-groups collection."""
     def __init__(self, cm):
         super(Device_Groups, self).__init__(cm)
         endpoint = 'device-group'
@@ -42,7 +44,7 @@ class Device_Groups(Collection):
 
 
 class Device_Group(Resource):
-    """BIG-IP cluster device-group resource"""
+    """BIG-IP® cluster device-group resource"""
     def __init__(self, device_groups):
         super(Device_Group, self).__init__(device_groups)
         self._meta_data['read_only_attributes'].append('type')
@@ -65,7 +67,7 @@ class Device_Group(Resource):
 
 
 class Devices_s(Collection):
-    """BIG-IP cluster devices-group devices subcollection."""
+    """BIG-IP® cluster devices-group devices subcollection."""
     def __init__(self, device_group):
         super(Devices_s, self).__init__(device_group)
         self._meta_data['allowed_lazy_attributes'] = [Devices]
@@ -76,7 +78,7 @@ class Devices_s(Collection):
 
 
 class Devices(Resource):
-    """BIG-IP cluster devices-group devices subcollection resource."""
+    """BIG-IP® cluster devices-group devices subcollection resource."""
     def __init__(self, devices_s):
         super(Devices, self).__init__(devices_s)
         self._meta_data['required_json_kind'] =\

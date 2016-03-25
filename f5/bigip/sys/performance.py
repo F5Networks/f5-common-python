@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP system peformance stats module.
+"""BIG-IP® system peformance stats module.
 
 REST URI
     ``http://localhost/mgmt/tm/sys/performance``
@@ -32,7 +34,7 @@ from f5.bigip.resource import UnsupportedOperation
 
 
 class Performance(Collection):
-    """BIG-IP system performace stats collection"""
+    """BIG-IP® system performace stats collection"""
     def __init__(self, sys):
         super(Performance, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [All_Stats]
@@ -40,7 +42,7 @@ class Performance(Collection):
             self._meta_data['container']._meta_data['uri'] + "performance/"
 
     def get_collection(self):
-        '''Performance collections are not proper BIG-IP collection objects.
+        '''Performance collections are not proper BIG-IP® collection objects.
 
         :raises: :exc:`~f5.BIG-IP.resource.UnsupportedOperation`
         '''
@@ -51,7 +53,7 @@ class Performance(Collection):
 
 
 class All_Stats(UnnamedResourceMixin, Resource):
-    """BIG-IP system performace stats unnamed resource"""
+    """BIG-IP® system performace stats unnamed resource"""
     def __init__(self, performance):
         super(All_Stats, self).__init__(performance)
         self._meta_data['required_load_parameters'] = set()
