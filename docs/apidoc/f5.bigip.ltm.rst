@@ -20,6 +20,8 @@ Module Contents
         pool
         rule
         snat
+        snatpool
+        snat_translation
         ssl
         virtual
 
@@ -215,6 +217,36 @@ snat
 
         Snats
         Snat
+
+snatpool
+~~~~~~~~
+
+.. automodule:: f5.bigip.ltm.snatpool
+    :members:
+
+    Snat Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.ltm.snatpool
+
+    .. autosummary::
+
+        Snatpools
+        Snatpool
+
+snat_translation
+~~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.ltm.snat_translation
+    :members:
+
+    Snat Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.ltm.snat_translation
+
+    .. autosummary::
+
+        Snat_Translations
+        Snat_Translation
 
 
 ssl
