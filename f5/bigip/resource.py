@@ -172,12 +172,13 @@ class PathElement(LazyAttributeMixin):
 class ResourceBase(PathElement, ToDictMixin):
     """Base class for all BIG-IP® iControl REST API endpoints.
 
-    The BIG-IP® is represented by an object that converts device published uri's
-    into Python objects.  Each uri maps to a Python object. The mechanism for
-    instantiating these objects is the __getattr__ Special Function in the
-    LazyAttributeMixin.  When a registered attribute is `dot` referenced, on
-    the device object (e.g. ``bigip.ltm`` or simply ``bigip``), an appropriate
-    object is instantiated and attributed to the referencing object:
+    The BIG-IP® is represented by an object that converts device-published
+    uri's into Python objects. Each uri maps to a Python object. The
+    mechanism for instantiating these objects is the __getattr__ Special
+    Function in the LazyAttributeMixin. When a registered attribute is `dot`
+    referenced, on the device object (e.g. ``bigip.ltm`` or simply ``bigip``),
+    an appropriate object is instantiated and attributed to the referencing
+    object:
 
     .. code-block:: python
 
@@ -208,7 +209,7 @@ class ResourceBase(PathElement, ToDictMixin):
 
     The net result is a succinct mapping between uri's and objects,
     that represents objects in a hierarchical relationship similar to the
-    devices uri path hierarchy.
+    device's uri path hierarchy.
     """
     def __init__(self, container):
         """Call this with containing_object_instance.FOO
