@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""BIG-IP shared failover state module
+"""BIG-IP® shared failover state module
 
 REST URI
     ``http://localhost/mgmt/tm/shared/bigip-failover-state``
@@ -29,7 +31,7 @@ from f5.bigip.resource import Resource
 
 
 class Bigip_Failover_State(UnnamedResourceMixin, Resource):
-    """BIG-IP failover state information
+    """BIG-IP® failover state information
 
     Failover state objects only support the
     :meth:`~f5.bigip.resource.Resource.load` method because they cannot be
@@ -49,7 +51,7 @@ class Bigip_Failover_State(UnnamedResourceMixin, Resource):
         self._meta_data['uri'] = uri.replace('_', '-')
 
     def update(self, **kwargs):
-        '''Update is not supported for BIG-IP failover state.
+        '''Update is not supported for BIG-IP® failover state.
 
         :raises: UnsupportedOperation
         '''

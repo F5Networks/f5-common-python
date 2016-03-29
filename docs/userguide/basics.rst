@@ -96,7 +96,7 @@ Methods
 | |load|    | GET           | | obtains the state of an existing resource on the device; sets   |
 |           |               | | the Resource attributes to match that state                     |
 +-----------+---------------+-------------------------------------------------------------------+
-| |exists|  | GET           | | checks for the existence of a named object on the BIG-IP        |
+| |exists|  | GET           | | checks for the existence of a named object on the BIG-IP®       |
 +-----------+---------------+-------------------------------------------------------------------+
 
 .. note::

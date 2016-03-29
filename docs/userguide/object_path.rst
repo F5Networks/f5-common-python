@@ -11,7 +11,7 @@ The object classes used in the SDK directly correspond to the REST endpoints you
 
 4. The characters ``.`` and ``-`` are always replaced with ``_`` in the SDK.
 
-Because the REST API endpoints have a hierarchical structure, you need to load/create the highest-level objects before you can load lower-level ones. The example below shows how the pieces of the URI correspond to the REST endpoints/SDK classes. The first part of the URI is the IP address of your BIG-IP device.
+Because the REST API endpoints have a hierarchical structure, you need to load/create the highest-level objects before you can load lower-level ones. The example below shows how the pieces of the URI correspond to the REST endpoints/SDK classes. The first part of the URI is the IP address of your BIG-IP® device.
 
 .. include:: uri_code_breakdown.rst
 
@@ -32,12 +32,12 @@ In the sections below, we'll walk through the Python object paths using LTM pool
 
 |Organizing Collection Section|
 -------------------------------
-The ``mgmt/tm`` and ``ltm`` organizing collections define what area of the BIG-IP you're going to work with. The ``mgmt/tm`` organizing collection corresponds to the management plane of your BIG-IP device (TMOS). Loading ``ltm`` indicates that we're going to work with the BIG-IP's :guilabel:`Local Traffic` module.
+The ``mgmt/tm`` and ``ltm`` organizing collections define what area of the BIG-IP® you're going to work with. The ``mgmt/tm`` organizing collection corresponds to the management plane of your BIG-IP® device (TMOS). Loading ``ltm`` indicates that we're going to work with the BIG-IP®'s :guilabel:`Local Traffic` module.
 
 .. include:: endpoints/endpoint_table_tm.rst
 .. include:: endpoints/endpoint_table_ltm.rst
 
-.. topic:: Example: Connect to the BIG-IP and load the LTM module
+.. topic:: Example: Connect to the BIG-IP® and load the LTM module
 
     .. code-block:: python
 
@@ -57,7 +57,7 @@ The ``mgmt/tm`` and ``ltm`` organizing collections define what area of the BIG-I
 |Collection Section|
 --------------------
 
-Now that the higher-level organizing collections are loaded (in other words, we're signed in to the BIG-IP and accessed the LTM module), we can load the ``pool`` collection.
+Now that the higher-level organizing collections are loaded (in other words, we're signed in to the BIG-IP® and accessed the LTM module), we can load the ``pool`` collection.
 
 .. include:: endpoints/endpoint_table_ltm_pool.rst
 
@@ -79,14 +79,14 @@ Now that the higher-level organizing collections are loaded (in other words, we'
         pool2
         pool_1
 
-In the above example, we instantiated the class :class:`f5.bigip.ltm.pool.Pools`, then used the :meth:`f5.bigip.ltm.pool.Pools.get_collection()` method to fetch the collection (in other words, a list of the pool :ref:`resources <res_section>` configured on the BIG-IP).
+In the above example, we instantiated the class :class:`f5.bigip.ltm.pool.Pools`, then used the :meth:`f5.bigip.ltm.pool.Pools.get_collection()` method to fetch the collection (in other words, a list of the pool :ref:`resources <res_section>` configured on the BIG-IP®).
 
 
 .. _res_section:
 
 |Resource Section|
 ------------------
-In the SDK, we refer to a single instance of a configuration object as a resource. As shown in the previous sections, we are able to access the ``pool`` resources on the BIG-IP after loading the ``mgmt\tm\ltm`` organizing collections and the ``pools`` collection.
+In the SDK, we refer to a single instance of a configuration object as a resource. As shown in the previous sections, we are able to access the ``pool`` resources on the BIG-IP® after loading the ``mgmt\tm\ltm`` organizing collections and the ``pools`` collection.
 
 .. include:: endpoints/endpoint_table_ltm_pool_pools.rst
 
@@ -98,7 +98,7 @@ In the SDK, we refer to a single instance of a configuration object as a resourc
         pool = pools.pool.load(partition='Common', name='mypool')
 
 
-In the example above, we instantiated the class :class:`f5.bigip.ltm.pool.Pool` and loaded the :obj:`f5.bigip.ltm.pools.pool` object. The object is a python representation of the BIG-IP pool we loaded (in this case, ``Common/mypool``).
+In the example above, we instantiated the class :class:`f5.bigip.ltm.pool.Pool` and loaded the :obj:`f5.bigip.ltm.pools.pool` object. The object is a python representation of the BIG-IP® pool we loaded (in this case, ``Common/mypool``).
 
 .. tip::
 

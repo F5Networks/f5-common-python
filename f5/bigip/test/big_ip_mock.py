@@ -17,9 +17,9 @@ import mock
 
 
 class BigIPMock(object):
-    """Mock BIG-IP object
+    """Mock BIG-IP® object
 
-    Mocks a BIG-IP object by substituting a mock icr_session object which
+    Mocks a BIG-IP® object by substituting a mock icr_session object which
     returns a user created mock response object. To use, create a mock response
     object which will get returned by any icr_session HTTP method, then create
     an interface object, passing in this BIG-IPMock object.
@@ -34,7 +34,7 @@ class BigIPMock(object):
           200, BIG-IPMock.read_json_file("f5/BIG-IP/interfaces/test/pool.json")
         )
 
-        # Create BIG-IP object, passing in mocked response object
+        # Create BIG-IP® object, passing in mocked response object
         big_ip = BIG-IPMock(response)
 
         # Create interface object

@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP system global-settings module
+"""BIG-IP® system global-settings module
 
 REST URI
     ``http://localhost/mgmt/tm/sys/global-settings``
@@ -30,7 +32,7 @@ from f5.bigip.resource import Resource
 
 
 class Global_Settings(UnnamedResourceMixin, Resource):
-    """BIG-IP system global-settings resource
+    """BIG-IP® system global-settings resource
 
     The global_settings object only supports load and update because it is an
     unnamed resource.

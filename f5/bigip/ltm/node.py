@@ -1,4 +1,6 @@
-# Copyright 2016 F5 Networks Inc.
+# coding=utf-8
+#
+#  Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Local Traffic Manager (LTM) node module.
+"""BIG-IP® Local Traffic Manager (LTM) node module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/node``
@@ -30,7 +32,7 @@ from f5.bigip.resource import Resource
 
 
 class Nodes(Collection):
-    """BIG-IP LTM node collection"""
+    """BIG-IP® LTM node collection"""
     def __init__(self, ltm):
         super(Nodes, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Node]
@@ -39,7 +41,7 @@ class Nodes(Collection):
 
 
 class Node(Resource):
-    """BIG-IP LTM node resource"""
+    """BIG-IP® LTM node resource"""
     def __init__(self, nodes):
         super(Node, self).__init__(nodes)
         self._meta_data['required_json_kind'] = 'tm:ltm:node:nodestate'

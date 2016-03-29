@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP Local Traffic Monitor (LTM) module.
+"""BIG-IP® Local Traffic Manager™ (LTM®) module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/``
@@ -42,7 +44,7 @@ from f5.bigip.resource import OrganizingCollection
 
 
 class Ltm(OrganizingCollection):
-    """BIG-IP Local Traffic Manager (LTM) organizing collection."""
+    """BIG-IP® Local Traffic Manager (LTM) organizing collection."""
     def __init__(self, bigip):
         super(Ltm, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [

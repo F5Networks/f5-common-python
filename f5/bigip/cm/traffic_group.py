@@ -1,4 +1,6 @@
-# Copyright 2016 F5 Networks Inc.
+# coding=utf-8
+#
+#  Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP cluster traffic-group submodule
+"""BIG-IP® cluster traffic-group submodule
 
 REST URI
     ``http://localhost/mgmt/tm/cm/traffic-group``
@@ -30,7 +32,7 @@ from f5.bigip.resource import Resource
 
 
 class Traffic_Groups(Collection):
-    """BIG-IP cluster traffic-group collection"""
+    """BIG-IP® cluster traffic-group collection"""
     def __init__(self, cm):
         super(Traffic_Groups, self).__init__(cm)
         endpoint = 'traffic-group'
@@ -42,7 +44,7 @@ class Traffic_Groups(Collection):
 
 
 class Traffic_Group(Resource):
-    """BIG-IP cluster traffic-group resource"""
+    """BIG-IP® cluster traffic-group resource"""
     def __init__(self, traffic_groups):
         super(Traffic_Group, self).__init__(traffic_groups)
         self._meta_data['required_json_kind'] =\

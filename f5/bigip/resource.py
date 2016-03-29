@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,14 +33,14 @@ Examples:
  * Expression:     pool_a = pools1.create(partition="Common", name="foo")
  * URI Returned:   https://a/mgmt/tm/ltm/pool/~Common~foo
 
-There are different types of resources published by the BIG-IP REST Server,
+There are different types of resources published by the BIG-IP® REST Server,
 they are represented by the classes in this module.
 
 We refer to a server-provided resource as a "service".  Thus far all URI
 referenced resources are "services" in this sense.
 
 We use methods named Create, Refresh, Update, Load, and Delete to manipulate
-BIG-IP device services.
+BIG-IP® device services.
 
 Methods:
 
@@ -124,7 +126,7 @@ class UnregisteredKind(F5SDKError):
 
 
 class GenerationMismatch(F5SDKError):
-    """The server reported BIG-IP is not the expacted value."""
+    """The server reported BIG-IP® is not the expacted value."""
     pass
 
 
@@ -146,7 +148,7 @@ class UnsupportedOperation(F5SDKError):
 class PathElement(LazyAttributeMixin):
     """Base class to represent a URI path element that does not contain data.
 
-    The BIG-IP iControl REST API has URIs that are made up of path components
+    The BIG-IP® iControl REST API has URIs that are made up of path components
     that do not return data when they are queried.  This class represents
     those elements and does not support any of the CURDLE methods that
     the other objects do.
@@ -168,14 +170,15 @@ class PathElement(LazyAttributeMixin):
 
 
 class ResourceBase(PathElement, ToDictMixin):
-    """Base class for all BIG-IP iControl REST API endpoints.
+    """Base class for all BIG-IP® iControl REST API endpoints.
 
-    The BIG-IP is represented by an object that converts device published uri's
-    into Python objects.  Each uri maps to a Python object. The mechanism for
-    instantiating these objects is the __getattr__ Special Function in the
-    LazyAttributeMixin.  When a registered attribute is `dot` referenced, on
-    the device object (e.g. ``bigip.ltm`` or simply ``bigip``), an appropriate
-    object is instantiated and attributed to the referencing object:
+    The BIG-IP® is represented by an object that converts device-published
+    uri's into Python objects. Each uri maps to a Python object. The
+    mechanism for instantiating these objects is the __getattr__ Special
+    Function in the LazyAttributeMixin. When a registered attribute is `dot`
+    referenced, on the device object (e.g. ``bigip.ltm`` or simply ``bigip``),
+    an appropriate object is instantiated and attributed to the referencing
+    object:
 
     .. code-block:: python
 
@@ -206,7 +209,7 @@ class ResourceBase(PathElement, ToDictMixin):
 
     The net result is a succinct mapping between uri's and objects,
     that represents objects in a hierarchical relationship similar to the
-    devices uri path hierarchy.
+    device's uri path hierarchy.
     """
     def __init__(self, container):
         """Call this with containing_object_instance.FOO
@@ -218,7 +221,7 @@ class ResourceBase(PathElement, ToDictMixin):
 
         Since all ResourceBases sub-types must support the `refresh` method, it
         is defined here, in the base class.
-        NOTE: The BIG-IP uri 'mgmt/tm/' uniquely passes itself to this
+        NOTE: The BIG-IP® uri 'mgmt/tm/' uniquely passes itself to this
         constructor as the "container".
 
         :param container: instance is an attribute of a ResourceBase container
@@ -342,9 +345,9 @@ class OrganizingCollection(ResourceBase):
       resources on the device.
     """
     def __init__(self, bigip):
-        """Call this to construct an OC. It should be an attribute of BIG-IP.
+        """Call this to construct an OC. It should be an attribute of BIG-IP®.
 
-        :param bigip: all OCs are attributes of a BIG-IP instance
+        :param bigip: all OCs are attributes of a BIG-IP® instance
         """
         super(OrganizingCollection, self).__init__(bigip)
 
@@ -567,7 +570,7 @@ class Resource(ResourceBase):
         return self
 
     def create(self, **kwargs):
-        """Create the resource on the BIG-IP.
+        """Create the resource on the BIG-IP®.
 
         Uses HTTP POST to the `collection` URI to create a resource associated
         with a new unique URI on the device.
@@ -591,7 +594,7 @@ class Resource(ResourceBase):
         be passed to the underlying requests.session.post method where it will
         be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
         :returns: ``self`` - A python object that represents the object's
-                  configuration and state on the BIG-IP.
+                  configuration and state on the BIG-IP®.
 
         """
         self._create(**kwargs)
@@ -618,7 +621,7 @@ class Resource(ResourceBase):
     def load(self, **kwargs):
         """Load an already configured service into this instance.
 
-        This method uses HTTP GET to obtain a resource from the BIG-IP.
+        This method uses HTTP GET to obtain a resource from the BIG-IP®.
 
         ..
             The URI of the target service is constructed from the instance's
@@ -656,7 +659,7 @@ class Resource(ResourceBase):
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
 
-        # Get the current state of the object on BIG-IP and check the
+        # Get the current state of the object on BIG-IP® and check the
         # generation Use pop here because we don't want force in the data_dict
         force = self._check_force_arg(kwargs.pop('force', False))
         if not force:
@@ -668,7 +671,7 @@ class Resource(ResourceBase):
 
         # Need to remove any of the Collection objects from self.__dict__
         # because these are subCollections and _meta_data and
-        # other non-BIG-IP attrs are not removed from the subCollections
+        # other non-BIG-IP® attrs are not removed from the subCollections
         # See issue #146 for details
         for key, value in self.__dict__.items():
             if isinstance(value, Collection):
@@ -677,7 +680,7 @@ class Resource(ResourceBase):
 
         # Remove any read-only attributes from our data_dict before we update
         # the data dict with the attributes.  If they pass in read-only attrs
-        # in the method call we are going to let BIG-IP let them know about it
+        # in the method call we are going to let BIG-IP® let them know about it
         # when it fails
         for attr in read_only:
             data_dict.pop(attr, '')
@@ -688,9 +691,9 @@ class Resource(ResourceBase):
         self._local_update(response.json())
 
     def update(self, **kwargs):
-        """Update the configuration of the resource on the BIG-IP.
+        """Update the configuration of the resource on the BIG-IP®.
 
-        This method uses HTTP PUT alter the resource state on the BIG-IP.
+        This method uses HTTP PUT alter the resource state on the BIG-IP®.
 
         The attributes of the instance will be packaged as a dictionary.  That
         dictionary will be updated with kwargs.  It is then submitted as JSON
@@ -724,9 +727,9 @@ class Resource(ResourceBase):
             self.__dict__ = {'deleted': True}
 
     def delete(self, **kwargs):
-        """Delete the resource on the BIG-IP.
+        """Delete the resource on the BIG-IP®.
 
-        Uses HTTP DELETE to delete the resource on the BIG-IP.
+        Uses HTTP DELETE to delete the resource on the BIG-IP®.
 
         After this method is called, and status_code 200 response is received
         ``instance.__dict__`` is replace with ``{'deleted': True}``
@@ -755,7 +758,7 @@ class Resource(ResourceBase):
         NOTE: If kwargs has a 'requests_params' key the corresponding dict will
         be passed to the underlying requests.session.get method where it will
         be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-        :returns: bool -- The objects exists on BIG-IP or not.
+        :returns: bool -- The objects exists on BIG-IP® or not.
         :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
                  code 404.
         """
@@ -780,7 +783,7 @@ class Resource(ResourceBase):
         return force
 
     def _check_generation(self):
-        '''Check that the generation on the BIG-IP matches the object
+        '''Check that the generation on the BIG-IP® matches the object
 
         This will do a get to the objects URI and check that the generation
         returned in the JSON matches the one the object currently has.  If it

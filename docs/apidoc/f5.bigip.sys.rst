@@ -129,8 +129,8 @@ performance
 .. automodule:: f5.bigip.sys.performance
     :members:
 
-    Performace Resources and Subcollections
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Performance Resources and Subcollections
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     .. py:currentmodule:: f5.bigip.sys.performance
 
     .. autosummary::
