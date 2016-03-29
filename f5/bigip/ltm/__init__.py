@@ -37,6 +37,7 @@ from f5.bigip.ltm.snat import Snats
 from f5.bigip.ltm.snat_translation import Snat_Translations
 from f5.bigip.ltm.snatpool import Snatpools
 from f5.bigip.ltm.virtual import Virtuals
+from f5.bigip.ltm.virtual_address import Virtual_Address_s
 from f5.bigip.resource import OrganizingCollection
 
 
@@ -55,5 +56,6 @@ class Ltm(OrganizingCollection):
             Snats,
             Snatpools,
             Snat_Translations,
-            Virtuals
+            Virtuals,
+            Virtual_Address_s,
         ]

@@ -24,6 +24,7 @@ Module Contents
         snat_translation
         ssl
         virtual
+        virtual_address
 
 
 Submodules
@@ -261,7 +262,7 @@ virtual
 .. automodule:: f5.bigip.ltm.virtual
     :members:
 
-    Snat Collections and Resources
+    Virtual Collections and Resources
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     .. py:currentmodule:: f5.bigip.ltm.virtual
 
@@ -269,3 +270,18 @@ virtual
 
         Virtuals
         Virtual
+
+virtual_address
+~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.ltm.virtual_address
+    :members:
+
+    Virtual Address Collections and Resources
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. py:currentmodule:: f5.bigip.ltm.virtual_address
+
+    .. autosummary::
+
+        Virtual_Address_s
+        Virtual_Address
