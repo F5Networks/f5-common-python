@@ -42,7 +42,7 @@ class Virtual(Resource):
     """BIG-IP LTM virtual resource"""
     def __init__(self, virtual_s):
         super(Virtual, self).__init__(virtual_s)
-        # self._meta_data['allowed_lazy_attributes'] = [Profiles_s]
+        self._meta_data['allowed_lazy_attributes'] = [Profiles_s]
         self._meta_data['required_json_kind'] = 'tm:ltm:virtual:virtualstate'
 	self._meta_data['attribute_registry'] =\
             {'tm:ltm:virtual:profiles:profilescollectionstate': Profiles_s}

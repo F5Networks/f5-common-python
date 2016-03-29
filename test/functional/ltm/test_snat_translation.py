@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from pprint import pprint as pp
 
 
 def setup(request, bigip, name, partition, ipaddr):
@@ -52,7 +53,8 @@ class TestSnatTranslation(object):
         assert st1.name == st2.name
 
         #  Update
-        st1.disabled is True
+        pp(st1.raw)
+        st1.disabled = True
         st1.update()
         assert st1.disabled is True
         assert st1.generation != st2.generation
