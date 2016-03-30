@@ -41,3 +41,4 @@ def test___get__attr(FakeBigIP):
     assert isinstance(bigip_dot_sys, Sys)
     with pytest.raises(AttributeError):
         FakeBigIP.this_is_not_a_real_attribute
+    assert FakeBigIP.hostname == 'FakeHostName'
