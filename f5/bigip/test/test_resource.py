@@ -392,13 +392,13 @@ def test_ResourceBase():
         "Only Resources support 'delete'."
 
 
-class Test_s(Collection):
+class Under_s(Collection):
     def __init__(self, container):
-        super(Test_s, self).__init__(container)
+        super(Under_s, self).__init__(container)
 
 
 def test_collection_s():
     MC = mock.MagicMock()
     MC._meta_data = {'bigip': 'bigip', 'uri': 'BASEURI/'}
-    tc_s = Test_s(MC)
-    assert tc_s._meta_data['uri'] == 'BASEURI/test/'
+    tc_s = Under_s(MC)
+    assert tc_s._meta_data['uri'] == 'BASEURI/under/'
