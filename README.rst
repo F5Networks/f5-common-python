@@ -1,13 +1,17 @@
 f5-common-python
 ================
 
-|Build Status| |Docs Build Status|
+|Build Status| |Docs Build Status| |slack badge|
 
 Introduction
 ------------
 This project implements an SDK for the iControl REST interface for BIG-IP®.
 Users of this library can create, edit, update, and delete configuration objects
 on a BIG-IP®.
+
+Documentation
+-------------
+Documentation is hosted on `Read the Docs <https://f5-sdk.readthedocs.org>`_
 
 Submodules
 ~~~~~~~~~~
@@ -62,9 +66,6 @@ Usage
         pool_b.delete()
 
 
-Documentation
--------------
-Documentation is hosted on `Read the Docs <https://f5-sdk.readthedocs.org>`_
 
 Filing Issues
 -------------
@@ -112,11 +113,6 @@ the Unit Test section).
 
     $ flake8 ./
 
-
-Contact
--------
-f5_common_python@f5.com
-
 Copyright
 ---------
 Copyright 2014-2016 F5 Networks Inc.
@@ -154,3 +150,8 @@ project.
 .. |Docs Build Status| image:: http://readthedocs.org/projects/f5-sdk/badge/?version=latest
     :target: http://f5-sdk.readthedocs.org/en/latest/?badge=latest
     :alt: Documentation Status
+
+.. |slack badge| image:: https://f5-openstack-slack.herokuapp.com/badge.svg
+    :target: https://f5-openstack-slack.herokuapp.com/
+    :alt: Slack
+
