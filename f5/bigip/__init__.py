@@ -46,3 +46,7 @@ class BigIP(OrganizingCollection):
                            'device_name': None,
                            'local_ip': None,
                            'bigip': self}
+
+    @property
+    def hostname(self):
+        return self._meta_data['hostname']
