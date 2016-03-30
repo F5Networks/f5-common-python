@@ -74,7 +74,7 @@ Almost all iControl REST API entries contain a parameter named ``kind``. This pa
     +---------------------+--------------------------+-------------------------------------------------+
 
 
-.. methods_section:
+.. _methods_section:
 
 Methods
 -------

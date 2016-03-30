@@ -5,9 +5,7 @@ Subcollection
 
 ``kind``: ``collectionstate``
 
-A subcollection is a |Collection| that's attached to a higher-level |Resource| object. Subcollections are almost exactly the same as collections; the exception is that they can only be accessed via the resource they're attached to (the 'parent' resource). A subcollection can be identified by the value ``isSubcollection: true``, followed by an ``items`` attribute listing the subcollection's resources. Just as with
-collections, you can use :meth:`~f5.bigip.resource.Collection
-    .get_collection` to get a list of the resources in the subcollection.
+A subcollection is a |Collection| that's attached to a higher-level |Resource| object. Subcollections are almost exactly the same as collections; the exception is that they can only be accessed via the resource they're attached to (the 'parent' resource). A subcollection can be identified by the value ``isSubcollection: true``, followed by an ``items`` attribute listing the subcollection's resources. Just as with collections, you can use :meth:`~f5.bigip.resource.Collection.get_collection` to get a list of the resources in the subcollection.
 
 .. _subcollection_example:
 
