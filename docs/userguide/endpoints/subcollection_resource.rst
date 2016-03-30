@@ -14,7 +14,7 @@ A subcollection resource is essentially the same as a :ref:`resource <resource_s
    >>> from f5.bigip import BigIP
    >>> bigip = BigIP('192.168.1.1', 'myuser', 'mypass')
    >>> pool = bigip.ltm.pools.pool.load(partition='Common', name='p1')
-   >>> member = pool.members_s.member.load(partition='Common', name='n1:80')
+   >>> member = pool.members_s.members.load(partition='Common', name='n1:80')
 
    The JSON below shows a :obj:`f5.bigip.ltm.pool.members_s.members` object.
 
