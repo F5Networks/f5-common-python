@@ -93,14 +93,14 @@ def test_ToDictMixinAttribute_Nested():
     assert json.dumps(mtc_as_dict) == '{"x": {"y": {"a": 3}}}'
 
 
-class TestClass(object):
+class DictableClass(object):
     def __init__(self):
         self.test_attribute = 42
 
 
 def test_TestClass_Basic():
     TDMAttrObj = ToDictMixinAttribute()
-    TDMAttrObj.y = TestClass()
+    TDMAttrObj.y = DictableClass()
     mtc_as_dict = TDMAttrObj.to_dict()
     assert json.dumps(mtc_as_dict) == '{"y": {"test_attribute": 42}}'
 
