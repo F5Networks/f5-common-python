@@ -42,7 +42,7 @@ def test_get_dollar_filtered_collection(request, bigip, pool_factory):
     if bigip.sys.folders.folder.exists(name='za', partition=''):
         bigip.sys.folders.folder.load(name='za', partition='')
     else:
-        bigip.sys.folders.folder.create(name='za', partition='/')
+        bigip.sys.folders.folder.create(name='za', subPath='/')
     Pool1Config = PoolConfig('Common', 'TEST', ((),))
     Pool2Config = PoolConfig('za', 'TEST', ((),))
     test_pools = (Pool1Config, Pool2Config)
