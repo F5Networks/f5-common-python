@@ -24,7 +24,8 @@ def pytest_addoption(parser):
                      default="admin")
     parser.addoption("--password", action="store", help="BIG-IP REST password",
                      default="admin")
-
+    parser.addoption("--release", action="store", help="BIG-IP Software release, in dotted format, eg. 12.0.0",
+                     default='11.6.0')
 
 @pytest.fixture
 def opt_bigip(request):
@@ -47,6 +48,9 @@ def bigip(opt_bigip, opt_username, opt_password, scope="module"):
     b = BigIP(opt_bigip, opt_username, opt_password)
     return b
 
+@pytest.fixture
+def opt_release(request):
+    return request.config.getoption("--release")
 
 @pytest.fixture
 def NAT(bigip):

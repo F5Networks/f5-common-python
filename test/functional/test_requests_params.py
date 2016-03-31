@@ -18,7 +18,7 @@ PoolConfig = namedtuple('PoolConfig', 'partition name memberconfigs')
 MemberConfig = namedtuple('MemberConfig', 'mempartition memname')
 
 
-def test_get_collection(request, bigip, pool_factory):
+def test_get_collection(request, bigip, pool_factory, opt_release):
     Pool1MemberConfigs = (MemberConfig('Common', '192.168.15.15:80'),
                           MemberConfig('Common', '192.168.16.16:8080'),)
     Pool1Config = PoolConfig('Common', 'TEST', Pool1MemberConfigs)
@@ -31,10 +31,10 @@ def test_get_collection(request, bigip, pool_factory):
             selfLinks.append(mem.selfLink)
     assert selfLinks[0] == u'https://localhost/mgmt/tm/ltm/pool/' +\
         '~Common~TEST/members/~Common~192.168.15.15:80' +\
-        '?ver=11.6.0'
+        '?ver='+opt_release
     assert selfLinks[1] == u'https://localhost/mgmt/tm/ltm/pool/' +\
         '~Common~TEST/members/~Common~192.168.16.16:8080' +\
-        '?ver=11.6.0'
+        '?ver='+opt_release
 
 
 def test_get_dollar_filtered_collection(request, bigip, pool_factory):

@@ -60,7 +60,7 @@ def setup_member_test(request, bigip, name, partition,
 
 
 class TestPoolMembersCollection(object):
-    def test_get_collection(self, request, bigip):
+    def test_get_collection(self, request, bigip, opt_release):
         member1, pool1 = setup_member_test(request, bigip, 'membertestpool1',
                                            'Common')
         pool1.members_s.members.create(
@@ -71,10 +71,10 @@ class TestPoolMembersCollection(object):
             mem.delete()
         assert selfLinks[0] == u'https://localhost/mgmt/tm/ltm/pool/' +\
             '~Common~membertestpool1/members/~Common~192.168.15.15:80' +\
-            '?ver=11.6.0'
+            '?ver='+opt_release
         assert selfLinks[1] == u'https://localhost/mgmt/tm/ltm/pool/' +\
             '~Common~membertestpool1/members/~Common~192.168.16.16:8080' +\
-            '?ver=11.6.0'
+            '?ver='+opt_release
         pre_del = set(member1.__dict__.keys())
         member1.refresh()
         post_del = set(member1.__dict__.keys())
