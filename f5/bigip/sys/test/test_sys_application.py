@@ -112,9 +112,11 @@ def MakeFakeContainer(FakeService, mock_json, mock_bigip):
     mock_bigip._meta_data = {
         'hostname': 'testhost',
         'icr_session': mock_session,
-        'uri': ''
+        'uri': '',
+        'icontrol_version': '',
     }
     FakeService._meta_data['bigip'] = mock_bigip
+    FakeService._meta_data['icontrol_version'] = ''
     return FakeService
 
 
@@ -128,12 +130,14 @@ def MakeFakeContainerRaise(FakeService, mock_json, side_effect, mock_bigip):
     mock_bigip._meta_data = {
         'hostname': 'testhost',
         'icr_session': mock_session,
-        'uri': ''
+        'uri': '',
+        'icontrol_version': '',
     }
     FakeService._meta_data['bigip'] = mock_bigip
     mock_base_uri = mock.MagicMock()
     mock_base_uri._meta_data = {'uri': 'base_uri'}
     FakeService._meta_data['container'] = mock_base_uri
+    FakeService._meta_data['icontrol_version'] = ''
     return FakeService
 
 

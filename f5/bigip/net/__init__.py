@@ -28,6 +28,7 @@ REST Kind
 """
 
 from f5.bigip.net.arp import Arps
+from f5.bigip.net.fdb import Fdbs
 from f5.bigip.net.interface import Interfaces
 from f5.bigip.net.route import Routes
 from f5.bigip.net.route_domain import Route_Domains
@@ -42,6 +43,7 @@ class Net(OrganizingCollection):
         super(Net, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
             Arps,
+            Fdbs,
             Interfaces,
             Routes,
             Route_Domains,
