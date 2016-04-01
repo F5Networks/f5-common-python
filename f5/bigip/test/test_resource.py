@@ -187,8 +187,9 @@ class TestResource_update(object):
         r.contained = Collection(mock.MagicMock())
         assert 'contained' in r.__dict__
         r.update(a=u"b")
-        submitted = r._meta_data['bigip'].\
+        submitted = r._meta_data['bigip']. \
             _meta_data['icr_session'].put.call_args[1]['json']
+
         assert 'contained' not in submitted
 
     def test_read_only_removal(self):
@@ -295,6 +296,39 @@ class TestResource_load(object):
             "Requests Parameter 'partition' collides with a load parameter"\
             " of the same name."
 
+    def test_icontrol_version_set(self):
+        r = Resource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['uri'] = 'URI'
+        r._meta_data['icontrol_version'] = '11.6.0'
+        attrs = {'put.return_value': MockResponse({u"generation": 0}),
+                 'get.return_value': MockResponse({u"generation": 0})}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
+        r.generation = 0
+        r.contained = Collection(mock.MagicMock())
+        assert 'contained' in r.__dict__
+        r.update(a=u"b")
+        submitted = r._meta_data['bigip']. \
+            _meta_data['icr_session'].put.call_args[1]['params']
+        assert submitted['ver'] == '11.6.0'
+
+    def test_icontrol_version_default(self):
+        r = Resource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['uri'] = 'URI'
+        attrs = {'put.return_value': MockResponse({u"generation": 0}),
+                 'get.return_value': MockResponse({u"generation": 0})}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
+        r.generation = 0
+        r.contained = Collection(mock.MagicMock())
+        assert 'contained' in r.__dict__
+        r.update(a=u"b")
+        submitted = r._meta_data['bigip']. \
+            _meta_data['icr_session'].put.call_args
+        assert 'params' not in submitted
+
     def test_success(self):
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
@@ -365,7 +399,8 @@ def test_OrganizingCollection():
     mock_session = mock.MagicMock(**attrs)
     MockBigIP._meta_data = {'uri': 'https://TESTDOMAIN/mgmt/tm/',
                             'bigip': MockBigIP,
-                            'icr_session': mock_session}
+                            'icr_session': mock_session,
+                            'icontrol_version': ''}
     oc = OrganizingCollection(MockBigIP)
     assert oc.get_collection() == [{'reference': {'link': 'https://...A'}},
                                    {'reference': {'link': 'https://...B'}}]
@@ -399,6 +434,10 @@ class Under_s(Collection):
 
 def test_collection_s():
     MC = mock.MagicMock()
-    MC._meta_data = {'bigip': 'bigip', 'uri': 'BASEURI/'}
+    MC._meta_data = {
+        'bigip': 'bigip',
+        'uri': 'BASEURI/',
+        'icontrol_version': ''
+    }
     tc_s = Under_s(MC)
     assert tc_s._meta_data['uri'] == 'BASEURI/under/'
