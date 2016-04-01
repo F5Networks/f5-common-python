@@ -11,7 +11,7 @@ The object classes used in the SDK directly correspond to the REST endpoints you
 
 4. The characters ``.`` and ``-`` are always replaced with ``_`` in the SDK.
 
-Because the REST API endpoints have a hierarchical structure, you need to load/create the highest-level objects before you can load lower-level ones. The example below shows how the pieces of the URI correspond to the REST endpoints/SDK classes. The first part of the URI is the IP address of your BIG-IP® device.
+Because the REST API endpoints have a hierarchical structure, you need to load/create the highest-level objects before you can load lower-level ones. The example below shows how the pieces of the URI correspond to the REST endpoints/SDK classes. The first part of the URI is the IP address of your BIG-IP®.
 
 .. include:: uri_code_breakdown.rst
 
@@ -26,18 +26,18 @@ Because the REST API endpoints have a hierarchical structure, you need to load/c
     =============   ==================================================
 
 
-In the sections below, we'll walk through the Python object paths using LTM pools and pool members as examples. You can also skip straight to the |Coding Example|.
+In the sections below, we'll walk through the Python object paths using LTM® pools and pool members as examples. You can also skip straight to the |Coding Example|.
 
 .. _oc_section:
 
 |Organizing Collection Section|
 -------------------------------
-The ``mgmt/tm`` and ``ltm`` organizing collections define what area of the BIG-IP® you're going to work with. The ``mgmt/tm`` organizing collection corresponds to the management plane of your BIG-IP® device (TMOS). Loading ``ltm`` indicates that we're going to work with the BIG-IP®'s :guilabel:`Local Traffic` module.
+The ``mgmt/tm`` and ``ltm`` organizing collections define what area of the BIG-IP® you're going to work with. The ``mgmt/tm`` organizing collection corresponds to the management plane of your BIG-IP® device (TMOS). Loading ``ltm`` indicates that we're going to work with the BIG-IP®'s :guilabel:`Local Traffic Manager®` module.
 
 .. include:: endpoints/endpoint_table_tm.rst
 .. include:: endpoints/endpoint_table_ltm.rst
 
-.. topic:: Example: Connect to the BIG-IP® and load the LTM module
+.. topic:: Example: Connect to the BIG-IP® and load the LTM® module
 
     .. code-block:: python
 
@@ -57,11 +57,11 @@ The ``mgmt/tm`` and ``ltm`` organizing collections define what area of the BIG-I
 |Collection Section|
 --------------------
 
-Now that the higher-level organizing collections are loaded (in other words, we're signed in to the BIG-IP® and accessed the LTM module), we can load the ``pool`` collection.
+Now that the higher-level organizing collections are loaded (in other words, we signed in to the BIG-IP® and accessed the LTM® module), we can load the ``pool`` collection.
 
 .. include:: endpoints/endpoint_table_ltm_pool.rst
 
-.. topic:: Example: Load the pool collection
+.. topic:: Example: Load the pools collection
 
     .. code-block:: python
 
@@ -90,7 +90,7 @@ In the SDK, we refer to a single instance of a configuration object as a resourc
 
 .. include:: endpoints/endpoint_table_ltm_pool_pools.rst
 
-.. topic:: Example: Load a pools collection
+.. topic:: Example: Load a pool resource
 
     .. code-block:: python
 
@@ -102,8 +102,7 @@ In the example above, we instantiated the class :class:`f5.bigip.ltm.pool.Pool` 
 
 .. tip::
 
-    You can always see the representation of an object using the :meth:`~f5
-    .bigip.ltm.pool.Pools.raw` method.
+    You can always see the representation of an object using the :meth:`~f5.bigip.ltm.pool.Pools.raw` method.
 
     .. code-block:: python
 

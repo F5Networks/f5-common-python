@@ -2,12 +2,17 @@ F5 Python SDK Documentation
 ===========================
 |Build Status| |Docs Build Status|
 
+.. raw:: html
+
+    <script async defer src="https://f5-openstack-slack.herokuapp.com/slackin.js"></script>
+
+
 Introduction
 ------------
-This project implements an object model based SDK for the F5 Networks BIG-IP®
-iControl REST interface. Users of this library can create, edit, update, and
-delete configuration objects on a BIG-IP® device.  For more information on the
-basic principals that the SDK uses see the :doc:`userguide/index`.
+This project implements an object model based SDK for the F5 Networks® BIG-IP®
+iControl® REST interface. Users of this library can create, edit, update, and
+delete configuration objects on a BIG-IP®. For more information on the
+basic principals that the SDK uses, see the :doc:`userguide/index`.
 
 Quick Start
 -----------
@@ -18,6 +23,7 @@ Installation
     $> pip install f5-sdk
 
 .. note::
+
     If you are using a pre-release version you must use the ``--pre``
     option with the pip command.
 
@@ -61,11 +67,6 @@ Detailed Documentation
    devguide
    F5 SDK API Docs <apidoc/modules>
 
-
-Contact
--------
-f5_common_python@f5.com
-
 Copyright
 ---------
 Copyright 2014-2016 F5 Networks Inc.
@@ -101,3 +102,4 @@ project.
 .. |Docs Build Status| image:: http://readthedocs.org/projects/f5-sdk/badge/?version=latest
     :target: http://f5-sdk.readthedocs.org/en/latest/?badge=latest
     :alt: Documentation Status
+

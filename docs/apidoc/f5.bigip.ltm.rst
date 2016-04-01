@@ -263,7 +263,7 @@ virtual
     :members:
 
     Virtual Collections and Resources
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     .. py:currentmodule:: f5.bigip.ltm.virtual
 
     .. autosummary::

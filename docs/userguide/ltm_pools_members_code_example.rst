@@ -19,7 +19,7 @@ Coding Example
         pool_obj = bigip.ltm.pools.pool
         pool_1 = pool_obj.load(partition='Common', name='mypool')
 
-        # We can also create the object and load the pool at the same time
+        # We can also skip creating the object and load the pool directly
         pool_2 = bigip.ltm.pools.pool.load(partition='Common', name='mypool')
 
         # Print the object
@@ -68,7 +68,7 @@ Coding Example
 
         # Make sure it is gone
         if pool_1.members_s.members.exists(partition='Common', name='m1:80'):
-        raise Exception("Object should have been deleted")
+            raise Exception("Object should have been deleted")
 
         # We are done with this pool so remove it from BIG-IP®
         pool_1.delete()
