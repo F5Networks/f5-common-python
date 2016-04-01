@@ -18,7 +18,7 @@
 """Directory: net module: fdb.
 
 REST URI
-    ``https://localhost/mgmt/tm/net/fdb?ver=11.6.0``
+    ``https://localhost/mgmt/tm/net/fdb``
 
 GUI Path
     ``XXX``
@@ -41,6 +41,7 @@ class Fdbs(Collection):
         # self._meta_data['attribute_registry'] =\
         #    {u'tm:net:fdb:fdbstate': Fdb}
         self._meta_data['template_generated'] = True
+        self._meta_data['icontrol_version'] = '11.5.0'
 
 
 class Tunnel(Resource):
@@ -51,8 +52,10 @@ class Tunnel(Resource):
         self._meta_data['template_generated'] = True
         self._meta_data['required_json_kind'] =\
             u"tm:net:fdb:tunnel:tunnelstate"
-        self._meta_data['attribute_registry'] =\
-            {}
+        self._meta_data['attribute_registry'] = {}
+        # Setting this here to be explicit, even though it is set via
+        # the super call from its containing object.
+        self._meta_data['icontrol_version'] = '11.5.0'
 
 
 class Tunnels(Collection):
@@ -64,6 +67,9 @@ class Tunnels(Collection):
         self._meta_data['attribute_registry'] =\
             {u'tm:net:fdb:tunnel:tunnelstate': Tunnel}
         self._meta_data['template_generated'] = True
+        # Setting this here to be explicit, even though it is set via
+        # the super call from its containing object.
+        self._meta_data['icontrol_version'] = '11.5.0'
 
 
 class Vlans(Collection):
@@ -75,3 +81,6 @@ class Vlans(Collection):
         # self._meta_data['attribute_registry'] =\
         #     {u'tm:net:fdb:vlan:vlanstate': Vlan}
         self._meta_data['template_generated'] = True
+        # Setting this here to be explicit, even though it is set via
+        # the super call from its containing.
+        self._meta_data['icontrol_version'] = '11.5.0'

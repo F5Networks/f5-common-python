@@ -154,8 +154,11 @@ class PathElement(LazyAttributeMixin):
     the other objects do.
     """
     def __init__(self, container):
-        self._meta_data = {'container': container,
-                           'bigip': container._meta_data['bigip']}
+        self._meta_data = {
+            'container': container,
+            'bigip': container._meta_data['bigip'],
+            'icontrol_version': container._meta_data['icontrol_version']
+        }
         base_uri = self.__class__.__name__.lower() + '/'
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + base_uri
@@ -274,12 +277,27 @@ class ResourceBase(PathElement, ToDictMixin):
         return rdict
 
     def _handle_requests_params(self, kwargs):
+        """Validate parameters that will be passed to the requests verbs.
+
+        This method validates that there is no conflict in the names of the
+        requests_params passed to the function an the other kwargs.  It also
+        ensures that the required request parameters for the object are
+        added to the request params that are passed into the verbs.  An
+        example of the latter is ensuring that a certain version of the API
+        is always called to add 'ver=11.6.0' to the url.
+        """
         requests_params = kwargs.pop('requests_params', {})
         for param in requests_params:
             if param in kwargs:
                 error_message = 'Requests Parameter %r collides with a load'\
                     ' parameter of the same name.' % param
                 raise RequestParamKwargCollision(error_message)
+
+        # If we have an icontrol version we need to add 'ver' to params
+        if self._meta_data['icontrol_version']:
+            params = requests_params.pop('params', {})
+            params.update({'ver': self._meta_data['icontrol_version']})
+            requests_params.update({'params': params})
         return requests_params
 
     def _refresh(self, **kwargs):

@@ -34,19 +34,27 @@ class BigIP(OrganizingCollection):
         timeout = kwargs.pop('timeout', 30)
         allowed_lazy_attrs = kwargs.pop('allowed_lazy_attributes',
                                         allowed_lazy_attributes)
+        icontrol_version = kwargs.pop('icontrol_version', '')
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
         # _meta_data variable values
         iCRS = iControlRESTSession(username, password, timeout=timeout)
         # define _meta_data
-        self._meta_data = {'allowed_lazy_attributes': allowed_lazy_attrs,
-                           'hostname': hostname,
-                           'uri': 'https://%s/mgmt/tm/' % hostname,
-                           'icr_session': iCRS,
-                           'device_name': None,
-                           'local_ip': None,
-                           'bigip': self}
+        self._meta_data = {
+            'allowed_lazy_attributes': allowed_lazy_attrs,
+            'hostname': hostname,
+            'uri': 'https://%s/mgmt/tm/' % hostname,
+            'icr_session': iCRS,
+            'device_name': None,
+            'local_ip': None,
+            'bigip': self,
+            'icontrol_version': icontrol_version,
+        }
 
     @property
     def hostname(self):
         return self._meta_data['hostname']
+
+    @property
+    def icontrol_version(self):
+        return self._meta_data['icontrol_version']
