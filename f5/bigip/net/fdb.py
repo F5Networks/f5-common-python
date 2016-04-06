@@ -37,9 +37,7 @@ class Fdbs(Collection):
     def __init__(self, net):
         '''Auto generated constructor.'''
         super(Fdbs, self).__init__(net)
-        # self._meta_data['allowed_lazy_attributes'] = [Fdb]
-        # self._meta_data['attribute_registry'] =\
-        #    {u'tm:net:fdb:fdbstate': Fdb}
+        self._meta_data['allowed_lazy_attributes'] = [Tunnels]
         self._meta_data['template_generated'] = True
         self._meta_data['icontrol_version'] = '11.5.0'
 
