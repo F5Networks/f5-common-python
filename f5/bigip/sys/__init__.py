@@ -34,6 +34,7 @@ from f5.bigip.sys.failover import Failover
 from f5.bigip.sys.folder import Folders
 from f5.bigip.sys.global_settings import Global_Settings
 from f5.bigip.sys.ntp import Ntp
+from f5.bigip.sys.ntp import Dns
 from f5.bigip.sys.performance import Performance
 
 
@@ -47,5 +48,6 @@ class Sys(OrganizingCollection):
             Dbs,
             Global_Settings,
             Ntp,
+            Dns,
             Failover,
         ]
