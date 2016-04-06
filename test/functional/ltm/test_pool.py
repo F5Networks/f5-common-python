@@ -69,20 +69,24 @@ class TestPoolMembersCollection(object):
         for mem in pool1.members_s.get_collection():
             selfLinks.append(mem.selfLink)
             mem.delete()
+            assert mem.__dict__ == {'deleted': True}
         assert selfLinks[0] == u'https://localhost/mgmt/tm/ltm/pool/' +\
             '~Common~membertestpool1/members/~Common~192.168.15.15:80' +\
             '?ver='+opt_release
         assert selfLinks[1] == u'https://localhost/mgmt/tm/ltm/pool/' +\
             '~Common~membertestpool1/members/~Common~192.168.16.16:8080' +\
             '?ver='+opt_release
-        pre_del = set(member1.__dict__.keys())
-        member1.refresh()
-        post_del = set(member1.__dict__.keys())
+        try:
+            member1.refresh()
+        except HTTPError as err:
+            if err.response.status_code != 404:
+                    raise
+        pre_del = set(pool1.__dict__.keys())
+        pool1.refresh()
+        post_del = set(pool1.__dict__.keys())
         delta = pre_del - post_del
         remaining = pre_del - delta
-        assert remaining ==\
-            set(['_meta_data', u'fullPath', u'generation', u'kind', u'name',
-                 u'partition', u'selfLink'])
+        assert 'members_s' not in remaining
 
 
 class TestPoolMembers(object):
