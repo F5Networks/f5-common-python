@@ -31,7 +31,9 @@ from f5.bigip.cm.device import Devices
 from f5.bigip.cm.device_group import Device_Groups
 from f5.bigip.cm.sync_status import Sync_Status
 from f5.bigip.cm.traffic_group import Traffic_Groups
+from f5.bigip.cm.trust import Add_To_Trust
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.cm.trust import Remove_From_Trust
 
 
 class Cm(OrganizingCollection):
@@ -39,7 +41,8 @@ class Cm(OrganizingCollection):
     def __init__(self, bigip):
         super(Cm, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
-            Devices, Device_Groups, Traffic_Groups, Sync_Status
+            Devices, Device_Groups, Traffic_Groups, Sync_Status, Add_To_Trust,
+            Remove_From_Trust
         ]
 
     def sync(self, device_group_name):
