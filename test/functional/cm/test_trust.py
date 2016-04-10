@@ -13,9 +13,6 @@
 # limitations under the License.
 #
 
-from pprint import pprint as pp
-
-
 def set_trust(request, bigip, name, device, dev_name, usr, passwd):
     dvcs = bigip.cm
     trust = dvcs.add_to_trust.run(name=name, device=device, deviceName=dev_name, username=usr, password=passwd)
@@ -26,14 +23,27 @@ def unset_trust(request, bigip, name, dev_name):
     reset = dvcs.remove_from_trust.run(name=name, deviceName=dev_name)
     return reset
 
+def check_sync(request, bigip):
+    sync_status = bigip.cm.sync_status
+    sync_status.refresh()
+    des = \
+        (sync_status.entries['https://localhost/mgmt/tm/cm/sync-status/0']
+         ['nestedStats']
+         ['entries']
+         ['status']
+         ['description'])
+    return des
+
 class TestTrust(object):
     def test_run(self, request, bigip):
-
-        ## Setup Trust
-        f = set_trust(request, bigip, 'Root', '192.168.202.155', 'v12b-apm-ltm-test.labnet.local', 'admin', 'admin')
-        pp(f.raw)
-
-        ## Reset Trust
-        f = unset_trust(request, bigip, 'Root', 'v12b-apm-ltm-test.labnet.local')
-        pp (f.raw)
+        #Check sync state, assume standalone
+        assert check_sync(request, bigip) == u"Standalone"
+        #Setup trust
+        set_trust(request, bigip, 'Root', '192.168.202.155', 'v12b-apm-ltm-test.labnet.local', 'admin', 'admin')
+        #Verify sync state assume disconnected
+        assert check_sync(request, bigip) == u"Disconnected"
+        #Remove trust
+        unset_trust(request, bigip, 'Root', 'v12b-apm-ltm-test.labnet.local')
+        #Verify device sync state is Standalone
+        assert check_sync(request, bigip) == u"Standalone"
 
