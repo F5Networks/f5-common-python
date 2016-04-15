@@ -29,6 +29,7 @@ REST Kind
 
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.sys.application import Applications
+from f5.bigip.sys.config import Config
 from f5.bigip.sys.db import Dbs
 from f5.bigip.sys.failover import Failover
 from f5.bigip.sys.folder import Folders
@@ -41,6 +42,7 @@ class Sys(OrganizingCollection):
     def __init__(self, bigip):
         super(Sys, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
+            Config,
             Folders,
             Applications,
             Performance,
