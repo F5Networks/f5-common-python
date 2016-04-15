@@ -267,6 +267,48 @@ no_help_templ = '''sys application template good_templ {
   requires-modules { ltm asm }
 }'''
 
+dot_name_templ = '''sys application template good.dot.templ {
+  actions {
+    definition {
+      html-help {
+        # HTML Help for the template
+      }
+      implementation {
+        # TMSH implementation code
+      }
+      presentation {
+        # APL presentation language
+      }
+      role-acl { hello test }
+      run-as <user context>
+    }
+  }
+  description <template description>
+  partition <partition name>
+  requires-modules { ltm }
+}'''
+
+dot_hyphen_name_templ = '''sys application template good.-dot-hyphen.-templ {
+  actions {
+    definition {
+      html-help {
+        # HTML Help for the template
+      }
+      implementation {
+        # TMSH implementation code
+      }
+      presentation {
+        # APL presentation language
+      }
+      role-acl { hello test }
+      run-as <user context>
+    }
+  }
+  description <template description>
+  partition <partition name>
+  requires-modules { ltm }
+}'''
+
 good_templ_dict = {
     u'name': u'good_templ',
     u'description': u'<template description>',
@@ -315,6 +357,37 @@ none_rm_templ_dict = {
     u'name': u'good_templ',
     u'partition': u'<partition name>',
     u'requiresModules': u'none',
+    'actions': {
+        'definition': {
+            u'htmlHelp': u'# HTML Help for the template',
+            u'roleAcl': [u'hello', u'test'],
+            u'implementation': u'# TMSH implementation code',
+            u'presentation': u'# APL presentation language'
+        }
+    }
+}
+
+dot_name_templ_dict = {
+    u'name': u'good.dot.templ',
+    u'description': u'<template description>',
+    u'partition': u'<partition name>',
+    u'requiresModules': [u'ltm'],
+    'actions': {
+        'definition': {
+            u'htmlHelp': u'# HTML Help for the template',
+            u'roleAcl': [u'hello', u'test'],
+            u'implementation': u'# TMSH implementation code',
+            u'presentation': u'# APL presentation language'
+        }
+    }
+}
+
+
+dot_hyphen_name_templ_dict = {
+    u'name': u'good.-dot-hyphen.-templ',
+    u'description': u'<template description>',
+    u'partition': u'<partition name>',
+    u'requiresModules': [u'ltm'],
     'actions': {
         'definition': {
             u'htmlHelp': u'# HTML Help for the template',
@@ -405,6 +478,16 @@ def test_get_template_name_bad_name_error():
         prsr._get_template_name()
     assert NonextantTemplateNameExceptInfo.value.message == \
         'Template name not found.'
+
+
+def test_get_template_name_with_dot():
+    prsr = ip.IappParser(dot_name_templ)
+    assert prsr.parse_template() == dot_name_templ_dict
+
+
+def test_get_template_name_with_dot_hyphen():
+    prsr = ip.IappParser(dot_hyphen_name_templ)
+    assert prsr.parse_template() == dot_hyphen_name_templ_dict
 
 
 def test_parse_template():

@@ -108,7 +108,7 @@ class IappParser(object):
         :raises: NonextantTemplateNameException
         '''
 
-        start_pattern = 'sys application template\s+\w+\s*\{'
+        start_pattern = 'sys application template\s+\w[\w\.\-]+\s*\{'
 
         template_start = re.search(start_pattern, self.template_str)
         if template_start:
