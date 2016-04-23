@@ -532,15 +532,15 @@ class Resource(ResourceBase):
         :param selfLinkuri: the server provided selfLink (contains localhost)
         :raises: URICreationCollision
         """
-        # hostname local alias
-        hostname = self._meta_data['bigip']._meta_data['hostname']
+        # netloc local alias
+        uri = urlparse.urlsplit(self._meta_data['bigip']._meta_data['uri'])
 
         # attrs local alias
         attribute_reg = self._meta_data.get('attribute_registry', {})
         attrs = attribute_reg.values()
 
         (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
-        path_uri = urlparse.urlunsplit((scheme, hostname, path, '', ''))
+        path_uri = urlparse.urlunsplit((scheme, uri.netloc, path, '', ''))
         if not path_uri.endswith('/'):
             path_uri = path_uri + '/'
         qargs = urlparse.parse_qs(qarg)
