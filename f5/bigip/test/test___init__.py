@@ -14,6 +14,7 @@
 
 import mock
 import pytest
+import urlparse
 
 from f5.bigip import BigIP
 
@@ -30,6 +31,13 @@ def FakeBigIP():
     return FBIP
 
 
+@pytest.fixture
+def FakeBigIPWithPort():
+    FBIP = BigIP('FakeHostName', 'admin', 'admin', port='10443')
+    FBIP.icontrol = mock.MagicMock()
+    return FBIP
+
+
 def test___get__attr(FakeBigIP):
     bigip_dot_ltm = FakeBigIP.ltm
     assert isinstance(bigip_dot_ltm, Ltm)
@@ -42,3 +50,8 @@ def test___get__attr(FakeBigIP):
     with pytest.raises(AttributeError):
         FakeBigIP.this_is_not_a_real_attribute
     assert FakeBigIP.hostname == 'FakeHostName'
+
+
+def test_non_default_port_number(FakeBigIPWithPort):
+    uri = urlparse.urlsplit(FakeBigIPWithPort._meta_data['uri'])
+    assert uri.port == 10443
