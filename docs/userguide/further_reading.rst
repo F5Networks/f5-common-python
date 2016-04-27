@@ -7,7 +7,6 @@ Further Reading
 
 * `F5 iControl REST API Reference (PDF) <https://devcentral.f5.com/d/icontrol-rest-api-reference-version-120?download=true>`_
 
-* `F5 iControl REST API Guide (PDF) <https://devcentral.f5
-.com/d/the-user-guide-for-the-icontrol-rest-interface-in-big-ip-version-1160?download=true>`_
+* `F5 iControl REST API Guide (PDF) <https://devcentral.f5.com/d/the-user-guide-for-the-icontrol-rest-interface-in-big-ip-version-1160?download=true>`_
 
 
