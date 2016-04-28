@@ -32,6 +32,7 @@ class BigIP(OrganizingCollection):
     """An interface to a single BIG-IP"""
     def __init__(self, hostname, username, password, **kwargs):
         timeout = kwargs.pop('timeout', 30)
+        port = kwargs.pop('port', 443)
         allowed_lazy_attrs = kwargs.pop('allowed_lazy_attributes',
                                         allowed_lazy_attributes)
         icontrol_version = kwargs.pop('icontrol_version', '')
@@ -43,7 +44,7 @@ class BigIP(OrganizingCollection):
         self._meta_data = {
             'allowed_lazy_attributes': allowed_lazy_attrs,
             'hostname': hostname,
-            'uri': 'https://%s/mgmt/tm/' % hostname,
+            'uri': 'https://%s:%s/mgmt/tm/' % (hostname, port),
             'icr_session': iCRS,
             'device_name': None,
             'local_ip': None,

@@ -125,13 +125,16 @@ def test__activate_URI():
     r = Resource(mock.MagicMock())
     r._meta_data['allowed_lazy_attributes'] = []
     r._meta_data['attribute_registry'] = {u"tm:": u"SPAM"}
-    r._meta_data['bigip']._meta_data = {'hostname': 'TESTDOMAIN'}
-    TURI = 'https://localhost/mgmt/tm/'\
+    r._meta_data['bigip']._meta_data = {
+        'hostname': 'TESTDOMAIN',
+        'uri': 'https://TESTDOMAIN:443/mgmt/tm/'
+    }
+    TURI = 'https://localhost:443/mgmt/tm/'\
            'ltm/nat/~Common~testnat/?ver=11.5&a=b#FOO'
     assert r._meta_data['allowed_lazy_attributes'] == []
     r._activate_URI(TURI)
     assert r._meta_data['uri'] ==\
-        'https://TESTDOMAIN/mgmt/tm/ltm/nat/~Common~testnat/'
+        'https://TESTDOMAIN:443/mgmt/tm/ltm/nat/~Common~testnat/'
     assert r._meta_data['creation_uri_qargs'] ==\
         {'a': ['b'], 'ver': ['11.5']}
     assert r._meta_data['creation_uri_frag'] == 'FOO'
@@ -254,7 +257,8 @@ class TestCollection_get_collection(object):
         mock_session = mock.MagicMock(**attrs)
         c._meta_data['bigip']._meta_data =\
             {'icr_session': mock_session,
-             'hostname': 'TESTDOMAINNAME'}
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
         c.generation = 0
         c.get_collection()
 
@@ -270,7 +274,8 @@ class TestCollection_get_collection(object):
         mock_session = mock.MagicMock(**attrs)
         c._meta_data['bigip']._meta_data =\
             {'icr_session': mock_session,
-             'hostname': 'TESTDOMAINNAME'}
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
         c.generation = 0
         with pytest.raises(UnregisteredKind) as UKEIO:
             c.get_collection()
@@ -332,16 +337,16 @@ class TestResource_load(object):
     def test_success(self):
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
-        mockuri = "https://localhost/mgmt/tm/ltm/nat/~Common~test_load"
+        mockuri = "https://localhost:443/mgmt/tm/ltm/nat/~Common~test_load"
         attrs = {'get.return_value':
                  MockResponse({u"generation": 0, u"selfLink": mockuri})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data =\
             {'icr_session': mock_session,
-             'hostname': 'TESTDOMAINNAME'}
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
         r.generation = 0
         r.load(partition='Common', name='test_load')
-        r.raw
         assert r.selfLink == mockuri
 
 
@@ -349,7 +354,7 @@ class TestResource_exists(object):
     def test_loadable(self):
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
-        mockuri = "https://localhost/mgmt/tm/ltm/nat/~Common~test_exists"
+        mockuri = "https://localhost:443/mgmt/tm/ltm/nat/~Common~test_exists"
         attrs = {'get.return_value':
                  MockResponse({u"generation": 0, u"selfLink": mockuri})}
         mock_session = mock.MagicMock(**attrs)
