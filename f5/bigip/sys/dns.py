@@ -41,11 +41,9 @@ class Dns(UnnamedResourceMixin, Resource):
     """
     def __init__(self, sys):
         super(Dns, self).__init__(sys)
-        endpoint = self.__class__.__name__.lower()
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] = 'tm:sys:dns:dnsstate'
-        self._meta_data['uri'] =\
-            self._meta_data['container']._meta_data['uri'] + endpoint + '/'
+        self._meta_data['uri'] = self._get_meta_data_uri()
 
 
 
