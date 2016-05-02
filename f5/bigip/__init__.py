@@ -23,9 +23,10 @@ from f5.bigip.net import Net
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.shared import Shared
 from f5.bigip.sys import Sys
+from f5.bigip.transaction import Transactions
 from icontrol.session import iControlRESTSession
 
-allowed_lazy_attributes = [Cm, Ltm, Net, Shared, Sys]
+allowed_lazy_attributes = [Cm, Ltm, Net, Shared, Sys, Transactions]
 
 
 class BigIP(OrganizingCollection):
