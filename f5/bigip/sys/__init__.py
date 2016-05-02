@@ -31,6 +31,7 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.sys.application import Applications
 from f5.bigip.sys.config import Config
 from f5.bigip.sys.db import Dbs
+from f5.bigip.sys.dns import Dns
 from f5.bigip.sys.failover import Failover
 from f5.bigip.sys.folder import Folders
 from f5.bigip.sys.global_settings import Global_Settings
@@ -50,4 +51,5 @@ class Sys(OrganizingCollection):
             Global_Settings,
             Ntp,
             Failover,
+            Dns
         ]
