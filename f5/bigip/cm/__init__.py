@@ -25,12 +25,12 @@ GUI Path
 REST Kind
     ``tm:cm:*``
 """
-
-
 from f5.bigip.cm.device import Devices
 from f5.bigip.cm.device_group import Device_Groups
 from f5.bigip.cm.sync_status import Sync_Status
 from f5.bigip.cm.traffic_group import Traffic_Groups
+from f5.bigip.cm.trust import Add_To_Trust
+from f5.bigip.cm.trust import Remove_From_Trust
 from f5.bigip.resource import OrganizingCollection
 
 
@@ -39,11 +39,12 @@ class Cm(OrganizingCollection):
     def __init__(self, bigip):
         super(Cm, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
-            Devices, Device_Groups, Traffic_Groups, Sync_Status
+            Devices, Device_Groups, Traffic_Groups, Sync_Status, Add_To_Trust,
+            Remove_From_Trust
         ]
 
     def sync(self, device_group_name):
-        '''Sync the configuration of the device-group.
+        """Sync the configuration of the device-group.
 
         Execute the run command via the iControl REST session with the
         config-sync to group device-group options.  Any exceptions triggered
@@ -51,7 +52,7 @@ class Cm(OrganizingCollection):
 
         :param device_group_name: Name of the device group to sync.
         :type device_group_name: str
-        '''
+        """
         data = {
             'command': 'run',
             'options': [{'config-sync': 'to-group %s' % device_group_name}]

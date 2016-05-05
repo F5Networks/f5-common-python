@@ -19,6 +19,21 @@
 from f5.sdk_exception import F5SDKError
 
 
+class InvalidCommand(F5SDKError):
+    """Raise this if command argument supplied is invalid."""
+    pass
+
+
+class UnsupportedMethod(F5SDKError):
+    """Raise this if a method supplied is unsupported."""
+    pass
+
+
+class LazyAttributesRequired(F5SDKError):
+    """Raised when a object accesses a lazy attribute that is not listed"""
+    pass
+
+
 class ToDictMixin(object):
     """Convert an object's attributes to a dictionary"""
     traversed = {}
@@ -55,11 +70,6 @@ class ToDictMixin(object):
             return self._traverse_dict(value.__dict__)
         else:
             return value
-
-
-class LazyAttributesRequired(F5SDKError):
-    """Raised when a object accesses a lazy attribute that is not listed"""
-    pass
 
 
 class LazyAttributeMixin(object):
@@ -122,15 +132,13 @@ class UnnamedResourceMixin(object):
     `tm:sys:global-settings:global-settingsstate` and the URI does not
     match the kind.
     '''
-    class UnsupportedMethod(F5SDKError):
-        pass
 
     def create(self, **kwargs):
         '''Create is not supported for unnamed resources
 
         :raises: UnsupportedOperation
         '''
-        raise self.UnsupportedMethod(
+        raise UnsupportedMethod(
             "%s does not support the create method" % self.__class__.__name__
         )
 
@@ -139,7 +147,7 @@ class UnnamedResourceMixin(object):
 
         :raises: UnsupportedOperation
         '''
-        raise self.UnsupportedMethod(
+        raise UnsupportedMethod(
             "%s does not support the delete method" % self.__class__.__name__
         )
 
@@ -164,3 +172,76 @@ class UnnamedResourceMixin(object):
     def _get_meta_data_uri(self):
         endpoint = self.__class__.__name__.lower()
         return self._meta_data['container']._meta_data['uri'] + endpoint + '/'
+
+    def _get_meta_data_uri_hyphens(self):
+        endpoint = self.__class__.__name__.lower().replace('_', '-')
+        return self._meta_data['container']._meta_data['uri'] + endpoint + '/'
+
+
+class CommandExecutionMixin(object):
+    """This adds command execution option on the objects.
+
+    These objects do not support create, delete, load, and require
+    a separate method of execution. Commands do not have
+    direct mapping to an HTTP method so usage of POST
+    and an absolute URI is required.
+
+    """
+
+    def create(self, **kwargs):
+        '''Create is not supported for command execution
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        '''Delete is not supported for command execution
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the delete method" % self.__class__.__name__
+        )
+
+    def load(self, **kwargs):
+        '''Load is not supported for command execution
+
+                :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the load method" % self.__class__.__name__
+        )
+
+    def exec_cmd(self, command, **kwargs):
+
+        cmds = ['cp', 'generate', 'install', 'load', 'mv', 'publish',
+                'reboot', 'restart', 'reset-stats', 'run', 'save',
+                'send-mail', 'start', 'stop']
+
+        if command not in cmds:
+            error_message = "The command value {0} does not exist" \
+                            "Valid commands are {1}".format(command, cmds)
+            raise InvalidCommand(error_message)
+
+        return self._exec_cmd(command, **kwargs)
+
+    def _exec_cmd(self, command, **kwargs):
+        '''Create a new method as command has specific requirements.
+
+        There is a handful of the TMSH global commands supported,
+        so this method requires them as a parameter.
+
+        :raises: InvalidCommand
+        '''
+
+        kwargs['command'] = command
+        requests_params = self._handle_requests_params(kwargs)
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        response = session.post(
+            self._meta_data['uri'], json=kwargs, **requests_params)
+        self._local_update(response.json())
+
+        return self

@@ -15,8 +15,12 @@
 import json
 import pytest
 
+
+from f5.bigip.mixins import CommandExecutionMixin
+from f5.bigip.mixins import InvalidCommand
 from f5.bigip.mixins import ToDictMixin
 from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.mixins import UnsupportedMethod
 
 
 class MixinTestClass(ToDictMixin):
@@ -108,10 +112,32 @@ def test_TestClass_Basic():
 class TestUnnamedResourceMixin(object):
     def test_create_raises(self):
         unnamed_resource = UnnamedResourceMixin()
-        with pytest.raises(UnnamedResourceMixin.UnsupportedMethod):
+        with pytest.raises(UnsupportedMethod):
             unnamed_resource.create()
 
     def test_delete_raises(self):
         unnamed_resource = UnnamedResourceMixin()
-        with pytest.raises(UnnamedResourceMixin.UnsupportedMethod):
+        with pytest.raises(UnsupportedMethod):
             unnamed_resource.create()
+
+
+class TestCommandExecutionMixin(object):
+    def test_create_raises(self):
+        command_resource = CommandExecutionMixin()
+        with pytest.raises(UnsupportedMethod):
+            command_resource.create()
+
+    def test_delete_raises(self):
+        command_resource = CommandExecutionMixin()
+        with pytest.raises(UnsupportedMethod):
+            command_resource.delete()
+
+    def test_load_raises(self):
+        command_resource = CommandExecutionMixin()
+        with pytest.raises(UnsupportedMethod):
+            command_resource.load()
+
+    def test_invalid_command_raises(self):
+        command_resource = CommandExecutionMixin()
+        with pytest.raises(InvalidCommand):
+            command_resource.exec_cmd('foo', name='test')

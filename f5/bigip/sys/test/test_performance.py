@@ -16,7 +16,7 @@
 import mock
 import pytest
 
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.mixins import UnsupportedMethod
 from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.sys.performance import Performance
 
@@ -38,7 +38,7 @@ class TestAllStats(object):
     def test_create_raises(self):
         perf = FakePerformance()
         allstats = perf.all_stats
-        with pytest.raises(UnnamedResourceMixin.UnsupportedMethod):
+        with pytest.raises(UnsupportedMethod):
             allstats.create()
 
     def test_update_raises(self):
@@ -50,5 +50,5 @@ class TestAllStats(object):
     def test_delete_raises(self):
         perf = FakePerformance()
         allstats = perf.all_stats
-        with pytest.raises(UnnamedResourceMixin.UnsupportedMethod):
+        with pytest.raises(UnsupportedMethod):
             allstats.delete()
