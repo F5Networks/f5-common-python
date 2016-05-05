@@ -532,6 +532,7 @@ class Resource(ResourceBase):
         :param selfLinkuri: the server provided selfLink (contains localhost)
         :raises: URICreationCollision
         """
+
         # netloc local alias
         uri = urlparse.urlsplit(self._meta_data['bigip']._meta_data['uri'])
 
@@ -575,7 +576,8 @@ class Resource(ResourceBase):
         # Post-process the response
         self._local_update(response.json())
 
-        if self.kind != self._meta_data['required_json_kind']:
+        if self.kind != self._meta_data['required_json_kind'] \
+           and self.kind != "tm:transaction:commandsstate":
             error_message = "For instances of type '%r' the corresponding"\
                 " kind must be '%r' but creation returned JSON with kind: %r"\
                 % (self.__class__.__name__,
