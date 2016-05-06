@@ -14,7 +14,9 @@
 #
 #
 
+from f5.bigip.mixins import DeviceMixin
 from f5.common import pollster
+from f5.managers.device_group_manager import DeviceGroupManager
 
 
 class BigIPDeviceNotInExpectedState(Exception):
@@ -29,11 +31,11 @@ class UnexpectedBigIPState(Exception):
     pass
 
 
-class ClusterManager(object):
+class ClusterManager(DeviceMixin):
     '''Manage a cluster of BigIPs.
 
     This is accomplished with REST URI calls only, but some operations are
-    only permitted through the CLI (such as adding peers via cm/trust-domain).
+    only permitted via tmsh commands (such as adding cm/trust-domain peers).
     We get around this issue by deploying iApps (sys/application).
     '''
 
@@ -41,70 +43,127 @@ class ClusterManager(object):
     sync_status_entry = 'https://localhost/mgmt/tm/cm/sync-status/0'
 
     def __init__(self, bigips, cluster_name, partition, cluster_type):
-        if len(bigips) > 4:
+        if len(bigips) > 8:
             raise ClusterNotSupported(
                 'The number of devices to cluster is not supported.'
             )
         self.bigips = bigips
-        self.bigip_trust_root = self.bigips[0]
+        self.root_bigip = self.bigips[0]
         self.peers = self.bigips[1:]
         self.cluster_name = cluster_name
-        self.device_iapp_name = 'device_iapp'
-        self.cluster_iapp_name = 'cluster_iapp'
+        self.peer_iapp_prefix = 'cluster_iapp'
         self.partition = partition
         self.cluster_type = cluster_type
+        self.device_group = DeviceGroupManager(
+            cluster_name, self.root_bigip, partition
+        )
 
-    def cluster_bigips(self):
+    def create_bigip_cluster(self):
+        '''Cluster the BigIP devices given.'''
+        self._ensure_bigips_active_licensed()
+        print('Creating cluster group...')
+        self._create_device_cluster()
+        if self.cluster_type == 'sync-failover':
+            print('Ensure cluster has settled into active/standby...')
+            self._devices_in_standby()
+        elif self.cluster_type == 'sync-only':
+            print('Ensure devices are all in sync and active...')
+        self.root_bigip.cm.sync(self.cluster_name)
+        self._all_devices_in_sync()
+
+    def teardown_bigip_cluster(self):
+        '''Teardown cluster of BigIP devices.'''
+
+        if self.cluster_type == 'sync-failover':
+            self._devices_in_standby()
+        self.root_bigip.cm.sync(self.cluster_name)
+        self.device_group.teardown_device_group(self.bigips)
+        # remove other devices from each device
+        for peer in self.peers:
+            self._modify_trusted_peer(
+                peer, self._get_delete_peer_command, peer
+            )
+
+    def _ensure_bigips_active_licensed(self):
+        '''All devices should be in an active/licensed state.'''
         if len(self._get_bigips_by_activation_state('active')) != \
                 len(self.bigips):
             raise BigIPDeviceNotInExpectedState(
                 'One or more BigIP devices was not in a active/licensed state.'
             )
-        print('Adding trusted peers...')
-        self._add_peers()
-        print('Creating cluster group...')
-        self._create_cluster_group()
-        if self.cluster_type == 'sync-failover':
-            print('Ensure cluster has settled into active/standby...')
-            self._ensure_active_standby()
-        elif self.cluster_type == 'sync-only':
-            print('Ensure devices are all in sync and active...')
-        self.bigip_trust_root.cm.sync(self.cluster_name)
-        self._all_devices_in_sync()
 
-    def _add_peers(self):
-        peer_cmds = []
-        for peer in self.peers:
-            peer_cmds.append(self._get_add_peer_command(peer))
-        iapp_actions = self.iapp_actions.copy()
-        iapp_actions['definition']['implementation'] = '\n'.join(peer_cmds)
-        self._deploy_iapp(self.cluster_iapp_name, iapp_actions)
+    def scale_cluster_up(self, bigip):
+        '''Scale cluster up by one device.
 
-    def _create_cluster_group(self):
-        self.bigip_trust_root.cm.device_groups.device_group.create(
-            name=self.cluster_name,
-            partition=self.partition,
-            type=self.cluster_type
+        :param bigip: bigip object -- bigip to add
+        '''
+
+        if len(self.bigips) == 8:
+            raise ClusterNotSupported(
+                'The number of devices to cluster is not supported.'
+            )
+        self._modify_trusted_peer(
+            bigip, self._get_add_peer_command, self.root_bigip
         )
-        for bigip in self.bigips:
-            self._add_device_to_device_group(bigip)
+        self.device_group.scale_up_device_group(bigip)
+        self.bigips.append(bigip)
 
-    def _ensure_active_standby(self):
-        self._devices_in_standby()
+    def scale_cluster_down(self, bigip):
+        '''Scale cluster down by one device.
+
+        :param bigip: bigip object -- bigip to delete
+        '''
+
+        self.device_group.scale_down_device_group(bigip)
+        self._modify_trusted_peer(
+            bigip, self._get_delete_peer_command, self.root_bigip
+        )
+        self.bigips.remove(bigip)
+
+    def _create_device_cluster(self):
+        '''Deploy an iapp to add trusted peers, then create device group.'''
+
+        for peer in self.peers:
+            self._modify_trusted_peer(
+                peer, self._get_add_peer_command, self.root_bigip
+            )
+        self._all_devices_in_sync()
+        self.device_group.create_device_group(self.bigips, self.cluster_type)
+
+    def _modify_trusted_peer(
+            self, peer, mod_peer_func, deploy_bigip
+    ):
+        '''Modify a trusted peer device.
+
+        :param peer: bigip object -- peer to modify
+        :param mod_peer_func: function -- function to call to modify peer
+        '''
+
+        peer_info = self._get_device_info(peer)
+        iapp_name = '%s_%s' % (self.peer_iapp_prefix, peer_info.name)
+        mod_peer_cmd = mod_peer_func(peer)
+        iapp_actions = self.iapp_actions.copy()
+        iapp_actions['definition']['implementation'] = mod_peer_cmd
+        self._deploy_iapp(iapp_name, iapp_actions, deploy_bigip)
+        # Once the command has been run via the iapp, delete the iapp
+        self._delete_iapp(iapp_name, deploy_bigip)
 
     @pollster.poll_by_method
     def _all_devices_in_sync(self):
+        '''Wait until all devices have failover status of 'In Sync'.'''
         assert len(self._get_bigips_by_failover_status('In Sync')) == \
             len(self.bigips)
 
     @pollster.poll_by_method
     def _devices_in_standby(self):
+        '''Wait until n-1 devices in 'standby' activation state.'''
         standby_bigips = \
             self._get_bigips_by_activation_state('standby')
         assert len(standby_bigips) == (len(self.bigips)-1)
         return standby_bigips
 
     def _get_bigips_by_failover_status(self, status):
+        '''Get a list of bigips by failover status.'''
         bigips = []
         for bigip in self.bigips:
             sync_status = bigip.cm.sync_status
@@ -112,41 +171,29 @@ class ClusterManager(object):
             current_status = (sync_status.entries[self.sync_status_entry]
                               ['nestedStats']['entries']['status']
                               ['description'])
-            print(current_status)
             if status == current_status:
                 bigips.append(bigip)
         return bigips
 
     def _get_bigips_by_activation_state(self, state):
+        '''Get a list of bigips by activation statue.'''
         bigips = []
         for bigip in self.bigips:
-            reg = bigip.shared.licensing.registration.load()
             act = bigip.cm.devices.device.load(
                 name=self._get_device_info(bigip).name,
                 partition=self.partition
             )
-            if reg.licensedVersion != '' and act.failoverState == state:
+            if act.failoverState == state:
                 bigips.append(bigip)
         return bigips
 
-    def teardown_cluster(self):
-        self._remove_iapp(self.cluster_iapp_name)
-        if self.cluster_type == 'sync-failover':
-            self._devices_in_standby()
-        self.bigip_trust_root.cm.sync(self.cluster_name)
-        dg = self.bigip_trust_root.cm.device_groups.device_group.load(
-            name=self.cluster_name, partition=self.partition
-        )
-        for bigip in self.bigips:
-            bigip_info = self._get_device_info(bigip)
-            dgd = dg.devices_s.devices.load(
-                name=bigip_info.name, partition=self.partition
-            )
-            dgd.delete()
-        dg.delete()
+    def _delete_iapp(self, iapp_name, deploy_bigip):
+        '''Delete an iapp service and template on the root device.
 
-    def _remove_iapp(self, iapp_name):
-        iapp = self.bigip_trust_root.sys.applications
+        :param iapp_name: str -- name of iapp
+        '''
+
+        iapp = deploy_bigip.sys.applications
         iapp_service = iapp.services.service.load(
             name=iapp_name, partition=self.partition
         )
@@ -156,43 +203,42 @@ class ClusterManager(object):
         )
         iapp_template.delete()
 
-    def _get_device_info(self, bigip):
-        coll = bigip.cm.devices.get_collection()
-        device = [device for device in coll if device.selfDevice == 'true']
-        assert len(device) == 1
-        return device[0]
+    def _deploy_iapp(self, iapp_name, actions, deploy_bigip):
+        '''Deploy iapp on the root device.
 
-    def _add_device_to_device_group(self, bigip):
-        bigip_info = self._get_device_info(bigip)
-        poll_for_dg = pollster.poll_by_method(
-            bigip.cm.device_groups.device_group.load
-        )
-        dg = poll_for_dg(
-            name=self.cluster_name, partition=self.partition
-        )
-        dg.devices_s.devices.create(
-            name=bigip_info.name, partition=self.partition
-        )
-        root_dg = self.bigip_trust_root.cm.device_groups.device_group.load(
-            name=self.cluster_name, partition=self.partition
-        )
-        trust_root_poll = pollster.poll_by_method(
-            root_dg.devices_s.devices.load
-        )
-        trust_root_poll(name=bigip_info.name, partition=self.partition)
+        :param iapp_name: str -- name of iapp
+        :param actions: dict -- actions definition of iapp sections
+        '''
 
-    def _deploy_iapp(self, iapp_name, actions):
-        tmpl = self.bigip_trust_root.sys.applications.templates.template
-        serv = self.bigip_trust_root.sys.applications.services.service
+        tmpl = deploy_bigip.sys.applications.templates.template
+        serv = deploy_bigip.sys.applications.services.service
         tmpl.create(name=iapp_name, partition=self.partition, actions=actions)
         serv.create(
             name=iapp_name, partition=self.partition, template=iapp_name
         )
 
     def _get_add_peer_command(self, peer):
+        '''Get tmsh command to add a trusted peer.
+
+        :param peer: bigip object -- peer device
+        :returns: str -- tmsh command to add trusted peer
+        '''
+
         peer_device = self._get_device_info(peer)
         add_peer_cmd = 'tmsh::modify cm trust-domain Root ca-devices add ' \
             '\\{{ {0} \\}} name {1} username admin password admin'.format(
                 peer_device.managementIp, peer_device.name
             )
         return add_peer_cmd
+
+    def _get_delete_peer_command(self, peer):
+        '''Get tmsh command to delete a trusted peer.
+
+        :param peer: bigip object -- peer device
+        :returns: str -- tmsh command to delete trusted peer
+        '''
+
+        peer_device = self._get_device_info(peer)
+        del_peer_cmd = 'tmsh::modify cm trust-domain Root ca-devices delete ' \
+            '\\{ %s \\}' % peer_device.name
+        return del_peer_cmd
