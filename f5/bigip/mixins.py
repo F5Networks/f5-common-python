@@ -164,3 +164,19 @@ class UnnamedResourceMixin(object):
     def _get_meta_data_uri(self):
         endpoint = self.__class__.__name__.lower()
         return self._meta_data['container']._meta_data['uri'] + endpoint + '/'
+
+
+class DeviceMixin(object):
+    '''Class to manage BigIP device cluster in a general way.'''
+
+    def _get_device_info(self, bigip):
+        '''Get device information about a specific BigIP device.
+
+        :param bigip: bigip object --- device to inspect
+        :returns: bigip object
+        '''
+
+        coll = bigip.cm.devices.get_collection()
+        device = [device for device in coll if device.selfDevice == 'true']
+        assert len(device) == 1
+        return device[0]
