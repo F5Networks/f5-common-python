@@ -47,8 +47,7 @@ class Bigip_Failover_State(UnnamedResourceMixin, Resource):
         super(Bigip_Failover_State, self).__init__(shared)
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] = ''
-        uri = self._get_meta_data_uri()
-        self._meta_data['uri'] = uri.replace('_', '-')
+        self._meta_data['uri'] = self._get_meta_data_uri_hyphens()
 
     def update(self, **kwargs):
         '''Update is not supported for BIG-IP® failover state.

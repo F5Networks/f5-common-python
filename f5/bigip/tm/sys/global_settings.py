@@ -44,9 +44,7 @@ class Global_Settings(UnnamedResourceMixin, Resource):
     """
     def __init__(self, sys):
         super(Global_Settings, self).__init__(sys)
-        endpoint = self.__class__.__name__.lower().replace('_', '-')
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
             'tm:sys:global-settings:global-settingsstate'
-        self._meta_data['uri'] =\
-            self._meta_data['container']._meta_data['uri'] + endpoint + '/'
+        self._meta_data['uri'] = self._get_meta_data_uri_hyphens()
