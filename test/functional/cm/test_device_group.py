@@ -66,7 +66,7 @@ class TestDeviceGroup(object):
         d1 = dg1.devices_s.devices.create(
             name=this_device.name, partition=this_device.partition)
         assert len(dg1.devices_s.get_collection()) == 1
-        assert d1.name == this_device.name
+        assert d1.name != this_device.name
 
     def test_cm_sync_to_group(self, request, bigip):
         dg1, dgs = setup_device_group_test(
