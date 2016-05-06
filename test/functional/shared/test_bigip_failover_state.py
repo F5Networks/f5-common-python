@@ -14,14 +14,16 @@
 
 import pytest
 
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.mixins import UnsupportedMethod
 
 
+@pytest.mark.skipif(pytest.config.getoption('--release') != '12.0.0',
+                    reason='Needs v12 TMOS to pass')
 class TestBigIPFailoverState(object):
     def test_load(self, request, bigip):
         a = bigip.shared.bigip_failover_state.load()
         assert hasattr(a, 'generation')
 
     def test_update(self, request, bigip):
-        with pytest.raises(UnnamedResourceMixin.UnsupportedMethod):
+        with pytest.raises(UnsupportedMethod):
             bigip.shared.bigip_failover_state.update()

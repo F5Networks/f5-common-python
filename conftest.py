@@ -24,6 +24,11 @@ def pytest_addoption(parser):
                      default="admin")
     parser.addoption("--password", action="store", help="BIG-IP REST password",
                      default="admin")
+    parser.addoption("--peer", action="store",
+                     help="Peer BIG-IP hostname or IP address", default='none')
+    parser.addoption("--release", action="store",
+                     help="TMOS version, in dotted format, eg. 12.0.0",
+                     default='11.6.0')
 
 
 @pytest.fixture
@@ -46,6 +51,23 @@ def bigip(opt_bigip, opt_username, opt_password, scope="module"):
     '''bigip fixture'''
     b = BigIP(opt_bigip, opt_username, opt_password)
     return b
+
+
+@pytest.fixture
+def opt_release(request):
+    return request.config.getoption("--release")
+
+
+@pytest.fixture
+def opt_peer(request):
+    return request.config.getoption("--peer")
+
+
+@pytest.fixture
+def peer(opt_peer, opt_username, opt_password, scope="module"):
+    '''peer bigip fixture'''
+    p = BigIP(opt_peer, opt_username, opt_password)
+    return p
 
 
 @pytest.fixture
