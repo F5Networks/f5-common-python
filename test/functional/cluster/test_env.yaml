@@ -1,0 +1,12 @@
+bigip1:
+    netloc: 10.190.20.202
+    username: admin
+    password: admin
+bigip2:
+    netloc: 10.190.20.203
+    username: admin
+    password: admin
+bigip3:
+    netloc: 10.190.20.204
+    username: admin
+    password: admin
