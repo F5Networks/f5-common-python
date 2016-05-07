@@ -31,6 +31,7 @@ from f5.bigip.cm.device import Devices
 from f5.bigip.cm.device_group import Device_Groups
 from f5.bigip.cm.sync_status import Sync_Status
 from f5.bigip.cm.traffic_group import Traffic_Groups
+from f5.bigip.cm.trust_domain import Trust_Domains
 from f5.bigip.resource import OrganizingCollection
 
 
@@ -39,11 +40,11 @@ class Cm(OrganizingCollection):
     def __init__(self, bigip):
         super(Cm, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
-            Devices, Device_Groups, Traffic_Groups, Sync_Status
+            Devices, Device_Groups, Traffic_Groups, Sync_Status, Trust_Domains
         ]
 
-    def sync(self, device_group_name):
-        '''Sync the configuration of the device-group.
+    def sync_to_group(self, device_group_name):
+        '''Sync the configruation of this device to the other group members.
 
         Execute the run command via the iControl REST session with the
         config-sync to group device-group options.  Any exceptions triggered
@@ -54,7 +55,23 @@ class Cm(OrganizingCollection):
         '''
         data = {
             'command': 'run',
-            'options': [{'config-sync': 'to-group %s' % device_group_name}]
+            'utilCmdArgs': 'run cm config-sync to-group %s' %
+            device_group_name
+        }
+        icr_session = self._meta_data['container']._meta_data['icr_session']
+        icr_session.post(self._meta_data['uri'], json=data)
+
+    def sync_from_group(self, device_group_name):
+        '''Sync the configuration of the group to this device.
+
+        :param device_group_name: str -- name of the device group
+
+        '''
+
+        data = {
+            'command': 'run',
+            'utilCmdArgs': 'run cm config-sync from-group %s' %
+            device_group_name
         }
         icr_session = self._meta_data['container']._meta_data['icr_session']
         icr_session.post(self._meta_data['uri'], json=data)
