@@ -14,7 +14,7 @@
 #
 #
 
-import functools
+from functools import wraps
 import time
 
 
@@ -22,7 +22,7 @@ class MaximumAttemptsReached(Exception):
     pass
 
 
-def poll_by_method(method, attempts=30, interval=2):
+def poll_by_method(method, attempts=30, interval=5):
     '''Poll with a given method for a specified number of times.
 
     :param method: callable to invoke in loop -- if no exception is raised
@@ -31,13 +31,14 @@ def poll_by_method(method, attempts=30, interval=2):
     :param interval: seconds to wait before next attempt
     '''
 
-    @functools.wraps(method)
+    @wraps(method)
     def poll(*args, **kwargs):
         for attempt in range(attempts):
             try:
                 return method(*args, **kwargs)
             except Exception:
+                if attempt == attempts-1:
+                    raise
                 time.sleep(interval)
                 continue
-        raise MaximumAttemptsReached('Polled method maximum number of times')
     return poll

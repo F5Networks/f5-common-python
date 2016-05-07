@@ -1,6 +1,5 @@
 # coding=utf-8
 #
-"""Classes and functions for configuring BIG-IP"""
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Classes and functions for configuring BIG-IP"""
 
 from f5.bigip.cm.autodeploy import Autodeploy
 from f5.bigip.resource import OrganizingCollection
