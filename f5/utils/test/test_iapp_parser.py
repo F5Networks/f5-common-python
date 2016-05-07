@@ -544,7 +544,7 @@ def test_attr_whitespace_rm_error():
     prsr = ip.IappParser(whitespace_rm_templ)
     with pytest.raises(ip.MalformedTCLListException) as ex:
         prsr.parse_template()
-    assert 'TCL list for "requires-modules" is malformed. If no elements are ' \
+    assert 'TCL list for "requires-modules" is malformed. If no elements are '\
         'needed "none" should be used without curly braces.' in \
         ex.value.message
 
