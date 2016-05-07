@@ -14,7 +14,7 @@
 #
 #
 
-import functools
+from functools import wraps
 import time
 
 
@@ -31,7 +31,7 @@ def poll_by_method(method, attempts=30, interval=2):
     :param interval: seconds to wait before next attempt
     '''
 
-    @functools.wraps(method)
+    @wraps(method)
     def poll(*args, **kwargs):
         for attempt in range(attempts):
             try:
