@@ -248,9 +248,9 @@ class CommandExecutionMixin(object):
 
 
 class DeviceMixin(object):
-    '''Class to manage BigIP device cluster in a general way.'''
+    '''Manage BigIP device cluster in a general way.'''
 
-    def _get_device_info(self, bigip):
+    def get_device_info(self, bigip):
         '''Get device information about a specific BigIP device.
 
         :param bigip: bigip object --- device to inspect
