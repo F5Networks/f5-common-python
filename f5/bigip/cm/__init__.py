@@ -55,7 +55,7 @@ class Cm(OrganizingCollection):
         '''
         data = {
             'command': 'run',
-            'utilCmdArgs': 'run cm config-sync to-group %s' %
+            'utilCmdArgs': 'config-sync to-group %s' %
             device_group_name
         }
         icr_session = self._meta_data['container']._meta_data['icr_session']
@@ -70,7 +70,7 @@ class Cm(OrganizingCollection):
 
         data = {
             'command': 'run',
-            'utilCmdArgs': 'run cm config-sync from-group %s' %
+            'utilCmdArgs': 'config-sync from-group %s' %
             device_group_name
         }
         icr_session = self._meta_data['container']._meta_data['icr_session']
