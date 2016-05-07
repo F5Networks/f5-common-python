@@ -20,7 +20,7 @@
 from icontrol.session import iControlRESTSession
 
 from f5.bigip.cm import Cm
-from f5.bigip.resource import OrganizingCollection
+from f5.bigip.resource import PathElement
 from f5.bigip.shared import Shared
 from f5.bigip.tm.auth import Auth as TmAuth
 from f5.bigip.tm.cm import Cm as TmCm
@@ -32,7 +32,7 @@ from f5.bigip.tm import Tm
 from f5.bigip.tm.transaction import Transactions
 
 
-class ManagementRoot(OrganizingCollection):
+class ManagementRoot(PathElement):
     """An interface to a single BIG-IP"""
     def __init__(self, hostname, username, password, **kwargs):
         timeout = kwargs.pop('timeout', 30)
@@ -53,6 +53,8 @@ class ManagementRoot(OrganizingCollection):
             'local_ip': None,
             'bigip': self,
             'icontrol_version': icontrol_version,
+            'username': username,
+            'password': password
         }
 
     @property
