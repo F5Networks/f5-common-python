@@ -20,17 +20,22 @@ from f5.bigip.mixins import DeviceMixin
 class TrustedPeerManager(DeviceMixin):
     '''Manages the trusted peers of a BigIP device.'''
 
+    def __init__(self, trust_name, partition):
+        self.trust_name = trust_name
+        self.partition = partition
+
     def add_trusted_peers(self, root_bigip, peers):
         for peer in peers:
             self._modify_trusted_peer(peer, self._get_add_peer_cmd, root_bigip)
 
     def remove_trusted_peers(self, bigip):
-        peer_list = self._get_trusted_peer_list(bigip)
+        tds = bigip.cm.trust_domains.trust_domain.load(name=self.trust_name)
+        peer_list = tds.caDevices
         for peer in peer_list:
-            self._modify_trusted_peer(peer, self._get_delete_peer_cmd, bigip)
-
-    def _get_trusted_peer_list(bigip):
-        pass
+            peer_name = peer.replace('/%s/' % self.partition, '')
+            self._modify_trusted_peer(
+                peer_name, self._get_delete_peer_cmd, bigip
+            )
 
     def _modify_trusted_peer(
             self, peer, mod_peer_func, deploy_bigip
@@ -42,8 +47,7 @@ class TrustedPeerManager(DeviceMixin):
         :param mod_peer_func: function -- function to call to modify peer
         '''
 
-        peer_info = self.get_device_info(peer)
-        iapp_name = '%s_%s' % (self.peer_iapp_prefix, peer_info.name)
+        iapp_name = '%s_add_peer' % (self.peer_iapp_prefix)
         mod_peer_cmd = mod_peer_func(peer)
         iapp_actions = self.iapp_actions.copy()
         iapp_actions['definition']['implementation'] = mod_peer_cmd
@@ -93,13 +97,12 @@ class TrustedPeerManager(DeviceMixin):
                 peer_device.managementIp, peer_device.name
             )
 
-    def _get_delete_peer_cmd(self, peer):
+    def _get_delete_peer_cmd(self, peer_name):
         '''Get tmsh command to delete a trusted peer.
 
         :param peer: bigip object -- peer device
         :returns: str -- tmsh command to delete trusted peer
         '''
 
-        peer_device = self.get_device_info(peer)
         return 'tmsh::modify cm trust-domain Root ca-devices delete ' \
-            '\\{ %s \\}' % peer_device.names
+            '\\{ %s \\}' % peer_name
