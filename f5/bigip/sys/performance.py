@@ -39,7 +39,7 @@ class Performance(Collection):
         super(Performance, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [All_Stats]
         self._meta_data['uri'] = \
-            self._get_meta_data_uri() + "performance/"
+            self._meta_data['container']._meta_data['uri'] + "performance/"
 
     def get_collection(self):
         '''Performance collections are not proper BIG-IP® collection objects.
