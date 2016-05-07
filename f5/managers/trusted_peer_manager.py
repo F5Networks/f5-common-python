@@ -20,9 +20,12 @@ from f5.bigip.mixins import DeviceMixin
 class TrustedPeerManager(DeviceMixin):
     '''Manages the trusted peers of a BigIP device.'''
 
+    iapp_actions = {'definition': {'implementation': None, 'presentation': ''}}
+
     def __init__(self, trust_name, partition):
         self.trust_name = trust_name
         self.partition = partition
+        self.peer_iapp_prefix = 'cluster_iapp'
 
     def add_trusted_peers(self, root_bigip, peers):
         for peer in peers:

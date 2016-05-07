@@ -31,8 +31,6 @@ class ClusterManager(DeviceMixin):
     We get around this issue by deploying iApps (sys/application).
     '''
 
-    iapp_actions = {'definition': {'implementation': None, 'presentation': ''}}
-
     def __init__(self, bigips, cluster_name, partition, cluster_type):
         if len(bigips) > 8:
             raise ClusterNotSupported(
@@ -42,12 +40,12 @@ class ClusterManager(DeviceMixin):
         self.root_bigip = self.bigips[0]
         self.peers = self.bigips[1:]
         self.cluster_name = cluster_name
-        self.peer_iapp_prefix = 'cluster_iapp'
         self.partition = partition
         self.cluster_type = cluster_type
         self.dgm = dgm(
             cluster_name, self.root_bigip, bigips, partition, cluster_type
         )
+        self.peer_mgr = peer_mgr('Root', partition)
 
     def create_cluster(self):
         print('Checking state of devices to be clustered...')

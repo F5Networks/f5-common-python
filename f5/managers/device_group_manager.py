@@ -55,13 +55,12 @@ class DeviceGroupManager(DeviceMixin):
             device.sys.config.save()
         self.check_device_group_status()
 
-    @pollster.poll_by_method
     def check_device_group_status(self):
         if self.device_group_type == 'sync-failover':
             self._ensure_active_standby()
         elif self.device_group_type == 'sync-only':
             self.ensure_devices_active_licensed()
-        self._ensure_all_devices_in_sync(self.root_bigip)
+        self._ensure_all_devices_in_sync()
 
     def scale_up_device_group(self, device):
         '''Scale device group up by one device
@@ -99,7 +98,6 @@ class DeviceGroupManager(DeviceMixin):
             name=self.device_group_name, partition=self.partition
         )
         dg.delete()
-        self.root_device.cm.sync(self.device_group_name)
         for device in self.devices:
             try:
                 dg = self._get_device_group(device)
@@ -160,7 +158,7 @@ class DeviceGroupManager(DeviceMixin):
 
     @pollster.poll_by_method
     def _ensure_device_active(self, device):
-        device.cm.sync(self.device_group_name)
+        device.cm.sync_to_group(self.device_group_name)
         act = device.cm.devices.device.load(
             name=self.get_device_info(device).name,
             partition=self.partition
@@ -170,15 +168,13 @@ class DeviceGroupManager(DeviceMixin):
                 'A device in the cluster was not in the Active state.'
             )
 
-    @pollster.poll_by_method
     def _ensure_active_standby(self):
-        self.root_device.cm.sync(self.device_group_name)
+        self.root_device.cm.sync_to_group(self.device_group_name)
         self._ensure_devices_standby()
         self._all_devices_in_sync()
 
-    @pollster.poll_by_method
     def _ensure_all_devices_in_sync(self):
-        self.root_device.cm.sync(self.device_group_name)
+        self.root_device.cm.sync_to_group(self.device_group_name)
         self._all_devices_in_sync()
 
     @pollster.poll_by_method
@@ -186,7 +182,7 @@ class DeviceGroupManager(DeviceMixin):
         '''Ensure one device is active and others are standby.'''
 
         self._devices_in_standby()
-        if not self._get_devices_by_activation_state():
+        if not self._get_devices_by_activation_state('active'):
             raise UnexpectedClusterState(
                 'Expected one device to be active in this cluster.'
             )
