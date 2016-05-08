@@ -57,9 +57,8 @@ class ClusterManager(DeviceMixin):
 
     def teardown_cluster(self):
         self.dgm.teardown_device_group()
-        for bigip in self.bigip:
-            self.peer_mgr.remove_all_trusted_peers(bigip)
-        self.dgm.ensure_devices_active_licensed()
+        for bigip in self.bigips:
+            self.peer_mgr.remove_trusted_peers(bigip)
 
     def scale_cluster_up(self, bigip):
         '''Scale cluster up by one device.
