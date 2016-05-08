@@ -17,7 +17,7 @@ import mock
 import pytest
 
 from f5.bigip.mixins import UnsupportedMethod
-from f5.bigip.sys.httpd import Httpd
+from f5.bigip.tm.sys.httpd import Httpd
 
 
 @pytest.fixture

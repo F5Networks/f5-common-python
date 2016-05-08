@@ -14,7 +14,7 @@
 
 import pytest
 
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.mixins import UnsupportedMethod
 
 
 class TestBigIPFailoverState(object):
@@ -23,5 +23,5 @@ class TestBigIPFailoverState(object):
         assert hasattr(a, 'generation')
 
     def test_update(self, request, bigip):
-        with pytest.raises(UnnamedResourceMixin.UnsupportedMethod):
+        with pytest.raises(UnsupportedMethod):
             bigip.shared.bigip_failover_state.update()
