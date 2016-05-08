@@ -33,6 +33,7 @@ class TrustedPeerManager(DeviceMixin):
 
     def remove_trusted_peers(self, bigip):
         tds = bigip.cm.trust_domains.trust_domain.load(name=self.trust_name)
+        # do not remove self!
         peer_list = tds.caDevices
         for peer in peer_list:
             peer_name = peer.replace('/%s/' % self.partition, '')

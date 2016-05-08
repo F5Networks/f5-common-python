@@ -98,6 +98,10 @@ class DeviceGroupManager(DeviceMixin):
             name=self.device_group_name, partition=self.partition
         )
         dg.delete()
+        # in lieu of sleep
+        self.ensure_devices_active_licensed()
+        self._all_devices_in_sync()
+
         for device in self.devices:
             try:
                 dg = self._get_device_group(device)
@@ -105,7 +109,8 @@ class DeviceGroupManager(DeviceMixin):
                 continue
             else:
                 dg.delete()
-        self.check_device_group_status()
+        self.ensure_devices_active_licensed()
+        self._all_devices_in_sync()
 
     def _get_device_group(self, device):
         '''Get the device group through a device.
@@ -242,7 +247,6 @@ class DeviceGroupManager(DeviceMixin):
                 name=self.get_device_info(bigip).name,
                 partition=self.partition
             )
-            print(act.failoverState)
             if act.failoverState == state:
                 bigips.append(bigip)
         return bigips
