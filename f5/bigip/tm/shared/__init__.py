@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,26 +15,27 @@
 # limitations under the License.
 #
 
-import mock
-import pytest
+"""BIG-IP® Shared (shared) module
 
-from f5.bigip.mixins import UnsupportedMethod
-from f5.bigip.sys.sshd import Sshd
+REST URI
+    ``http://localhost/mgmt/tm/shared/``
 
+GUI Path
+    ``System``
 
-@pytest.fixture
-def FakeSshd():
-    fake_sys = mock.MagicMock()
-    return Sshd(fake_sys)
+REST Kind
+    N/A -- HTTP GET returns an error
+"""
 
-
-def test_create_raises(FakeSshd):
-    with pytest.raises(UnsupportedMethod) as EIO:
-        FakeSshd.create()
-    assert EIO.value.message == "Sshd does not support the create method"
+from f5.bigip.resource import PathElement
+from f5.bigip.tm.shared.bigip_failover_state import Bigip_Failover_State
+from f5.bigip.tm.shared.licensing import Licensing
 
 
-def test_delete_raises(FakeSshd):
-    with pytest.raises(UnsupportedMethod) as EIO:
-        FakeSshd.delete()
-    assert EIO.value.message == "Sshd does not support the delete method"
+class Shared(PathElement):
+    def __init__(self, bigip):
+        super(Shared, self).__init__(bigip)
+        self._meta_data['allowed_lazy_attributes'] = [
+            Licensing,
+            Bigip_Failover_State,
+        ]

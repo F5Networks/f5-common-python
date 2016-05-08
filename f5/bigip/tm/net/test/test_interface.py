@@ -16,23 +16,23 @@
 import mock
 import pytest
 
-from f5.bigip.mixins import UnsupportedMethod
-from f5.bigip.sys.dns import Dns
+from f5.bigip.resource import UnsupportedOperation
+from f5.bigip.tm.net.interface import Interface
 
 
 @pytest.fixture
-def FakeDns():
-    fake_sys = mock.MagicMock()
-    return Dns(fake_sys)
+def FakeInterface():
+    fake_interface_s = mock.MagicMock()
+    return Interface(fake_interface_s)
 
 
-def test_create_raises(FakeDns):
-    with pytest.raises(UnsupportedMethod) as EIO:
-        FakeDns.create()
-    assert EIO.value.message == "Dns does not support the create method"
+class TestInterface(object):
+    def test_create_raises(self):
+        with pytest.raises(UnsupportedOperation):
+            i = FakeInterface()
+            i.create(name='1.1')
 
-
-def test_delete_raises(FakeDns):
-    with pytest.raises(UnsupportedMethod) as EIO:
-        FakeDns.delete()
-    assert EIO.value.message == "Dns does not support the delete method"
+    def test_delete_raises(self):
+        with pytest.raises(UnsupportedOperation):
+            i = FakeInterface()
+            i.delete()

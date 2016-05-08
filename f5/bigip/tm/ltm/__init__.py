@@ -28,25 +28,25 @@ REST Kind
 """
 
 
-from f5.bigip.ltm.monitor import Monitor
-from f5.bigip.ltm.nat import Nats
-from f5.bigip.ltm.node import Nodes
-from f5.bigip.ltm.persistence import Persistences
-from f5.bigip.ltm.policy import Policys
-from f5.bigip.ltm.pool import Pools
-from f5.bigip.ltm.rule import Rules
-from f5.bigip.ltm.snat import Snats
-from f5.bigip.ltm.snat_translation import Snat_Translations
-from f5.bigip.ltm.snatpool import Snatpools
-from f5.bigip.ltm.virtual import Virtuals
-from f5.bigip.ltm.virtual_address import Virtual_Address_s
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.tm.ltm.monitor import Monitor
+from f5.bigip.tm.ltm.nat import Nats
+from f5.bigip.tm.ltm.node import Nodes
+from f5.bigip.tm.ltm.persistence import Persistences
+from f5.bigip.tm.ltm.policy import Policys
+from f5.bigip.tm.ltm.pool import Pools
+from f5.bigip.tm.ltm.rule import Rules
+from f5.bigip.tm.ltm.snat import Snats
+from f5.bigip.tm.ltm.snat_translation import Snat_Translations
+from f5.bigip.tm.ltm.snatpool import Snatpools
+from f5.bigip.tm.ltm.virtual import Virtuals
+from f5.bigip.tm.ltm.virtual_address import Virtual_Address_s
 
 
 class Ltm(OrganizingCollection):
     """BIG-IP® Local Traffic Manager (LTM) organizing collection."""
-    def __init__(self, bigip):
-        super(Ltm, self).__init__(bigip)
+    def __init__(self, tm):
+        super(Ltm, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
             Monitor,
             Nats,

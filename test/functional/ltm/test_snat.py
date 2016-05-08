@@ -18,7 +18,7 @@ import pytest
 from icontrol.session import iControlUnexpectedHTTPError
 from requests.exceptions import HTTPError
 
-from f5.bigip.ltm.snat import RequireOneOf
+from f5.bigip.tm.ltm.snat import RequireOneOf
 
 TESTDESCRIPTION = 'TESTDESCRIPTION'
 
