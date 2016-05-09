@@ -31,14 +31,17 @@ class TrustedPeerManager(DeviceMixin):
         for peer in peers:
             self._modify_trusted_peer(peer, self._get_add_peer_cmd, root_bigip)
 
-    def remove_trusted_peers(self, bigip):
+    def remove_trusted_peers(self, bigip, peer_to_remove=None):
         tds = bigip.cm.trust_domains.trust_domain.load(name=self.trust_name)
-        # do not remove self!
-        peer_list = tds.caDevices
+        bigip_info = self.get_device_info(bigip)
+        peer_list = [dv for dv in tds.caDevices if bigip_info.name not in dv]
+        if peer_to_remove:
+            peer_name = self.get_device_info(peer_to_remove)
+            peer_list = [peer for peer in peer_list if peer_name.name in peer]
         for peer in peer_list:
-            peer_name = peer.replace('/%s/' % self.partition, '')
+            peer_hostname = peer.replace('/%s/' % self.partition, '')
             self._modify_trusted_peer(
-                peer_name, self._get_delete_peer_cmd, bigip
+                peer_hostname, self._get_delete_peer_cmd, bigip
             )
 
     def _modify_trusted_peer(
@@ -51,7 +54,7 @@ class TrustedPeerManager(DeviceMixin):
         :param mod_peer_func: function -- function to call to modify peer
         '''
 
-        iapp_name = '%s_add_peer' % (self.peer_iapp_prefix)
+        iapp_name = '%s_peer' % (self.peer_iapp_prefix)
         mod_peer_cmd = mod_peer_func(peer)
         iapp_actions = self.iapp_actions.copy()
         iapp_actions['definition']['implementation'] = mod_peer_cmd

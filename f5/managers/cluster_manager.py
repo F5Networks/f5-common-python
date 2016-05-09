@@ -36,7 +36,7 @@ class ClusterManager(DeviceMixin):
             raise ClusterNotSupported(
                 'The number of devices to cluster is not supported.'
             )
-        self.bigips = bigips
+        self.bigips = bigips[:]
         self.root_bigip = self.bigips[0]
         self.peers = self.bigips[1:]
         self.cluster_name = cluster_name
@@ -71,10 +71,10 @@ class ClusterManager(DeviceMixin):
                 'The number of devices to cluster is not supported.'
             )
         print('Scaling cluster up by one device...')
-        self.peer_mgr.add_trusted_peers(self.bigip_root, bigip)
+        self.peer_mgr.add_trusted_peers(self.root_bigip, [bigip])
         self.dgm.scale_up_device_group(bigip)
         self.bigips.append(bigip)
-        self._sync_and_check_cluster_status()
+        self.dgm.check_device_group_status()
 
     def scale_cluster_down(self, bigip):
         '''Scale cluster down by one device.
@@ -84,9 +84,6 @@ class ClusterManager(DeviceMixin):
 
         # if scaling down the root, assign new root
         self.dgm.scale_down_device_group(bigip)
-        self._modify_trusted_peer(
-            bigip, self._get_delete_peer_command, self.root_bigip
-        )
+        self.peer_mgr.remove_trusted_peers(self.root_bigip, bigip)
         self.bigips.remove(bigip)
-        self.dgm._all_devices_in_sync()
         self.dgm.check_device_group_status()
