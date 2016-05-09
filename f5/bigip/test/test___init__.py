@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
 import pytest
 import urlparse
 
@@ -44,11 +43,11 @@ def test___get__attr(FakeBigIP):
     assert isinstance(bigip_dot_auth, Auth)
     bigip_dot_ltm = FakeBigIP.ltm
     assert isinstance(bigip_dot_ltm, Ltm)
-    bigip_dot_net = FakeBigIP.net
+    bigip_dot_net = bigip.net
     assert isinstance(bigip_dot_net, Net)
-    bigip_dot_shared = FakeBigIP.shared
+    bigip_dot_shared = bigip.shared
     assert isinstance(bigip_dot_shared, Shared)
-    bigip_dot_sys = FakeBigIP.sys
+    bigip_dot_sys = bigip.sys
     assert isinstance(bigip_dot_sys, Sys)
     with pytest.raises(AttributeError):
         FakeBigIP.this_is_not_a_real_attribute

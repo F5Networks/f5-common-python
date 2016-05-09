@@ -69,13 +69,16 @@ class TestDeviceGroup(object):
         assert len(dg1.devices_s.get_collection()) == 1
         assert d1.name == this_device.name
 
-    def test_sync(self, request, bigip):
+    def test_cm_sync_to_group(self, request, bigip):
         dg1, dgs = setup_device_group_test(
             request, bigip, name='test-group', partition='Common')
+        # no good way to validate that we have synced, without more than
+        # one bigip, that is
+        assert bigip.cm.sync_to_group(dg1.name) is None
 
-        assert dg1.sync() is None
-
-    def test_cm_sync(self, request, bigip):
+    def test_cm_sync_from_group(self, request, bigip):
         dg1, dgs = setup_device_group_test(
             request, bigip, name='test-group', partition='Common')
-        assert bigip.cm.sync(dg1.name) is None
+        # no good way to validate that we have synced, without more than
+        # one bigip, that is
+        assert bigip.cm.sync_from_group(dg1.name) is None

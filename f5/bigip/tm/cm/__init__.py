@@ -44,8 +44,8 @@ class Cm(OrganizingCollection):
             Sync_Status, Add_To_Trust, Remove_From_Trust,
         ]
 
-    def sync(self, device_group_name):
-        """Sync the configuration of the device-group.
+    def sync_to_group(self, device_group_name):
+        '''Sync the configruation of this device to the other group members.
 
         Execute the run command via the iControl REST session with the
         config-sync to group device-group options.  Any exceptions triggered
@@ -53,10 +53,26 @@ class Cm(OrganizingCollection):
 
         :param device_group_name: Name of the device group to sync.
         :type device_group_name: str
-        """
+        '''
         data = {
             'command': 'run',
-            'options': [{'config-sync': 'to-group %s' % device_group_name}]
+            'utilCmdArgs': 'config-sync to-group %s' %
+            device_group_name
+        }
+        icr_session = self._meta_data['container']._meta_data['icr_session']
+        icr_session.post(self._meta_data['uri'], json=data)
+
+    def sync_from_group(self, device_group_name):
+        '''Sync the configuration of the group to this device.
+
+        :param device_group_name: str -- name of the device group
+
+        '''
+
+        data = {
+            'command': 'run',
+            'utilCmdArgs': 'config-sync from-group %s' %
+            device_group_name
         }
         icr_session = self._meta_data['container']._meta_data['icr_session']
         icr_session.post(self._meta_data['uri'], json=data)
