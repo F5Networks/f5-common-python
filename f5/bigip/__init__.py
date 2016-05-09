@@ -31,7 +31,7 @@ allowed_lazy_attributes = [Cm, Ltm, Net, Shared, Sys, Transactions]
 
 class BigIP(OrganizingCollection):
     """An interface to a single BIG-IP"""
-    def __init__(self, hostname, username, password, **kwargs):
+    def __init__(self, hostname, username='admin', password='admin', **kwargs):
         timeout = kwargs.pop('timeout', 30)
         port = kwargs.pop('port', 443)
         allowed_lazy_attrs = kwargs.pop('allowed_lazy_attributes',
