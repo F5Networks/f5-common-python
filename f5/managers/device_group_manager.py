@@ -37,7 +37,7 @@ class DeviceGroupManager(DeviceMixin):
         self.device_group_name = dg_name
         self.partition = partition
         self.root_device = root_device
-        self.devices = devices
+        self.devices = devices[:]
         self.device_group_type = dg_type
 
     def create_device_group(self):
@@ -98,7 +98,6 @@ class DeviceGroupManager(DeviceMixin):
             name=self.device_group_name, partition=self.partition
         )
         dg.delete()
-        # in lieu of sleep
         self.ensure_devices_active_licensed()
         self._all_devices_in_sync()
 
@@ -127,25 +126,20 @@ class DeviceGroupManager(DeviceMixin):
     def _add_device_to_device_group(self, device):
         '''Add device to device service cluster group.
 
-        :param bigip: bigip object -- device to add to group
+        :param device: bigip object -- device to add to group
         '''
 
         device_info = self.get_device_info(device)
-        dg = device.cm.device_groups.device_group.load(
-            name=self.device_group_name, partition=self.partition
-        )
+        dg = self._get_device_group(device)
         dg.devices_s.devices.create(
             name=device_info.name, partition=self.partition
         )
-        root_dg = self.root_device.cm.device_groups.device_group.load(
-            name=self.device_group_name, partition=self.partition
-        )
+        root_dg = self._get_device_group(self.root_device)
         root_dg.devices_s.devices.load(
             name=device_info.name, partition=self.partition
         )
-        print('added device to group ' + device_info.name)
+        print('added following device to group: ' + device_info.name)
 
-    @pollster.poll_by_method
     def _delete_device_from_device_group(self, device):
         '''Remove device from device service cluster group.
 
@@ -175,22 +169,16 @@ class DeviceGroupManager(DeviceMixin):
 
     def _ensure_active_standby(self):
         self.root_device.cm.sync_to_group(self.device_group_name)
-        self._ensure_devices_standby()
-        self._all_devices_in_sync()
-
-    def _ensure_all_devices_in_sync(self):
-        self.root_device.cm.sync_to_group(self.device_group_name)
-        self._all_devices_in_sync()
-
-    @pollster.poll_by_method
-    def _ensure_devices_standby(self):
-        '''Ensure one device is active and others are standby.'''
-
         self._devices_in_standby()
         if not self._get_devices_by_activation_state('active'):
             raise UnexpectedClusterState(
                 'Expected one device to be active in this cluster.'
             )
+        self._all_devices_in_sync()
+
+    def _ensure_all_devices_in_sync(self):
+        self.root_device.cm.sync_to_group(self.device_group_name)
+        self._all_devices_in_sync()
 
     @pollster.poll_by_method
     def ensure_devices_active_licensed(self):
