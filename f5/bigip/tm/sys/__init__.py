@@ -28,20 +28,22 @@ REST Kind
 """
 
 from f5.bigip.resource import OrganizingCollection
-from f5.bigip.sys.application import Applications
-from f5.bigip.sys.config import Config
-from f5.bigip.sys.db import Dbs
-from f5.bigip.sys.dns import Dns
-from f5.bigip.sys.failover import Failover
-from f5.bigip.sys.folder import Folders
-from f5.bigip.sys.global_settings import Global_Settings
-from f5.bigip.sys.ntp import Ntp
-from f5.bigip.sys.performance import Performance
+from f5.bigip.tm.sys.application import Applications
+from f5.bigip.tm.sys.config import Config
+from f5.bigip.tm.sys.db import Dbs
+from f5.bigip.tm.sys.dns import Dns
+from f5.bigip.tm.sys.failover import Failover
+from f5.bigip.tm.sys.folder import Folders
+from f5.bigip.tm.sys.global_settings import Global_Settings
+from f5.bigip.tm.sys.httpd import Httpd
+from f5.bigip.tm.sys.ntp import Ntp
+from f5.bigip.tm.sys.performance import Performance
+from f5.bigip.tm.sys.sshd import Sshd
 
 
 class Sys(OrganizingCollection):
-    def __init__(self, bigip):
-        super(Sys, self).__init__(bigip)
+    def __init__(self, tm):
+        super(Sys, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
             Config,
             Folders,
@@ -51,5 +53,7 @@ class Sys(OrganizingCollection):
             Global_Settings,
             Ntp,
             Failover,
-            Dns
+            Dns,
+            Sshd,
+            Httpd
         ]

@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,21 +13,29 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from pprint import pprint as pp
+#
 
-from f5.bigip import BigIP
-from f5.bigip.tm.shared import Shared
+"""BIG-IP® Shared (shared) module
+
+REST URI
+    ``http://localhost/mgmt/tm/shared/``
+
+GUI Path
+    ``System``
+
+REST Kind
+    N/A -- HTTP GET returns an error
+"""
+
+from f5.bigip.resource import PathElement
+from f5.bigip.tm.shared.bigip_failover_state import Bigip_Failover_State
+from f5.bigip.tm.shared.licensing import Licensing
 
 
-def test_shared(request, bigip):
-    s = bigip.shared
-    pp(s.raw)
-    assert isinstance(s._meta_data['container'], BigIP)
-    assert s._meta_data['allowed_lazy_attributes'][0].__name__ == "Licensing"
-    suri = s._meta_data['uri']
-    assert suri.endswith('/mgmt/tm/shared/')
-    l = bigip.shared.licensing
-    pp(l.raw)
-    assert isinstance(l._meta_data['container'], Shared)
-    luri = l._meta_data['uri']
-    assert luri.endswith('/mgmt/tm/shared/licensing/')
+class Shared(PathElement):
+    def __init__(self, bigip):
+        super(Shared, self).__init__(bigip)
+        self._meta_data['allowed_lazy_attributes'] = [
+            Licensing,
+            Bigip_Failover_State,
+        ]

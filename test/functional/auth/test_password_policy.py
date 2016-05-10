@@ -1,5 +1,3 @@
-# coding=utf-8
-#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,27 +13,17 @@
 # limitations under the License.
 #
 
-"""BIG-IP® Shared (shared) module
 
-REST URI
-    ``http://localhost/mgmt/tm/shared/``
+class TestPasswordPolicy(object):
+    def test_load(self, bigip):
+        pp = bigip.auth.password_policy.load()
+        assert pp.maxLoginFailures == 0
+        pp.refresh()
+        assert pp.maxLoginFailures == 0
 
-GUI Path
-    ``System``
-
-REST Kind
-    N/A -- HTTP GET returns an error
-"""
-
-from f5.bigip.resource import PathElement
-from f5.bigip.shared.bigip_failover_state import Bigip_Failover_State
-from f5.bigip.shared.licensing import Licensing
-
-
-class Shared(PathElement):
-    def __init__(self, bigip):
-        super(Shared, self).__init__(bigip)
-        self._meta_data['allowed_lazy_attributes'] = [
-            Licensing,
-            Bigip_Failover_State,
-        ]
+    def test_update(self, bigip):
+        pp = bigip.auth.password_policy.load()
+        pp.update(maxLoginFailures=10)
+        assert pp.maxLoginFailures == 10
+        pp.update(maxLoginFailures=0)
+        assert pp.maxLoginFailures == 0

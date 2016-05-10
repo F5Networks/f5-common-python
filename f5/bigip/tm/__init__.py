@@ -1,3 +1,6 @@
+# coding=utf-8
+#
+"""Classes and functions for configuring BIG-IP"""
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,21 +14,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from pprint import pprint as pp
+#
 
-from f5.bigip import BigIP
+from f5.bigip.resource import OrganizingCollection
+
+from f5.bigip.tm.auth import Auth
+from f5.bigip.tm.cm import Cm
+from f5.bigip.tm.ltm import Ltm
+from f5.bigip.tm.net import Net
 from f5.bigip.tm.shared import Shared
+from f5.bigip.tm.sys import Sys
 
 
-def test_shared(request, bigip):
-    s = bigip.shared
-    pp(s.raw)
-    assert isinstance(s._meta_data['container'], BigIP)
-    assert s._meta_data['allowed_lazy_attributes'][0].__name__ == "Licensing"
-    suri = s._meta_data['uri']
-    assert suri.endswith('/mgmt/tm/shared/')
-    l = bigip.shared.licensing
-    pp(l.raw)
-    assert isinstance(l._meta_data['container'], Shared)
-    luri = l._meta_data['uri']
-    assert luri.endswith('/mgmt/tm/shared/licensing/')
+class Tm(OrganizingCollection):
+    """An organizing collection for TM resources."""
+    def __init__(self, bigip):
+        super(Tm, self).__init__(bigip)
+        self._meta_data['allowed_lazy_attributes'] = [
+            Auth,
+            Cm,
+            Ltm,
+            Net,
+            Shared,
+            Sys
+        ]

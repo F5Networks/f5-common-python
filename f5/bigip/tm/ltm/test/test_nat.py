@@ -17,8 +17,8 @@ import mock
 import pytest
 
 from f5.bigip import BigIP
-from f5.bigip.ltm.nat import Nat
 from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.bigip.tm.ltm.nat import Nat
 
 
 @pytest.fixture

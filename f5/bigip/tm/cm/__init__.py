@@ -25,22 +25,23 @@ GUI Path
 REST Kind
     ``tm:cm:*``
 """
-
-
-from f5.bigip.cm.device import Devices
-from f5.bigip.cm.device_group import Device_Groups
-from f5.bigip.cm.sync_status import Sync_Status
-from f5.bigip.cm.traffic_group import Traffic_Groups
-from f5.bigip.cm.trust_domain import Trust_Domains
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.tm.cm.device import Devices
+from f5.bigip.tm.cm.device_group import Device_Groups
+from f5.bigip.tm.cm.sync_status import Sync_Status
+from f5.bigip.tm.cm.traffic_group import Traffic_Groups
+from f5.bigip.tm.cm.trust import Add_To_Trust
+from f5.bigip.tm.cm.trust import Remove_From_Trust
+from f5.bigip.tm.cm.trust_domain import Trust_Domains
 
 
 class Cm(OrganizingCollection):
     """BIG-IP® Cluster Organizing Collection."""
-    def __init__(self, bigip):
-        super(Cm, self).__init__(bigip)
+    def __init__(self, tm):
+        super(Cm, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Devices, Device_Groups, Traffic_Groups, Sync_Status, Trust_Domains
+            Devices, Device_Groups, Traffic_Groups, Sync_Status, Trust_Domains,
+            Add_To_Trust, Remove_From_Trust
         ]
 
     def sync_to_group(self, device_group_name):

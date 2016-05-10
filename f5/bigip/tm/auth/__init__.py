@@ -1,4 +1,6 @@
-# Copyright 2016 F5 Networks Inc.
+# coding=utf-8
+#
+# Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,23 +15,26 @@
 # limitations under the License.
 #
 
-import mock
-import pytest
+"""BIG-IP® auth module
 
-from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.sys.folder import Folders
+REST URI
+    ``http://localhost/mgmt/tm/auth/``
+
+GUI Path
+    ``System --> Users``
+
+REST Kind
+    ``tm:auth:*``
+"""
 
 
-@pytest.fixture
-def FakeFolders():
-    fake_sys = mock.MagicMock()
-    return Folders(fake_sys)
+from f5.bigip.resource import OrganizingCollection
+from f5.bigip.tm.auth.password_policy import Password_Policy
 
 
-class TestFolder(object):
-    def test_missing_create_args(self):
-        folders = FakeFolders()
-        folder = folders.folder
-        with pytest.raises(MissingRequiredCreationParameter) as ex:
-            folder.create(name='test_folder')
-            assert 'subPath' in ex.value.message
+class Auth(OrganizingCollection):
+    def __init__(self, tm):
+        super(Auth, self).__init__(tm)
+        self._meta_data['allowed_lazy_attributes'] = [
+            Password_Policy,
+        ]

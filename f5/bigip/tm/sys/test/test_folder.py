@@ -16,23 +16,20 @@
 import mock
 import pytest
 
-from f5.bigip.mixins import UnnamedResourceMixin
-from f5.bigip.sys.dns import Dns
+from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.bigip.tm.sys.folder import Folders
 
 
 @pytest.fixture
-def FakeDns():
+def FakeFolders():
     fake_sys = mock.MagicMock()
-    return Dns(fake_sys)
+    return Folders(fake_sys)
 
 
-def test_create_raises(FakeDns):
-    with pytest.raises(UnnamedResourceMixin.UnsupportedMethod) as EIO:
-        FakeDns.create()
-    assert EIO.value.message == "Dns does not support the create method"
-
-
-def test_delete_raises(FakeDns):
-    with pytest.raises(UnnamedResourceMixin.UnsupportedMethod) as EIO:
-        FakeDns.delete()
-    assert EIO.value.message == "Dns does not support the delete method"
+class TestFolder(object):
+    def test_missing_create_args(self):
+        folders = FakeFolders()
+        folder = folders.folder
+        with pytest.raises(MissingRequiredCreationParameter) as ex:
+            folder.create(name='test_folder')
+            assert 'subPath' in ex.value.message

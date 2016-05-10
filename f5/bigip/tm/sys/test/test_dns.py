@@ -11,21 +11,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from pprint import pprint as pp
+#
 
-from f5.bigip import BigIP
-from f5.bigip.tm.shared import Shared
+import mock
+import pytest
+
+from f5.bigip.mixins import UnsupportedMethod
+from f5.bigip.tm.sys.dns import Dns
 
 
-def test_shared(request, bigip):
-    s = bigip.shared
-    pp(s.raw)
-    assert isinstance(s._meta_data['container'], BigIP)
-    assert s._meta_data['allowed_lazy_attributes'][0].__name__ == "Licensing"
-    suri = s._meta_data['uri']
-    assert suri.endswith('/mgmt/tm/shared/')
-    l = bigip.shared.licensing
-    pp(l.raw)
-    assert isinstance(l._meta_data['container'], Shared)
-    luri = l._meta_data['uri']
-    assert luri.endswith('/mgmt/tm/shared/licensing/')
+@pytest.fixture
+def FakeDns():
+    fake_sys = mock.MagicMock()
+    return Dns(fake_sys)
+
+
+def test_create_raises(FakeDns):
+    with pytest.raises(UnsupportedMethod) as EIO:
+        FakeDns.create()
+    assert EIO.value.message == "Dns does not support the create method"
+
+
+def test_delete_raises(FakeDns):
+    with pytest.raises(UnsupportedMethod) as EIO:
+        FakeDns.delete()
+    assert EIO.value.message == "Dns does not support the delete method"

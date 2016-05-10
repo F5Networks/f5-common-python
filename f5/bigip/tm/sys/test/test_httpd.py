@@ -11,17 +11,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
+import mock
 import pytest
 
 from f5.bigip.mixins import UnsupportedMethod
+from f5.bigip.tm.sys.httpd import Httpd
 
 
-class TestBigIPFailoverState(object):
-    def test_load(self, request, bigip):
-        a = bigip.shared.bigip_failover_state.load()
-        assert hasattr(a, 'generation')
+@pytest.fixture
+def FakeHttpd():
+    fake_sys = mock.MagicMock()
+    return Httpd(fake_sys)
 
-    def test_update(self, request, bigip):
-        with pytest.raises(UnsupportedMethod):
-            bigip.shared.bigip_failover_state.update()
+
+def test_create_raises(FakeHttpd):
+    with pytest.raises(UnsupportedMethod) as EIO:
+        FakeHttpd.create()
+    assert EIO.value.message == "Httpd does not support the create method"
+
+
+def test_delete_raises(FakeHttpd):
+    with pytest.raises(UnsupportedMethod) as EIO:
+        FakeHttpd.delete()
+    assert EIO.value.message == "Httpd does not support the delete method"

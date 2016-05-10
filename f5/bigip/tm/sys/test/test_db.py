@@ -14,7 +14,7 @@
 #
 
 from f5.bigip.resource import UnsupportedOperation
-from f5.bigip.sys import Dbs
+from f5.bigip.tm.sys import Dbs
 import mock
 import pytest
 
