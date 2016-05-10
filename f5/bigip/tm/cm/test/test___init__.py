@@ -32,7 +32,7 @@ class TestCMSync(object):
     def test_sync_to_group(self, FakeiControl):
         FakeiControl.exec_cmd('run', utilCmdArgs='config-sync to-group test')
         session = FakeiControl._meta_data['bigip']._meta_data['icr_session']
-        session.post.assert_called_with(
+        assert session.post.call_args == mock.call(
             'https://host:443/mgmt/tm/cm/',
             json={'utilCmdArgs': 'config-sync to-group test', 'command': 'run'}
         )
@@ -40,7 +40,7 @@ class TestCMSync(object):
     def test_sync_from_group(self, FakeiControl):
         FakeiControl.exec_cmd('run', utilCmdArgs='config-sync from-group test')
         session = FakeiControl._meta_data['bigip']._meta_data['icr_session']
-        session.post.assert_called_with(
+        assert session.post.call_args == mock.call(
             'https://host:443/mgmt/tm/cm/',
             json={
                 'utilCmdArgs': 'config-sync from-group test', 'command': 'run'
