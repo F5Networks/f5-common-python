@@ -63,6 +63,7 @@ class DeviceGroupManager(DeviceMixin):
         self.check_device_group_status()
 
     def check_device_group_status(self):
+        '''Check if the device group status based on the cluster type'''
         if self.device_group_type == 'sync-failover':
             self._ensure_active_standby()
         elif self.device_group_type == 'sync-only':
@@ -88,8 +89,17 @@ class DeviceGroupManager(DeviceMixin):
 
         self._delete_device_from_device_group(device)
         device.sys.config.save()
-        self._delete_all_devices_from_device_group(device)
         self.devices.remove(device)
+        self.check_device_group_status()
+
+    def cleanup_scaled_down_device(self, device):
+        '''Remove all devices from device group on orphaned device.
+
+        :param device: bigip object -- device to cleanup
+        '''
+
+        dg = self._delete_all_devices_from_device_group(device)
+        dg.delete()
         self.check_device_group_status()
 
     def teardown_device_group(self):
@@ -105,7 +115,7 @@ class DeviceGroupManager(DeviceMixin):
         dg.delete()
         self.ensure_devices_active_licensed()
         self._all_devices_in_sync()
-
+        '''
         for device in self.devices:
             try:
                 dg = self._get_device_group(device)
@@ -113,6 +123,7 @@ class DeviceGroupManager(DeviceMixin):
                 continue
             else:
                 dg.delete()
+        '''
         self.ensure_devices_active_licensed()
         self._all_devices_in_sync()
 
@@ -156,6 +167,7 @@ class DeviceGroupManager(DeviceMixin):
         dg_devices = dg.devices_s.get_collection()
         for device in dg_devices:
             device.delete()
+        return dg
 
     def _delete_device_from_device_group(self, device):
         '''Remove device from device service cluster group.
@@ -180,7 +192,7 @@ class DeviceGroupManager(DeviceMixin):
         :raises: UnexpectedClusterState
         '''
 
-        device.cm.sync_to_group(self.device_group_name)
+        self._sync_to_group(device)
         act = device.cm.devices.device.load(
             name=self.get_device_info(device).name,
             partition=self.partition
@@ -190,10 +202,19 @@ class DeviceGroupManager(DeviceMixin):
                 'A device in the cluster was not in the Active state.'
             )
 
+    def _sync_to_group(self, device):
+        '''Sync the device to the cluster group
+
+        :param device: bigip object -- device to sync to group
+        '''
+
+        config_sync_cmd = 'config-sync to-group %s' % self.device_group_name
+        device.cm.exec_cmd('run', utilCmdArgs=config_sync_cmd)
+
     def _ensure_active_standby(self):
         """Ensure cluster is in active standby configuration."""
 
-        self.root_device.cm.sync_to_group(self.device_group_name)
+        self._sync_to_group(self.root_device)
         self._devices_in_standby()
         if not self._get_devices_by_activation_state('active'):
             raise UnexpectedClusterState(
@@ -204,7 +225,7 @@ class DeviceGroupManager(DeviceMixin):
     def _ensure_all_devices_in_sync(self):
         """Ensure all devices have 'In Sync' status are sync is done."""
 
-        self.root_device.cm.sync_to_group(self.device_group_name)
+        self._sync_to_group(self.root_device)
         self._all_devices_in_sync()
 
     @pollster.poll_by_method
