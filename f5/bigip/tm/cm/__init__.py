@@ -45,12 +45,3 @@ class Cm(OrganizingCollection, CommandExecutionMixin):
             Devices, Device_Groups, Traffic_Groups, Trust_Domains,
             Sync_Status, Add_To_Trust, Remove_From_Trust,
         ]
-
-    def exec_cmd(self, command, **kwargs):
-        '''Execute command on the device using the CommandExecutionMixin
-
-        :param command: str -- command to run
-        :param kwargs: dict -- kwargs to pass to _exec_cmd
-        '''
-
-        return self._exec_cmd(command, **kwargs)
