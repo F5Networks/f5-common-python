@@ -12,29 +12,38 @@ You can directly infer REST URIs from the python expressions, and vice versa.
 
 .. topic:: Examples
 
-    .. code-block:: text
+    .. code-block:: python
 
-        Expression:     bigip = BigIP('a', 'b', 'c')
-        URI Returned:   https://a/mgmt/tm/
+        Expression:     mgmt = ManagementRoot('<ip_address>', '<username>', '<password>')
+        URI Returned:   https://<ip_address>/mgmt/
 
+    .. code-block:: python
 
+        Expression:     cm = mgmt.cm('<ip_address>', '<username>', '<password>')
+        URI Returned:   https://<ip_address>/mgmt/cm
 
-    .. code-block:: text
+    .. code-block:: python
 
-        Expression:     bigip.ltm
-        URI Returned:   https://a/mgmt/tm/ltm/
-
-
-    .. code-block:: text
-
-        Expression:     pools1 = bigip.ltm.pools
-        URI Returned:   https://a/mgmt/tm/ltm/pool
+        Expression:     tm = mgmt.tm('<ip_address>', '<username>', '<password>')
+        URI Returned:   https://<ip_address>/mgmt/tm
 
 
-    .. code-block:: text
+    .. code-block:: python
+
+        Expression:     ltm = mgmt.tm.ltm('<ip_address>', '<username>', '<password>')
+        URI Returned:   https://<ip_address>/mgmt/tm/ltm/
+
+
+    .. code-block:: python
+
+        Expression:     pools1 = mgmt.tm.ltm.pools
+        URI Returned:   https://<ip_address>/mgmt/tm/ltm/pool
+
+
+    .. code-block:: python
 
         Expression:     pool_a = pools1.create(partition="Common", name="foo")
-        URI Returned:   https://a/mgmt/tm/ltm/pool/~Common~foo
+        URI Returned:   https://<ip_address>/mgmt/tm/ltm/pool/~Common~foo
 
 
 REST Endpoints
@@ -55,9 +64,10 @@ The python object's attribute can be created dynamically based on the JSON retur
 
 .. _kind_params_section:
 
-iControl REST ``kind`` Parameters
----------------------------------
-Almost all iControl REST API entries contain a parameter named ``kind``. This parameter provides information about the object that lets you know what you should expect to follow it. The iControl REST API uses three types of ``kind``: ``collectionstate``, ``state``, and ``stats``.
+iControl® REST ``kind`` Parameters
+----------------------------------
+
+Almost all iControl® REST API entries contain a parameter named ``kind``. This parameter provides information about the object that lets you know what you should expect to follow it. The iControl® REST API uses three types of ``kind``: ``collectionstate``, ``state``, and ``stats``.
 
 .. table::
 
@@ -96,7 +106,7 @@ Methods
 | |load|    | GET           | | obtains the state of an existing resource on the device; sets   |
 |           |               | | the Resource attributes to match that state                     |
 +-----------+---------------+-------------------------------------------------------------------+
-| |exists|  | GET           | | checks for the existence of a named object on the BIG-IP®       |
+| |exists|  | GET           | | checks for the existence of an object on the BIG-IP®            |
 +-----------+---------------+-------------------------------------------------------------------+
 
 .. note::
