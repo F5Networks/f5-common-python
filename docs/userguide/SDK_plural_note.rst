@@ -6,7 +6,7 @@
 
     **Examples:**
 
-    * LTM Pool objects are collected in :mod:`f5.bigip.ltm.pool.Pools` and are accessible via the path :meth:`f5.bigip.pools.get_collection`.
+    * LTM Pool objects are collected in :mod:`f5.bigip.tm.ltmpool.Pools` and are accessible via the path :meth:`f5.bigip.pools.get_collection`.
 
     * Network Tunnels objects are stored in :class:`f5.bip.net.tunnels.Tunnels_s` and are accessible via :meth:`f5.bigip.net.tunnels_s.get_collection`.
 

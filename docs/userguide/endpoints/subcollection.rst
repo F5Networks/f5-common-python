@@ -13,9 +13,9 @@ A subcollection is a |Collection| that's attached to a higher-level |Resource| o
 
    A ``pool`` resource has a ``members_s`` subcollection attached to it; you must create or load the 'parent' resource (``pool``) before you can access the subcollection (``members_s``).
 
-   >>> from f5.bigip import BigIP
-   >>> bigip = BigIP('192.168.1.1', 'myuser', 'mypass')
-   >>> pool = bigip.ltm.pools.pool.load(partition='Common', name='p1')
+   >>> from f5.bigip import ManagementRoot
+   >>> mgmt = ManagementRoot('192.168.1.1', 'myuser', 'mypass')
+   >>> pool = mgmt.tm.ltm.pools.pool.load(partition='Common', name='p1')
    >>> members = pool.members_s.get_collection()
 
 .. note::

@@ -5,31 +5,163 @@ Organizing Collection
 
 ``kind``: ``collectionstate``
 
-The `iControl REST User Guide <https://devcentral.f5.com/d/the-user-guide-for-the-icontrol-rest-interface-in-big-ip-version-1160>`_ defines an *organizing collection* as a URI that designates all of the ``tmsh`` subordinate modules and components in the specified module. Organizing collections, which appear directly under :mod:`f5.bigip`, correspond to the various modules available on the BIG-IP® (for example, :mod:`f5.bigip.ltm`).
+In iControl® REST, the URI represents the tree structure of modules and components in the BIG-IP®. The root is represented by ``mgmt``; the REST API representation of the BIG-IP® module follows.
 
-The organizing collection names correspond to the items that appear in the drawers on the left-hand side of the BIG-IP® configuration utility (the GUI). The module names are abbreviated in the REST API, but the mapping is otherwise pretty straightforward. For example, the SDK module :mod:`f5.bigip.sys` maps to the System drawer in the GUI.
+.. topic:: Example:
 
-|Organizing Collection| objects do not have configuration parameters. As shown in the example below, the JSON blob received in response to an ``HTTP GET`` for an organizing collection object contains an ``items`` parameter with a list of references to |Collection| and |Resource| objects.
+    The URI structure for the Traffic Management shell (:dfn:`tmsh`) is ``/mgmt/tm/``.
 
-.. topic:: Example
+The REST representations of BIG-IP® modules which contain submodules are called :dfn:`organizing collections`. In the above example, ``/tm/`` is an organizing collection. Its submodules -- 'Statistics', 'iApps', 'DNS', 'Local Traffic', etc. -- are all organizing collections as well.
 
-    .. code-block:: json
+The F5® SDK follows the same mapping model as the REST API. Organizing collections, which appear under :mod:`f5.bigip`, correspond to the various modules available on the BIG-IP®.
+
+.. topic:: Example:
+
+    * :class:`f5.bigip.tm` maps to ``tmsh``
+    * :class:`f5.bigip.tm.sys` maps to 'System'
+    * :class:`f5.bigip.tm.ltm` module maps to 'Local Traffic'
+
+|Organizing Collection| objects are not configurable; rather, they contain other submodules which either contain configurable objects (|Collection|) or are configurable objects (|Resource|).
+
+.. topic:: Example:
+
+    ``https://192.168.25.42/mgmt/tm/ltm/`` refers to the BIG-IP® Local Traffic module (organizing collection)
+    ``https://192.168.25.42/mgmt/tm/ltm/pool`` refers to the Local Traffic Pools submodule (collection)
+    ``https://192.168.25.42/mgmt/tm/ltm/pool/~Common~pool2`` refers to a specific pool (resource)
+
+
+.. topic:: Example: Perform an ``HTTP GET`` for the ``ltm`` organizing collection object; the JSON blob returned contains a list of references to subordinate objects that are either collections or resources.
+
+    .. code-block:: js
 
         {
-            "kind":"tm:ltm:ltmcollectionstate",
-            "selfLink":"https://localhost/mgmt/tm/ltm?ver=11.5.0",
-            "items":[
+            kind: "tm:ltm:ltmcollectionstate",
+            selfLink: "https://localhost/mgmt/tm/ltm?ver=11.6.0",
+            items: [
                 {
-                "reference":{
-                "link":"https://../mgmt/tm/ltm/auth?ver=11.5.0"
-                }
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/auth?ver=11.6.0"
+                    }
                 },
                 {
-                "reference":{
-                "link":"https://../mgmt/tm/ltm/classification?ver=11.5.0"
-                }
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/data-group?ver=11.6.0"
+                    }
                 },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/dns?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/global-settings?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/html-rule?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/message-routing?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/monitor?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/persistence?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/profile?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/default-node-monitor?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/eviction-policy?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/ifile?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/nat?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/node?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/policy?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/policy-strategy?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/pool?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/rule?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/snat?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/snat-translation?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/snatpool?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/traffic-class?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/virtual?ver=11.6.0"
+                    }
+                },
+                {
+                    reference: {
+                        link: "https://localhost/mgmt/tm/ltm/virtual-address?ver=11.6.0"
+                    }
+                }
             ]
         }
 
 
+.. seealso::
+
+    * `F5® iControl® REST User Guide v11.6.0 <https://devcentral.f5.com/d/the-user-guide-for-the-icontrol-rest-interface-in-big-ip-version-1160>`_
