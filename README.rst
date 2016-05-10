@@ -5,34 +5,24 @@ f5-common-python
 
 Introduction
 ------------
-This project implements an SDK for the iControl REST interface for BIG-IP®.
-Users of this library can create, edit, update, and delete configuration objects
-on a BIG-IP®.
+This project implements an SDK for the iControl® REST interface for BIG-IP®.
+Use this library to use python to automate a BIG-IP® via its REST API.
 
 Documentation
 -------------
-Documentation is hosted on `Read the Docs <https://f5-sdk.readthedocs.org>`_
-
-Submodules
-~~~~~~~~~~
-
-bigip
-^^^^^
-Python API for configuring objects on a BIG-IP® device and gathering information
-from the device via the REST API.
+Please see the project documentation on Read the Docs: http://f5-sdk.readthedocs.io.
 
 Installation
 ------------
 
 .. code:: shell
 
-    $> pip install f5-sdk
+    $ pip install f5-sdk
 
 .. note::
 
     If you are using a pre-release version you must use the ``--pre``
     option for the ``pip`` command.
-
 
 Usage
 -----
@@ -66,6 +56,13 @@ Usage
         pool_b.delete()
 
 
+Submodules
+~~~~~~~~~~
+
+bigip
+^^^^^
+Python API for configuring objects on a BIG-IP® device and gathering information
+from the device via the REST API.
 
 Filing Issues
 -------------

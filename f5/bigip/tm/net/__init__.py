@@ -27,20 +27,20 @@ REST Kind
     ``tm:net:*``
 """
 
-from f5.bigip.net.arp import Arps
-from f5.bigip.net.fdb import Fdbs
-from f5.bigip.net.interface import Interfaces
-from f5.bigip.net.route import Routes
-from f5.bigip.net.route_domain import Route_Domains
-from f5.bigip.net.selfip import Selfips
-from f5.bigip.net.tunnels import Tunnels_s
-from f5.bigip.net.vlan import Vlans
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.tm.net.arp import Arps
+from f5.bigip.tm.net.fdb import Fdbs
+from f5.bigip.tm.net.interface import Interfaces
+from f5.bigip.tm.net.route import Routes
+from f5.bigip.tm.net.route_domain import Route_Domains
+from f5.bigip.tm.net.selfip import Selfips
+from f5.bigip.tm.net.tunnels import Tunnels_s
+from f5.bigip.tm.net.vlan import Vlans
 
 
 class Net(OrganizingCollection):
-    def __init__(self, bigip):
-        super(Net, self).__init__(bigip)
+    def __init__(self, tm):
+        super(Net, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
             Arps,
             Fdbs,
