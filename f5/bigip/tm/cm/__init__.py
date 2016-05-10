@@ -25,6 +25,8 @@ GUI Path
 REST Kind
     ``tm:cm:*``
 """
+
+from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.cm.device import Devices
 from f5.bigip.tm.cm.device_group import Device_Groups
@@ -35,7 +37,7 @@ from f5.bigip.tm.cm.trust import Remove_From_Trust
 from f5.bigip.tm.cm.trust_domain import Trust_Domains
 
 
-class Cm(OrganizingCollection):
+class Cm(OrganizingCollection, CommandExecutionMixin):
     """BIG-IP® Cluster Organizing Collection."""
     def __init__(self, tm):
         super(Cm, self).__init__(tm)
@@ -43,20 +45,3 @@ class Cm(OrganizingCollection):
             Devices, Device_Groups, Traffic_Groups, Trust_Domains,
             Sync_Status, Add_To_Trust, Remove_From_Trust,
         ]
-
-    def sync(self, device_group_name):
-        """Sync the configuration of the device-group.
-
-        Execute the run command via the iControl REST session with the
-        config-sync to group device-group options.  Any exceptions triggered
-        by the POST to the iControl REST server are raised back to the caller.
-
-        :param device_group_name: Name of the device group to sync.
-        :type device_group_name: str
-        """
-        data = {
-            'command': 'run',
-            'options': [{'config-sync': 'to-group %s' % device_group_name}]
-        }
-        icr_session = self._meta_data['container']._meta_data['icr_session']
-        icr_session.post(self._meta_data['uri'], json=data)
