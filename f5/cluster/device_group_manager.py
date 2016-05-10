@@ -32,7 +32,14 @@ class DeviceGroupManager(DeviceMixin):
     sync_status_entry = 'https://localhost/mgmt/tm/cm/sync-status/0'
 
     def __init__(self, dg_name, root_device, devices, partition, dg_type):
-        '''Initialize a cluster object.'''
+        '''Initialize a device group manager.
+
+        :param dg_name:
+        :param root_device:
+        :param devices:
+        :param partition:
+        :param dg_type:
+        '''
 
         self.device_group_name = dg_name
         self.partition = partition
@@ -65,7 +72,7 @@ class DeviceGroupManager(DeviceMixin):
     def scale_up_device_group(self, device):
         '''Scale device group up by one device
 
-        :param bigip: bigip object -- bigip to add to device group
+        :param device: bigip object -- device to add to device group
         '''
 
         self._add_device_to_device_group(device)
@@ -76,19 +83,17 @@ class DeviceGroupManager(DeviceMixin):
     def scale_down_device_group(self, device):
         '''Scale device group down by one device
 
-        :param bigip: bigip object -- bigip to delete from device group
+        :param device: bigip object -- device to delete from device group
         '''
 
         self._delete_device_from_device_group(device)
         device.sys.config.save()
+        self._delete_all_devices_from_device_group(device)
         self.devices.remove(device)
         self.check_device_group_status()
 
     def teardown_device_group(self):
-        '''Teardown device service cluster group.
-
-        :param bigips: list -- bigip objects
-        '''
+        '''Teardown device service cluster group.'''
 
         self.check_device_group_status()
         for device in self.devices:
@@ -115,6 +120,7 @@ class DeviceGroupManager(DeviceMixin):
         '''Get the device group through a device.
 
         :param device: bigip object -- device
+        :returns: tm.cm.device_groups.device_group object
         '''
 
         device_group = device.cm.device_groups.device_group.load(
@@ -140,10 +146,21 @@ class DeviceGroupManager(DeviceMixin):
         )
         print('added following device to group: ' + device_info.name)
 
+    def _delete_all_devices_from_device_group(self, device):
+        '''Remove all devices from device service cluster group.
+
+        :param device: bigip object -- device to clean
+        '''
+
+        dg = self._get_device_group(device)
+        dg_devices = dg.devices_s.get_collection()
+        for device in dg_devices:
+            device.delete()
+
     def _delete_device_from_device_group(self, device):
         '''Remove device from device service cluster group.
 
-        :param bigip: bigip object -- device to delete from group
+        :param device: bigip object -- device to delete from group
         '''
 
         device_info = self.get_device_info(device)
@@ -157,6 +174,12 @@ class DeviceGroupManager(DeviceMixin):
 
     @pollster.poll_by_method
     def _ensure_device_active(self, device):
+        '''Ensure a single device is in an active state
+
+        :param device: bigip object -- device to inspect
+        :raises: UnexpectedClusterState
+        '''
+
         device.cm.sync_to_group(self.device_group_name)
         act = device.cm.devices.device.load(
             name=self.get_device_info(device).name,
@@ -168,6 +191,8 @@ class DeviceGroupManager(DeviceMixin):
             )
 
     def _ensure_active_standby(self):
+        """Ensure cluster is in active standby configuration."""
+
         self.root_device.cm.sync_to_group(self.device_group_name)
         self._devices_in_standby()
         if not self._get_devices_by_activation_state('active'):
@@ -177,12 +202,17 @@ class DeviceGroupManager(DeviceMixin):
         self._all_devices_in_sync()
 
     def _ensure_all_devices_in_sync(self):
+        """Ensure all devices have 'In Sync' status are sync is done."""
+
         self.root_device.cm.sync_to_group(self.device_group_name)
         self._all_devices_in_sync()
 
     @pollster.poll_by_method
     def ensure_devices_active_licensed(self):
-        '''All devices should be in an active/licensed state.'''
+        '''All devices should be in an active/licensed state.
+
+        :raises: UnexpectedClusterState
+        '''
 
         if len(self._get_devices_by_activation_state('active')) != \
                 len(self.devices):
@@ -192,7 +222,10 @@ class DeviceGroupManager(DeviceMixin):
 
     @pollster.poll_by_method
     def _all_devices_in_sync(self):
-        '''Wait until all devices have failover status of 'In Sync'.'''
+        '''Wait until all devices have failover status of 'In Sync'.
+
+        :raises: UnexpectedClusterState
+        '''
 
         if len(self._get_devices_by_failover_status('In Sync')) != \
                 len(self.devices):
@@ -202,7 +235,11 @@ class DeviceGroupManager(DeviceMixin):
 
     @pollster.poll_by_method
     def _devices_in_standby(self):
-        '''Wait until n-1 devices in 'standby' activation state.'''
+        '''Wait until n-1 devices in 'standby' activation state.
+
+        :raises: UnexpectedClusterState
+        :returns: list -- devices in standby
+        '''
 
         standby_bigips = \
             self._get_devices_by_activation_state('standby')
@@ -213,7 +250,11 @@ class DeviceGroupManager(DeviceMixin):
         return standby_bigips
 
     def _get_devices_by_failover_status(self, status):
-        '''Get a list of bigips by failover status.'''
+        '''Get a list of bigips by failover status.
+
+        :param status: str -- status to filter the returned list of devices
+        :returns: list -- list of devices that have the given status
+        '''
 
         bigips = []
         for bigip in self.devices:
@@ -227,7 +268,11 @@ class DeviceGroupManager(DeviceMixin):
         return bigips
 
     def _get_devices_by_activation_state(self, state):
-        '''Get a list of bigips by activation statue.'''
+        '''Get a list of bigips by activation statue.
+
+        :param state: str -- state to filter the returned list of devices
+        :returns: list -- list of devices that are in the given state
+        '''
 
         bigips = []
         for bigip in self.devices:

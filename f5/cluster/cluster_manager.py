@@ -15,8 +15,8 @@
 #
 
 from f5.bigip.mixins import DeviceMixin
-from f5.managers.device_group_manager import DeviceGroupManager as dgm
-from f5.managers.trusted_peer_manager import TrustedPeerManager as peer_mgr
+from f5.cluster.device_group_manager import DeviceGroupManager as dgm
+from f5.cluster.trusted_peer_manager import TrustedPeerManager as peer_mgr
 
 
 class ClusterNotSupported(Exception):
@@ -31,23 +31,38 @@ class ClusterManager(DeviceMixin):
     We get around this issue by deploying iApps (sys/application).
     '''
 
+    available_cluster_types = ['sync-only', 'sync-failover']
+
     def __init__(self, bigips, cluster_name, partition, cluster_type):
+        '''Initialize a cluster manager object.
+
+        :param bigips: list -- list of bigips to cluster
+        :param cluster_name: str -- name of device service group
+        :param partition: str -- partition to deploy cluster to
+        :param cluster_type: str -- type of cluster configuration
+        '''
+
         if len(bigips) > 8:
             raise ClusterNotSupported(
                 'The number of devices to cluster is not supported.'
             )
         self.bigips = bigips[:]
-        self.root_bigip = self.bigips[0]
-        self.peers = self.bigips[1:]
+        self.root_bigip = bigips[0]
+        self.peers = bigips[1:]
         self.cluster_name = cluster_name
         self.partition = partition
+        if cluster_type not in self.available_cluster_types:
+            msg = 'Unsupported cluster type was given: %s' % cluster_type
+            raise ClusterNotSupported(msg)
         self.cluster_type = cluster_type
         self.dgm = dgm(
-            cluster_name, self.root_bigip, bigips, partition, cluster_type
+            cluster_name, self.root_bigip, bigips[:], partition, cluster_type
         )
         self.peer_mgr = peer_mgr('Root', partition)
 
     def create_cluster(self):
+        '''Create a cluster of BigIP devices.'''
+
         print('Checking state of devices to be clustered...')
         self.dgm.ensure_devices_active_licensed()
         print('Adding trusted peers to root BigIP...')
@@ -56,6 +71,8 @@ class ClusterManager(DeviceMixin):
         self.dgm.create_device_group()
 
     def teardown_cluster(self):
+        '''Teardown the cluster of BigIP devices.'''
+
         self.dgm.teardown_device_group()
         for bigip in self.bigips:
             self.peer_mgr.remove_trusted_peers(bigip)
@@ -64,12 +81,12 @@ class ClusterManager(DeviceMixin):
         '''Scale cluster up by one device.
 
         :param bigip: bigip object -- bigip to add
+        :raises: ClusterNotSupported
         '''
 
         if len(self.bigips) == 8:
-            raise ClusterNotSupported(
-                'The number of devices to cluster is not supported.'
-            )
+            msg = 'The number of devices to cluster is not supported.'
+            raise ClusterNotSupported(msg)
         print('Scaling cluster up by one device...')
         self.peer_mgr.add_trusted_peers(self.root_bigip, [bigip])
         self.dgm.scale_up_device_group(bigip)
@@ -80,10 +97,18 @@ class ClusterManager(DeviceMixin):
         '''Scale cluster down by one device.
 
         :param bigip: bigip object -- bigip to delete
+        :raises: ClusterNotSupported
         '''
 
-        # if scaling down the root, assign new root
+        if len(self.bigips) < 2:
+            msg = 'The number of devices to cluster is not supported.'
+            raise ClusterNotSupported(msg)
+        bigip_name = self.get_device_info(bigip).name
+        root_bigip_name = self.get_device_info(self.root_bigip).name
+        if bigip_name == root_bigip_name:
+            self.root_bigip = self.peers[0]
         self.dgm.scale_down_device_group(bigip)
         self.peer_mgr.remove_trusted_peers(self.root_bigip, bigip)
+        self.peer_mgr.remove_trusted_peers(bigip)
         self.bigips.remove(bigip)
         self.dgm.check_device_group_status()
