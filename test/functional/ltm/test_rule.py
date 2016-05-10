@@ -15,8 +15,8 @@
 
 import pytest
 
-from f5.bigip.ltm.rule import Rule
 from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.bigip.tm.ltm.rule import Rule
 from requests.exceptions import HTTPError
 
 

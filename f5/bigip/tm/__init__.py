@@ -1,5 +1,6 @@
 # coding=utf-8
 #
+"""Classes and functions for configuring BIG-IP"""
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,27 +16,25 @@
 # limitations under the License.
 #
 
-"""BIG-IP® Shared (shared) module
+from f5.bigip.resource import OrganizingCollection
 
-REST URI
-    ``http://localhost/mgmt/tm/shared/``
-
-GUI Path
-    ``System``
-
-REST Kind
-    N/A -- HTTP GET returns an error
-"""
-
-from f5.bigip.resource import PathElement
-from f5.bigip.shared.bigip_failover_state import Bigip_Failover_State
-from f5.bigip.shared.licensing import Licensing
+from f5.bigip.tm.auth import Auth
+from f5.bigip.tm.cm import Cm
+from f5.bigip.tm.ltm import Ltm
+from f5.bigip.tm.net import Net
+from f5.bigip.tm.shared import Shared
+from f5.bigip.tm.sys import Sys
 
 
-class Shared(PathElement):
+class Tm(OrganizingCollection):
+    """An organizing collection for TM resources."""
     def __init__(self, bigip):
-        super(Shared, self).__init__(bigip)
+        super(Tm, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
-            Licensing,
-            Bigip_Failover_State,
+            Auth,
+            Cm,
+            Ltm,
+            Net,
+            Shared,
+            Sys
         ]

@@ -13,27 +13,23 @@
 # limitations under the License.
 #
 
-from f5.bigip.resource import UnsupportedOperation
-from f5.bigip.sys import Dbs
 import mock
 import pytest
 
+from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.bigip.tm.sys.folder import Folders
+
 
 @pytest.fixture
-def fake_dbs():
+def FakeFolders():
     fake_sys = mock.MagicMock()
-    return Dbs(fake_sys)
+    return Folders(fake_sys)
 
 
-class TestDb(object):
-    def test_create_raises(self):
-        dbs = fake_dbs()
-        db = dbs.db
-        with pytest.raises(UnsupportedOperation):
-            db.create()
-
-    def test_delete_raises(self):
-        dbs = fake_dbs()
-        db = dbs.db
-        with pytest.raises(UnsupportedOperation):
-            db.delete()
+class TestFolder(object):
+    def test_missing_create_args(self):
+        folders = FakeFolders()
+        folder = folders.folder
+        with pytest.raises(MissingRequiredCreationParameter) as ex:
+            folder.create(name='test_folder')
+            assert 'subPath' in ex.value.message

@@ -14,7 +14,7 @@
 
 import pytest
 
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.mixins import UnsupportedMethod
 
 
 class TestActivation(object):
@@ -23,7 +23,7 @@ class TestActivation(object):
         assert hasattr(a, 'generation')
 
     def test_update(self, request, bigip):
-        with pytest.raises(UnnamedResourceMixin.UnsupportedMethod):
+        with pytest.raises(UnsupportedMethod):
             bigip.shared.licensing.activation.update()
 
 
@@ -33,5 +33,5 @@ class TestRegistration(object):
         assert hasattr(reg, 'generation')
 
     def test_update(self, request, bigip):
-        with pytest.raises(UnnamedResourceMixin.UnsupportedMethod):
+        with pytest.raises(UnsupportedMethod):
             bigip.shared.licensing.registration.update()

@@ -18,10 +18,11 @@ import urlparse
 
 from f5.bigip import BigIP
 
-from f5.bigip.ltm import Ltm
-from f5.bigip.net import Net
-from f5.bigip.shared import Shared
-from f5.bigip.sys import Sys
+from f5.bigip.tm.auth import Auth
+from f5.bigip.tm.ltm import Ltm
+from f5.bigip.tm.net import Net
+from f5.bigip.tm.shared import Shared
+from f5.bigip.tm.sys import Sys
 
 
 @pytest.fixture
@@ -39,6 +40,8 @@ def FakeBigIPWithPort():
 
 
 def test___get__attr(FakeBigIP):
+    bigip_dot_auth = FakeBigIP.auth
+    assert isinstance(bigip_dot_auth, Auth)
     bigip_dot_ltm = FakeBigIP.ltm
     assert isinstance(bigip_dot_ltm, Ltm)
     bigip_dot_net = FakeBigIP.net
