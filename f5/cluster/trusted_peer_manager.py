@@ -23,15 +23,33 @@ class TrustedPeerManager(DeviceMixin):
     iapp_actions = {'definition': {'implementation': None, 'presentation': ''}}
 
     def __init__(self, trust_name, partition):
+        '''Initialize a trusted peer manager object.
+
+        :param trust_name: str -- name of trust to use
+        :param partition: str -- partition to place trusted peers in
+        '''
+
         self.trust_name = trust_name
         self.partition = partition
         self.peer_iapp_prefix = 'cluster_iapp'
 
     def add_trusted_peers(self, root_bigip, peers):
+        '''Add trusted peers to the root bigip device.
+
+        :param root_bigip: bigip object -- device to add trusted peers to
+        :param peers: list -- bigip objects to add to root device
+        '''
+
         for peer in peers:
             self._modify_trusted_peer(peer, self._get_add_peer_cmd, root_bigip)
 
     def remove_trusted_peers(self, bigip, peer_to_remove=None):
+        '''Remove all trusted peers, unless one is given explicitly.
+
+        :param bigip: bigip object -- bigip to remove peers from
+        :param peer_to_remove: bigip object -- single peer to remove
+        '''
+
         tds = bigip.cm.trust_domains.trust_domain.load(name=self.trust_name)
         bigip_info = self.get_device_info(bigip)
         peer_list = [dv for dv in tds.caDevices if bigip_info.name not in dv]
@@ -52,6 +70,7 @@ class TrustedPeerManager(DeviceMixin):
 
         :param peer: bigip object -- peer to modify
         :param mod_peer_func: function -- function to call to modify peer
+        :param deploy_bigip: bigip object -- bigip on which to deploy the iapp
         '''
 
         iapp_name = '%s_peer' % (self.peer_iapp_prefix)
@@ -65,6 +84,7 @@ class TrustedPeerManager(DeviceMixin):
         '''Delete an iapp service and template on the root device.
 
         :param iapp_name: str -- name of iapp
+        :param deploy_bigip: bigip object -- where the iapp will be deleted
         '''
 
         iapp = deploy_bigip.sys.applications
@@ -82,6 +102,8 @@ class TrustedPeerManager(DeviceMixin):
 
         :param iapp_name: str -- name of iapp
         :param actions: dict -- actions definition of iapp sections
+        :param deploy_bigip: bigip object -- bigip object where iapp will be
+            created
         '''
 
         tmpl = deploy_bigip.sys.applications.templates.template
@@ -99,9 +121,12 @@ class TrustedPeerManager(DeviceMixin):
         '''
 
         peer_device = self.get_device_info(peer)
+        print('Adding following peer to root: %s' % peer_device.name)
+        username = peer._meta_data['username']
+        password = peer._meta_data['password']
         return 'tmsh::modify cm trust-domain Root ca-devices add ' \
-            '\\{{ {0} \\}} name {1} username admin password admin'.format(
-                peer_device.managementIp, peer_device.name
+            '\\{ %s \\} name %s username %s password %s' % (
+                peer_device.managementIp, peer_device.name, username, password
             )
 
     def _get_delete_peer_cmd(self, peer_name):
