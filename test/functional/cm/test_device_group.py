@@ -15,7 +15,6 @@
 
 from requests import HTTPError
 
-
 TEST_DESCR = "TEST DESCRIPTION"
 
 
@@ -72,13 +71,13 @@ class TestDeviceGroup(object):
     def test_cm_sync_to_group(self, request, bigip):
         dg1, dgs = setup_device_group_test(
             request, bigip, name='test-group', partition='Common')
-        # no good way to validate that we have synced, without more than
-        # one bigip, that is
-        assert bigip.cm.sync_to_group(dg1.name) is None
+        sync_cmd = 'config-sync to-group %s' % dg1.name
+        cm_obj = bigip.cm.exec_cmd('run', utilCmdArgs=sync_cmd)
+        assert cm_obj.utilCmdArgs == sync_cmd
 
     def test_cm_sync_from_group(self, request, bigip):
         dg1, dgs = setup_device_group_test(
             request, bigip, name='test-group', partition='Common')
-        # no good way to validate that we have synced, without more than
-        # one bigip, that is
-        assert bigip.cm.sync_from_group(dg1.name) is None
+        sync_cmd = 'config-sync from-group %s' % dg1.name
+        cm_obj = bigip.cm.exec_cmd('run', utilCmdArgs=sync_cmd)
+        assert cm_obj.utilCmdArgs == sync_cmd
