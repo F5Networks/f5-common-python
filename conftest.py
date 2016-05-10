@@ -24,6 +24,8 @@ def pytest_addoption(parser):
                      default="admin")
     parser.addoption("--password", action="store", help="BIG-IP REST password",
                      default="admin")
+    parser.addoption("--port", action="store", help="BIG-IP port",
+                     default=443)
 
 
 @pytest.fixture
@@ -42,9 +44,14 @@ def opt_password(request):
 
 
 @pytest.fixture
-def bigip(opt_bigip, opt_username, opt_password, scope="module"):
+def opt_port(request):
+    return request.config.getoption("--port")
+
+
+@pytest.fixture
+def bigip(opt_bigip, opt_username, opt_password, opt_port, scope="module"):
     '''bigip fixture'''
-    b = BigIP(opt_bigip, opt_username, opt_password)
+    b = BigIP(opt_bigip, opt_username, opt_password, port=opt_port)
     return b
 
 
