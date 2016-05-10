@@ -23,6 +23,10 @@ class ClusterNotSupported(Exception):
     pass
 
 
+class RootRemovalNotSupported(Exception):
+    pass
+
+
 class ClusterManager(DeviceMixin):
     '''Manage a cluster of BigIPs.
 
@@ -73,6 +77,7 @@ class ClusterManager(DeviceMixin):
     def teardown_cluster(self):
         '''Teardown the cluster of BigIP devices.'''
 
+        print('Tearing down the cluster...')
         self.dgm.teardown_device_group()
         for bigip in self.bigips:
             self.peer_mgr.remove_trusted_peers(bigip)
@@ -100,15 +105,18 @@ class ClusterManager(DeviceMixin):
         :raises: ClusterNotSupported
         '''
 
-        if len(self.bigips) < 2:
+        if len(self.bigips) < 3:
             msg = 'The number of devices to cluster is not supported.'
             raise ClusterNotSupported(msg)
         bigip_name = self.get_device_info(bigip).name
-        root_bigip_name = self.get_device_info(self.root_bigip).name
-        if bigip_name == root_bigip_name:
-            self.root_bigip = self.peers[0]
+        root_name = self.get_device_info(self.root_bigip).name
+        if bigip_name == root_name:
+            msg = 'Attempting to remove trusted root bigip from cluster. ' \
+                'This is not currently supported.'
+            raise RootRemovalNotSupported(msg)
         self.dgm.scale_down_device_group(bigip)
         self.peer_mgr.remove_trusted_peers(self.root_bigip, bigip)
+        self.dgm.cleanup_scaled_down_device(bigip)
         self.peer_mgr.remove_trusted_peers(bigip)
         self.bigips.remove(bigip)
         self.dgm.check_device_group_status()
