@@ -22,24 +22,24 @@ import pytest
 @pytest.fixture
 def FakeiControl():
     bigip = BigIP('host', 'fake_admin', 'fake_admin')
-    bigip._meta_data['icr_session'] = mock.MagicMock()
-    return bigip
+    mock_session = mock.MagicMock()
+    mock_session.post.return_value.json.return_value = {}
+    bigip._meta_data['icr_session'] = mock_session
+    return bigip.cm
 
 
 class TestCMSync(object):
     def test_sync_to_group(self, FakeiControl):
-        cm = FakeiControl.cm
-        cm.sync_to_group('test')
-        session = cm._meta_data['bigip']._meta_data['icr_session']
+        FakeiControl.exec_cmd('run', utilCmdArgs='config-sync to-group test')
+        session = FakeiControl._meta_data['bigip']._meta_data['icr_session']
         session.post.assert_called_with(
             'https://host:443/mgmt/tm/cm/',
             json={'utilCmdArgs': 'config-sync to-group test', 'command': 'run'}
         )
 
     def test_sync_from_group(self, FakeiControl):
-        cm = FakeiControl.cm
-        cm.sync_from_group('test')
-        session = cm._meta_data['bigip']._meta_data['icr_session']
+        FakeiControl.exec_cmd('run', utilCmdArgs='config-sync from-group test')
+        session = FakeiControl._meta_data['bigip']._meta_data['icr_session']
         session.post.assert_called_with(
             'https://host:443/mgmt/tm/cm/',
             json={
