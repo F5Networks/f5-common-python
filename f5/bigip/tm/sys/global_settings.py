@@ -47,4 +47,4 @@ class Global_Settings(UnnamedResourceMixin, Resource):
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
             'tm:sys:global-settings:global-settingsstate'
-        self._meta_data['uri'] = self._get_meta_data_uri_hyphens()
+        self._meta_data['uri'] = self._get_meta_data_uri()

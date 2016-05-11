@@ -45,6 +45,7 @@ class ManagementRoot(OrganizingCollection):
         self._meta_data = {
             'allowed_lazy_attributes': [Tm, Cm, Shared],
             'hostname': hostname,
+            'port': port,
             'uri': 'https://%s:%s/mgmt/' % (hostname, port),
             'icr_session': iCRS,
             'device_name': None,

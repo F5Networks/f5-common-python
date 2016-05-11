@@ -13,15 +13,26 @@
 # limitations under the License.
 #
 
+import pytest
+
+
+@pytest.fixture
+def cleaner(request, bigip):
+    initial_httpd = bigip.sys.httpd.load()
+
+    def teardown():
+        initial_httpd.update()
+    request.addfinalizer(teardown)
+
 
 class TestHttpd(object):
-    def test_load(self, bigip):
+    def test_load(self, cleaner, bigip):
         httpd = bigip.sys.httpd.load()
-        assert httpd.maxClients == 10
+        assert httpd.maxClients == 20
         httpd.refresh()
-        assert httpd.maxClients == 10
+        assert httpd.maxClients == 20
 
-    def test_update(self, bigip):
+    def test_update(self, cleaner, bigip):
         httpd = bigip.sys.httpd.load()
         httpd.update(maxClients=10)
         assert httpd.maxClients == 10
