@@ -17,12 +17,14 @@
 #
 
 
+from f5.bigip.cm import Cm
 from f5.bigip.resource import OrganizingCollection
-from f5.bigip.tm.auth import Auth
-from f5.bigip.tm.cm import Cm
+from f5.bigip.shared import Shared
+from f5.bigip.tm.auth import Auth as TmAuth
+from f5.bigip.tm.cm import Cm as TmCm
 from f5.bigip.tm.ltm import Ltm
 from f5.bigip.tm.net import Net
-from f5.bigip.tm.shared import Shared
+from f5.bigip.tm.shared import Shared as TmShared
 from f5.bigip.tm.sys import Sys
 from f5.bigip.tm import Tm
 from f5.bigip.transaction import Transactions
@@ -41,7 +43,7 @@ class ManagementRoot(OrganizingCollection):
         iCRS = iControlRESTSession(username, password, timeout=timeout)
         # define _meta_data
         self._meta_data = {
-            'allowed_lazy_attributes': [Tm],
+            'allowed_lazy_attributes': [Tm, Cm, Shared],
             'hostname': hostname,
             'uri': 'https://%s:%s/mgmt/' % (hostname, port),
             'icr_session': iCRS,
@@ -65,10 +67,8 @@ class BigIP(ManagementRoot):
 
     This class is solely implemented for backwards compatibility.
     """
-
     def __init__(self, hostname, username, password, **kwargs):
         super(BigIP, self).__init__(hostname, username, password, **kwargs)
-        self._meta_data['uri'] =\
-            self._meta_data['uri'] + 'tm/'
+        self._meta_data['uri'] = self._meta_data['uri'] + 'tm/'
         self._meta_data['allowed_lazy_attributes'] =\
-            [Auth, Cm, Ltm, Net, Shared, Sys, Transactions]
+            [TmAuth, TmCm, Ltm, Net, TmShared, Sys, Transactions]

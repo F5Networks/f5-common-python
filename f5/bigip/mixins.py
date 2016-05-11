@@ -16,6 +16,8 @@
 #
 # NOTE:  Code taken from Effective Python Item 26
 
+import os
+
 from f5.sdk_exception import F5SDKError
 
 
@@ -245,3 +247,30 @@ class CommandExecutionMixin(object):
         self._local_update(response.json())
 
         return self
+
+
+class FileUploadMixin(object):
+    def _upload(self, filepathname, **kwargs):
+        session = self._meta_data['icr_session']
+        chunk_size = kwargs.pop('chunk_size', 512 * 1024)
+        size = os.path.getsize(filepathname)
+        start = 0
+        with open(filepathname, 'rb') as fileobj:
+            while True:
+                file_slice = fileobj.read(chunk_size)
+                if not file_slice:
+                    break
+
+                current_bytes = len(file_slice)
+                if current_bytes < chunk_size:
+                    end = size
+                else:
+                    end = start + current_bytes
+                headers = {
+                    'Content-Range': '%s-%s/%s' % (start, end - 1, size),
+                    'Content-Type': 'application/octet-stream'}
+                req_params = {'data': file_slice,
+                              'headers': headers,
+                              'verify': False}
+                session.post(self.file_bound_uri, requests_params=req_params)
+                start += current_bytes

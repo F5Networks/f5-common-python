@@ -1,3 +1,6 @@
+# coding=utf-8
+#
+"""Classes and functions for configuring BIG-IP"""
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +15,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-'''A base exception for all exceptions in this library.'''
+
+from f5.bigip.cm.autodeploy import Autodeploy
+from f5.bigip.resource import OrganizingCollection
 
 
-class F5SDKError(Exception):
-    '''Import and subclass this exception in all exceptions in this library.'''
-    def __init__(self, *args, **kwargs):
-        super(F5SDKError, self).__init__(*args, **kwargs)
+class Cm(OrganizingCollection):
+    """An organizing collection for CM resources."""
+    def __init__(self, bigip):
+        super(Cm, self).__init__(bigip)
+        self._meta_data['allowed_lazy_attributes'] = [
+            Autodeploy
+        ]
