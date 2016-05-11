@@ -157,6 +157,7 @@ class PathElement(LazyAttributeMixin):
         self._meta_data = {
             'container': container,
             'bigip': container._meta_data['bigip'],
+            'icr_session': container._meta_data['icr_session'],
             'icontrol_version': container._meta_data['icontrol_version']
         }
         base_uri = self.__class__.__name__.lower() + '/'
@@ -362,12 +363,12 @@ class OrganizingCollection(ResourceBase):
     * provide a list of dictionaries that contain uri's to other
       resources on the device.
     """
-    def __init__(self, bigip):
+    def __init__(self, container):
         """Call this to construct an OC. It should be an attribute of BIG-IP®.
 
         :param bigip: all OCs are attributes of a BIG-IP® instance
         """
-        super(OrganizingCollection, self).__init__(bigip)
+        super(OrganizingCollection, self).__init__(container)
 
     def get_collection(self, **kwargs):
         """Call to obtain a list of the reference dicts in the instance `items`

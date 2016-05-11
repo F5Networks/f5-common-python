@@ -39,8 +39,8 @@ from f5.bigip.tm.cm.trust_domain import Trust_Domains
 
 class Cm(OrganizingCollection, CommandExecutionMixin):
     """BIG-IP® Cluster Organizing Collection."""
-    def __init__(self, tm):
-        super(Cm, self).__init__(tm)
+    def __init__(self, cm):
+        super(Cm, self).__init__(cm)
         self._meta_data['allowed_lazy_attributes'] = [
             Devices, Device_Groups, Traffic_Groups, Trust_Domains,
             Sync_Status, Add_To_Trust, Remove_From_Trust,
