@@ -108,8 +108,8 @@ class DeviceGroupManager(DeviceMixin):
         self.check_device_group_status()
         for device in self.devices:
             self._delete_device_from_device_group(device)
-            # self._ensure_device_active(device)
-            self.check_device_group_status()
+            self._ensure_device_active(device)
+            self._ensure_all_devices_in_sync()
         dg = self._get_device_group(self.root_device)
         dg.delete()
         self.check_devices_active_licensed()
