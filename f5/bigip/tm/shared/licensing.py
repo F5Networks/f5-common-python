@@ -27,6 +27,7 @@ REST Kind
 """
 
 from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.mixins import UnsupportedMethod
 from f5.bigip.resource import PathElement
 from f5.bigip.resource import Resource
 
@@ -81,7 +82,7 @@ class Activation(UnnamedResourceMixin, Resource):
 
         :raises: UnsupportedOperation
         '''
-        raise self.UnsupportedMethod(
+        raise UnsupportedMethod(
             "%s does not support the update method" % self.__class__.__name__
         )
 
@@ -111,6 +112,6 @@ class Registration(UnnamedResourceMixin, Resource):
 
         :raises: UnsupportedOperation
         '''
-        raise self.UnsupportedMethod(
+        raise UnsupportedMethod(
             "%s does not support the update method" % self.__class__.__name__
         )

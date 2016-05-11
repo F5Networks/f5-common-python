@@ -33,11 +33,9 @@ from f5.bigip.resource import Resource
 class Config(UnnamedResourceMixin, Resource):
     def __init__(self, sys):
         super(Config, self).__init__(sys)
-        endpoint = self.__class__.__name__.lower()
         self._meta_data['allowed_lazy_attributes'] = []
         self._meta_data['attribute_registry'] = {}
-        self._meta_data['uri'] =\
-            self._meta_data['container']._meta_data['uri'] + endpoint + '/'
+        self._meta_data['uri'] = self._get_meta_data_uri()
 
     def update(self, **kwargs):
         '''Update is not supported for Config

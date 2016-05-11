@@ -172,10 +172,6 @@ class UnnamedResourceMixin(object):
         return self
 
     def _get_meta_data_uri(self):
-        endpoint = self.__class__.__name__.lower()
-        return self._meta_data['container']._meta_data['uri'] + endpoint + '/'
-
-    def _get_meta_data_uri_hyphens(self):
         endpoint = self.__class__.__name__.lower().replace('_', '-')
         return self._meta_data['container']._meta_data['uri'] + endpoint + '/'
 
@@ -274,3 +270,19 @@ class FileUploadMixin(object):
                               'verify': False}
                 session.post(self.file_bound_uri, requests_params=req_params)
                 start += current_bytes
+
+
+class DeviceMixin(object):
+    '''Manage BigIP device cluster in a general way.'''
+
+    def get_device_info(self, bigip):
+        '''Get device information about a specific BigIP device.
+
+        :param bigip: bigip object --- device to inspect
+        :returns: bigip object
+        '''
+
+        coll = bigip.cm.devices.get_collection()
+        device = [device for device in coll if device.selfDevice == 'true']
+        assert len(device) == 1
+        return device[0]
