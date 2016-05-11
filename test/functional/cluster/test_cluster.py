@@ -14,14 +14,14 @@
 #
 
 from f5.bigip import ManagementRoot
-from f5.multi_device.cluster import Cluster
-from f5.multi_device.cluster.managers import DeviceGroupOperationNotSupported
+from f5.multi_device.cluster import ClusterManager
 
 import pytest
 
 
 DEVICE_GROUP_NAME = 'testing_cluster'
 PARTITION = 'Common'
+SYNCONLYPART = 'test'
 
 
 class FakeDeviceInfo(object):
@@ -52,9 +52,12 @@ def TwoBigIPTeardownSyncFailover(request, BigIPSetup):
     bigip_list = [a, b]
 
     def teardown_cluster():
-        cm = Cluster(
-            bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-failover')
-        cm.teardown_cluster()
+        cm = ClusterManager(
+            devices=bigip_list,
+            device_group_name=DEVICE_GROUP_NAME,
+            device_group_partition=PARTITION,
+            device_group_type='sync-failover')
+        cm.teardown()
     request.addfinalizer(teardown_cluster)
 
 
@@ -64,94 +67,79 @@ def ThreeBigIPTeardownSyncFailover(request, BigIPSetup):
     bigip_list = [a, b, c]
 
     def teardown_cluster():
-        cm = Cluster(
-            bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-failover')
-        cm.teardown_cluster()
+        cm = ClusterManager(
+            devices=bigip_list,
+            device_group_name=DEVICE_GROUP_NAME,
+            device_group_partition=PARTITION,
+            device_group_type='sync-failover')
+        cm.teardown()
     request.addfinalizer(teardown_cluster)
 
 
-@pytest.fixture
-def TwoBigIPTeardownSyncOnly(request, BigIPSetup):
+def test_new_failover_cluster_two_member(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b]
+    cm = ClusterManager()
 
-    def teardown_cluster():
-        cm = Cluster(
-            bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-only')
-        cm.teardown_cluster()
-    request.addfinalizer(teardown_cluster)
+    cm.create(
+        devices=bigip_list,
+        device_group_name=DEVICE_GROUP_NAME,
+        device_group_partition=PARTITION,
+        device_group_type='sync-failover')
+    cm.teardown()
 
 
-@pytest.fixture
-def ThreeBigIPTeardownSyncOnly(request, BigIPSetup):
+def test_new_failover_cluster_three_member(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b, c]
+    cm = ClusterManager()
 
-    def teardown_cluster():
-        cm = Cluster(
-            bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-only')
-        cm.teardown_cluster()
-    request.addfinalizer(teardown_cluster)
+    cm.create(
+        devices=bigip_list,
+        device_group_name=DEVICE_GROUP_NAME,
+        device_group_partition=PARTITION,
+        device_group_type='sync-failover')
+    cm.teardown()
 
 
-def test_failover_cluster(BigIPSetup):
+def test_existing_failover_cluster(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b]
-    cm = Cluster(
-        bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-failover')
+    cm = ClusterManager()
+    kwargs = {'devices': bigip_list,
+              'device_group_name': DEVICE_GROUP_NAME,
+              'device_group_partition': PARTITION,
+              'device_group_type': 'sync-failover'}
+    cm.create(**kwargs)
 
-    cm.create_cluster()
-    cm.scale_up_cluster(c)
-    bigip_list.append(c)
-    cm.scale_down_cluster(c)
-    bigip_list.remove(c)
-    cm.scale_up_cluster(c)
-    bigip_list.append(c)
-    cm.teardown_cluster()
+    del cm
+
+    cm = ClusterManager(**kwargs)
+    cm.teardown()
 
 
-def test_sync_only_cluster_fail_in_common(BigIPSetup):
+def test_scale_up_sync_failover(BigIPSetup, ThreeBigIPTeardownSyncFailover):
     a, b, c = BigIPSetup
     bigip_list = [a, b]
-    with pytest.raises(DeviceGroupOperationNotSupported) as ex:
-        Cluster(
-            bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-only')
-    assert 'Attempted to create sync-only device group in the Common ' \
-        'partition. This is not supported' in ex.value.message
+    cm = ClusterManager()
+    kwargs = {'devices': bigip_list,
+              'device_group_name': DEVICE_GROUP_NAME,
+              'device_group_partition': PARTITION,
+              'device_group_type': 'sync-failover'}
+    cm.create(**kwargs)
+    cm.scale_up(c)
 
 
-def test_teardown_existing_cluster(BigIPSetup):
-    for x in range(5):
-        a, b, c = BigIPSetup
-        bigip_list = [a, b, c]
-        cm = Cluster(
-            bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-failover')
-        cm.create_cluster()
-        del cm
-        cm = Cluster(
-            bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-failover')
-        cm.teardown_cluster()
-
-
-def test_scale_up_with_existing_device(
+def test_scale_up_down_up_down_sync_failover(
         BigIPSetup, TwoBigIPTeardownSyncFailover):
     a, b, c = BigIPSetup
     bigip_list = [a, b]
-    cm = Cluster(
-        bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-failover')
-    cm.create_cluster()
-    with pytest.raises(DeviceGroupOperationNotSupported) as ex:
-        cm.scale_up_cluster(b)
-    assert 'The following device is already a member of the device group:' in \
-        ex.value.message
-
-
-def test_scale_up_down_up_down(BigIPSetup, TwoBigIPTeardownSyncFailover):
-    a, b, c = BigIPSetup
-    bigip_list = [a, b]
-    cm = Cluster(
-        bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-failover')
-    cm.create_cluster()
-    for x in range(10):
-        cm.scale_up_cluster(c)
-        cm.scale_down_cluster(c)
+    cm = ClusterManager()
+    kwargs = {'devices': bigip_list,
+              'device_group_name': DEVICE_GROUP_NAME,
+              'device_group_partition': PARTITION,
+              'device_group_type': 'sync-failover'}
+    cm.create(**kwargs)
+    for x in range(3):
+        cm.scale_up(c)
+        cm.scale_down(c)
