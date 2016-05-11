@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP® Network ARP module.
+"""BIG-IP® Network DNS Resolver module.
 
 REST URI
     ``http://localhost/mgmt/tm/net/dns-resolver``
