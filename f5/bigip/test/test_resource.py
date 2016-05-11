@@ -442,7 +442,8 @@ def test_collection_s():
     MC._meta_data = {
         'bigip': 'bigip',
         'uri': 'BASEURI/',
-        'icontrol_version': ''
+        'icontrol_version': '',
+        'icr_session': 'FAKEICRSESSION'
     }
     tc_s = Under_s(MC)
     assert tc_s._meta_data['uri'] == 'BASEURI/under/'
