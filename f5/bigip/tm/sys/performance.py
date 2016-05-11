@@ -38,7 +38,7 @@ class Performance(Collection):
     def __init__(self, sys):
         super(Performance, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [All_Stats]
-        self._meta_data['uri'] =\
+        self._meta_data['uri'] = \
             self._meta_data['container']._meta_data['uri'] + "performance/"
 
     def get_collection(self):
@@ -60,7 +60,7 @@ class All_Stats(UnnamedResourceMixin, Resource):
         self._meta_data['required_json_kind'] =\
             'tm:sys:performance:all-stats:all-statsstats'
         self._meta_data['uri'] =\
-            self._meta_data['container']._meta_data['uri'] + "all-stats/"
+            self._get_meta_data_uri() + "all-stats/"
 
     def update(self, **kwargs):
         '''Update is not supported for statistics.
