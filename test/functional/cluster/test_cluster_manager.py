@@ -15,7 +15,7 @@
 
 from f5.bigip import BigIP
 from f5.cluster.cluster_manager import ClusterManager
-from f5.cluster.device_group_manager import DeviceGroupManager as dgm
+# from f5.cluster.device_group_manager import DeviceGroupManager as dgm
 
 import pytest
 
