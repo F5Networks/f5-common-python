@@ -59,8 +59,7 @@ class All_Stats(UnnamedResourceMixin, Resource):
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
             'tm:sys:performance:all-stats:all-statsstats'
-        self._meta_data['uri'] =\
-            self._get_meta_data_uri() + "all-stats/"
+        self._meta_data['uri'] = self._get_meta_data_uri()
 
     def update(self, **kwargs):
         '''Update is not supported for statistics.
