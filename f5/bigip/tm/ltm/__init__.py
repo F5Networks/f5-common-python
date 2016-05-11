@@ -53,7 +53,7 @@ class Ltm(OrganizingCollection):
             Nats,
             Nodes,
             Persistences,
-            Profiles,
+            Profile,
             Policys,
             Pools,
             Rules,
