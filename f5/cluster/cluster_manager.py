@@ -113,6 +113,7 @@ class ClusterManager(DeviceMixin):
         if bigip_name == root_name:
             msg = 'Removing trusted root device is not currently supported.'
             raise RootRemovalNotSupported(msg)
+        print('Scaling cluster down by one device...')
         self.dgm.scale_down_device_group(bigip)
         self.peer_mgr.remove_trusted_peers(self.root_bigip, bigip)
         self.dgm.cleanup_scaled_down_device(bigip)

@@ -65,20 +65,20 @@ def test_failover_cluster_management(BigIPSetup):
 def test_sync_only_cluster_management(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b]
-    dg = dgm(DEVICE_GROUP_NAME, a, bigip_list, PARTITION, 'sync-only')
+    # dg = dgm(DEVICE_GROUP_NAME, a, bigip_list, PARTITION, 'sync-only')
     cm = ClusterManager(
         bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-only')
 
     cm.create_cluster()
-    dg.check_device_group_status()
+    # dg.check_device_group_status()
 
     cm.scale_cluster_up(c)
     bigip_list.append(c)
 
-    dg.check_device_group_status()
+    # dg.check_device_group_status()
     cm.scale_cluster_down(b)
     bigip_list.remove(b)
-    dg.check_device_group_status()
+    # dg.check_device_group_status()
 
     cm.teardown_cluster()
 
