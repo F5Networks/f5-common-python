@@ -47,4 +47,4 @@ class Password_Policy(UnnamedResourceMixin, Resource):
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] = \
             'tm:auth:password-policy:password-policystate'
-        self._meta_data['uri'] = self._get_meta_data_uri()
+        self._meta_data['uri'] = self._get_meta_data_uri_hyphens()
