@@ -13,10 +13,13 @@
 # limitations under the License.
 #
 
+from f5.utils.decorators import poll_for_exceptionless_callable
+
 
 class DeviceMixin(object):
     '''Manage BigIP device cluster in a general way.'''
 
+    @poll_for_exceptionless_callable
     def get_device_info(self, bigip):
         '''Get device information about a specific BigIP device.
 

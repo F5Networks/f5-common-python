@@ -36,8 +36,8 @@ class Config(UnnamedResourceMixin, ResourceBase,
         super(Config, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = []
         self._meta_data['attribute_registry'] = {}
-        self._meta_data['allowed_commands'].append('save',
-                                                   'load')
+        self._meta_data['allowed_commands'].append('save')
+        self._meta_data['allowed_commands'].append('load')
 
     def update(self, **kwargs):
         '''Update is not supported for Config
