@@ -15,8 +15,8 @@
 #
 
 from f5.bigip.mixins import DeviceMixin
-from f5.cluster.device_group_manager import DeviceGroupManager as dgm
-from f5.cluster.trusted_peer_manager import TrustedPeerManager as peer_mgr
+from f5.multi_device.cluster.managers import DeviceGroupManager as dgm
+from f5.multi_device.cluster.managers import TrustedPeerManager as peer_mgr
 
 
 class ClusterNotSupported(Exception):
@@ -27,7 +27,7 @@ class RootRemovalNotSupported(Exception):
     pass
 
 
-class ClusterManager(DeviceMixin):
+class Cluster(DeviceMixin):
     '''Manage a cluster of BigIPs.
 
     This is accomplished with REST URI calls only, but some operations are
@@ -40,7 +40,7 @@ class ClusterManager(DeviceMixin):
     def __init__(self, bigips, cluster_name, partition, cluster_type):
         '''Initialize a cluster manager object.
 
-        :param bigips: list -- list of bigips to cluster
+        :param bigips: list -- list of bigip ojects to cluster
         :param cluster_name: str -- name of device service group
         :param partition: str -- partition to deploy cluster to
         :param cluster_type: str -- type of cluster configuration
@@ -82,7 +82,7 @@ class ClusterManager(DeviceMixin):
         for bigip in self.bigips:
             self.peer_mgr.remove_trusted_peers(bigip)
 
-    def scale_cluster_up(self, bigip):
+    def scale_up_cluster(self, bigip):
         '''Scale cluster up by one device.
 
         :param bigip: bigip object -- bigip to add
@@ -98,7 +98,7 @@ class ClusterManager(DeviceMixin):
         self.bigips.append(bigip)
         self.dgm.check_device_group_status()
 
-    def scale_cluster_down(self, bigip):
+    def scale_down_cluster(self, bigip):
         '''Scale cluster down by one device.
 
         :param bigip: bigip object -- bigip to delete
@@ -113,6 +113,7 @@ class ClusterManager(DeviceMixin):
         if bigip_name == root_name:
             msg = 'Removing trusted root device is not currently supported.'
             raise RootRemovalNotSupported(msg)
+        print('Scaling cluster down by one device...')
         self.dgm.scale_down_device_group(bigip)
         self.peer_mgr.remove_trusted_peers(self.root_bigip, bigip)
         self.dgm.cleanup_scaled_down_device(bigip)

@@ -37,7 +37,8 @@ def poll_by_method(method, attempts=30, interval=5):
             try:
                 return method(*args, **kwargs)
             except Exception:
+                if attempt == attempts-1:
+                    raise
                 time.sleep(interval)
                 continue
-        raise MaximumAttemptsReached('Polled method maximum number of times')
     return poll
