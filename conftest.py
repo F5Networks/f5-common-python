@@ -61,6 +61,12 @@ def NAT(bigip):
     return n
 
 
+@pytest.fixture
+def USER(bigip):
+    n = bigip.auth.users.user
+    return n
+
+
 def _delete_pools_members(bigip, pool_records):
     for pr in pool_records:
         if bigip.ltm.pools.pool.exists(partition=pr.partition, name=pr.name):
