@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-from f5.bigip import BigIP
-from f5.cluster.cluster_manager import ClusterManager
+from f5.bigip import ManagementRoot
+from f5.multi_device.cluster import Cluster
 # from f5.cluster.device_group_manager import DeviceGroupManager as dgm
 
 import pytest
@@ -26,15 +26,15 @@ PARTITION = 'Common'
 
 @pytest.fixture
 def BigIPSetup(symbols):
-    a = BigIP(
+    a = ManagementRoot(
         symbols.bigip1['netloc'],
         symbols.bigip1['username'],
         symbols.bigip1['password'])
-    b = BigIP(
+    b = ManagementRoot(
         symbols.bigip2['netloc'],
         symbols.bigip2['username'],
         symbols.bigip2['password'])
-    c = BigIP(
+    c = ManagementRoot(
         symbols.bigip3['netloc'],
         symbols.bigip3['username'],
         symbols.bigip3['password'])
@@ -45,7 +45,7 @@ def test_failover_cluster_management(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b]
     # dg = dgm(DEVICE_GROUP_NAME, a, bigip_list, PARTITION, 'sync-failover')
-    cm = ClusterManager(
+    cm = Cluster(
         bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-failover')
 
     cm.create_cluster()
@@ -66,7 +66,7 @@ def test_sync_only_cluster_management(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b]
     # dg = dgm(DEVICE_GROUP_NAME, a, bigip_list, PARTITION, 'sync-only')
-    cm = ClusterManager(
+    cm = Cluster(
         bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-only')
 
     cm.create_cluster()
@@ -86,10 +86,10 @@ def test_sync_only_cluster_management(BigIPSetup):
 def test_teardown_existing_cluster(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b, c]
-    cm = ClusterManager(
+    cm = Cluster(
         bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-failover')
     cm.create_cluster()
     del cm
-    cm = ClusterManager(
+    cm = Cluster(
         bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-failover')
     cm.teardown_cluster()

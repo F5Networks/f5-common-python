@@ -286,7 +286,7 @@ class DeviceMixin(object):
         :returns: bigip object
         '''
 
-        coll = bigip.cm.devices.get_collection()
+        coll = bigip.tm.cm.devices.get_collection()
         device = [device for device in coll if device.selfDevice == 'true']
         assert len(device) == 1
         return device[0]

@@ -13,24 +13,14 @@
 # limitations under the License.
 #
 
-from f5.cluster.cluster_manager import ClusterManager
-from f5.cluster.device_group_manager import DeviceGroupManager
+from f5.multi_device.cluster import Cluster
+from f5.multi_device.cluster.managers import DeviceGroupManager
 import mock
 import pytest
 
 
-@pytest.fixture
-def ClusterMgr():
-    cm = ClusterManager(
-        [mock.MagicMock(), mock.MagicMock],
-        'cluster_name',
-        'test_partition',
-        'sync-failover')
-    return cm
-
-
 def test___init__():
-    cm = ClusterManager(
+    cm = Cluster(
         [mock.MagicMock(), mock.MagicMock],
         'cluster_name',
         'test_partition',
@@ -42,7 +32,7 @@ def test___init__():
 
 def test__init__bad_cluster_type():
     with pytest.raises(Exception) as ex:
-        ClusterManager(
+        Cluster(
             [mock.MagicMock(), mock.MagicMock],
             'cluster_name',
             'test_partition',
@@ -53,7 +43,7 @@ def test__init__bad_cluster_type():
 
 def test__init__bad_cluster_number():
     with pytest.raises(Exception) as ex:
-        ClusterManager(
+        Cluster(
             [mock.MagicMock()],
             'cluster_name',
             'test_partition',
