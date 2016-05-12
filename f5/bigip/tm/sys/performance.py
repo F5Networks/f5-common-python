@@ -29,17 +29,15 @@ REST Kind
 
 from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.resource import Collection
-from f5.bigip.resource import Resource
+from f5.bigip.resource import ResourceBase
 from f5.bigip.resource import UnsupportedOperation
 
 
-class Performance(Collection):
+class Performances(Collection):
     """BIG-IP® system performace stats collection"""
     def __init__(self, sys):
-        super(Performance, self).__init__(sys)
+        super(Performances, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [All_Stats]
-        self._meta_data['uri'] = \
-            self._meta_data['container']._meta_data['uri'] + "performance/"
 
     def get_collection(self):
         '''Performance collections are not proper BIG-IP® collection objects.
@@ -52,14 +50,13 @@ class Performance(Collection):
         )
 
 
-class All_Stats(UnnamedResourceMixin, Resource):
+class All_Stats(UnnamedResourceMixin, ResourceBase):
     """BIG-IP® system performace stats unnamed resource"""
     def __init__(self, performance):
         super(All_Stats, self).__init__(performance)
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
             'tm:sys:performance:all-stats:all-statsstats'
-        self._meta_data['uri'] = self._get_meta_data_uri()
 
     def update(self, **kwargs):
         '''Update is not supported for statistics.
