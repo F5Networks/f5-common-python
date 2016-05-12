@@ -28,20 +28,20 @@ class HelperTest(object):
         full_str = '.' +self.item[self.idx][:-endind]
         return full_str.lower()
 
-    def setup_test(self, request, bigip):
+    def setup_test(self, request, bigip, **kwargs):
         def teardown():
             if profile.exists(name=self.name, partition=self.partition):
                 profile.delete()
         request.addfinalizer(teardown)
         hc = common+self.item[self.idx].lower()
         profile = eval(hc + self.fullstring())
-        profile.create(name=self.name, partition=self.partition)
+        profile.create(name=self.name, partition=self.partition, **kwargs)
         return hc, profile
 
-    def test_CURDL(self, request, bigip):
+    def test_CURDL(self, request, bigip, **kwargs):
 
         # Testing create
-        hc, profile1 = self.setup_test(request, bigip)
+        hc, profile1 = self.setup_test(request, bigip, **kwargs)
         assert profile1.name == self.name
 
         # Testing update
@@ -116,11 +116,12 @@ class TestDns(object):
         dns.test_CURDL(request, bigip)
 # End Dns tests
 
-# Begin Dns Logging tests -- needs publisher configured beforehand
+# Begin Dns Logging tests
 class TestDnsLogging(object):
     def test_dns_logging(self, request, bigip):
         dnslog = HelperTest(end_lst, 8)
-        dnslog.test_CURDL(request, bigip)
+        dnslog.test_CURDL(request, bigip,
+                          logPublisher='/Common/local-db-publisher')
 # End Dns Logging test
 
 # Begin FastHttp tests
@@ -228,7 +229,8 @@ class TestNtlm(object):
         ntlm.test_CURDL(request, bigip)
 # End Ntlm tests
 
-# Begin Ocsp Stapling Params tests ## Needs to determine dns resolver
+# Begin Ocsp Stapling Params tests ## Needs to determine dns resolver or proxy,
+# so 2 mutually exclusive and required attr
 class TestOcspStaplingParams(object):
     def test_ocspstapleparam(self, request, bigip):
         ocspst = HelperTest(end_lst, 24)
@@ -348,7 +350,7 @@ class TestSmtps(object):
         smtps.test_CURDL(request, bigip)
 # End Smtps tests
 
-# Begin Sock tests --needs dns resolver
+# Begin Sock tests --needs dns resolver and does not support description
 class TestSock(object):
     def test_sock(self, request, bigip):
         socks = HelperTest(end_lst, 40)
