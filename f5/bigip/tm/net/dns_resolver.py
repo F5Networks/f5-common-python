@@ -35,17 +35,18 @@ class Dns_Resolvers(Collection):
     """BIG-IP® network Dns Resolver collection"""
     def __init__(self, net):
         super(Dns_Resolvers, self).__init__(net)
+        fixed = self._meta_data['uri'].replace('_', '-')
+        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Dns_Resolver]
         self._meta_data['attribute_registry'] = {
             'tm:net:dns-resolver:dns-resolverstate': Dns_Resolver
         }
 
+
 class Dns_Resolver(Resource):
     """BIG-IP® Dns Resolver resource."""
     def __init__(self, Dns_Resolvers):
         super(Dns_Resolver, self).__init__(Dns_Resolvers)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Dns_Resolver]
         self._meta_data['required_json_kind'] = \
             'tm:net:dns-resolver:dns-resolverstate'
