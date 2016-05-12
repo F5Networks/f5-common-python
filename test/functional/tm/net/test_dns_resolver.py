@@ -13,34 +13,36 @@
 # limitations under the License.
 #
 
+
 def setup_test(request, bigip, name):
     def teardown():
-        if dns1.exists():
+        if dns1.exists(name=name):
             dns1.delete()
 
     request.addfinalizer(teardown)
     dc1 = bigip.net.dns_resolvers
     dr1 = dc1.dns_resolver
     dns1 = dr1.create(name=name)
-    return dr1, dns1
+    return dc1, dns1
+
 
 class TestDnsResolver(object):
     def test_CURDL(self, request, bigip):
 
         # Test create
-        dr1, dns1 = setup_test(request, bigip, name='test_dns_resolver')
+        dc1, dns1 = setup_test(request, bigip, name='test_dns_resolver')
         assert dns1.name == 'test_dns_resolver'
 
         # Test update
-        dns1.useTcp = 'No'
+        dns1.useTcp = 'no'
         dns1.update()
-        assert dns1.useTcp == 'No'
+        assert dns1.useTcp == 'no'
 
         # Test refresh
-        dns1.useTcp = 'Yes'
-        dns.refresh()
-        assert dns1.useTcp == 'No'
+        dns1.useTcp = 'yes'
+        dns1.refresh()
+        assert dns1.useTcp == 'no'
 
         # Test Load
-        dns2 = dr1.load(name='test_dns_resolver')
+        dns2 = dc1.dns_resolver.load(name='test_dns_resolver')
         assert dns2.useTcp == dns1.useTcp
