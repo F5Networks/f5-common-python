@@ -157,12 +157,12 @@ class TestClassification(object):
 
         # Update test
         klass1.description = TESTDESCRIPTION
-        klass.update()
+        klass1.update()
         assert klass1.description == TESTDESCRIPTION
 
         # Refresh test
         klass1.description = 'ICHANGEDIT'
-        klass.refresh()
+        klass1.refresh()
         assert klass1.description == TESTDESCRIPTION
 
 
