@@ -86,7 +86,7 @@ class Analytics_s(Collection):
 
     .. note::
          Profile and sub-collections
-         requires AVR provisioned.
+         require AVR provisioned.
     """
     def __init__(self, profile):
         super(Analytics_s, self).__init__(profile)
@@ -160,7 +160,7 @@ class Certificate_Authority(Resource):
         self._meta_data['required_json_kind'] = \
             'tm:ltm:profile:certificate-authority:certificate-authoritystate'
 
-# Delete/Post usupported - need to amend this
+
 class Classifications(Collection):
     """BIG-IP® Classification profile collection."""
     def __init__(self, profile):
@@ -176,6 +176,24 @@ class Classification(Resource):
         super(Classification, self).__init__(Classifications)
         self._meta_data['required_json_kind'] = \
             'tm:ltm:profile:classification:classificationstate'
+
+    def create(self, **kwargs):
+        """Create is not supported for Classification
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        """Delete is not supported for Classification
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the delete method" % self.__class__.__name__
+        )
 
 
 class Client_Ldaps(Collection):
