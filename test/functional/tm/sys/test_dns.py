@@ -13,6 +13,8 @@
 #   limitations under the License.
 #
 
+from pprint import pprint as pp
+
 
 def setup_dns_test(request, bigip):
     def teardown():
@@ -32,8 +34,11 @@ class TestDns(object):
         dns2 = bigip.sys.dns.load()
         assert len(dns1.nameServers) == len(dns2.nameServers)
 
+        pp(dns1.raw)
+        pp(dns2.raw)
         # Update
         dns1.nameServers = [ip]
+        pp(dns2.raw)
         dns1.update()
         assert ip in dns1.nameServers
         assert ip not in dns2.nameServers

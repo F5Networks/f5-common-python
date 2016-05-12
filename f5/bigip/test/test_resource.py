@@ -422,10 +422,6 @@ def test_ResourceBase():
         rb.create()
     assert create_EIO.value.message ==\
         "Only Resources support 'create'."
-    with pytest.raises(InvalidResource) as update_EIO:
-        rb.update()
-    assert update_EIO.value.message ==\
-        "Only Resources support 'update'."
     with pytest.raises(InvalidResource) as delete_EIO:
         rb.delete()
     assert delete_EIO.value.message ==\

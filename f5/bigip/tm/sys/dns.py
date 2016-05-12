@@ -28,10 +28,10 @@ REST Kind
 """
 
 from f5.bigip.mixins import UnnamedResourceMixin
-from f5.bigip.resource import Resource
+from f5.bigip.resource import ResourceBase
 
 
-class Dns(UnnamedResourceMixin, Resource):
+class Dns(UnnamedResourceMixin, ResourceBase):
     """BIG-IP® system DNS unnamed resource
 
         .. note::
@@ -43,4 +43,3 @@ class Dns(UnnamedResourceMixin, Resource):
         super(Dns, self).__init__(sys)
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] = 'tm:sys:dns:dnsstate'
-        self._meta_data['uri'] = self._get_meta_data_uri()

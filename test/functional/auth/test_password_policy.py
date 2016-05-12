@@ -13,17 +13,21 @@
 # limitations under the License.
 #
 
+from pprint import pprint as pp
+
 
 class TestPasswordPolicy(object):
     def test_load(self, bigip):
-        pp = bigip.auth.password_policy.load()
-        assert pp.maxLoginFailures == 0
-        pp.refresh()
-        assert pp.maxLoginFailures == 0
+        password_policy = bigip.auth.password_policy.load()
+        pp(password_policy._meta_data['uri'])
+        pp(password_policy.raw)
+        assert password_policy.maxLoginFailures == 0
+        password_policy.refresh()
+        assert password_policy.maxLoginFailures == 0
 
     def test_update(self, bigip):
-        pp = bigip.auth.password_policy.load()
-        pp.update(maxLoginFailures=10)
-        assert pp.maxLoginFailures == 10
-        pp.update(maxLoginFailures=0)
-        assert pp.maxLoginFailures == 0
+        password_policy = bigip.auth.password_policy.load()
+        password_policy.update(maxLoginFailures=10)
+        assert password_policy.maxLoginFailures == 10
+        password_policy.update(maxLoginFailures=0)
+        assert password_policy.maxLoginFailures == 0

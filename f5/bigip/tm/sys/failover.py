@@ -27,10 +27,10 @@ REST Kind
 """
 
 from f5.bigip.mixins import UnnamedResourceMixin
-from f5.bigip.resource import Resource
+from f5.bigip.resource import ResourceBase
 
 
-class Failover(UnnamedResourceMixin, Resource):
+class Failover(UnnamedResourceMixin, ResourceBase):
     '''BIG-IP® Failover stats and state change.
 
     The failover object only supports load, update, and refresh because it is
@@ -51,7 +51,6 @@ class Failover(UnnamedResourceMixin, Resource):
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
             'tm:sys:failover:failoverstats'
-        self._meta_data['uri'] = self._get_meta_data_uri()
 
     def update(self, **kwargs):
         '''Update is not supported for Failover

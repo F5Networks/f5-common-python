@@ -44,7 +44,6 @@ class Ntp(UnnamedResourceMixin, Resource):
         super(Ntp, self).__init__(sys)
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] = 'tm:sys:ntp:ntpstate'
-        self._meta_data['uri'] = self._get_meta_data_uri()
         self._meta_data['attribute_registry'] = {
             'tm:sys:ntp:restrict:restrictcollectionstate': Restricts
         }
