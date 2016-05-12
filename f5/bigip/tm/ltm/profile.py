@@ -301,6 +301,8 @@ class Dns_Logging(Resource):
         super(Dns_Logging, self).__init__(Dns_Loggings)
         self._meta_data['required_json_kind'] = \
             'tm:ltm:profile:dns-logging:dns-loggingstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('logPublisher',))
 
 
 class Fasthttps(Collection):
@@ -914,6 +916,8 @@ class Socks(Resource):
         super(Socks, self).__init__(Socks_s)
         self._meta_data['required_json_kind'] = \
              'tm:ltm:profile:socks:socksstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('dnsResolver',))
 
 
 class Spdys(Collection):
