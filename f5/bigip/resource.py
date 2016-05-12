@@ -160,9 +160,103 @@ class PathElement(LazyAttributeMixin):
             'icr_session': container._meta_data['icr_session'],
             'icontrol_version': container._meta_data['icontrol_version']
         }
-        base_uri = self.__class__.__name__.lower() + '/'
-        self._meta_data['uri'] =\
-            self._meta_data['container']._meta_data['uri'] + base_uri
+        self._set_meta_data_uri()
+
+    def _set_meta_data_uri(self):
+        base_uri = self.__class__.__name__.lower()
+        if isinstance(self, Collection):
+            # Handle 'terminal s or _s'
+            if self.__class__.__name__.lower()[-2:] == '_s':
+                endind = 2
+            else:
+                endind = 1
+            base_uri = self.__class__.__name__.lower()[:-endind]
+        endpoint = base_uri.replace('_', '-')
+        final_uri =\
+            self._meta_data['container']._meta_data['uri'] + endpoint + '/'
+        self._meta_data['uri'] = final_uri
+
+    def _check_load_parameters(self, **kwargs):
+        '''Params given to load should at least satisfy required params.
+
+        :params: kwargs
+        :raises: MissingRequiredReadParameter
+        '''
+        key_set = set(kwargs.keys())
+        required_minus_received =\
+            self._meta_data['required_load_parameters'] - key_set
+        if required_minus_received != set():
+            error_message = 'Missing required params: %r'\
+                % required_minus_received
+            raise MissingRequiredReadParameter(error_message)
+
+    def _local_update(self, rdict):
+        """Call this with a response dictionary to update instance attrs.
+
+        If the response has only valid keys, stash meta_data, replace __dict__,
+        and reassign meta_data.
+
+        :param rdict: response attributes derived from server JSON
+        """
+        sanitized = self._check_keys(rdict)
+        temp_meta = self._meta_data
+        self.__dict__ = sanitized
+        self._meta_data = temp_meta
+
+    def _check_keys(self, rdict):
+        """Call this from _local_update to validate response keys
+
+        disallowed server-response json keys:
+        1. The string-literal '_meta_data'
+        2. strings that are not valid Python 2.7 identifiers
+        3. strings that are Python keywords
+        4. strings beginning with '__'.
+
+        :param rdict: from response.json()
+        :raises: DeviceProvidesIncompatibleKey
+        :returns: checked response rdict
+        """
+        if '_meta_data' in rdict:
+            error_message = "Response contains key '_meta_data' which is "\
+                "incompatible with this API!!\n Response json: %r" % rdict
+            raise DeviceProvidesIncompatibleKey(error_message)
+        for x in rdict:
+            if not re.match(tokenize.Name, x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's not a valid Python 2.7 identifier." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif keyword.iskeyword(x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's a Python keyword." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif x.startswith('__'):
+                error_message = "Device provided %r which is disallowed"\
+                    ", it mangles into a Python non-public attribute." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+        return rdict
+
+    def _check_force_arg(self, force):
+        if not isinstance(force, bool):
+            raise InvalidForceType("force parameter must be type bool")
+        return force
+
+    def _check_generation(self):
+        '''Check that the generation on the BIG-IP® matches the object
+
+        This will do a get to the objects URI and check that the generation
+        returned in the JSON matches the one the object currently has.  If it
+        does not it will raise the `GenerationMismatch` exception.
+        '''
+
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        response = session.get(self._meta_data['uri'])
+        current_gen = response.json().get('generation', None)
+        if current_gen is not None and current_gen != self.generation:
+            error_message = ("The generation of the object on the BigIP " +
+                             "(" + str(current_gen) + ")" +
+                             " does not match the current object" +
+                             "(" + str(self.generation) + ")")
+            raise GenerationMismatch(error_message)
 
     @property
     def raw(self):
@@ -232,50 +326,64 @@ class ResourceBase(PathElement, ToDictMixin):
         """
         super(ResourceBase, self).__init__(container)
 
-    def _local_update(self, rdict):
-        """Call this with a response dictionary to update instance attrs.
+    def _update(self, **kwargs):
+        """wrapped with update, override that in a subclass to customize"""
+        requests_params = self._handle_requests_params(kwargs)
+        update_uri = self._meta_data['uri']
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        read_only = self._meta_data.get('read_only_attributes', [])
 
-        If the response has only valid keys, stash meta_data, replace __dict__,
-        and reassign meta_data.
+        # Get the current state of the object on BIG-IP® and check the
+        # generation Use pop here because we don't want force in the data_dict
+        force = self._check_force_arg(kwargs.pop('force', False))
+        if not force:
+            self._check_generation()
 
-        :param rdict: response attributes derived from server JSON
-        """
-        sanitized = self._check_keys(rdict)
-        temp_meta = self._meta_data
-        self.__dict__ = sanitized
+        # Save the meta data so we can add it back into self after we
+        # load the new object.
+        temp_meta = self.__dict__.pop('_meta_data')
+
+        # Need to remove any of the Collection objects from self.__dict__
+        # because these are subCollections and _meta_data and
+        # other non-BIG-IP® attrs are not removed from the subCollections
+        # See issue #146 for details
+        for key, value in self.__dict__.items():
+            if isinstance(value, Collection):
+                self.__dict__.pop(key, '')
+        data_dict = self.to_dict()
+
+        # Remove any read-only attributes from our data_dict before we update
+        # the data dict with the attributes.  If they pass in read-only attrs
+        # in the method call we are going to let BIG-IP® let them know about it
+        # when it fails
+        for attr in read_only:
+            data_dict.pop(attr, '')
+
+        data_dict.update(kwargs)
+        response = session.put(update_uri, json=data_dict, **requests_params)
         self._meta_data = temp_meta
+        self._local_update(response.json())
 
-    def _check_keys(self, rdict):
-        """Call this from _local_update to validate response keys
+    def update(self, **kwargs):
+        """Update the configuration of the resource on the BIG-IP®.
 
-        disallowed server-response json keys:
-        1. The string-literal '_meta_data'
-        2. strings that are not valid Python 2.7 identifiers
-        3. strings that are Python keywords
-        4. strings beginning with '__'.
+        This method uses HTTP PUT alter the resource state on the BIG-IP®.
 
-        :param rdict: from response.json()
-        :raises: DeviceProvidesIncompatibleKey
-        :returns: checked response rdict
+        The attributes of the instance will be packaged as a dictionary.  That
+        dictionary will be updated with kwargs.  It is then submitted as JSON
+        to the device.
+
+        Various edge cases are handled:
+        * read-only attributes that are unchangeable are removed
+
+        :param kwargs: keys and associated values to alter on the device
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.put method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
+
         """
-        if '_meta_data' in rdict:
-            error_message = "Response contains key '_meta_data' which is "\
-                "incompatible with this API!!\n Response json: %r" % rdict
-            raise DeviceProvidesIncompatibleKey(error_message)
-        for x in rdict:
-            if not re.match(tokenize.Name, x):
-                error_message = "Device provided %r which is disallowed"\
-                    " because it's not a valid Python 2.7 identifier." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-            elif keyword.iskeyword(x):
-                error_message = "Device provided %r which is disallowed"\
-                    " because it's a Python keyword." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-            elif x.startswith('__'):
-                error_message = "Device provided %r which is disallowed"\
-                    ", it mangles into a Python non-public attribute." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-        return rdict
+        # Need to implement checking for valid params here.
+        self._update(**kwargs)
 
     def _handle_requests_params(self, kwargs):
         """Validate parameters that will be passed to the requests verbs.
@@ -335,14 +443,6 @@ class ResourceBase(PathElement, ToDictMixin):
         :raises: InvalidResource
         """
         error_message = "Only Resources support 'create'."
-        raise InvalidResource(error_message)
-
-    def update(self, **kwargs):
-        """Implement this by overriding it in a subclass of `Resource`
-
-        :raises: InvalidResource
-        """
-        error_message = "Only Resources support 'update'."
         raise InvalidResource(error_message)
 
     def delete(self, **kwargs):
@@ -408,14 +508,6 @@ class Collection(ResourceBase):
         :param container: instances of Collection are attributes of container
         """
         super(Collection, self).__init__(container)
-        # Handle 'terminal s or _s'
-        if self.__class__.__name__.lower()[-2:] == '_s':
-            endind = 2
-        else:
-            endind = 1
-        base_uri = self.__class__.__name__.lower()[:-endind] + '/'
-        self._meta_data['uri'] =\
-            self._meta_data['container']._meta_data['uri'] + base_uri
 
     def get_collection(self, **kwargs):
         """Get an iterator of Python ``Resource`` objects that represent URIs.
@@ -659,79 +751,6 @@ class Resource(ResourceBase):
         self._load(**kwargs)
         return self
 
-    def _check_load_parameters(self, **kwargs):
-        '''Params given to load should at least satisfy required params.
-
-        :params: kwargs
-        :raises: MissingRequiredReadParameter
-        '''
-        key_set = set(kwargs.keys())
-        required_minus_received =\
-            self._meta_data['required_load_parameters'] - key_set
-        if required_minus_received != set():
-            error_message = 'Missing required params: %r'\
-                % required_minus_received
-            raise MissingRequiredReadParameter(error_message)
-
-    def _update(self, **kwargs):
-        """wrapped with update, override that in a subclass to customize"""
-        requests_params = self._handle_requests_params(kwargs)
-        update_uri = self._meta_data['uri']
-        session = self._meta_data['bigip']._meta_data['icr_session']
-        read_only = self._meta_data.get('read_only_attributes', [])
-
-        # Get the current state of the object on BIG-IP® and check the
-        # generation Use pop here because we don't want force in the data_dict
-        force = self._check_force_arg(kwargs.pop('force', False))
-        if not force:
-            self._check_generation()
-
-        # Save the meta data so we can add it back into self after we
-        # load the new object.
-        temp_meta = self.__dict__.pop('_meta_data')
-
-        # Need to remove any of the Collection objects from self.__dict__
-        # because these are subCollections and _meta_data and
-        # other non-BIG-IP® attrs are not removed from the subCollections
-        # See issue #146 for details
-        for key, value in self.__dict__.items():
-            if isinstance(value, Collection):
-                self.__dict__.pop(key, '')
-        data_dict = self.to_dict()
-
-        # Remove any read-only attributes from our data_dict before we update
-        # the data dict with the attributes.  If they pass in read-only attrs
-        # in the method call we are going to let BIG-IP® let them know about it
-        # when it fails
-        for attr in read_only:
-            data_dict.pop(attr, '')
-
-        data_dict.update(kwargs)
-        response = session.put(update_uri, json=data_dict, **requests_params)
-        self._meta_data = temp_meta
-        self._local_update(response.json())
-
-    def update(self, **kwargs):
-        """Update the configuration of the resource on the BIG-IP®.
-
-        This method uses HTTP PUT alter the resource state on the BIG-IP®.
-
-        The attributes of the instance will be packaged as a dictionary.  That
-        dictionary will be updated with kwargs.  It is then submitted as JSON
-        to the device.
-
-        Various edge cases are handled:
-        * read-only attributes that are unchangeable are removed
-
-        :param kwargs: keys and associated values to alter on the device
-        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
-        be passed to the underlying requests.session.put method where it will
-        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-
-        """
-        # Need to implement checking for valid params here.
-        self._update(**kwargs)
-
     def _delete(self, **kwargs):
         """wrapped with delete, override that in a subclass to customize """
         requests_params = self._handle_requests_params(kwargs)
@@ -797,26 +816,3 @@ class Resource(ResourceBase):
             else:
                 raise
         return True
-
-    def _check_force_arg(self, force):
-        if not isinstance(force, bool):
-            raise InvalidForceType("force parameter must be type bool")
-        return force
-
-    def _check_generation(self):
-        '''Check that the generation on the BIG-IP® matches the object
-
-        This will do a get to the objects URI and check that the generation
-        returned in the JSON matches the one the object currently has.  If it
-        does not it will raise the `GenerationMismatch` exception.
-        '''
-
-        session = self._meta_data['bigip']._meta_data['icr_session']
-        response = session.get(self._meta_data['uri'])
-        current_gen = response.json().get('generation', None)
-        if current_gen is not None and current_gen != self.generation:
-            error_message = ("The generation of the object on the BigIP " +
-                             "(" + str(current_gen) + ")" +
-                             " does not match the current object" +
-                             "(" + str(self.generation) + ")")
-            raise GenerationMismatch(error_message)

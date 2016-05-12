@@ -18,13 +18,13 @@ import pytest
 
 from f5.bigip.mixins import UnsupportedMethod
 from f5.bigip.resource import UnsupportedOperation
-from f5.bigip.tm.sys.performance import Performance
+from f5.bigip.tm.sys.performance import Performances
 
 
 @pytest.fixture
 def FakePerformance():
     fake_sys = mock.MagicMock()
-    return Performance(fake_sys)
+    return Performances(fake_sys)
 
 
 class TestPerformance(object):

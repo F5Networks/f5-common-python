@@ -16,7 +16,7 @@
 
 class TestAllStats(object):
     def test_RL(self, bigip):
-        allstats = bigip.sys.performance.all_stats.load()
+        allstats = bigip.sys.performances.all_stats.load()
         assert hasattr(allstats, 'apiRawValues')
         allstats.refresh()
         assert hasattr(allstats, 'apiRawValues')

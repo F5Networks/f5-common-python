@@ -43,4 +43,3 @@ class Sshd(UnnamedResourceMixin, Resource):
         super(Sshd, self).__init__(sys)
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] = 'tm:sys:sshd:sshdstate'
-        self._meta_data['uri'] = self._get_meta_data_uri()

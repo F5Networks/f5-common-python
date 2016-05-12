@@ -31,7 +31,6 @@ class Add_To_Trust(UnnamedResourceMixin, ExclusiveAttributesMixin,
 
     def __init__(self, cm):
         super(Add_To_Trust, self).__init__(cm)
-        self._meta_data['uri'] = self._get_meta_data_uri()
         self._meta_data['exclusive_attributes'].append(
             ('caDevice', 'nonCaDevice'))
         self._meta_data['required_creation_parameters'].update(
@@ -54,7 +53,6 @@ class Remove_From_Trust(UnnamedResourceMixin, CommandExecutionMixin, Resource):
 
     def __init__(self, cm):
         super(Remove_From_Trust, self).__init__(cm)
-        self._meta_data['uri'] = self._get_meta_data_uri()
         self._meta_data['required_creation_parameters'].update(
             ('deviceName',))
         self._meta_data['required_json_kind'] = \

@@ -125,13 +125,7 @@ class ExclusiveAttributesMixin(object):
         super(ExclusiveAttributesMixin, self).__setattr__(key, value)
 
 
-class MetaDataURIMixin(object):
-    def _get_meta_data_uri(self):
-        endpoint = self.__class__.__name__.lower().replace('_', '-')
-        return self._meta_data['container']._meta_data['uri'] + endpoint + '/'
-
-
-class UnnamedResourceMixin(MetaDataURIMixin):
+class UnnamedResourceMixin(object):
     '''This makes a resource object work if there is no name.
 
     These objects do not support create or delete and are often found
@@ -175,7 +169,9 @@ class UnnamedResourceMixin(MetaDataURIMixin):
         base_uri = self._meta_data['uri']
         response = read_session.get(base_uri, **kwargs)
         self._local_update(response.json())
-        return self
+        new_instance = self.__class__(self._meta_data['container'])
+        new_instance._local_update(response.json())
+        return new_instance
 
 
 class CommandExecutionMixin(object):

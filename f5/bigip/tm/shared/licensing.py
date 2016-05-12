@@ -29,7 +29,7 @@ REST Kind
 from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.mixins import UnsupportedMethod
 from f5.bigip.resource import PathElement
-from f5.bigip.resource import Resource
+from f5.bigip.resource import ResourceBase
 
 
 class Licensing(PathElement):
@@ -57,7 +57,7 @@ class Licensing(PathElement):
         }
 
 
-class Activation(UnnamedResourceMixin, Resource):
+class Activation(UnnamedResourceMixin, ResourceBase):
     """BIG-IP® license activation status
 
     Activation state objects only support the
@@ -75,7 +75,6 @@ class Activation(UnnamedResourceMixin, Resource):
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
             'tm:shared:licensing:activation:activatelicenseresponse'
-        self._meta_data['uri'] = self._get_meta_data_uri()
 
     def update(self, **kwargs):
         '''Update is not supported for License Activation
@@ -87,7 +86,7 @@ class Activation(UnnamedResourceMixin, Resource):
         )
 
 
-class Registration(UnnamedResourceMixin, Resource):
+class Registration(UnnamedResourceMixin, ResourceBase):
     """BIG-IP® license registration status
 
     Registration state objects only support the
@@ -105,7 +104,6 @@ class Registration(UnnamedResourceMixin, Resource):
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
             'tm:shared:licensing:activation:activatelicenseresponse'
-        self._meta_data['uri'] = self._get_meta_data_uri()
 
     def update(self, **kwargs):
         '''Update is not supported for License Registration

@@ -31,10 +31,10 @@ REST Kind
 """
 
 from f5.bigip.mixins import UnnamedResourceMixin
-from f5.bigip.resource import Resource
+from f5.bigip.resource import ResourceBase
 
 
-class Password_Policy(UnnamedResourceMixin, Resource):
+class Password_Policy(UnnamedResourceMixin, ResourceBase):
     """BIG-IP® password policy unnamed resource
 
         .. note::
@@ -42,9 +42,8 @@ class Password_Policy(UnnamedResourceMixin, Resource):
         This is an unnamed resource so it has no ~Partition~Name pattern
         at the end of its URI.
     """
-    def __init__(self, sys):
-        super(Password_Policy, self).__init__(sys)
+    def __init__(self, auth):
+        super(Password_Policy, self).__init__(auth)
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] = \
             'tm:auth:password-policy:password-policystate'
-        self._meta_data['uri'] = self._get_meta_data_uri()
