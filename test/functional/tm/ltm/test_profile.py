@@ -22,7 +22,7 @@ end_lst = ['Certificate_Authoritys', 'Classifications', 'Client_Ldaps', 'Client_
        'Ocsp_Stapling_Params_s', 'One_Connects', 'Pcps', 'Pptps', 'Qoes', 'Radius_s',
        'Request_Adapts', 'Request_Logs', 'Response_Adapts', 'Rtsps', 'Sctps','Server_Ldaps',
        'Server_Ssls', 'Sips', 'Smtps', 'Smtps_s', 'Socks_s','Spdys', 'Statistics_s', 'Streams',
-       'Tcps', 'Tftps', 'Udps', 'Web_Accelerations', 'Web_Securitys', 'Xmls']
+       'Tcps', 'Tftps', 'Udps', 'Web_Accelerations', 'Web_Securitys', 'Xmls', 'Analytics_s']
 common = 'bigip.ltm.profile.'
 
 
@@ -50,12 +50,12 @@ class HelperTest(object):
         hc = common+self.item[self.idx].lower()
         profile = eval(hc + self.fullstring())
         profile.create(name=self.name, partition=self.partition, **kwargs)
-        return hc, profile
+        return profile, hc
 
     def test_CURDL(self, request, bigip, **kwargs):
 
         # Testing create
-        hc, profile1 = self.setup_test(request, bigip, **kwargs)
+        profile1, hc = self.setup_test(request, bigip, **kwargs)
         assert profile1.name == self.name
 
         # Testing update
@@ -74,11 +74,61 @@ class HelperTest(object):
         assert profile1.selfLink == profile2.selfLink
 
 # Begin Analytics tests
-class TestAnalyticsCollection(object):
-    def test_get_collection(self, request, bigip):
+# Sub-collection setup function
+def setup_test_subc(request, bigip):
+    def teardown():
+        if prf_alert.exists(name='test_alert'):
+            prf_alert.delete()
+        if prf_traffic.exists(name='test_traf_cap'):
+            prf_traffic.delete()
 
+    avr = HelperTest(end_lst, 50)
+    avrhc1, avrstr = avr.setup_test(request, bigip)
+    del avrstr
+    prf_alert = avrhc1.alerts_s.alerts
+    prf_alert.create(name='test_alert', threshold=200)
+    prf_traffic = avrhc1.traffic_captures.traffic_capture
+    prf_traffic.create(name='test_traf_cap')
+    request.addfinalizer(teardown)
+    return prf_alert, prf_traffic, avrhc1
 
-# End Analytics tests
+class TestAnalytics(object):
+    def test_analytics_CURDL(self, request, bigip):
+        avr = HelperTest(end_lst, 50)
+        avr.test_CURDL(request, bigip)
+
+class TestAnalyticsSubCol(object):
+    def test_CURDL(self, request, bigip):
+
+        # Testing create and delete
+        alert1, traffic1, avrhc1 = setup_test_subc(request, bigip)
+        assert alert1.name == 'test_alert'
+        assert traffic1.name == 'test_traf_cap'
+
+        # Testing update
+        alert1.threshold = 250
+        alert1.update()
+        assert alert1.threshold == 250
+        traffic1.requestCapturedParts = 'headers'
+        traffic1.update()
+        assert traffic1.requestCapturedParts == 'headers'
+
+        # Testing refresh
+        alert1.threshold = 200
+        alert1.refresh()
+        assert alert1.threshold == 250
+        traffic1.requestCapturedParts = 'none'
+        traffic1.refresh()
+        assert traffic1.requestCapturedParts == 'headers'
+
+        # Testing load
+        alert2 = avrhc1.alerts_s.alerts
+        alert2.load(name='test_alert')
+        assert alert1.name == alert2.name
+        traffic2 = avrhc1.traffic_captures.traffic_capture
+        traffic2.load(name='test_traf_cap')
+        assert traffic1.name == traffic2.name
+#End Analytics tests
 
 # Begin Certificate Authority tests
 class TestCertifcateAutority(object):
@@ -88,7 +138,39 @@ class TestCertifcateAutority(object):
 # End Certificate Authority tests
 
 # Begin Classification tests
-##placeholder
+
+
+def setup_class_test(self, request, bigip):
+    def teardown():
+        if profile.exists(name='classification'):
+
+    request.addfinalizer(teardown)
+    hc = bigip.ltm.profile.classifications
+    profile = hc.classification
+    profile.load(name='classification')
+    return profile, hc
+
+class TestClassification(object):
+    def test_RUL(self, request, bigip):
+        # Load test
+        klass1, hc1 = setup_class_test(request, bigip)
+
+        # Update test
+        klass1.description = TESTDESCRIPTION
+        klass.update()
+        assert klass1.description == TESTDESCRIPTION
+
+        # Refresh test
+        klass1.description = 'ICHANGEDIT'
+        klass.refresh()
+        assert klass1.description == TESTDESCRIPTION
+
+
+
+
+
+
+
 # End Classification tests
 
 # Begin ClientLdap tests
