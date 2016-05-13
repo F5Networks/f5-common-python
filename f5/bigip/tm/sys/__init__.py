@@ -30,6 +30,7 @@ REST Kind
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.sys.application import Applications
 from f5.bigip.tm.sys.config import Config
+from f5.bigip.tm.sys.crypto import Crypto
 from f5.bigip.tm.sys.db import Dbs
 from f5.bigip.tm.sys.dns import Dns
 from f5.bigip.tm.sys.failover import Failover
@@ -46,6 +47,7 @@ class Sys(OrganizingCollection):
         super(Sys, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
             Config,
+            Crypto,
             Folders,
             Applications,
             Performances,

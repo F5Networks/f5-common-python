@@ -18,7 +18,8 @@ import mock
 import pytest
 
 from f5.bigip import ManagementRoot
-from f5.bigip.shared.file_transfer import FileMustNotHaveDotISOExtension
+from f5.bigip.shared.file_transfer import\
+    FileMustNotHaveDotISOExtension
 
 
 def test_file_upload_80a(tmpdir):
@@ -30,7 +31,7 @@ def test_file_upload_80a(tmpdir):
     ftu.upload_file(filepath.__str__(), chunk_size=20)
     session_mock = mr._meta_data['icr_session']
     for i in range(4):
-        d = session_mock.post.call_args_list[i][1]['requests_params']['data']
+        d = session_mock.post.call_args_list[i][1]['data']
         assert d == 'aaaaaaaaaaaaaaaaaaaa'
 
 
@@ -44,9 +45,9 @@ def test_file_upload_70a(tmpdir):
     session_mock = mr._meta_data['icr_session']
     for i in range(3):
         print(i)
-        d = session_mock.post.call_args_list[i][1]['requests_params']['data']
+        d = session_mock.post.call_args_list[i][1]['data']
         assert d == 'aaaaaaaaaaaaaaaaaaaa'
-    lchunk = session_mock.post.call_args_list[3][1]['requests_params']['data']
+    lchunk = session_mock.post.call_args_list[3][1]['data']
     assert 10*'a' == lchunk
 
 
