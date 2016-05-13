@@ -7,8 +7,9 @@
     +-----------------+--------------------------------------------------------------------------------------+
     | Type            | subcollection resource                                                               |
     +-----------------+--------------------------------------------------------------------------------------+
-    | Class           | :class:`f5.bigip.ltm.pool.Members`                                                   |
+    | Class           | :class:`f5.bigip.tm.ltm.pool.Members`                                                |
     +-----------------+--------------------------------------------------------------------------------------+
-    | Instantiation   | ``members = pool.members_s.members.load(partition='Common', name='member1:<port>')`` |
+    | Instantiation   | ``member = mgmt.tm.ltm.pool.members_s.members.load(partition='<partition_name>',     |
+    |                 |  name='<member_name>:<port>')``                                                      |
     +-----------------+--------------------------------------------------------------------------------------+
 

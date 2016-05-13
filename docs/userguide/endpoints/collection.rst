@@ -5,19 +5,15 @@ Collection
 
 ``kind``: ``collectionstate``
 
-A collection is similar to an |Organizing Collection Section| in that no configurations can be applied to it. A collection differs from an organizing collection in that a collection only contains references to objects of the same type in its ``items`` parameter.
+A :dfn:`collection` is similar to an |Organizing Collection Section| in it is not a configurable object. Unlike an organiziont collection, however, a collection only contains references to objects (or, resources) of the same type.
 
 .. include:: ../SDK_plural_note.rst
 
-You can use :meth:`~f5.bigip.resource.Collection.get_collection` to get a list of the objects in the collection.
+.. topic:: Example: Use :meth:`f5.bigip.resource.Collection.get_collection` to get a list of the objects in the :mod:`f5.bigip.tm.ltm.pool` collection.
 
-The example below shows the JSON you would get back from a REST collection
-endpoint. Note that it contains an ``items`` attribute that contains
-|Resource| objects (we know the objects are resources because their ``kind`` ends in ``state``).
+    The ``items`` attribute in the JSON returned contains |Resource Section| objects that all share the same ``kind``. We can tell that these objects are resources because the ``kind`` ends in ``state``.
 
-.. topic:: Example
-
-    .. code-block:: json
+    .. code-block:: js
         :emphasize-lines: 4, 6, 37
 
         {

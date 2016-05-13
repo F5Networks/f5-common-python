@@ -7,7 +7,7 @@ Overview
 REST URI Segments
 ~~~~~~~~~~~~~~~~~
 
-We'll start exploring the iControl REST API's endpoints with an example detailing how the :ref:`endpoint types <endpoint_section>` map to the different parts of the URI. The different types of resources used by the SDK shown in the example are explained in detail later in this guide.
+We'll start exploring the iControl® REST API's endpoints with an example detailing how the :ref:`endpoint types <endpoint_section>` map to the different parts of the URI. The different types of resources used by the SDK shown in the example are explained in detail later in this guide.
 
 **Example:** The URI below returns the JSON for an LTM pool member.
 

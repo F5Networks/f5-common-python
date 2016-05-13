@@ -79,7 +79,7 @@ class Members(Resource):
     def update(self, **kwargs):
         """Call this to change the configuration of the service on the device.
 
-        This method uses HTTP PUT alter the service state on the device.
+        This method uses HTTP PUT to alter the service state on the device.
 
         The attributes of the instance will be packaged as a dictionary.  That
         dictionary will be updated with kwargs.  It is then submitted as JSON
@@ -87,12 +87,12 @@ class Members(Resource):
 
         * read-only attributes that are unchangeable are removed
         * If ``fqdn`` is in the kwargs or set as an attribute, removes the
-          ``autopopulate`` and ``addressFamily`` keys from it if there.
+          ``autopopulate`` and ``addressFamily`` keys from it.
 
         :param state=: state value or :obj:`None` required.
         :param kwargs: keys and associated values to alter on the device
-
         """
+
         try:
             state = kwargs.pop('state')
         except KeyError:

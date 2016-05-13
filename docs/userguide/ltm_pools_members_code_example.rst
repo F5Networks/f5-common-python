@@ -7,48 +7,61 @@ Coding Example
 
     .. code-block:: python
 
-        from f5.bigip import BigIP
+        from f5.bigip import ManagementRoot
 
         # Connect to the BigIP and configure the basic objects
-        bigip = BigIP('10.190.6.253', 'admin', 'default')
-        ltm = bigip.ltm
-        pools = bigip.ltm.pools.get_collection()
-        pool = bigip.ltm.pools.pool
+        mgmt = ManagementRoot('10.190.7.161', 'admin', 'admin')
+        ltm = mgmt.tm.ltm
+        pools = mgmt.tm.ltm.pools
+        pool = mgmt.tm.ltm.pools.pool
+
+        # Create a pool
+        pool1 = mgmt.tm.ltm.pools.pool.create(name='pool1', partition='Common')
 
         # Define a pool object and load an existing pool
-        pool_obj = bigip.ltm.pools.pool
-        pool_1 = pool_obj.load(partition='Common', name='mypool')
+        pool_obj = mgmt.tm.ltm.pools.pool
+        pool_1 = pool_obj.load(partition='Common', name='pool1')
 
         # We can also skip creating the object and load the pool directly
-        pool_2 = bigip.ltm.pools.pool.load(partition='Common', name='mypool')
-
-        # Print the object
-        print pool_1.raw
+        pool_2 = mgmt.tm.ltm.pools.pool.load(partition='Common', name='pool1')
 
         # Make sure 1 and 2 have the same names and generation
         assert pool_1.name == pool_2.name
         assert pool_1.generation == pool_2.generation
 
-        # Update the description
+        print pool_1.name
+        pool1
+        print pool_2.name
+        pool1
+        print pool_1.generation
+        209
+        print pool_2.generation
+        209
+
+        # Update the pool description
         pool_1.description = "This is my pool"
         pool_1.update()
 
         # Check the updated description
         print pool_1.description
+        This is my first pool
 
         # Since we haven't refreshed pool_2 it shouldn't match pool_1 any more
-        assert pool_1.generation > pool_2.generation
+        print pool_2.description
+        This is my pool
 
         # Refresh pool_2 and check that is now equal
         pool_2.refresh()
-        assert pool_1.generation == pool_2.generation
+        print pool_2.description
+        This is my first pool
 
         print pool_1.generation
+        210
         print pool_2.generation
+        208
 
         # Create members on pool_1
-
-        members = pool_1.members_s.get_collection()
+        members = pool_1.members_s
         member = pool_1.members_s.members
 
         m1 = pool_1.members_s.members.create(partition='Common', name='m1:80')
@@ -75,7 +88,7 @@ Coding Example
 
         # Make sure it is gone
 
-        if bigip.ltm.pools.pool.exists(partition='Common', name='mypool'):
+        if mgmt_rt.tm.ltm.pools.pool.exists(partition='Common', name='mypool'):
             raise Exception("Object should have been deleted")
 
 
