@@ -138,9 +138,7 @@ class TestCertifcateAutority(object):
 # End Certificate Authority tests
 
 # Begin Classification tests
-
-
-def setup_class_test(self, request, bigip):
+def setup_class_test(request, bigip):
     def teardown():
         if profile.exists(name='classification'):
 
@@ -164,13 +162,6 @@ class TestClassification(object):
         klass1.description = 'ICHANGEDIT'
         klass1.refresh()
         assert klass1.description == TESTDESCRIPTION
-
-
-
-
-
-
-
 # End Classification tests
 
 # Begin ClientLdap tests
