@@ -93,7 +93,7 @@ def setup_test_subc(request, bigip):
     return prf_alert, prf_traffic, avrhc1
 
 class TestAnalytics(object):
-    def test_analytics_CURDL(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         avr = HelperTest(end_lst, 50)
         avr.test_CURDL(request, bigip)
 
@@ -124,32 +124,25 @@ class TestAnalyticsSubCol(object):
         # Testing load
         alert2 = avrhc1.alerts_s.alerts.load(name='test_alert')
         assert alert1.name == alert2.name
-        traffic2 = avrhc1.traffic_captures.traffic_capture.load(name='test_traf_cap')
+        traffic2 = avrhc1.traffic_captures.traffic_capture.load(name=
+                                                                'test_traf_cap')
         assert traffic1.name == traffic2.name
 #End Analytics tests
 
 # Begin Certificate Authority tests
 class TestCertifcateAutority(object):
-    def test_ca(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         ca = HelperTest(end_lst, 0)
         ca.test_CURDL(request, bigip)
 # End Certificate Authority tests
 
 # Begin Classification tests
-def setup_class_test(request, bigip):
-    def teardown():
-        if profile.exists(name='classification'):
-            pass
-    request.addfinalizer(teardown)
-    hc = bigip.ltm.profile.classifications
-    profile = hc.classification
-    profile.load(name='classification')
-    return profile, hc
-
 class TestClassification(object):
     def test_RUL(self, request, bigip):
+
         # Load test
-        klass1, hc1 = setup_class_test(request, bigip)
+        klass1 = bigip.ltm.profile.classifications.load(name=
+                                                        'classification')
 
         # Update test
         klass1.description = TESTDESCRIPTION
@@ -164,49 +157,49 @@ class TestClassification(object):
 
 # Begin ClientLdap tests
 class TestClientLdap(object):
-    def test_clientldap(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         ldap = HelperTest(end_lst, 2)
         ldap.test_CURDL(request, bigip)
 # End ClientLdap tests
 
 # Begin ClientSSL tests
 class TestClientSsl(object):
-    def test_clientssl(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         cssl = HelperTest(end_lst, 3)
         cssl.test_CURDL(request, bigip)
 # End ClientSSL tests
 
 # Begin Dhcpv4 tests
 class TestDhcpv4(object):
-    def test_dhcpv4(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         dhcpv4 = HelperTest(end_lst, 4)
         dhcpv4.test_CURDL(request, bigip)
 # End Dhcpv4 tests
 
 # Begin Dhcpv6 tests
 class TestDhcpv6(object):
-    def test_dhcpv6(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         dhcpv6 = HelperTest(end_lst, 5)
         dhcpv6.test_CURDL(request, bigip)
 # End Dhcpv6 tests
 
 # Begin Diameter tests
 class TestDiameter(object):
-    def test_diameter(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         diameter = HelperTest(end_lst, 6)
         diameter.test_CURDL(request, bigip)
 # End Diameter tests
 
 # Begin Dns tests
 class TestDns(object):
-    def test_dns(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         dns = HelperTest(end_lst, 7)
         dns.test_CURDL(request, bigip)
 # End Dns tests
 
 # Begin Dns Logging tests
 class TestDnsLogging(object):
-    def test_dns_logging(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         dnslog = HelperTest(end_lst, 8)
         dnslog.test_CURDL(request, bigip,
                           logPublisher='/Common/local-db-publisher')
@@ -214,70 +207,70 @@ class TestDnsLogging(object):
 
 # Begin FastHttp tests
 class TestFastHttp(object):
-    def test_fasthttp(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         fasthttp = HelperTest(end_lst, 9)
         fasthttp.test_CURDL(request, bigip)
 # End FastHttp tests
 
 # Begin FastL4 tests
 class TestFastL4(object):
-    def test_fastl4(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         fastl4 = HelperTest(end_lst, 10)
         fastl4.test_CURDL(request, bigip)
 # End FastL4 tests
 
 # Begin Fix tests
 class TestFix(object):
-    def test_fix(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         fix = HelperTest(end_lst, 11)
         fix.test_CURDL(request, bigip)
 # End Fix tests
 
 # Begin FTP tests
 class TestFtp(object):
-    def test_ftp(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         ftp = HelperTest(end_lst, 12)
         ftp.test_CURDL(request, bigip)
 # End FTP tests
 
 # Begin GTP tests
 class TestGtp(object):
-    def test_gtp(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         gtp = HelperTest(end_lst, 13)
         gtp.test_CURDL(request, bigip)
 # End GTP tests
 
 # Begin HTML tests
 class TestHtml(object):
-    def test_html(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         html = HelperTest(end_lst, 14)
         html.test_CURDL(request, bigip)
 # End HTML tests
 
 # Begin HTTP tests
 class TestHttp(object):
-    def test_http(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         http = HelperTest(end_lst, 15)
         http.test_CURDL(request, bigip)
 # End HTTP tests
 
 # Begin HTTP Compression tests
 class TestHttpCompress(object):
-    def test_httpcompress(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         httpc = HelperTest(end_lst, 16)
         httpc.test_CURDL(request, bigip)
 # End HTTP Compression tests
 
 # Begin HTTP tests
 class TestHttp2(object):
-    def test_http2(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         http2 = HelperTest(end_lst, 17)
         http2.test_CURDL(request, bigip)
 # End HTTP tests
 
-# Begin ICAP tests - Failing ## no attribute description
+# Begin ICAP tests
 class TestIcap(object):
-    def test_icap(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         icap = HelperTest(end_lst, 18)
 
         # Test Create
@@ -295,53 +288,61 @@ class TestIcap(object):
         assert icap1.previewLength == 100
 
         # Test Load
-        icapc2 = bigip.ltm.profile.icaps.icap.load(
+        icap2 = bigip.ltm.profile.icaps.icap.load(
             name='test.icap', partition='Common')
-        assert icapc1.selfLink == icapc2.selfLink
-
+        assert icap1.selfLink == icap2.selfLink
 # End ICAP tests
 
 # Begin IIOP tests
 class TestIiop(object):
-    def test_iiop(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         iiop = HelperTest(end_lst, 19)
         iiop.test_CURDL(request, bigip)
 # End IIOP tests
 
 # Begin Ipother tests
 class TestIother(object):
-    def test_ipother(self, request, bigip):
+    def ttest_CURDL(self, request, bigip):
         ipoth = HelperTest(end_lst, 20)
         ipoth.test_CURDL(request, bigip)
 # End Ipother tests
 
 # Begin Mblb tests
 class TestMblb(object):
-    def test_mblb(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         mblb = HelperTest(end_lst, 21)
         mblb.test_CURDL(request, bigip)
 # End Mblb tests
 
 # Begin Mssql tests
 class TestMssql(object):
-    def test_mssql(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         mssql = HelperTest(end_lst, 22)
         mssql.test_CURDL(request, bigip)
 # End Mssql tests
 
 # Begin Ntlm tests
 class TestNtlm(object):
-    def test_Ntlm(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         ntlm = HelperTest(end_lst, 23)
         ntlm.test_CURDL(request, bigip)
 # End Ntlm tests
 
 # Begin Ocsp Stapling Params tests ## Needs to determine dns resolver or proxy,
 # so 2 mutually exclusive and required attr
+
+def setup_dns_resolver(self, request, bigip, **kwargs):
+    def teardown():
+        if profile.exists(name=self.name, partition=self.partition):
+            profile.delete()
+    request.addfinalizer(teardown)
+    dns_res=bigip.ltm.
+
+
 class TestOcspStaplingParams(object):
     def test_ocspstapleparam(self, request, bigip):
-        ocspst = HelperTest(end_lst, 24)
-        ocspst.test_CURDL(request, bigip)
+
+
 # End Ocsp Stapling Params tests
 
 # Begin Oneconnect tests
@@ -511,7 +512,7 @@ class TestUdp(object):
 # End Wa Cache tests
 
 
-# Begin WebAcceleration tests --no attribute description
+# Begin WebAcceleration tests
 class TestWebAcceleration(object):
     def test_web_acceleration(self, request, bigip):
         wa = HelperTest(end_lst, 47)
@@ -521,40 +522,32 @@ class TestWebAcceleration(object):
         assert wa1.name == 'test.web_acceleration'
 
         # Test Update
-        wa1.previewLength = 100
+        wa1.cacheAgingRate = 5
         wa1.update()
-        assert wa1.previewLength == 100
+        assert wa1.cacheAgingRate == 5
 
         # Test Refresh
-        wa1.previewLength = 50
+        wa1.cacheAgingRate = 10
         wa1.refresh()
-        assert wa1.previewLength == 100
+        assert wa1.cacheAgingRate == 5
 
         # Test Load
-        wa2 = bigip.ltm.profile.icaps.icap.load(
+        wa2 = bigip.ltm.profile.web_accelerations.web_acceleration.load(
             name='test.web_acceleration', partition='Common')
-        assert wa1.selfLink == wa2.selfLink
+        assert wa1.cacheAgingRate == wa2.cacheAgingRate
 # End Web Acceleration tests
 
 # Begin Web Security tests
 class TestWebSecurity(object):
-    def test_web_security(self, request, bigip):
-        ws = HelperTest(end_lst, 48)
-
-        # Test Create
-        ws1, wspc = ws.setup_test(request, bigip)
-        assert ws1.name == 'test.web_security'
-
-        # Test Load
-        ws2 = bigip.ltm.profile.icaps.icap.load(
-            name='test.web_security', partition='Common')
-        assert ws1.selfLink == ws2.selfLink
-
+    def test_load(self, request, bigip):
+        ws1 = bigip.ltm.profile.web_securitys.web_security.load\
+            (name='websecurity')
+        assert ws1.name == 'websecurity'
 # End Web Security tests
 
 # Begin Xml tests
 class TestXml(object):
-    def test_xml(self, request, bigip):
+    def test_CURDL(self, request, bigip):
         testxml = HelperTest(end_lst, 49)
         testxml.test_CURDL(request, bigip)
 # End Xml tests

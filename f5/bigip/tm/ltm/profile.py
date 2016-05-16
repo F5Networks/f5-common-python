@@ -119,8 +119,6 @@ class Traffic_Captures(Collection):
     """BIG-IP® Traffic Capture sub-collection."""
     def __init__(self, Analytics):
         super(Traffic_Captures, self).__init__(Analytics)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Traffic_Capture]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:analytics:traffic-capture:traffic-capturestate': Traffic_Capture}
@@ -146,8 +144,6 @@ class Certificate_Authoritys(Collection):
     """BIG-IP® Certificate Authority profile collection."""
     def __init__(self, profile):
         super(Certificate_Authoritys, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Certificate_Authority]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:certificate-authority:certificate-authoritystate': Certificate_Authority}
@@ -200,8 +196,6 @@ class Client_Ldaps(Collection):
     """BIG-IP® Client Ldap profile collection."""
     def __init__(self, profile):
         super(Client_Ldaps, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Client_Ldap]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:client-ldap:client-ldapstate': Client_Ldap}
@@ -219,8 +213,6 @@ class Client_Ssls(Collection):
     """BIG-IP® Client SSL profile collection."""
     def __init__(self, profile):
         super(Client_Ssls, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Client_Ssl]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:client-ssl:client-sslstate': Client_Ssl}
@@ -306,8 +298,6 @@ class Dns_Loggings(Collection):
     """BIG-IP® DNS Logging profile collection."""
     def __init__(self, profile):
         super(Dns_Loggings, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Dns_Logging]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:dns-logging:dns-loggingstate': Dns_Logging}
@@ -446,8 +436,6 @@ class Http_Compressions(Collection):
     """BIG-IP® Http_Compression profile collection."""
     def __init__(self, profile):
         super(Http_Compressions, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Http_Compression]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:http-compression:http-compressionstate': Http_Compression}
@@ -584,8 +572,6 @@ class Ocsp_Stapling_Params_s(Collection):
     """BIG-IP® Ocsp_Stapling_Params profile collection."""
     def __init__(self, profile):
         super(Ocsp_Stapling_Params_s, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Ocsp_Stapling_Params]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:ocsp-stapling-params:ocsp-stapling-paramsstate': Ocsp_Stapling_Params}
@@ -595,6 +581,9 @@ class Ocsp_Stapling_Params(Resource):
     """BIG-IP® Ocsp_Stapling_Params resource."""
     def __init__(self, Ocsp_Stapling_Params_s):
         super(Ocsp_Stapling_Params, self).__init__(Ocsp_Stapling_Params_s)
+        self._meta_data['required_creation_parameters'].update(
+            'proxyServerPool', 'dnsResolver', 'trustedCa','useProxyServer')
+        self._meta_data['exclusive_attributes'].update('proxyServerPool', 'dnsResolver')
         self._meta_data['required_json_kind'] = \
              'tm:ltm:profile:ocsp-stapling-params:ocsp-stapling-paramsstate'
 
@@ -603,8 +592,6 @@ class One_Connects(Collection):
     """BIG-IP® One_Connect profile collection."""
     def __init__(self, profile):
         super(One_Connects, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [One_Connect]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:one-connect:one-connectstate': One_Connect}
@@ -700,8 +687,6 @@ class Request_Adapts(Collection):
     """BIG-IP® Request_Adapt profile collection."""
     def __init__(self, profile):
         super(Request_Adapts, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Request_Adapt]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:request-adapt:request-adaptstate': Request_Adapt}
@@ -719,8 +704,6 @@ class Request_Logs(Collection):
     """BIG-IP® Request_Log profile collection."""
     def __init__(self, profile):
         super(Request_Logs, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Request_Log]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:request-log:request-logstate': Request_Log}
@@ -738,8 +721,6 @@ class Response_Adapts(Collection):
     """BIG-IP® Response_Adapt profile collection."""
     def __init__(self, profile):
         super(Response_Adapts, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Response_Adapt]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:response-adapt:response-adaptstate': Response_Adapt}
@@ -778,8 +759,6 @@ class Uri_Rules_s(Collection):
     """BIG-IP® Rewrite sub-collection."""
     def __init__(self, Rewrite):
         super(Uri_Rules_s, self).__init__(Rewrite)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Uri_Rules]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:rewrite:uri-rules:uri-rulesstate': Uri_Rules}
@@ -830,8 +809,6 @@ class Server_Ldaps(Collection):
     """BIG-IP® Server_Ldap profile collection."""
     def __init__(self, profile):
         super(Server_Ldaps, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Server_Ldap]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:server-ldap:server-ldapstate': Server_Ldap}
@@ -849,8 +826,6 @@ class Server_Ssls(Collection):
     """BIG-IP® Server_Ssl profile collection."""
     def __init__(self, profile):
         super(Server_Ssls, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Server_Ssl]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:server-ssl:server-sslstate': Server_Ssl}
@@ -1053,8 +1028,6 @@ class Web_Accelerations(Collection):
     """BIG-IP® Web_Acceleration profile collection."""
     def __init__(self, profile):
         super(Web_Accelerations, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Web_Acceleration]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:web-acceleration:web-accelerationstate': Web_Acceleration}
@@ -1072,8 +1045,6 @@ class Web_Securitys(Collection):
     """BIG-IP® Web_Security profile collection."""
     def __init__(self, profile):
         super(Web_Securitys, self).__init__(profile)
-        fixed = self._meta_data['uri'].replace('_', '-')
-        self._meta_data['uri'] = fixed
         self._meta_data['allowed_lazy_attributes'] = [Web_Security]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:web-security:web-securitystate': Web_Security}
@@ -1085,6 +1056,16 @@ class Web_Security(Resource):
         super(Web_Security, self).__init__(Web_Securitys)
         self._meta_data['required_json_kind'] = \
              'tm:ltm:profile:web-security:web-securitystate'
+
+    def create(self, **kwargs):
+        """Create is not supported for Web Security
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
 
     def update(self, **kwargs):
         """Update is not supported for Web Security
