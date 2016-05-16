@@ -579,13 +579,33 @@ class Ocsp_Stapling_Params_s(Collection):
 
 class Ocsp_Stapling_Params(Resource):
     """BIG-IP® Ocsp_Stapling_Params resource."""
+
     def __init__(self, Ocsp_Stapling_Params_s):
         super(Ocsp_Stapling_Params, self).__init__(Ocsp_Stapling_Params_s)
-        self._meta_data['required_creation_parameters'].update(
-            'proxyServerPool', 'dnsResolver', 'trustedCa','useProxyServer')
-        self._meta_data['exclusive_attributes'].update('proxyServerPool', 'dnsResolver')
+        self._meta_data['exclusive_attributes'].append(('proxyServerPool', 'dnsResolver'))
         self._meta_data['required_json_kind'] = \
              'tm:ltm:profile:ocsp-stapling-params:ocsp-stapling-paramsstate'
+
+    def create(self, **kwargs):
+        """Create the resource on the BIG-IP®.
+
+        Uses HTTP POST to the `collection` URI to create a resource associated
+        with a new unique URI on the device.
+
+        As proxyServerPool parameter will be required
+        only if useProxyServer is set to 'enabled'
+        we have to use conditional to capture this logic during create.
+
+        """
+        if kwargs['useProxyServer'] == 'enabled':
+            tup_par = ('proxyServerPool', 'trustedCa', 'useProxyServer')
+        else:
+            tup_par = ('dnsResolver', 'trustedCa', 'useProxyServer')
+
+        self._meta_data['required_creation_parameters'].update(tup_par)
+        self._create(**kwargs)
+
+        return self
 
 
 class One_Connects(Collection):
