@@ -122,11 +122,9 @@ class TestAnalyticsSubCol(object):
         assert traffic1.requestCapturedParts == 'headers'
 
         # Testing load
-        alert2 = avrhc1.alerts_s.alerts
-        alert2.load(name='test_alert')
+        alert2 = avrhc1.alerts_s.alerts.load(name='test_alert')
         assert alert1.name == alert2.name
-        traffic2 = avrhc1.traffic_captures.traffic_capture
-        traffic2.load(name='test_traf_cap')
+        traffic2 = avrhc1.traffic_captures.traffic_capture.load(name='test_traf_cap')
         assert traffic1.name == traffic2.name
 #End Analytics tests
 
@@ -141,7 +139,7 @@ class TestCertifcateAutority(object):
 def setup_class_test(request, bigip):
     def teardown():
         if profile.exists(name='classification'):
-
+            pass
     request.addfinalizer(teardown)
     hc = bigip.ltm.profile.classifications
     profile = hc.classification
@@ -281,7 +279,26 @@ class TestHttp2(object):
 class TestIcap(object):
     def test_icap(self, request, bigip):
         icap = HelperTest(end_lst, 18)
-        icap.test_CURDL(request, bigip)
+
+        # Test Create
+        icap1, icapc = icap.setup_test(request, bigip)
+        assert icap1.name == 'test.icap'
+
+        # Test Update
+        icap1.previewLength = 100
+        icap1.update()
+        assert icap1.previewLength == 100
+
+        # Test Refresh
+        icap1.previewLength = 50
+        icap1.refresh()
+        assert icap1.previewLength == 100
+
+        # Test Load
+        icapc2 = bigip.ltm.profile.icaps.icap.load(
+            name='test.icap', partition='Common')
+        assert icapc1.selfLink == icapc2.selfLink
+
 # End ICAP tests
 
 # Begin IIOP tests
@@ -493,18 +510,46 @@ class TestUdp(object):
 ## placeholder
 # End Wa Cache tests
 
+
 # Begin WebAcceleration tests --no attribute description
 class TestWebAcceleration(object):
     def test_web_acceleration(self, request, bigip):
         wa = HelperTest(end_lst, 47)
-        wa.test_CURDL(request, bigip)
+
+        # Test Create
+        wa1, wapc = wa.setup_test(request, bigip)
+        assert wa1.name == 'test.web_acceleration'
+
+        # Test Update
+        wa1.previewLength = 100
+        wa1.update()
+        assert wa1.previewLength == 100
+
+        # Test Refresh
+        wa1.previewLength = 50
+        wa1.refresh()
+        assert wa1.previewLength == 100
+
+        # Test Load
+        wa2 = bigip.ltm.profile.icaps.icap.load(
+            name='test.web_acceleration', partition='Common')
+        assert wa1.selfLink == wa2.selfLink
 # End Web Acceleration tests
 
-# Begin Web Security tests -- no attribute description
+# Begin Web Security tests
 class TestWebSecurity(object):
     def test_web_security(self, request, bigip):
         ws = HelperTest(end_lst, 48)
-        ws.test_CURDL(request, bigip)
+
+        # Test Create
+        ws1, wspc = ws.setup_test(request, bigip)
+        assert ws1.name == 'test.web_security'
+
+        # Test Load
+        ws2 = bigip.ltm.profile.icaps.icap.load(
+            name='test.web_security', partition='Common')
+        assert ws1.selfLink == ws2.selfLink
+
 # End Web Security tests
 
 # Begin Xml tests

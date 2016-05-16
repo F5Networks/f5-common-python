@@ -1094,6 +1094,14 @@ class Web_Security(Resource):
         raise UnsupportedOperation(
             "%s does not support the update method" % self.__class__.__name__
         )
+    def refresh(self, **kwargs):
+        """Refresh is not supported for Web Security
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the refresh method" % self.__class__.__name__
+        )
 
     def delete(self, **kwargs):
         """Delete is not supported for Web Security
