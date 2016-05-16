@@ -33,7 +33,7 @@ def test_software_image_uploads_80a(tmpdir):
     sius.upload_image(str(filepath), chunk_size=CHUNKSIZE)
     session_mock = mr._meta_data['icr_session']
     for i in range(4):
-        d = session_mock.post.call_args_list[i][1]['requests_params']['data']
+        d = session_mock.post.call_args_list[i][1]['data']
         assert d == 'a'*CHUNKSIZE
 
 
@@ -47,9 +47,9 @@ def test_software_image_uploads_70a(tmpdir):
     sius.upload_image(str(filepath), chunk_size=CHUNKSIZE)
     for i in range(3):
         print(i)
-        d = session_mock.post.call_args_list[i][1]['requests_params']['data']
+        d = session_mock.post.call_args_list[i][1]['data']
         assert d == 'a'*CHUNKSIZE
-    lchunk = session_mock.post.call_args_list[3][1]['requests_params']['data']
+    lchunk = session_mock.post.call_args_list[3][1]['data']
     assert 10*'a' == lchunk
 
 
