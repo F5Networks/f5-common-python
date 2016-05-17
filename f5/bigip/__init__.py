@@ -17,6 +17,8 @@
 #
 
 
+from icontrol.session import iControlRESTSession
+
 from f5.bigip.cm import Cm
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.shared import Shared
@@ -27,8 +29,7 @@ from f5.bigip.tm.net import Net
 from f5.bigip.tm.shared import Shared as TmShared
 from f5.bigip.tm.sys import Sys
 from f5.bigip.tm import Tm
-from f5.bigip.transaction import Transactions
-from icontrol.session import iControlRESTSession
+from f5.bigip.tm.transaction import Transactions
 
 
 class ManagementRoot(OrganizingCollection):
