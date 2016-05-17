@@ -273,3 +273,19 @@ class FileUploadMixin(object):
                 session.post(self.file_bound_uri,
                              **requests_params)
                 start += current_bytes
+
+
+class DeviceMixin(object):
+    '''Manage BigIP device cluster in a general way.'''
+
+    def get_device_info(self, bigip):
+        '''Get device information about a specific BigIP device.
+
+        :param bigip: bigip object --- device to inspect
+        :returns: bigip object
+        '''
+
+        coll = bigip.tm.cm.devices.get_collection()
+        device = [device for device in coll if device.selfDevice == 'true']
+        assert len(device) == 1
+        return device[0]

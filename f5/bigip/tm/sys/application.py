@@ -134,10 +134,10 @@ class Service(Resource):
             self.load(**kwargs)
             if self.kind != self._meta_data['required_json_kind']:
                 error_message = "For instances of type '%r' the corresponding"\
-                    " kind must be '%r' but creation returned JSON with kind: %r"\
-                    % (self.__class__.__name__,
-                       self._meta_data['required_json_kind'],
-                       self.kind)
+                    " kind must be '%r' but creation returned JSON with "\
+                    " kind: %r" % (self.__class__.__name__,
+                                   self._meta_data['required_json_kind'],
+                                   self.kind)
                 raise KindTypeMismatch(error_message)
 
         return self
