@@ -15,11 +15,23 @@
 # limitations under the License.
 #
 
+"""BIG-IP® LTM profile submodule.
+
+REST URI
+    ``http://localhost/mgmt/tm/ltm/profile/``
+
+GUI Path
+    ``Local Traffic --> Profiles``
+
+REST Kind
+    ``tm:ltm:profile*``
+"""
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 from f5.bigip.resource import UnsupportedOperation
+
 
 class Profile(OrganizingCollection):
     def __init__(self, ltm):
@@ -99,11 +111,15 @@ class Analytics(Resource):
     """BIG-IP® Analytics profile resource."""
     def __init__(self, Analytics_s):
         super(Analytics, self).__init__(Analytics_s)
-        self._meta_data['allowed_lazy_attributes'] = [Alerts_s, Traffic_Captures]
-        self._meta_data['required_json_kind'] = 'tm:ltm:profile:analytics:analyticsstate'
+        self._meta_data['allowed_lazy_attributes'] = [Alerts_s,
+                                                      Traffic_Captures]
+        self._meta_data['required_json_kind'] = \
+            'tm:ltm:profile:analytics:analyticsstate'
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:analytics:alerts:alertscollectionstate': Alerts_s,
-             'tm:ltm:profile:analytics:traffic-capture:traffic-capturecollectionstate': Traffic_Captures}
+             'tm:ltm:profile:analytics:traffic-capture:\
+             traffic-capturecollectionstate':
+                 Traffic_Captures}
 
 
 class Alerts_s(Collection):
@@ -121,7 +137,8 @@ class Traffic_Captures(Collection):
         super(Traffic_Captures, self).__init__(Analytics)
         self._meta_data['allowed_lazy_attributes'] = [Traffic_Capture]
         self._meta_data['attribute_registry'] = \
-            {'tm:ltm:profile:analytics:traffic-capture:traffic-capturestate': Traffic_Capture}
+            {'tm:ltm:profile:analytics:traffic-capture:\
+            traffic-capturestate': Traffic_Capture}
 
 
 class Alerts(Resource):
@@ -146,7 +163,8 @@ class Certificate_Authoritys(Collection):
         super(Certificate_Authoritys, self).__init__(profile)
         self._meta_data['allowed_lazy_attributes'] = [Certificate_Authority]
         self._meta_data['attribute_registry'] = \
-            {'tm:ltm:profile:certificate-authority:certificate-authoritystate': Certificate_Authority}
+            {'tm:ltm:profile:certificate-authority:\
+            certificate-authoritystate': Certificate_Authority}
 
 
 class Certificate_Authority(Resource):
@@ -163,7 +181,8 @@ class Classifications(Collection):
         super(Classifications, self).__init__(profile)
         self._meta_data['allowed_lazy_attributes'] = [Classification]
         self._meta_data['attribute_registry'] = \
-            {'tm:ltm:profile:classification:classificationstate' : Classification}
+            {'tm:ltm:profile:classification:\
+            classificationstate': Classification}
 
 
 class Classification(Resource):
@@ -206,7 +225,7 @@ class Client_Ldap(Resource):
     def __init__(self, Client_Ldaps):
         super(Client_Ldap, self).__init__(Client_Ldaps)
         self._meta_data['required_json_kind'] = \
-        'tm:ltm:profile:client-ldap:client-ldapstate'
+            'tm:ltm:profile:client-ldap:client-ldapstate'
 
 
 class Client_Ssls(Collection):
@@ -327,7 +346,7 @@ class Fasthttp(Resource):
     def __init__(self, Fasthttps):
         super(Fasthttp, self).__init__(Fasthttps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:fasthttp:fasthttpstate'
+            'tm:ltm:profile:fasthttp:fasthttpstate'
 
 
 class Fastl4s(Collection):
@@ -344,7 +363,7 @@ class Fastl4(Resource):
     def __init__(self, Fastl4s):
         super(Fastl4, self).__init__(Fastl4s)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:fastl4:fastl4state'
+            'tm:ltm:profile:fastl4:fastl4state'
 
 
 class Fixs(Collection):
@@ -361,7 +380,7 @@ class Fix(Resource):
     def __init__(self, Fixs):
         super(Fix, self).__init__(Fixs)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:fix:fixstate'
+            'tm:ltm:profile:fix:fixstate'
 
 
 class Ftps(Collection):
@@ -378,7 +397,7 @@ class Ftp(Resource):
     def __init__(self, Ftps):
         super(Ftp, self).__init__(Ftps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:ftp:ftpstate'
+            'tm:ltm:profile:ftp:ftpstate'
 
 
 class Gtps(Collection):
@@ -395,7 +414,7 @@ class Gtp(Resource):
     def __init__(self, Gtps):
         super(Gtp, self).__init__(Gtps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:gtp:gtpstate'
+            'tm:ltm:profile:gtp:gtpstate'
 
 
 class Htmls(Collection):
@@ -412,7 +431,7 @@ class Html(Resource):
     def __init__(self, Htmls):
         super(Html, self).__init__(Htmls)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:html:htmlstate'
+            'tm:ltm:profile:html:htmlstate'
 
 
 class Https(Collection):
@@ -429,7 +448,7 @@ class Http(Resource):
     def __init__(self, Https):
         super(Http, self).__init__(Https)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:http:httpstate'
+            'tm:ltm:profile:http:httpstate'
 
 
 class Http_Compressions(Collection):
@@ -437,16 +456,19 @@ class Http_Compressions(Collection):
     def __init__(self, profile):
         super(Http_Compressions, self).__init__(profile)
         self._meta_data['allowed_lazy_attributes'] = [Http_Compression]
-        self._meta_data['attribute_registry'] = \
-            {'tm:ltm:profile:http-compression:http-compressionstate': Http_Compression}
+        temp = \
+            {'tm:ltm:profile:http-compression:http-compressionstate':
+                Http_Compression}
+        self._meta_data['attribute_registry'] = temp
 
 
 class Http_Compression(Resource):
     """BIG-IP® Http_Compression resource."""
     def __init__(self, Http_Compressions):
         super(Http_Compression, self).__init__(Http_Compressions)
-        self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:http-compression:http-compressionstate'
+        temp = \
+            'tm:ltm:profile:http-compression:http-compressionstate'
+        self._meta_data['required_json_kind'] = temp
 
 
 class Http2s(Collection):
@@ -463,7 +485,7 @@ class Http2(Resource):
     def __init__(self, Http2s):
         super(Http2, self).__init__(Http2s)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:http2:http2state'
+            'tm:ltm:profile:http2:http2state'
 
 
 class Icaps(Collection):
@@ -480,7 +502,7 @@ class Icap(Resource):
     def __init__(self, Icaps):
         super(Icap, self).__init__(Icaps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:icap:icapstate'
+            'tm:ltm:profile:icap:icapstate'
 
 
 class Iiops(Collection):
@@ -497,7 +519,7 @@ class Iiop(Resource):
     def __init__(self, Iiops):
         super(Iiop, self).__init__(Iiops)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:iiop:iiopstate'
+            'tm:ltm:profile:iiop:iiopstate'
 
 
 class Ipothers(Collection):
@@ -514,7 +536,7 @@ class Ipother(Resource):
     def __init__(self, Ipothers):
         super(Ipother, self).__init__(Ipothers)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:ipother:ipotherstate'
+            'tm:ltm:profile:ipother:ipotherstate'
 
 
 class Mblbs(Collection):
@@ -531,7 +553,7 @@ class Mblb(Resource):
     def __init__(self, Mblbs):
         super(Mblb, self).__init__(Mblbs)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:mblb:mblbstate'
+            'tm:ltm:profile:mblb:mblbstate'
 
 
 class Mssqls(Collection):
@@ -548,7 +570,7 @@ class Mssql(Resource):
     def __init__(self, Mssqls):
         super(Mssql, self).__init__(Mssqls)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:mssql:mssqlstate'
+            'tm:ltm:profile:mssql:mssqlstate'
 
 
 class Ntlms(Collection):
@@ -565,7 +587,7 @@ class Ntlm(Resource):
     def __init__(self, Ntlms):
         super(Ntlm, self).__init__(Ntlms)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:ntlm:ntlmstate'
+            'tm:ltm:profile:ntlm:ntlmstate'
 
 
 class Ocsp_Stapling_Params_s(Collection):
@@ -573,8 +595,10 @@ class Ocsp_Stapling_Params_s(Collection):
     def __init__(self, profile):
         super(Ocsp_Stapling_Params_s, self).__init__(profile)
         self._meta_data['allowed_lazy_attributes'] = [Ocsp_Stapling_Params]
-        self._meta_data['attribute_registry'] = \
-            {'tm:ltm:profile:ocsp-stapling-params:ocsp-stapling-paramsstate': Ocsp_Stapling_Params}
+        temp = \
+            {'tm:ltm:profile:ocsp-stapling-params:ocsp-stapling-paramsstate':
+                Ocsp_Stapling_Params}
+        self._meta_data['attribute_registry'] = temp
 
 
 class Ocsp_Stapling_Params(Resource):
@@ -582,9 +606,10 @@ class Ocsp_Stapling_Params(Resource):
 
     def __init__(self, Ocsp_Stapling_Params_s):
         super(Ocsp_Stapling_Params, self).__init__(Ocsp_Stapling_Params_s)
-        self._meta_data['exclusive_attributes'].append(('proxyServerPool', 'dnsResolver'))
+        self._meta_data['exclusive_attributes'].append(
+            ('proxyServerPool', 'dnsResolver'))
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:ocsp-stapling-params:ocsp-stapling-paramsstate'
+            'tm:ltm:profile:ocsp-stapling-params:ocsp-stapling-paramsstate'
 
     def create(self, **kwargs):
         """Create the resource on the BIG-IP®.
@@ -622,7 +647,7 @@ class One_Connect(Resource):
     def __init__(self, One_Connects):
         super(One_Connect, self).__init__(One_Connects)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:one-connect:one-connectstate'
+            'tm:ltm:profile:one-connect:one-connectstate'
 
 
 class Pcps(Collection):
@@ -639,7 +664,7 @@ class Pcp(Resource):
     def __init__(self, Pcps):
         super(Pcp, self).__init__(Pcps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:pcp:pcpstate'
+            'tm:ltm:profile:pcp:pcpstate'
 
 
 class Pptps(Collection):
@@ -656,7 +681,7 @@ class Pptp(Resource):
     def __init__(self, Pptps):
         super(Pptp, self).__init__(Pptps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:pptp:pptpstate'
+            'tm:ltm:profile:pptp:pptpstate'
 
 
 class Qoes(Collection):
@@ -673,7 +698,7 @@ class Qoe(Resource):
     def __init__(self, Qoes):
         super(Qoe, self).__init__(Qoes)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:qoe:qoestate'
+            'tm:ltm:profile:qoe:qoestate'
 
 
 class Radius_s(Collection):
@@ -690,17 +715,17 @@ class Radius(Resource):
     def __init__(self, Radius_s):
         super(Radius, self).__init__(Radius_s)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:radius:radiusstate'
+            'tm:ltm:profile:radius:radiusstate'
 
 
-###Ramcache is special case needs some careful thought, supports get and DELETE only
 class Ramcaches(Collection):
     """BIG-IP® Ramcache profile collection."""
     pass
+
+
 class Ramcache(Resource):
     """BIG-IP® Ramcache resource."""
     pass
-###End of Ramcache
 
 
 class Request_Adapts(Collection):
@@ -717,7 +742,7 @@ class Request_Adapt(Resource):
     def __init__(self, Request_Adapts):
         super(Request_Adapt, self).__init__(Request_Adapts)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:request-adapt:request-adaptstate'
+            'tm:ltm:profile:request-adapt:request-adaptstate'
 
 
 class Request_Logs(Collection):
@@ -734,7 +759,7 @@ class Request_Log(Resource):
     def __init__(self, Request_Logs):
         super(Request_Log, self).__init__(Request_Logs)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:request-log:request-logstate'
+            'tm:ltm:profile:request-log:request-logstate'
 
 
 class Response_Adapts(Collection):
@@ -743,7 +768,8 @@ class Response_Adapts(Collection):
         super(Response_Adapts, self).__init__(profile)
         self._meta_data['allowed_lazy_attributes'] = [Response_Adapt]
         self._meta_data['attribute_registry'] = \
-            {'tm:ltm:profile:response-adapt:response-adaptstate': Response_Adapt}
+            {'tm:ltm:profile:response-adapt:\
+            response-adaptstate': Response_Adapt}
 
 
 class Response_Adapt(Resource):
@@ -751,7 +777,7 @@ class Response_Adapt(Resource):
     def __init__(self, Response_Adapts):
         super(Response_Adapt, self).__init__(Response_Adapts)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:response-adapt:response-adaptstate'
+            'tm:ltm:profile:response-adapt:response-adaptstate'
 
 
 class Rewrites(Collection):
@@ -769,7 +795,7 @@ class Rewrite(Resource):
         super(Rewrite, self).__init__(Rewrites)
         self._meta_data['allowed_lazy_attributes'] = []
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:rewrite:rewritestate'
+            'tm:ltm:profile:rewrite:rewritestate'
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:rewrite:uri-rules:uri-rulescollectionstate':
              Uri_Rules_s}
@@ -783,12 +809,13 @@ class Uri_Rules_s(Collection):
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:rewrite:uri-rules:uri-rulesstate': Uri_Rules}
 
+
 class Uri_Rules(Resource):
     """BIG-IP® URI Rules resource"""
     def __init__(self, Uri_Rules_s):
         super(Uri_Rules, self).__init__(Uri_Rules_s)
         self._meta_data['required_json_kind'] = \
-            'tm:ltm:profile:analytics:alerts:alertsstate'
+            'tm:ltm:profile:rewrite:uri-rules:uri-rulesstate'
 
 
 class Rtsps(Collection):
@@ -805,7 +832,7 @@ class Rtsp(Resource):
     def __init__(self, Rtsps):
         super(Rtsp, self).__init__(Rtsps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:rtsp:rtspstate'
+            'tm:ltm:profile:rtsp:rtspstate'
 
 
 class Sctps(Collection):
@@ -822,7 +849,7 @@ class Sctp(Resource):
     def __init__(self, Sctps):
         super(Sctp, self).__init__(Sctps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:sctp:sctpstate'
+            'tm:ltm:profile:sctp:sctpstate'
 
 
 class Server_Ldaps(Collection):
@@ -839,7 +866,7 @@ class Server_Ldap(Resource):
     def __init__(self, Server_Ldaps):
         super(Server_Ldap, self).__init__(Server_Ldaps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:server-ldap:server-ldapstate'
+            'tm:ltm:profile:server-ldap:server-ldapstate'
 
 
 class Server_Ssls(Collection):
@@ -856,7 +883,7 @@ class Server_Ssl(Resource):
     def __init__(self, Server_Ssls):
         super(Server_Ssl, self).__init__(Server_Ssls)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:server-ssl:server-sslstate'
+            'tm:ltm:profile:server-ssl:server-sslstate'
 
 
 class Sips(Collection):
@@ -873,7 +900,7 @@ class Sip(Resource):
     def __init__(self, Sips):
         super(Sip, self).__init__(Sips)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:sip:sipstate'
+            'tm:ltm:profile:sip:sipstate'
 
 
 class Smtps(Collection):
@@ -894,16 +921,16 @@ class Smtp(Resource):
     def __init__(self, Smtps):
         super(Smtp, self).__init__(Smtps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:smtp:smtpstate'
+            'tm:ltm:profile:smtp:smtpstate'
 
 
 class Smtps_s(Collection):
     """BIG-IP® Smtps profile collection."""
     def __init__(self, profile):
         super(Smtps_s, self).__init__(profile)
-        self._meta_data['allowed_lazy_attributes'] = [Smtps]
+        self._meta_data['allowed_lazy_attributes'] = [SmtpS]
         self._meta_data['attribute_registry'] = \
-            {'tm:ltm:profile:smtps:smtpsstate': Smtps}
+            {'tm:ltm:profile:smtps:smtpsstate': SmtpS}
 
 
 class SmtpS(Resource):
@@ -911,7 +938,7 @@ class SmtpS(Resource):
     def __init__(self, Smtps_s):
         super(SmtpS, self).__init__(Smtps_s)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:smtps:smtpsstate'
+            'tm:ltm:profile:smtps:smtpsstate'
 
 
 class Socks_s(Collection):
@@ -928,7 +955,7 @@ class Socks(Resource):
     def __init__(self, Socks_s):
         super(Socks, self).__init__(Socks_s)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:socks:socksstate'
+            'tm:ltm:profile:socks:socksstate'
         self._meta_data['required_creation_parameters'].update(
             ('dnsResolver',))
 
@@ -947,7 +974,7 @@ class Spdy(Resource):
     def __init__(self, Spdys):
         super(Spdy, self).__init__(Spdys)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:spdy:spdystate'
+            'tm:ltm:profile:spdy:spdystate'
 
 
 class Statistics_s(Collection):
@@ -964,7 +991,7 @@ class Statistics(Resource):
     def __init__(self, Statistics_s):
         super(Statistics, self).__init__(Statistics_s)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:statistics:statisticsstate'
+            'tm:ltm:profile:statistics:statisticsstate'
 
 
 class Streams(Collection):
@@ -981,7 +1008,7 @@ class Stream(Resource):
     def __init__(self, Streams):
         super(Stream, self).__init__(Streams)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:stream:streamstate'
+            'tm:ltm:profile:stream:streamstate'
 
 
 class Tcps(Collection):
@@ -998,7 +1025,7 @@ class Tcp(Resource):
     def __init__(self, Tcps):
         super(Tcp, self).__init__(Tcps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:tcp:tcpstate'
+            'tm:ltm:profile:tcp:tcpstate'
 
 
 class Tftps(Collection):
@@ -1015,7 +1042,7 @@ class Tftp(Resource):
     def __init__(self, Tftps):
         super(Tftp, self).__init__(Tftps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:tftp:tftpstate'
+            'tm:ltm:profile:tftp:tftpstate'
 
 
 class Udps(Collection):
@@ -1032,17 +1059,18 @@ class Udp(Resource):
     def __init__(self, Udps):
         super(Udp, self).__init__(Udps)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:udp:udpstate'
+            'tm:ltm:profile:udp:udpstate'
 
-###This one does not allow GET, probably requires data to allow query
 
 class Wa_Caches(Collection):
     """BIG-IP® Wa_Cache profile collection."""
     pass
+
+
 class Wa_Cache(Resource):
     """BIG-IP® Wa_Cache resource."""
     pass
-###
+
 
 class Web_Accelerations(Collection):
     """BIG-IP® Web_Acceleration profile collection."""
@@ -1050,7 +1078,8 @@ class Web_Accelerations(Collection):
         super(Web_Accelerations, self).__init__(profile)
         self._meta_data['allowed_lazy_attributes'] = [Web_Acceleration]
         self._meta_data['attribute_registry'] = \
-            {'tm:ltm:profile:web-acceleration:web-accelerationstate': Web_Acceleration}
+            {'tm:ltm:profile:web-acceleration:\
+            web-accelerationstate': Web_Acceleration}
 
 
 class Web_Acceleration(Resource):
@@ -1058,7 +1087,7 @@ class Web_Acceleration(Resource):
     def __init__(self, Web_Accelerations):
         super(Web_Acceleration, self).__init__(Web_Accelerations)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:web-acceleration:web-accelerationstate'
+            'tm:ltm:profile:web-acceleration:web-accelerationstate'
 
 
 class Web_Securitys(Collection):
@@ -1075,7 +1104,7 @@ class Web_Security(Resource):
     def __init__(self, Web_Securitys):
         super(Web_Security, self).__init__(Web_Securitys)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:web-security:web-securitystate'
+            'tm:ltm:profile:web-security:web-securitystate'
 
     def create(self, **kwargs):
         """Create is not supported for Web Security
@@ -1086,7 +1115,6 @@ class Web_Security(Resource):
             "%s does not support the create method" % self.__class__.__name__
         )
 
-
     def update(self, **kwargs):
         """Update is not supported for Web Security
 
@@ -1095,6 +1123,7 @@ class Web_Security(Resource):
         raise UnsupportedOperation(
             "%s does not support the update method" % self.__class__.__name__
         )
+
     def refresh(self, **kwargs):
         """Refresh is not supported for Web Security
 
@@ -1128,5 +1157,4 @@ class Xml(Resource):
     def __init__(self, Xmls):
         super(Xml, self).__init__(Xmls)
         self._meta_data['required_json_kind'] = \
-             'tm:ltm:profile:xml:xmlstate'
-
+            'tm:ltm:profile:xml:xmlstate'
