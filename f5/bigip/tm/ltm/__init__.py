@@ -33,6 +33,7 @@ from f5.bigip.tm.ltm.monitor import Monitor
 from f5.bigip.tm.ltm.nat import Nats
 from f5.bigip.tm.ltm.node import Nodes
 from f5.bigip.tm.ltm.persistence import Persistences
+from f5.bigip.tm.ltm.profile import Profile
 from f5.bigip.tm.ltm.policy import Policys
 from f5.bigip.tm.ltm.pool import Pools
 from f5.bigip.tm.ltm.profile import Profile
