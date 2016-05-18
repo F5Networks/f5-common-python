@@ -37,6 +37,7 @@ class Add_To_Trust(UnnamedResourceMixin, ExclusiveAttributesMixin,
             ('device', 'deviceName', 'username', 'password'))
         self._meta_data['required_json_kind'] = \
             'tm:cm:add-to-trust:runstate'
+        self._meta_data['allowed_commands'].append('run')
 
 
 class Remove_From_Trust(UnnamedResourceMixin, CommandExecutionMixin, Resource):
@@ -57,3 +58,4 @@ class Remove_From_Trust(UnnamedResourceMixin, CommandExecutionMixin, Resource):
             ('deviceName',))
         self._meta_data['required_json_kind'] = \
             'tm:cm:remove-from-trust:runstate'
+        self._meta_data['allowed_commands'].append('run')

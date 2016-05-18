@@ -592,6 +592,8 @@ class Resource(ResourceBase):
         self._meta_data['exclusive_attributes'] = []
         # You can't set these attributes, only 'read' them.
         self._meta_data['read_only_attributes'] = []
+        # Commands you can run on a resource
+        self._meta_data['allowed_commands'] = []
 
     def _activate_URI(self, selfLinkuri):
         """Call this with a selfLink, after it's returned in _create or _load.
