@@ -115,9 +115,11 @@ class Client_Ssl(Resource):
 
         """
         if 'certname' and 'keyname' in kwargs:
-            kwargs['name'] = kwargs['certname'][:-4]
+            certname = kwargs.pop('certname')
+            keyname = kwargs.pop('keyname')
+            kwargs['name'] = certname[:-4]
             kwargs['certKeyChain'] =\
-                [{'cert': kwargs['certname'], 'key': kwargs['keyname']}]
+                [{'cert': certname, 'key': keyname}]
 
         self._create(**kwargs)
         return self
