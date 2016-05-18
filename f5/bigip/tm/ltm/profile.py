@@ -26,7 +26,6 @@ REST Kind
     ``tm:ltm:profile*``
 """
 
-import logging
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
@@ -110,8 +109,10 @@ class Client_Ssl(Resource):
             'tm:ltm:profile:client-ssl:client-sslstate'
 
     def create(self, **kwargs):
-        """Allows creation of SSL profile with just key/cert names
-        otherwise it will just require 'name' kwarg to be provided
+        """Allows creation of SSL profile with just key/cert names.
+
+            Will require 'name' kwarg to be provided otherwise
+
         """
         if 'certname' and 'keyname' in kwargs:
             kwargs['name'] = kwargs['certname'][:-4]
@@ -120,7 +121,6 @@ class Client_Ssl(Resource):
 
         self._create(**kwargs)
         return self
-
 
 
 class Analytics_s(Collection):
