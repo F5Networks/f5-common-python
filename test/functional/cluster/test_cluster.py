@@ -17,7 +17,6 @@ from f5.bigip import ManagementRoot
 from f5.multi_device.cluster import Cluster
 from f5.multi_device.cluster.managers import DeviceGroupOperationNotSupported
 
-import mock
 import pytest
 
 
