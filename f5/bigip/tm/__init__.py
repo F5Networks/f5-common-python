@@ -24,6 +24,7 @@ from f5.bigip.tm.ltm import Ltm
 from f5.bigip.tm.net import Net
 from f5.bigip.tm.shared import Shared
 from f5.bigip.tm.sys import Sys
+from f5.bigip.tm.transaction import Transactions
 
 
 class Tm(OrganizingCollection):
@@ -36,5 +37,6 @@ class Tm(OrganizingCollection):
             Ltm,
             Net,
             Shared,
-            Sys
+            Sys,
+            Transactions
         ]
