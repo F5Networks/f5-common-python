@@ -85,6 +85,7 @@ class DeviceGroupManager(DeviceMixin):
             msg = 'The following device is already a member of the device ' \
                 'group: %s' % device_info.name
             raise DeviceGroupOperationNotSupported(msg)
+        self._check_device_failover_status(device, 'In Sync')
         self._add_device_to_device_group(device)
         device.tm.sys.config.save()
         self.devices.append(device)
@@ -280,25 +281,36 @@ class DeviceGroupManager(DeviceMixin):
         return standbys
 
     def _get_devices_by_failover_status(self, status):
-        '''Get a list of bigips by failover status.
+        '''Get a list of devices by failover status.
 
         :param status: str -- status to filter the returned list of devices
         :returns: list -- list of devices that have the given status
         '''
 
-        bigips = []
-        for bigip in self.devices:
-            sync_status = bigip.tm.cm.sync_status
-            sync_status.refresh()
-            current_status = (sync_status.entries[self.sync_status_entry]
-                              ['nestedStats']['entries']['status']
-                              ['description'])
-            if status == current_status:
-                bigips.append(bigip)
-        return bigips
+        devices = []
+        for device in self.devices:
+            if (self._check_device_failover_status(device, status)):
+                devices.append(device)
+        return devices
+
+    def _check_device_failover_status(self, device, status):
+        '''Determine if a device has a specific failover status.
+
+        :param status: str -- status to check against
+        :returns: bool -- True is it has status, False otherwise
+        '''
+
+        sync_status = device.tm.cm.sync_status
+        sync_status.refresh()
+        current_status = (sync_status.entries[self.sync_status_entry]
+                          ['nestedStats']['entries']['status']
+                          ['description'])
+        if status == current_status:
+            return True
+        return False
 
     def _get_devices_by_activation_state(self, state):
-        '''Get a list of bigips by activation statue.
+        '''Get a list of devices by activation statue.
 
         :param state: str -- state to filter the returned list of devices
         :returns: list -- list of devices that are in the given state
@@ -330,6 +342,18 @@ class TrustedPeerManager(DeviceMixin):
         self.trust_name = trust_name
         self.partition = partition
         self.peer_iapp_prefix = 'cluster_iapp'
+
+    def reset_trust(self, bigip):
+        '''Reset trust on all domains on the device.
+
+        :param bigip: bigip object -- bigip on which to reset trust
+        '''
+
+        reset_trust_cmd = self._get_reset_trust_cmd()
+        iapp_actions = self.iapp_actions.copy()
+        iapp_actions['definition']['implementation'] = reset_trust_cmd
+        self._deploy_iapp('reset_trust', iapp_actions, bigip)
+        self._delete_iapp('reset_trust', bigip)
 
     def add_trusted_peers(self, root_bigip, peers):
         '''Add trusted peers to the root bigip device.
@@ -436,3 +460,12 @@ class TrustedPeerManager(DeviceMixin):
 
         return 'tmsh::modify cm trust-domain Root ca-devices delete ' \
             '\\{ %s \\}' % peer_name
+
+    def _get_reset_trust_cmd(self):
+        '''Get tmsh command to reset trust on all domains.
+
+        :returns: str -- tmsh command to reset trust
+        '''
+
+        return 'tmsh::delete cm trust-domain all ' \
+            'keep-current-certificate-authority'

@@ -111,15 +111,14 @@ def test_failover_cluster(BigIPSetup):
     cm.teardown_cluster()
 
 
-def test_sync_only_cluster(BigIPSetup, TwoBigIPTeardownSyncOnly):
+def test_sync_only_cluster_fail_in_common(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b]
-    cm = Cluster(
-        bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-only')
-    cm.create_cluster()
-    for x in range(5):
-        cm.scale_up_cluster(c)
-        cm.scale_down_cluster(c)
+    with pytest.raises(DeviceGroupOperationNotSupported) as ex:
+        Cluster(
+            bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-only')
+    assert 'Attempted to create sync-only device group in the Common ' \
+        'partition. This is not supported' in ex.value.message
 
 
 def test_teardown_existing_cluster(BigIPSetup):
@@ -145,21 +144,6 @@ def test_scale_up_with_existing_device(
     with pytest.raises(DeviceGroupOperationNotSupported) as ex:
         cm.scale_up_cluster(b)
     assert 'The following device is already a member of the device group:' in \
-        ex.value.message
-
-
-def test_scale_down_with_nonextant_device(
-        BigIPSetup, TwoBigIPTeardownSyncFailover):
-    a, b, c = BigIPSetup
-    bigip_list = [a, b, c]
-    cm = Cluster(
-        bigip_list, DEVICE_GROUP_NAME, PARTITION, 'sync-failover')
-    cm.create_cluster()
-    d = mock.MagicMock()
-    d.tm.cm.devices.get_collection.return_value = FakeDeviceInfo()
-    with pytest.raises(DeviceGroupOperationNotSupported) as ex:
-        cm.scale_down_cluster(d)
-    assert 'The following device is not a member of the device group' in \
         ex.value.message
 
 

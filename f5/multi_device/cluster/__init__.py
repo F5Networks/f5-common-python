@@ -70,6 +70,8 @@ class Cluster(DeviceMixin):
         print('Checking state of devices to be clustered...')
         self.dgm.check_devices_active_licensed()
         print('Adding trusted peers to root BigIP...')
+        for bigip in self.bigips:
+            self.peer_mgr.reset_trust(bigip)
         self.peer_mgr.add_trusted_peers(self.root_bigip, self.peers)
         print('Creating device group...')
         self.dgm.create_device_group()
@@ -93,6 +95,7 @@ class Cluster(DeviceMixin):
             msg = 'The number of devices to cluster is not supported.'
             raise ClusterNotSupported(msg)
         print('Scaling cluster up by one device...')
+        self.peer_mgr.reset_trust(bigip)
         self.peer_mgr.add_trusted_peers(self.root_bigip, [bigip])
         self.dgm.scale_up_device_group(bigip)
         self.bigips.append(bigip)
