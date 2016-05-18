@@ -38,8 +38,60 @@ class Profile(OrganizingCollection):
     def __init__(self, ltm):
         super(Profile, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Client_Ssls
-        ]
+            Analytics_s,
+            Certificate_Authoritys,
+            Classifications,
+            Client_Ldaps,
+            Client_Ssls,
+            Dhcpv4s,
+            Dhcpv6s,
+            Diameters,
+            Dns_s,
+            Dns_Loggings,
+            Fasthttps,
+            Fastl4s,
+            Fixs,
+            Ftps,
+            Gtps,
+            Htmls,
+            Https,
+            Http_Compressions,
+            Http2s,
+            Icaps,
+            Iiops,
+            Ipothers,
+            Mblbs,
+            Mssqls,
+            Ntlms,
+            Ocsp_Stapling_Params_s,
+            One_Connects,
+            Pcps,
+            Pptps,
+            Qoes,
+            Radius_s,
+            Ramcaches,
+            Request_Adapts,
+            Request_Logs,
+            Response_Adapts,
+            Rewrites,
+            Rtsps,
+            Sctps,
+            Server_Ldaps,
+            Server_Ssls,
+            Sips,
+            Smtps,
+            Smtps_s,
+            Socks_s,
+            Spdys,
+            Statistics_s,
+            Streams,
+            Tcps,
+            Tftps,
+            Udps,
+            Wa_Caches,
+            Web_Accelerations,
+            Web_Securitys,
+            Xmls]
 
 
 class Client_Ssls(Collection):
@@ -57,12 +109,18 @@ class Client_Ssl(Resource):
         self._meta_data['required_json_kind'] =\
             'tm:ltm:profile:client-ssl:client-sslstate'
 
-    def create(self, certname, keyname):
-        payload = {"name": certname[:-4],
-                   "cert": certname,
-                   "key": keyname}
-        logging.debug(payload)
-        return self._create(**payload)
+    def create(self, **kwargs):
+        """Allows creation of SSL profile with just key/cert names
+        otherwise it will just require 'name' kwarg to be provided
+        """
+        if 'certname' and 'keyname' in kwargs:
+            kwargs['name'] = kwargs['certname'][:-4]
+            kwargs['certKeyChain'] =\
+                [{'cert': kwargs['certname'], 'key': kwargs['keyname']}]
+
+        self._create(**kwargs)
+        return self
+
 
 
 class Analytics_s(Collection):
