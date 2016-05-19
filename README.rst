@@ -78,7 +78,7 @@ Before you open a pull request, your code must have passing
 `pytest <http://pytest.org>`__ unit tests. In addition, you should
 include a set of functional tests written to use a real BIG-IP device
 for testing. Information on how to run our set of tests is included
-below..
+below...
 
 Unit Tests
 ~~~~~~~~~~
