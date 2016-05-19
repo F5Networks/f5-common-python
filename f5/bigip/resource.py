@@ -349,6 +349,8 @@ class ResourceBase(PathElement, ToDictMixin):
         :param container: instance is an attribute of a ResourceBase container
         """
         super(ResourceBase, self).__init__(container)
+        # Commands you can run on a resource or collection, we define it here
+        self._meta_data['allowed_commands'] = []
 
     def _update(self, **kwargs):
         """wrapped with update, override that in a subclass to customize"""
@@ -592,8 +594,7 @@ class Resource(ResourceBase):
         self._meta_data['exclusive_attributes'] = []
         # You can't set these attributes, only 'read' them.
         self._meta_data['read_only_attributes'] = []
-        # Commands you can run on a resource
-        self._meta_data['allowed_commands'] = []
+
 
     def _activate_URI(self, selfLinkuri):
         """Call this with a selfLink, after it's returned in _create or _load.
