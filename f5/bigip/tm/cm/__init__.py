@@ -45,3 +45,4 @@ class Cm(OrganizingCollection, CommandExecutionMixin):
             Devices, Device_Groups, Traffic_Groups, Trust_Domains,
             Sync_Status, Add_To_Trust, Remove_From_Trust,
         ]
+        self._meta_data['allowed_commands'].append('run')
