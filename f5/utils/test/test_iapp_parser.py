@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.common import iapp_parser as ip
+from f5.utils import iapp_parser as ip
 
 import pytest
 
