@@ -47,4 +47,3 @@ class Config(UnnamedResourceMixin, ResourceBase,
         raise self.UnsupportedMethod(
             "%s does not support the update method" % self.__class__.__name__
         )
-
