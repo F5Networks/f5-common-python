@@ -14,16 +14,23 @@
 #
 #
 
-from f5.bigip.mixins import DeviceMixin
+from f5.sdk_exceptions import F5SDKError
+from f5.utils.mixins import DeviceMixin
 from f5.multi_device.cluster.managers import DeviceGroupManager as dgm
 from f5.multi_device.cluster.managers import TrustedPeerManager as peer_mgr
 
 
-class ClusterNotSupported(Exception):
+class ClusterError(F5SDKError):
+    def __init__(self, *arg, **kwargs):
+        #TODO:  Place your logging 0ssmness here.
+        super(ClusterError, self).__init__(*args, **kwargs)
+
+
+class ClusterNotSupported(ClusterError):
     pass
 
 
-class RootRemovalNotSupported(Exception):
+class RootRemovalNotSupported(ClusterError):
     pass
 
 
