@@ -15,7 +15,8 @@
 
 from f5.sdk_exception import F5SDKError
 
+
 class UtilError(F5SDKError):
     '''A base exception for all utility exceptions in this library.'''
-    def __init__(self, *arg, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(UtilError, self).__init__(*args, **kwargs)
