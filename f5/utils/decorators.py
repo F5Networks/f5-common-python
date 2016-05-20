@@ -19,9 +19,10 @@ import time
 
 from f5.utils.util_exceptions import UtilError
 
+
 class MaximumAttemptsReached(UtilError):
-    def __init__(*args, **kwargs):
-        # TODO:   Add logging here!
+    def __init__(self, *args, **kwargs):
+        # TODO(Add logging here!)
         super(MaximumAttemptsReached, self).__init__(*args, **kwargs)
 
 
