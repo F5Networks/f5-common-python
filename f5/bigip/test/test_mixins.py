@@ -15,9 +15,7 @@
 import json
 import pytest
 
-
 from f5.bigip.mixins import CommandExecutionMixin
-from f5.bigip.mixins import InvalidCommand
 from f5.bigip.mixins import ToDictMixin
 from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.mixins import UnsupportedMethod
@@ -136,8 +134,3 @@ class TestCommandExecutionMixin(object):
         command_resource = CommandExecutionMixin()
         with pytest.raises(UnsupportedMethod):
             command_resource.load()
-
-    def test_invalid_command_raises(self):
-        command_resource = CommandExecutionMixin()
-        with pytest.raises(InvalidCommand):
-            command_resource.exec_cmd('foo', name='test')

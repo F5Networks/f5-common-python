@@ -349,6 +349,8 @@ class ResourceBase(PathElement, ToDictMixin):
         :param container: instance is an attribute of a ResourceBase container
         """
         super(ResourceBase, self).__init__(container)
+        # Commands you can run on a resource or collection, we define it here
+        self._meta_data['allowed_commands'] = []
 
     def _update(self, **kwargs):
         """wrapped with update, override that in a subclass to customize"""

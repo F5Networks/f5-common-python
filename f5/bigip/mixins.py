@@ -214,11 +214,9 @@ class CommandExecutionMixin(object):
 
     def exec_cmd(self, command, **kwargs):
 
-        cmds = ['cp', 'generate', 'install', 'load', 'mv', 'publish',
-                'reboot', 'restart', 'reset-stats', 'run', 'save',
-                'send-mail', 'start', 'stop']
+        cmds = self._meta_data['allowed_commands']
 
-        if command not in cmds:
+        if command not in self._meta_data['allowed_commands']:
             error_message = "The command value {0} does not exist" \
                             "Valid commands are {1}".format(command, cmds)
             raise InvalidCommand(error_message)

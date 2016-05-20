@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+from f5.bigip.mixins import InvalidCommand
 import pytest
 
 
@@ -77,3 +78,12 @@ class TestTrust(object):
         # Verify devices sync state is Standalone
         assert check_sync(request, bigip) == u"Standalone"
         assert check_sync(request, peer) == u"Standalone"
+
+    def test_invalid_cmd_meta(self, request, bigip):
+        dvcs = bigip.cm
+        with pytest.raises(InvalidCommand):
+            dvcs.add_to_trust.exec_cmd('foo', name='fooname',
+                                       device='foodev',
+                                       deviceName='foo_name',
+                                       username='foouser',
+                                       caDevice=True, password='foopasswd')

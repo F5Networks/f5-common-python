@@ -25,16 +25,19 @@ GUI Path
 REST Kind
     ``tm:sys:config:*``
 """
-
+from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.resource import ResourceBase
 
 
-class Config(UnnamedResourceMixin, ResourceBase):
+class Config(UnnamedResourceMixin, ResourceBase,
+             CommandExecutionMixin):
     def __init__(self, sys):
         super(Config, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = []
         self._meta_data['attribute_registry'] = {}
+        self._meta_data['allowed_commands'].append('save',
+                                                   'load')
 
     def update(self, **kwargs):
         '''Update is not supported for Config
@@ -44,11 +47,3 @@ class Config(UnnamedResourceMixin, ResourceBase):
         raise self.UnsupportedMethod(
             "%s does not support the update method" % self.__class__.__name__
         )
-
-    def save(self):
-        '''Save the configuration on the device. '''
-        payload = {'command': 'save'}
-        session = self._meta_data['bigip']._meta_data['icr_session']
-        uri = self._meta_data['uri']
-        response = session.post(uri, json=payload)
-        self._local_update(response.json())
