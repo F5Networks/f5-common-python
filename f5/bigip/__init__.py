@@ -30,6 +30,7 @@ from f5.bigip.tm.shared import Shared as TmShared
 from f5.bigip.tm.sys import Sys
 from f5.bigip.tm import Tm
 from f5.bigip.tm.transaction import Transactions
+from f5.bigip.mixins import ToDictMixin
 
 
 class ManagementRoot(OrganizingCollection):
@@ -53,6 +54,7 @@ class ManagementRoot(OrganizingCollection):
             'local_ip': None,
             'bigip': self,
             'icontrol_version': icontrol_version,
+            'tmos_version': None,
         }
 
     @property
@@ -62,6 +64,15 @@ class ManagementRoot(OrganizingCollection):
     @property
     def icontrol_version(self):
         return self._meta_data['icontrol_version']
+
+    def _version(self):
+        connect = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['uri']
+        endpoint = 'tm/sys/'
+        uri = base_uri + endpoint
+        response = connect.get(uri)
+        ver = response.json()
+        return str(ver['selfLink']).split('=')[1]
 
 
 class BigIP(ManagementRoot):
