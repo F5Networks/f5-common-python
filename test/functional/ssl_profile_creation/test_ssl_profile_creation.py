@@ -88,6 +88,8 @@ def test_ssl_profile_creation(cleaner, symbols, tmpdir):
     pp([cert.raw for cert in cert_registrar.get_collection()])
     key_registrar.install_key(CERTFILENAME, FAKEKEYFILENAME)
     pp([key.raw for key in key_registrar.get_collection()])
-    ssl_client_profile.create(certname='/Common/NEWTESTCLIENTPROFILENAME.crt',
-                              keyname='/Common/NEWTESTCLIENTPROFILENAME.key')
+    chain = [{'name': 'newestcert',
+              'cert': '/Common/NEWTESTCLIENTPROFILENAME.crt',
+              'key': '/Common/NEWTESTCLIENTPROFILENAME.key'}]
+    ssl_client_profile.create(name='test_cert', certKeyChain=chain)
     pp(ssl_client_profile.raw)
