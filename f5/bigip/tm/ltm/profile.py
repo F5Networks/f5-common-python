@@ -108,24 +108,6 @@ class Client_Ssl(Resource):
         self._meta_data['required_json_kind'] =\
             'tm:ltm:profile:client-ssl:client-sslstate'
 
-    def create(self, **kwargs):
-        """Allows creation of SSL profile with just key/cert names.
-
-            Will require 'name' kwarg to be provided otherwise
-
-        """
-        if 'certname' and 'keyname' in kwargs:
-            certname = kwargs.pop('certname')
-            keyname = kwargs.pop('keyname')
-            kwargs['certKeyChain'] =\
-                [{'cert': certname, 'key': keyname,
-                  'name': certname.split('/')[2][:-4]}]
-            if 'name' not in kwargs:
-                kwargs['name'] = certname[:-4]
-
-        self._create(**kwargs)
-        return self
-
 
 class Analytics_s(Collection):
     """BIG-IP® Analytics profile collection.
