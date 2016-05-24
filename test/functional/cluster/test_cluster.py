@@ -76,6 +76,22 @@ def ThreeBigIPTeardownSyncFailover(request, BigIPSetup):
     request.addfinalizer(teardown_cluster)
 
 
+def test_existing_failover_cluster(BigIPSetup):
+    a, b, = BigIPSetup
+    bigip_list = [a, b]
+
+    cm = ClusterManager(
+        devices=bigip_list,
+        device_group_name=DEVICE_GROUP_NAME,
+        device_group_partition=PARTITION,
+        device_group_type='sync-failover'
+    )
+    assert cm.cluster.devices == bigip_list
+    assert cm.cluster.device_group_name == DEVICE_GROUP_NAME
+    assert cm.cluster.device_group_type == 'sync-failover'
+    assert cm.cluster.device_group_partition == PARTITION
+
+
 def test_new_failover_cluster_two_member(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b]

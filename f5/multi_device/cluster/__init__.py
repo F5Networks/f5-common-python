@@ -14,7 +14,39 @@
 #
 #
 
-# TrustDomain and DeviceGroup may need to move under multi_device
+'''The classes within define the management of a cluster of BIG_IP devices.
+
+Definitions:
+    Cluster: The manager of the TrustDomain and DeviceGroup objects.
+    TrustDomain: a group of BIG-IP devices that have exchanged certificates
+                 and trust one another
+    DeviceGroup: a group of BIG-IP device that sync configuration data and
+                 failover connections.
+
+Clustering is broken down into three component parts: a cluster manager, a
+trust domain, and a device group. The cluster manager presents the external
+interface to a user for operations like create, teardown etc....
+
+To create a device service group (aka cluster) of devices, those devices
+must trust one another. This is coordinated by the TrustDomain class. Once
+those devices trust one another, a device group is created and each is added
+to the group. After this step, a cluster exists.
+
+Currently the only supported type of cluster is a 'sync-failover' cluster.
+
+ClusterManager Methods:
+
+    * create -- creates a cluster based on kwargs given by user
+    * teardown -- tears down an existing cluster
+    * scale_up_by_one -- add one device to the cluster
+    * scale_down_by_one -- remove one device from the cluster
+
+Classes:
+
+    * ClusterManager -- manages a cluster of devices with the methods above
+    * TrustDomain -- manages the trust domain for a cluster
+    * DeviceGroup -- manages the device group for a cluster
+'''
 
 from f5.sdk_exception import F5SDKError
 from f5.utils.decorators import poll_for_exceptionless_callable
@@ -24,7 +56,6 @@ from collections import namedtuple
 
 class ClusterError(F5SDKError):
     def __init__(self, *args, **kwargs):
-        # TODO(paul):  Place your logging 0ssmness here.
         super(ClusterError, self).__init__(*args, **kwargs)
 
 
@@ -215,7 +246,7 @@ class ClusterManager(object):
         self.trust_domain.teardown()
         self.cluster = None
 
-    def scale_up(self, device):
+    def scale_up_by_one(self, device):
         '''Scale cluster up by one device.
 
         :param bigip: bigip object -- bigip to add
@@ -226,12 +257,12 @@ class ClusterManager(object):
             msg = 'The number of devices to cluster is not supported.'
             raise ClusterNotSupported(msg)
         print('Scaling cluster up by one device...')
-        self.trust_domain.scale_up(device)
-        self.device_group.scale_up(device)
+        self.trust_domain.scale_up_by_one(device)
+        self.device_group.scale_up_by_one(device)
         self.cluster.devices.append(device)
         self.device_group.ensure_all_devices_in_sync()
 
-    def scale_down(self, device):
+    def scale_down_by_one(self, device):
         '''Scale cluster down by one device.
 
         :param device: ManagementRoot object -- device to delete
@@ -242,8 +273,8 @@ class ClusterManager(object):
             msg = 'The number of devices to cluster is not supported.'
             raise ClusterNotSupported(msg)
         print('Scaling cluster down by one device...')
-        self.device_group.scale_down(device)
-        self.trust_domain.scale_down(device, self.device_group)
+        self.device_group.scale_down_by_one(device)
+        self.trust_domain.scale_down_by_one(device, self.device_group)
         self.cluster.devices.remove(device)
         self.device_group.ensure_all_devices_in_sync()
 
@@ -341,7 +372,7 @@ class DeviceGroup(object):
         pollster(self._check_devices_active_licensed)()
         pollster(self._check_all_devices_in_sync)()
 
-    def scale_up(self, device):
+    def scale_up_by_one(self, device):
         '''Scale device group up by one device
 
         :param device: ManagementRoot object -- device to add to device group
@@ -357,7 +388,7 @@ class DeviceGroup(object):
         self.devices.append(device)
         self.ensure_all_devices_in_sync()
 
-    def scale_down(self, device):
+    def scale_down_by_one(self, device):
         '''Scale device group down by one device
 
         :param device: ManagementRoot object -- device to delete from device
@@ -628,7 +659,7 @@ class TrustDomain(object):
             self._populate_domain()
         self.domain = {}
 
-    def scale_up(self, device):
+    def scale_up_by_one(self, device):
         '''Scale up trust domain by one device.
 
         :param device: ManagementRoot object -- device to scale up
@@ -638,7 +669,7 @@ class TrustDomain(object):
         self._add_trustee(device)
         pollster(self.validate)()
 
-    def scale_down(self, device, device_group_object=None):
+    def scale_down_by_one(self, device, device_group_object=None):
         '''Scale down trust domain by one device.
 
         :param device: ManagementRoot object -- device to scale down
@@ -662,8 +693,9 @@ class TrustDomain(object):
     def _remove_trustee(self, device, device_group_object=None):
         '''Remove a trustee from the trust domain.
 
-        If this is called as part of scale_down, the device being scaled must
-        remove the members of its device group before removing trusted devices
+        If this is called as part of scale_down_by_one, the device being scaled
+        must remove the members of its device group before removing trusted
+        devices. This is optional.
 
         :param device: MangementRoot object -- device to remove
         '''
