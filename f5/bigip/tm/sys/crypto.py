@@ -25,7 +25,7 @@ GUI Path
 REST Kind
     ``tm:sys:config:*``
 """
-
+from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
@@ -40,22 +40,13 @@ class Crypto(OrganizingCollection):
         ]
 
 
-class Keys(Collection):
+class Keys(Collection, CommandExecutionMixin):
     def __init__(self, crypto):
         super(Keys, self).__init__(crypto)
-        self._meta_data['allowed_lazy_attributes'] = [
-            Key
-        ]
+        self._meta_data['allowed_lazy_attributes'] = [Key]
+        self._meta_data['allowed_commands'].append('install')
         self._meta_data['attribute_registry'] =\
             {'tm:sys:crypto:key:keystate': Key}
-
-    def install_key(self, certfilename, keyfilename):
-        payload =\
-            {"from-local-file": "/var/config/rest/downloads/%s" % keyfilename,
-             "command": "install",
-             "name": certfilename[:-4]}
-        self._meta_data['icr_session'].post(self._meta_data['uri'],
-                                            json=payload)
 
 
 class Key(Resource):
@@ -64,22 +55,13 @@ class Key(Resource):
         self._meta_data['required_json_kind'] = 'tm:sys:crypto:key:keystate'
 
 
-class Certs(Collection):
+class Certs(Collection, CommandExecutionMixin):
     def __init__(self, crypto):
         super(Certs, self).__init__(crypto)
-        self._meta_data['allowed_lazy_attributes'] = [
-            Cert
-        ]
+        self._meta_data['allowed_lazy_attributes'] = [Cert]
+        self._meta_data['allowed_commands'].append('install')
         self._meta_data['attribute_registry'] =\
             {'tm:sys:crypto:cert:certstate': Cert}
-
-    def install_cert(self, certfilename):
-        payload =\
-            {"from-local-file": "/var/config/rest/downloads/%s" % certfilename,
-             "command": "install",
-             "name": certfilename[:-4]}
-        self._meta_data['icr_session'].post(self._meta_data['uri'],
-                                            json=payload)
 
 
 class Cert(Resource):
