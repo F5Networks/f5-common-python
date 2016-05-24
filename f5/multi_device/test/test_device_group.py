@@ -14,11 +14,11 @@
 #
 
 from f5.multi_device.cluster import DeviceGroup
-from f5.multi_device.cluster import DeviceGroupNotSupported
-from f5.multi_device.cluster import DeviceGroupOperationNotSupported
-from f5.multi_device.cluster import MissingRequiredDeviceGroupParameter
-from f5.multi_device.cluster import UnexpectedDeviceGroupState
-from f5.multi_device.cluster import UnexpectedDeviceGroupType
+from f5.multi_device.exceptions import DeviceGroupNotSupported
+from f5.multi_device.exceptions import DeviceGroupOperationNotSupported
+from f5.multi_device.exceptions import MissingRequiredDeviceGroupParameter
+from f5.multi_device.exceptions import UnexpectedDeviceGroupState
+from f5.multi_device.exceptions import UnexpectedDeviceGroupType
 
 import mock
 import pytest
@@ -50,9 +50,12 @@ def BigIPs():
 
 @pytest.fixture
 @mock.patch('f5.multi_device.cluster.DeviceGroup._check_all_devices_in_sync')
-@mock.patch('f5.multi_device.cluster.pollster')
+@mock.patch('f5.multi_device.utils.pollster')
 @mock.patch('f5.multi_device.cluster.DeviceGroup._add_device_to_device_group')
 def DeviceGroupCreateNew(mock_sync, mock_poll, mock_add, BigIPs):
+    mock_sync.__name__ = 'test'
+    mock_poll.__name__ = 'test'
+    mock_add.__name__ = 'test'
     mock_bigips = BigIPs
     dg = DeviceGroup()
     dg.create(
