@@ -104,7 +104,7 @@ def test_scale_up_device_already_in_group(DeviceGroupCreateNew, BigIPs):
     mock_names_in_group.return_value = ['test']
     dg._get_device_names_in_group = mock_names_in_group
     with pytest.raises(DeviceGroupOperationNotSupported) as ex:
-        dg.scale_up(mock_bigip)
+        dg.scale_up_by_one(mock_bigip)
     assert "Device: 'test' is already in device group" == ex.value.message
 
 
@@ -119,7 +119,7 @@ def test_scale_down_device_not_in_group(DeviceGroupCreateNew, BigIPs):
     mock_names_in_group.return_value = ['no_match']
     dg._get_device_names_in_group = mock_names_in_group
     with pytest.raises(DeviceGroupOperationNotSupported) as ex:
-        dg.scale_down(mock_bigip)
+        dg.scale_down_by_one(mock_bigip)
     assert "Device: 'test' is not in device group" == ex.value.message
 
 
