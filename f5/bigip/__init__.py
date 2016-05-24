@@ -56,6 +56,7 @@ class ManagementRoot(OrganizingCollection):
             'icontrol_version': icontrol_version,
             'tmos_version': None,
         }
+        self._version()
 
     @property
     def hostname(self):
@@ -66,13 +67,12 @@ class ManagementRoot(OrganizingCollection):
         return self._meta_data['icontrol_version']
 
     def _version(self):
-        connect = self._meta_data['bigip']._meta_data['icr_session']
-        base_uri = self._meta_data['uri']
-        endpoint = 'tm/sys/'
-        uri = base_uri + endpoint
-        response = connect.get(uri)
-        ver = response.json()
-        return str(ver['selfLink']).split('=')[1]
+        mgmt_rt = self
+        dvcs = mgmt_rt.tm.cm.devices.get_collection()
+        for i in range(len(dvcs)):
+            if str(dvcs[i].selfDevice) == 'true':
+                tmsh_v = str(dvcs[i].version)
+        self._meta_data['tmos_version'] = tmsh_v
 
 
 class BigIP(ManagementRoot):
