@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-from f5.multi_device.cluster import DeviceNotTrusted
 from f5.multi_device.cluster import TrustDomain
+from f5.multi_device.exceptions import DeviceNotTrusted
 
 import mock
 import pytest
