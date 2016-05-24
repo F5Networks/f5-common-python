@@ -46,6 +46,36 @@ Classes:
     * ClusterManager -- manages a cluster of devices with the methods above
     * TrustDomain -- manages the trust domain for a cluster
     * DeviceGroup -- manages the device group for a cluster
+
+Usage:
+
+There are two major use-cases here:
+
+    * Manage an existing cluster:
+
+        list_of_bigips = [ManagementRoot(...), ManagementRoot(...)]
+        cluster_mgr = ClusterManager(
+                            devices=list_of_bigips,
+                            device_group_name='my_cluster',
+                            device_group_type='sync-failover',
+                            device_group_partition='Common'
+                        )
+        new_bigip_device = ManagementRoot(...)
+        cluster_mgr.scale_up_by_one(new_bigip_device)
+        list_of_bigips.append(new_bigip_device)
+        assert cluster_mgr.cluster.devices == list_of_bigips
+
+    * Create a new cluster and manage it:
+
+        list_of_bigips = [ManagementRoot(...), ManagementRoot(...)]
+        cluster_mgr = ClusterManager()
+        cluster_mgr.create(
+                    devices=list_of_bigips,
+                    device_group_name='my_cluster',
+                    device_group_type='sync-failover',
+                    device_group_partition='Common
+                )
+        assert cluster_mgr.cluster.devices == list_of_bigips
 '''
 
 from f5.sdk_exception import F5SDKError
