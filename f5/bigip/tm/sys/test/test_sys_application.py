@@ -155,7 +155,7 @@ class MockHTTPError(HTTPError):
 
 class MockHTTPErrorResponseSuccessful(HTTPError):
     def __init__(self):
-        self.text = 'The configuration was updated successfully but could not' \
+        self.text = 'The configuration was updated successfully but could not'\
             ' be retrieved'
 
 
