@@ -154,15 +154,15 @@ def test_scale_up_too_many_devices(ClusterManagerCreateNew, BigIPs):
         devices=mock_bigips, device_group_name='name',
         device_group_partition='part', device_group_type='sync-failover')
     mock_bigip1 = mock.MagicMock()
-    cm.scale_up(mock_bigip1)
+    cm.scale_up_by_one(mock_bigip1)
     mock_bigip2 = mock.MagicMock()
-    cm.scale_up(mock_bigip2)
+    cm.scale_up_by_one(mock_bigip2)
     mock_bigip3 = mock.MagicMock()
-    cm.scale_up(mock_bigip3)
+    cm.scale_up_by_one(mock_bigip3)
     mock_bigip4 = mock.MagicMock()
-    cm.scale_up(mock_bigip4)
+    cm.scale_up_by_one(mock_bigip4)
     with pytest.raises(ClusterNotSupported) as ex:
-        cm.scale_up(mock.MagicMock())
+        cm.scale_up_by_one(mock.MagicMock())
     assert sorted(cm.cluster.devices) == sorted(mock_bigips)
     assert 'The number of devices to cluster is not supported.' == \
         ex.value.message
@@ -174,10 +174,10 @@ def test_scale_down_cluster_not_supported(ClusterManagerCreateNew, BigIPs):
     cm.create(
         devices=mock_bigips, device_group_name='name',
         device_group_partition='part', device_group_type='sync-failover')
-    cm.scale_down(mock_bigips[0])
+    cm.scale_down_by_one(mock_bigips[0])
     assert cm.cluster.devices == mock_bigips
-    cm.scale_down(mock_bigips[0])
+    cm.scale_down_by_one(mock_bigips[0])
     with pytest.raises(ClusterNotSupported) as ex:
-        cm.scale_down(mock_bigips[0])
+        cm.scale_down_by_one(mock_bigips[0])
     assert 'The number of devices to cluster is not supported.' == \
         ex.value.message
