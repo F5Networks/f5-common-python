@@ -84,10 +84,16 @@ def test_ssl_profile_creation(cleaner, symbols, tmpdir):
     ssl_client_profile = mr.tm.ltm.profile.client_ssls.client_ssl
     uploader.upload_file(str(certpath))
     uploader.upload_file(str(keypath))
-    cert_registrar.install_cert(CERTFILENAME)
+    CERTPATH = '/var/config/rest/downloads/' + CERTFILENAME
+    KEYPATH = '/var/config/rest/downloads/' + FAKEKEYFILENAME
+    cert_set = {'from-local-file': CERTPATH, 'name': 'faketestcert'}
+    key_set = {'from-local-file': KEYPATH, 'name': 'faketestkey'}
+    cert_registrar.exec_cmd('install', **cert_set)
     pp([cert.raw for cert in cert_registrar.get_collection()])
-    key_registrar.install_key(CERTFILENAME, FAKEKEYFILENAME)
+    key_registrar.exec_cmd('install', **key_set)
     pp([key.raw for key in key_registrar.get_collection()])
-    ssl_client_profile.create(certname='/Common/NEWTESTCLIENTPROFILENAME.crt',
-                              keyname='/Common/NEWTESTCLIENTPROFILENAME.key')
+    chain = [{'name': 'newestcert',
+              'cert': '/Common/NEWTESTCLIENTPROFILENAME.crt',
+              'key': '/Common/NEWTESTCLIENTPROFILENAME.key'}]
+    ssl_client_profile.create(name='test_cert', certKeyChain=chain)
     pp(ssl_client_profile.raw)

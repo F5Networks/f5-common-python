@@ -22,7 +22,6 @@ from f5.utils.util_exceptions import UtilError
 
 class MaximumAttemptsReached(UtilError):
     def __init__(self, *args, **kwargs):
-        # TODO(Add logging here!)
         super(MaximumAttemptsReached, self).__init__(*args, **kwargs)
 
 
@@ -40,9 +39,9 @@ def poll_for_exceptionless_callable(callable, attempts, interval):
         for attempt in range(attempts):
             try:
                 return callable(*args, **kwargs)
-            except Exception:
+            except Exception as ex:
                 if attempt == attempts-1:
-                    raise
+                    raise MaximumAttemptsReached(ex)
                 time.sleep(interval)
                 continue
     return poll
