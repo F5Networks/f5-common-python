@@ -235,8 +235,9 @@ class CommandExecutionMixin(object):
         kwargs['command'] = command
         requests_params = self._handle_requests_params(kwargs)
         session = self._meta_data['bigip']._meta_data['icr_session']
+        _command_uri = self._meta_data['uri']
         response = session.post(
-            self._meta_data['uri'], json=kwargs, **requests_params)
+            _command_uri, json=kwargs, **requests_params)
         self._local_update(response.json())
 
         return self
