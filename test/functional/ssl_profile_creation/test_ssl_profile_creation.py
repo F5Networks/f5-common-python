@@ -65,6 +65,8 @@ def cleaner(request, symbols):
     request.addfinalizer(cleaner)
 
 
+@pytest.mark.skipif(pytest.config.getoption('--symbols') is None,
+                    reason='Symbols must be configured')
 def test_ssl_profile_creation(cleaner, symbols, tmpdir):
     testdatadir = tmpdir.mkdir('testdir')
     FAKEKEYFILENAME = 'fakekey.key'
