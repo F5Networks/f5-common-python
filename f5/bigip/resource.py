@@ -90,6 +90,11 @@ from requests.exceptions import HTTPError
 class RequestParamKwargCollision(F5SDKError):
     pass
 
+class UnsupportedTmosVersion(F5SDKError):
+    """Raise the error if a class of an API is instantiated on a TMOS
+       version where API it was not yet implemented/supported.
+    """
+    pass
 
 class KindTypeMismatch(F5SDKError):
     """Raise this when server JSON keys are incorrect for the Resource type."""
@@ -351,6 +356,12 @@ class ResourceBase(PathElement, ToDictMixin):
         super(ResourceBase, self).__init__(container)
         # Commands you can run on a resource or collection, we define it here
         self._meta_data['allowed_commands'] = []
+
+        # Supported version for each class will be defined here. We can define
+        # a list of them for future expansion, 11.6.0 and 12.0.0 is our base.
+        # We can remove or add later per class or globally.
+
+        self._meta_data['supported_version'] = ['11.6.0', '12.0.0']
 
     def _update(self, **kwargs):
         """wrapped with update, override that in a subclass to customize"""
