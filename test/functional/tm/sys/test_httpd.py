@@ -28,9 +28,9 @@ def cleaner(request, bigip):
 class TestHttpd(object):
     def test_load(self, cleaner, bigip):
         httpd = bigip.sys.httpd.load()
-        assert httpd.maxClients == 20
+        assert httpd.maxClients == 10
         httpd.refresh()
-        assert httpd.maxClients == 20
+        assert httpd.maxClients == 10
 
     def test_update(self, cleaner, bigip):
         httpd = bigip.sys.httpd.load()

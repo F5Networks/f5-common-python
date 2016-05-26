@@ -561,9 +561,10 @@ class TestOcspStaplingParams(object):
         assert ocsp1.cacheErrorTimeout == 3000
 
         # Testing load
-        ocsp2 = bigip.ltm.profile.ocsp_stapling_params_s
-        ocsp2.ocsp_stapling_params.load(
+        ocsp_params = bigip.ltm.profile.ocsp_stapling_params_s
+        ocsp2 = ocsp_params.ocsp_stapling_params.load(
             partition='Common', name='test.ocsp_stapling_params')
+
         assert ocsp1.selfLink == ocsp2.selfLink
 
 
