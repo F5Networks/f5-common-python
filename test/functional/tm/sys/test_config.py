@@ -17,4 +17,4 @@
 class TestConfig(object):
     def test_save(self, bigip):
         c = bigip.sys.config
-        c.save()
+        c.exec_cmd('save')
