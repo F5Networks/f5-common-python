@@ -58,7 +58,7 @@ class ManagementRoot(PathElement):
             'password': password,
             'tmos_version': None,
         }
-        self._version()
+        self._ver_set()
 
     @property
     def hostname(self):
@@ -68,13 +68,17 @@ class ManagementRoot(PathElement):
     def icontrol_version(self):
         return self._meta_data['icontrol_version']
 
-    def _version(self):
+    @property
+    def tmos_version(self):
+        return self._meta_data['tmos_version']
+
+    def _ver_set(self):
         mgmt_rt = self
         dvcs = mgmt_rt.tm.cm.devices.get_collection()
         for i in range(len(dvcs)):
             if str(dvcs[i].selfDevice) == 'true':
                 tmsh_v = str(dvcs[i].version)
-        self._meta_data['tmos_version'] = tmsh_v
+                self._meta_data['tmos_version'] = tmsh_v
 
 
 class BigIP(ManagementRoot):
