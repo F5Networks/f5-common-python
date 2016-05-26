@@ -356,11 +356,7 @@ class ResourceBase(PathElement, ToDictMixin):
         super(ResourceBase, self).__init__(container)
         # Commands you can run on a resource or collection, we define it here
         self._meta_data['allowed_commands'] = []
-
-        # Supported version for each class will be defined here. We can define
-        # a list of them for future expansion, 11.6.0 and 12.0.0 is our base.
-        # We can remove or add later per class or globally.
-
+        # Supported version for each class will be defined here.
         self._meta_data['supported_version'] = ['11.6.0', '12.0.0']
 
     def _update(self, **kwargs):
@@ -466,6 +462,16 @@ class ResourceBase(PathElement, ToDictMixin):
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
 
+    def _tmos_check(self):
+        """Doing version check per each resource"""
+        if 'tmos_version' in self._meta_data['bigip']._meta_data:
+            tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
+            if tmos_v not in self._meta_data['supported_version']:
+                error = "There was an attempt to access API which " \
+                    "has not been implemented or supported " \
+                    "in the device's TMOS version: {}".format(
+                        tmos_v)
+                raise UnsupportedTmosVersion(error)
 
 class OrganizingCollection(ResourceBase):
     """Base class for objects that collect resources under them.
@@ -605,16 +611,6 @@ class Resource(ResourceBase):
         self._meta_data['exclusive_attributes'] = []
         # You can't set these attributes, only 'read' them.
         self._meta_data['read_only_attributes'] = []
-
-        # We deal with version recognition in class __init__
-        if self._meta_data['tmos_version'] not in self._meta_data['supported_version']:
-
-            error = "There was an attempt to access API which" \
-                    "has not been implemented or supported" \
-                    "in the device's TMOS version: {}".format(
-                        self._meta_data['tmos_version'])
-            raise UnsupportedTmosVersion(error)
-
 
     def _activate_URI(self, selfLinkuri):
         """Call this with a selfLink, after it's returned in _create or _load.
