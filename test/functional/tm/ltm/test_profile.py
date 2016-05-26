@@ -13,6 +13,8 @@
 # limitations under the License.
 #
 
+import pytest
+
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 end_lst = ['Certificate_Authoritys', 'Classifications', 'Client_Ldaps',
@@ -267,8 +269,30 @@ class TestDns(object):
 class TestDnsLogging(object):
     def test_CURDL(self, request, bigip):
         dnslog = HelperTest(end_lst, 8)
-        dnslog.test_CURDL(
-            request, bigip, logPublisher='/Common/local-db-publisher')
+
+        # Testing create
+
+        dns1, dnshc = dnslog.setup_test(
+            request, bigip,
+            logPublisher='/Common/local-db-publisher')
+        assert dns1.name == 'test.dns_logging'
+        del dnshc
+
+        # Testing update
+        assert dns1.enableQueryLogging == 'yes'
+        dns1.enableQueryLogging = 'no'
+        dns1.update()
+        assert dns1.enableQueryLogging == 'no'
+
+        # Testing refresh
+        dns1.enableQueryLogging = 'yes'
+        dns1.refresh()
+        assert dns1.enableQueryLogging == 'no'
+
+        # Testing load
+        dns2 = bigip.ltm.profile.dns_loggings.dns_logging.load(
+            partition='Common', name='test.dns_logging')
+        assert dns1.selfLink == dns2.selfLink
 
 # End Dns Logging test
 
@@ -300,7 +324,28 @@ class TestFastL4(object):
 class TestFix(object):
     def test_CURDL(self, request, bigip):
         fix = HelperTest(end_lst, 11)
-        fix.test_CURDL(request, bigip)
+
+        # Testing create
+
+        fix1, fixc = fix.setup_test(request, bigip)
+        assert fix1.name == 'test.fix'
+        del fixc
+
+        # Testing update
+        assert fix1.quickParsing == 'false'
+        fix1.quickParsing = 'true'
+        fix1.update()
+        assert fix1.quickParsing == 'true'
+
+        # Testing refresh
+        fix1.quickParsing = 'false'
+        fix1.refresh()
+        assert fix1.quickParsing == 'true'
+
+        # Testing load
+        fix2 = bigip.ltm.profile.fixs.fix.load(
+            partition='Common', name='test.fix')
+        assert fix1.selfLink == fix2.selfLink
 
 
 # End Fix tests
@@ -402,7 +447,8 @@ class TestIcap(object):
 
 # Begin IIOP tests
 
-
+@pytest.mark.skipif(pytest.config.getoption('--release') != '12.0.0',
+                    reason='Needs v12 TMOS to pass')
 class TestIiop(object):
     def test_CURDL(self, request, bigip):
         iiop = HelperTest(end_lst, 19)
@@ -435,11 +481,31 @@ class TestMblb(object):
 
 # Begin Mssql tests
 
-
 class TestMssql(object):
     def test_CURDL(self, request, bigip):
         mssql = HelperTest(end_lst, 22)
-        mssql.test_CURDL(request, bigip)
+
+        # Testing create
+
+        mssql1, mssqlc = mssql.setup_test(request, bigip)
+        assert mssql1.name == 'test.mssql'
+        del mssqlc
+
+        # Testing update
+        assert mssql1.userCanWriteByDefault == 'true'
+        mssql1.userCanWriteByDefault = 'false'
+        mssql1.update()
+        assert mssql1.userCanWriteByDefault == 'false'
+
+        # Testing refresh
+        mssql1.userCanWriteByDefault = 'true'
+        mssql1.refresh()
+        assert mssql1.userCanWriteByDefault == 'false'
+
+        # Testing load
+        mssql2 = bigip.ltm.profile.mssqls.mssql.load(
+            partition='Common', name='test.mssql')
+        assert mssql1.selfLink == mssql2.selfLink
 
 
 # End Mssql tests
@@ -473,11 +539,32 @@ class TestOcspStaplingParams(object):
         dns = setup_dns_resolver(request, bigip, 'test_resolv')
 
         # Test CURDL
-        http2 = HelperTest(end_lst, 24)
-        http2.test_CURDL(request, bigip,
-                         dnsResolver=dns.name,
-                         trustedCa='/Common/ca-bundle.crt',
-                         useProxyServer='disabled')
+        ocsp = HelperTest(end_lst, 24)
+
+        # Testing create
+        ocsp1, ocsphc = ocsp.setup_test(
+            request, bigip, dnsResolver=dns.name,
+            trustedCa='/Common/ca-bundle.crt',
+            useProxyServer='disabled')
+
+        assert ocsp1.name == 'test.ocsp_stapling_params'
+        del ocsphc
+
+        # Testing update
+        ocsp1.cacheErrorTimeout = 3000
+        ocsp1.update()
+        assert ocsp1.cacheErrorTimeout == 3000
+
+        # Testing refresh
+        ocsp1.cacheErrorTimeout = 30
+        ocsp1.refresh()
+        assert ocsp1.cacheErrorTimeout == 3000
+
+        # Testing load
+        ocsp2 = bigip.ltm.profile.ocsp_stapling_params_s
+        ocsp2.ocsp_stapling_params.load(
+            partition='Common', name='test.ocsp_stapling_params')
+        assert ocsp1.selfLink == ocsp2.selfLink
 
 
 # End Ocsp Stapling Params tests
@@ -521,7 +608,28 @@ class TestPptp(object):
 class TestQoe(object):
     def test_CURDL(self, request, bigip):
         qoe = HelperTest(end_lst, 28)
-        qoe.test_CURDL(request, bigip)
+
+        # Testing create
+
+        qoe1, qoec = qoe.setup_test(request, bigip)
+        assert qoe1.name == 'test.qoe'
+        del qoec
+
+        # Testing update
+        assert qoe1.video == 'false'
+        qoe1.video = 'true'
+        qoe1.update()
+        assert qoe1.video == 'true'
+
+        # Testing refresh
+        qoe1.video = 'false'
+        qoe1.refresh()
+        assert qoe1.video == 'true'
+
+        # Testing load
+        qoe2 = bigip.ltm.profile.qoes.qoe.load(
+            partition='Common', name='test.qoe')
+        assert qoe1.selfLink == qoe2.selfLink
 
 
 # End Qoe tests
@@ -787,7 +895,8 @@ class TestTcp(object):
 
 # Begin Tftp tests
 
-
+@pytest.mark.skipif(pytest.config.getoption('--release') != '12.0.0',
+                    reason='Needs v12 TMOS to pass')
 class TestTftp(object):
     def test_CURDL(self, request, bigip):
         tftp = HelperTest(end_lst, 45)
