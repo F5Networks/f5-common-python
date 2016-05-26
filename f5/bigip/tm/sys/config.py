@@ -35,9 +35,9 @@ class Config(UnnamedResourceMixin, ResourceBase,
     def __init__(self, sys):
         super(Config, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = []
-        self._meta_data['attribute_registry'] = {}
+        self._meta_data['required_json_kind'] = \
+            'tm:sys:config:configstate'
         self._meta_data['allowed_commands'].append('save')
-        self._meta_data['allowed_commands'].append('load')
 
     def update(self, **kwargs):
         '''Update is not supported for Config
