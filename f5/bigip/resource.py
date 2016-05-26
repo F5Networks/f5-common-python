@@ -606,6 +606,16 @@ class Resource(ResourceBase):
         # You can't set these attributes, only 'read' them.
         self._meta_data['read_only_attributes'] = []
 
+        # We deal with version recognition in class __init__
+        if self._meta_data['tmos_version'] not in self._meta_data['supported_version']:
+
+            error = "There was an attempt to access API which" \
+                    "has not been implemented or supported" \
+                    "in the device's TMOS version: {}".format(
+                        self._meta_data['tmos_version'])
+            raise UnsupportedTmosVersion(error)
+
+
     def _activate_URI(self, selfLinkuri):
         """Call this with a selfLink, after it's returned in _create or _load.
 
