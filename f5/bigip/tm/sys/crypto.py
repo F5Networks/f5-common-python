@@ -25,7 +25,7 @@ GUI Path
 REST Kind
     ``tm:sys:config:*``
 """
-
+from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
@@ -40,49 +40,67 @@ class Crypto(OrganizingCollection):
         ]
 
 
-class Keys(Collection):
+class Keys(Collection, CommandExecutionMixin):
+    """BIG-IP® Crypto key collection
+
+
+        note::
+        This collection supports install command.
+        Given the fact that we will be expecting hyphen
+        parameters, the function will need to utilize
+        variable keyword argument syntax. In other words
+        define a dictionary with the arbitrary keys and
+        then pass it as in the form **foo into the method
+        call. e.g.
+
+        param_set ={'from-local-file': FOOPATH, 'name': 'FOOKEY'}
+        bigip.tm.sys.crypto.keys.exec_cmd('install', **param_set)
+
+
+    """
     def __init__(self, crypto):
         super(Keys, self).__init__(crypto)
-        self._meta_data['allowed_lazy_attributes'] = [
-            Key
-        ]
+        self._meta_data['allowed_lazy_attributes'] = [Key]
+        self._meta_data['allowed_commands'].append('install')
         self._meta_data['attribute_registry'] =\
             {'tm:sys:crypto:key:keystate': Key}
 
-    def install_key(self, certfilename, keyfilename):
-        payload =\
-            {"from-local-file": "/var/config/rest/downloads/%s" % keyfilename,
-             "command": "install",
-             "name": certfilename[:-4]}
-        self._meta_data['icr_session'].post(self._meta_data['uri'],
-                                            json=payload)
-
 
 class Key(Resource):
+    """BIG-IP® Crypto key resource"""
     def __init__(self, keys):
         super(Key, self).__init__(keys)
         self._meta_data['required_json_kind'] = 'tm:sys:crypto:key:keystate'
 
 
-class Certs(Collection):
+class Certs(Collection, CommandExecutionMixin):
+    """BIG-IP® Crypto cert collection
+
+
+        note::
+        This collection supports install command.
+        Given the fact that we will be expecting hyphen
+        parameters, the function will need to utilize
+        variable keyword argument syntax. In other words
+        define a dictionary with the arbitrary keys and
+        then pass it as in the form **foo into the method
+        call. e.g.
+
+        param_set ={'from-local-file': FOOPATH, 'name': 'FOOCERT'}
+        bigip.tm.sys.crypto.certs.exec_cmd('install', **param_set)
+
+
+    """
     def __init__(self, crypto):
         super(Certs, self).__init__(crypto)
-        self._meta_data['allowed_lazy_attributes'] = [
-            Cert
-        ]
+        self._meta_data['allowed_lazy_attributes'] = [Cert]
+        self._meta_data['allowed_commands'].append('install')
         self._meta_data['attribute_registry'] =\
             {'tm:sys:crypto:cert:certstate': Cert}
 
-    def install_cert(self, certfilename):
-        payload =\
-            {"from-local-file": "/var/config/rest/downloads/%s" % certfilename,
-             "command": "install",
-             "name": certfilename[:-4]}
-        self._meta_data['icr_session'].post(self._meta_data['uri'],
-                                            json=payload)
-
 
 class Cert(Resource):
+    """BIG-IP® Crypto cert resource"""
     def __init__(self, certs):
         super(Cert, self).__init__(certs)
         self._meta_data['required_json_kind'] = 'tm:sys:crypto:cert:certstate'
