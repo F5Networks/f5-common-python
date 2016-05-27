@@ -17,6 +17,7 @@
 #
 
 import os
+from StringIO import StringIO
 
 from f5.bigip.mixins import FileUploadMixin
 from f5.bigip.resource import PathElement
@@ -47,4 +48,12 @@ class Uploads(PathElement, FileUploadMixin):
         if os.path.splitext(filename)[-1] == '.iso':
             raise FileMustNotHaveDotISOExtension(filename)
         self.file_bound_uri = self._meta_data['uri'] + filename
-        self._upload(filepathname, **kwargs)
+        self._upload_file(filepathname, **kwargs)
+
+    def upload_stringio(self, stringio, target, **kwargs):
+        self.file_bound_uri = self._meta_data['uri'] + target
+        self._upload(stringio, **kwargs)
+
+    def upload_bytes(self, bytestring, target, **kwargs):
+        self.file_bound_uri = self._meta_data['uri'] + target
+        self._upload(StringIO(bytestring), **kwargs)
