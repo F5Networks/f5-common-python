@@ -38,7 +38,7 @@ class Software_Image_Uploads(PathElement, FileUploadMixin):
         if os.path.splitext(filename)[-1] != '.iso':
             raise ImageFilesMustHaveDotISOExtension(filename)
         self.file_bound_uri = self._meta_data['uri'] + filename
-        self._upload(filepathname, **kwargs)
+        self._upload_file(filepathname, **kwargs)
 #
 #
 # class Software_Image_Downloads(PathElement):

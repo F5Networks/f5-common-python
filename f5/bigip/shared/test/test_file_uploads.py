@@ -14,8 +14,8 @@
 #
 
 import mock
-
 import pytest
+from StringIO import StringIO
 
 from f5.bigip import ManagementRoot
 from f5.bigip.shared.file_transfer import\
@@ -59,3 +59,55 @@ def test_ISO_extension(tmpdir):
     with pytest.raises(FileMustNotHaveDotISOExtension) as EIO:
         ftu.upload_file(filepath.__str__(), chunk_size=21)
     assert EIO.value.message == 'wrongname.iso'
+
+
+def test_stringio_upload_80a(tmpdir):
+    sio = StringIO(80*'a')
+    mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
+    mr._meta_data['icr_session'] = mock.MagicMock()
+    ftu = mr.shared.file_transfer.uploads
+    ftu.upload_stringio(sio, 'testtarget', chunk_size=20)
+    session_mock = mr._meta_data['icr_session']
+    for i in range(4):
+        d = session_mock.post.call_args_list[i][1]['data']
+        assert d == 'aaaaaaaaaaaaaaaaaaaa'
+
+
+def test_stringio_upload_70a(tmpdir):
+    sio = StringIO(70*'a')
+    mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
+    mr._meta_data['icr_session'] = mock.MagicMock()
+    ftu = mr.shared.file_transfer.uploads
+    ftu.upload_stringio(sio, 'testtarget', chunk_size=20)
+    session_mock = mr._meta_data['icr_session']
+    for i in range(3):
+        d = session_mock.post.call_args_list[i][1]['data']
+        assert d == 'aaaaaaaaaaaaaaaaaaaa'
+    lchunk = session_mock.post.call_args_list[3][1]['data']
+    assert 10*'a' == lchunk
+
+
+def test_bytes_upload_80a(tmpdir):
+    bytestring80a = 80*'a'
+    mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
+    mr._meta_data['icr_session'] = mock.MagicMock()
+    ftu = mr.shared.file_transfer.uploads
+    ftu.upload_bytes(bytestring80a, 'testtarget', chunk_size=20)
+    session_mock = mr._meta_data['icr_session']
+    for i in range(4):
+        d = session_mock.post.call_args_list[i][1]['data']
+        assert d == 'aaaaaaaaaaaaaaaaaaaa'
+
+
+def test_bytes_upload_70a(tmpdir):
+    bytestring70a = 70*'a'
+    mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
+    mr._meta_data['icr_session'] = mock.MagicMock()
+    ftu = mr.shared.file_transfer.uploads
+    ftu.upload_bytes(bytestring70a, 'testtarget', chunk_size=20)
+    session_mock = mr._meta_data['icr_session']
+    for i in range(3):
+        d = session_mock.post.call_args_list[i][1]['data']
+        assert d == 'aaaaaaaaaaaaaaaaaaaa'
+    lchunk = session_mock.post.call_args_list[3][1]['data']
+    assert 10*'a' == lchunk
