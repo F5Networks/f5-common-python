@@ -71,12 +71,12 @@ class ManagementRoot(OrganizingCollection):
         return self._meta_data['tmos_version']
 
     def _ver_set(self):
-        mgmt_rt = self
-        dvcs = mgmt_rt.tm.cm.devices.get_collection()
-        for i in range(len(dvcs)):
-            if str(dvcs[i].selfDevice) == 'true':
-                tmsh_v = str(dvcs[i].version)
-                self._meta_data['tmos_version'] = tmsh_v
+        connect = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['uri'] + 'tm/sys/'
+        response = connect.get(base_uri)
+        ver = response.json()
+        version = str(ver['selfLink']).split('=')[1]
+        self._meta_data['tmos_version'] = version
 
 
 class BigIP(ManagementRoot):

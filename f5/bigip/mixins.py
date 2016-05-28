@@ -37,6 +37,12 @@ class LazyAttributesRequired(F5SDKError):
     pass
 
 
+class UnsupportedTmosVersion(F5SDKError):
+    """Raise the error if a class of an API is instantiated on a TMOS
+       version where API it was not yet implemented/supported.
+    """
+    pass
+
 class ToDictMixin(object):
     """Convert an object's attributes to a dictionary"""
     traversed = {}
@@ -102,6 +108,14 @@ class LazyAttributeMixin(object):
             if name == lazy_attribute.__name__.lower():
                 attribute = lazy_attribute(container)
                 bases = [base.__name__ for base in lazy_attribute.__bases__]
+                # Doing version check per each resource
+                if 'tmos_version' in container._meta_data['bigip']._meta_data:
+                    tmos_v = container._meta_data['bigip'].tmos_version
+                    if tmos_v not in attribute._meta_data['supported_version']:
+                        error = "There was an attempt to access API which " \
+                                "has not been implemented or supported " \
+                                "in the device's TMOS version: {}".format(tmos_v)
+                        raise UnsupportedTmosVersion(error)
                 if 'Resource' not in bases:
                     setattr(container, name, attribute)
                 return attribute
@@ -235,9 +249,8 @@ class CommandExecutionMixin(object):
         kwargs['command'] = command
         requests_params = self._handle_requests_params(kwargs)
         session = self._meta_data['bigip']._meta_data['icr_session']
-        _command_uri = self._meta_data['uri']
         response = session.post(
-            _command_uri, json=kwargs, **requests_params)
+            self._meta_data['uri'], json=kwargs, **requests_params)
         self._local_update(response.json())
 
         return self
