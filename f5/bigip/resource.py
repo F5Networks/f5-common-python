@@ -90,12 +90,6 @@ from requests.exceptions import HTTPError
 class RequestParamKwargCollision(F5SDKError):
     pass
 
-class UnsupportedTmosVersion(F5SDKError):
-    """Raise the error if a class of an API is instantiated on a TMOS
-       version where API it was not yet implemented/supported.
-    """
-    pass
-
 class KindTypeMismatch(F5SDKError):
     """Raise this when server JSON keys are incorrect for the Resource type."""
     pass
@@ -461,17 +455,6 @@ class ResourceBase(PathElement, ToDictMixin):
         """
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
-
-    def _tmos_check(self):
-        """Doing version check per each resource"""
-        if 'tmos_version' in self._meta_data['bigip']._meta_data:
-            tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
-            if tmos_v not in self._meta_data['supported_version']:
-                error = "There was an attempt to access API which " \
-                    "has not been implemented or supported " \
-                    "in the device's TMOS version: {}".format(
-                        tmos_v)
-                raise UnsupportedTmosVersion(error)
 
 class OrganizingCollection(ResourceBase):
     """Base class for objects that collect resources under them.

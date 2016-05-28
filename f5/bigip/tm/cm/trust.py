@@ -42,7 +42,6 @@ class Add_To_Trust(UnnamedResourceMixin, ExclusiveAttributesMixin,
             'tm:cm:add-to-trust:runstate'
         self._meta_data['allowed_commands'].append('run')
         self._meta_data['supported_version'].remove('11.6.0')
-        self._tmos_check()
 
 
 
@@ -69,4 +68,3 @@ class Remove_From_Trust(UnnamedResourceMixin, CommandExecutionMixin, Resource):
             'tm:cm:remove-from-trust:runstate'
         self._meta_data['allowed_commands'].append('run')
         self._meta_data['supported_version'].remove('11.6.0')
-        self._tmos_check()
