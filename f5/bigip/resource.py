@@ -351,7 +351,7 @@ class ResourceBase(PathElement, ToDictMixin):
         # Commands you can run on a resource or collection, we define it here
         self._meta_data['allowed_commands'] = []
         # Supported version for each class will be defined here.
-        self._meta_data['supported_version'] = ['11.6.0', '12.0.0']
+        self._meta_data['supported_versions'] = ['11.6.0', '12.0.0']
 
     def _update(self, **kwargs):
         """wrapped with update, override that in a subclass to customize"""

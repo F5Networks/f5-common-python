@@ -30,7 +30,6 @@ from f5.bigip.tm.shared import Shared as TmShared
 from f5.bigip.tm.sys import Sys
 from f5.bigip.tm import Tm
 from f5.bigip.tm.transaction import Transactions
-from f5.bigip.mixins import ToDictMixin
 
 
 class ManagementRoot(PathElement):
@@ -58,7 +57,7 @@ class ManagementRoot(PathElement):
             'password': password,
             'tmos_version': None,
         }
-        self._ver_set()
+        self._get_tmos_version()
 
     @property
     def hostname(self):
@@ -72,7 +71,7 @@ class ManagementRoot(PathElement):
     def tmos_version(self):
         return self._meta_data['tmos_version']
 
-    def _ver_set(self):
+    def _get_tmos_version(self):
         connect = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['uri'] + 'tm/sys/'
         response = connect.get(base_uri)
