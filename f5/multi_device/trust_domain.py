@@ -1,3 +1,4 @@
+# coding=utf-8
 # Copyright 2016 F5 Networks Inc.
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +15,39 @@
 #
 #
 
-'''Class to manage a TrustDomain for a set of BIG-IP devices.'''
+'''Class to manage a TrustDomain for a set of BIG-IP® devices.
+
+A trust domain defines a group of devices that have signed and exchanged
+certificates. Establishing a trust domain is prerequisite for device service
+clustering. Once devices are part of a trust domain, they can synchronize
+configuration and act as failovers for one another. This class manages that
+trust domain.
+
+Examples:
+
+    devices = [ManagementRoot('x', 'un', 'pw'), ManagementRoot('x', 'un', 'pw')
+
+    * Existing domain:
+        dg = DeviceGroup(devices=devices, partition='Common')
+
+    * New domain:
+        dg = DeviceGroup()
+        dg.create(devices=devices, partition='Common')
+
+Methods:
+
+    * validate -- ensure devices are a part of the same trust domain
+    * create -- create a trust domain amongst two or more devices
+    * teardown -- teardown a trust domain by traversing each member and
+                  removing all other devices from its local trust besides
+                  itself.
+
+'''
 
 from f5.multi_device.exceptions import DeviceAlreadyInTrustDomain
 from f5.multi_device.exceptions import DeviceNotTrusted
 
+from f5.multi_device.device_group import DeviceGroup
 from f5.multi_device.utils import get_device_info
 from f5.multi_device.utils import get_device_names_to_objects
 from f5.multi_device.utils import pollster
@@ -32,14 +61,27 @@ class TrustDomain(object):
     def __init__(self, **kwargs):
         '''Initialize a trusted peer manager object.
 
+        The device_group_name set below is the default trust group that exists
+        on all BIG-IP® devices. We are fixing it here to that group.
+
         :param kwargs: dict -- keyword args for devices and partition
         '''
 
         self.domain = {}
         if kwargs:
-            self.devices = kwargs['devices'][:]
-            self.partition = kwargs['partition']
+            self._set_attributes(**kwargs)
             self.validate()
+
+    def _set_attributes(self, **kwargs):
+        '''Set attributes for instance in one place
+
+        :param kwargs: dict -- dictionary of keyword arguments
+        '''
+
+        self.devices = kwargs['devices'][:]
+        self.partition = kwargs['partition']
+        self.device_group_name = 'device_trust_group'
+        self.device_group_type = 'sync-only'
 
     def validate(self):
         '''Validate that devices are each trusted by one another
@@ -61,9 +103,20 @@ class TrustDomain(object):
                 msg += '\n%r is not trusted by %r, which trusts: %r' % \
                     (item[0], item[1], item[2])
             raise DeviceNotTrusted(msg)
+        self.device_group = DeviceGroup(
+            devices=self.devices,
+            device_group_name=self.device_group_name,
+            device_group_type=self.device_group_type,
+            device_group_partition=self.partition
+        )
 
     def _populate_domain(self):
-        '''Populate TrustDomain's domain attribute.'''
+        '''Populate TrustDomain's domain attribute.
+
+        This entails an inspection of each device's certificate-authority
+        devices in its trust domain and recording them. After which, we
+        get a dictionary of who trusts who in the domain.
+        '''
 
         self.domain = {}
         for device in self.devices:
@@ -86,8 +139,7 @@ class TrustDomain(object):
         :param kwargs: dict -- devices and partition
         '''
 
-        self.devices = kwargs['devices'][:]
-        self.partition = kwargs['partition']
+        self._set_attributes(**kwargs)
         for device in self.devices[1:]:
             self._add_trustee(device)
         pollster(self.validate)()
@@ -99,25 +151,6 @@ class TrustDomain(object):
             self._remove_trustee(device)
             self._populate_domain()
         self.domain = {}
-
-    def scale_up_by_one(self, device):
-        '''Scale up trust domain by one device.
-
-        :param device: ManagementRoot object -- device to scale up
-        '''
-
-        self.devices.append(device)
-        self._add_trustee(device)
-        pollster(self.validate)()
-
-    def scale_down_by_one(self, device, device_group_object=None):
-        '''Scale down trust domain by one device.
-
-        :param device: ManagementRoot object -- device to scale down
-        '''
-
-        self._remove_trustee(device, device_group_object)
-        pollster(self.validate)()
 
     def _add_trustee(self, device):
         '''Add a single trusted device to the trust domain.
@@ -131,12 +164,8 @@ class TrustDomain(object):
             raise DeviceAlreadyInTrustDomain(msg)
         self._modify_trust(self.devices[0], self._get_add_trustee_cmd, device)
 
-    def _remove_trustee(self, device, device_group_object=None):
+    def _remove_trustee(self, device):
         '''Remove a trustee from the trust domain.
-
-        If this is called as part of scale_down_by_one, the device being scaled
-        must remove the members of its device group before removing trusted
-        devices. This is optional.
 
         :param device: MangementRoot object -- device to remove
         '''
@@ -151,9 +180,6 @@ class TrustDomain(object):
                 truster_obj = name_object_map[truster]
                 self._modify_trust(truster_obj, delete_func, trustee_name)
             self._populate_domain()
-
-        if device_group_object:
-            device_group_object.cleanup_scaled_down_device(device)
 
         for trustee in self.domain[trustee_name]:
             if trustee_name != trustee:

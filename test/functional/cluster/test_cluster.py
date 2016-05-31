@@ -17,11 +17,17 @@ from f5.bigip import ManagementRoot
 from f5.multi_device.cluster import ClusterManager
 
 import pytest
+from pytest import symbols
 
 
 DEVICE_GROUP_NAME = 'testing_cluster'
 PARTITION = 'Common'
 SYNCONLYPART = 'test'
+
+
+skip_cluster_tests = True
+if getattr(symbols, 'run_cluster_tests') and symbols.run_cluster_tests is True:
+    skip_cluster_tests = False
 
 
 class FakeDeviceInfo(object):
@@ -30,7 +36,7 @@ class FakeDeviceInfo(object):
 
 
 @pytest.fixture
-def BigIPSetup(symbols):
+def BigIPSetup():
     a = ManagementRoot(
         symbols.bigip1['netloc'],
         symbols.bigip1['username'],
@@ -43,12 +49,17 @@ def BigIPSetup(symbols):
         symbols.bigip3['netloc'],
         symbols.bigip3['username'],
         symbols.bigip3['password'])
-    return a, b, c
+    d = ManagementRoot(
+        symbols.bigip4['netloc'],
+        symbols.bigip4['username'],
+        symbols.bigip4['password']
+    )
+    return a, b, c, d
 
 
 @pytest.fixture
 def TwoBigIPTeardownSyncFailover(request, BigIPSetup):
-    a, b, c = BigIPSetup
+    a, b, c, d = BigIPSetup
     bigip_list = [a, b]
 
     def teardown_cluster():
@@ -63,7 +74,7 @@ def TwoBigIPTeardownSyncFailover(request, BigIPSetup):
 
 @pytest.fixture
 def ThreeBigIPTeardownSyncFailover(request, BigIPSetup):
-    a, b, c = BigIPSetup
+    a, b, c, d = BigIPSetup
     bigip_list = [a, b, c]
 
     def teardown_cluster():
@@ -76,80 +87,89 @@ def ThreeBigIPTeardownSyncFailover(request, BigIPSetup):
     request.addfinalizer(teardown_cluster)
 
 
-@pytest.mark.skipif(pytest.config.getoption('--symbols') is None,
-                    reason='Symbols must be configured')
-def test_new_failover_cluster_two_member(BigIPSetup):
-    a, b, c = BigIPSetup
-    bigip_list = [a, b]
-    cm = ClusterManager()
+@pytest.mark.skipif(skip_cluster_tests,
+                    reason="You must opt-in to run cluster tests. This "
+                    "requires an additional device or possibly more. To "
+                    "run them, set the symbols variable "
+                    "'run_cluster_tests: True'")
+class TestCluster(object):
+    def test_new_failover_cluster_two_member(self, BigIPSetup):
+        a, b, c, d = BigIPSetup
+        bigip_list = [a, b]
+        cm = ClusterManager()
 
-    cm.create(
-        devices=bigip_list,
-        device_group_name=DEVICE_GROUP_NAME,
-        device_group_partition=PARTITION,
-        device_group_type='sync-failover')
-    cm.teardown()
+        cm.create(
+            devices=bigip_list,
+            device_group_name=DEVICE_GROUP_NAME,
+            device_group_partition=PARTITION,
+            device_group_type='sync-failover')
+        cm.teardown()
 
+    def test_new_failover_cluster_three_member(self, BigIPSetup):
+        a, b, c, d = BigIPSetup
+        bigip_list = [a, b, c]
+        cm = ClusterManager()
 
-@pytest.mark.skipif(pytest.config.getoption('--symbols') is None,
-                    reason='Symbols must be configured')
-def test_new_failover_cluster_three_member(BigIPSetup):
-    a, b, c = BigIPSetup
-    bigip_list = [a, b, c]
-    cm = ClusterManager()
+        cm.create(
+            devices=bigip_list,
+            device_group_name=DEVICE_GROUP_NAME,
+            device_group_partition=PARTITION,
+            device_group_type='sync-failover')
+        cm.teardown()
 
-    cm.create(
-        devices=bigip_list,
-        device_group_name=DEVICE_GROUP_NAME,
-        device_group_partition=PARTITION,
-        device_group_type='sync-failover')
-    cm.teardown()
+    def test_new_failover_cluster_four_member(self, BigIPSetup):
+        a, b, c, d = BigIPSetup
+        bigip_list = [a, b, c, d]
+        cm = ClusterManager()
 
+        cm.create(
+            devices=bigip_list,
+            device_group_name=DEVICE_GROUP_NAME,
+            device_group_partition=PARTITION,
+            device_group_type='sync-failover'
+        )
+        cm.teardown()
 
-@pytest.mark.skipif(pytest.config.getoption('--symbols') is None,
-                    reason='Symbols must be configured')
-def test_existing_failover_cluster(BigIPSetup):
-    a, b, c = BigIPSetup
-    bigip_list = [a, b]
-    cm = ClusterManager()
-    kwargs = {'devices': bigip_list,
-              'device_group_name': DEVICE_GROUP_NAME,
-              'device_group_partition': PARTITION,
-              'device_group_type': 'sync-failover'}
-    cm.create(**kwargs)
+    def test_existing_failover_cluster(self, BigIPSetup):
+        a, b, c, d = BigIPSetup
+        bigip_list = [a, b]
+        cm = ClusterManager()
+        kwargs = {'devices': bigip_list,
+                  'device_group_name': DEVICE_GROUP_NAME,
+                  'device_group_partition': PARTITION,
+                  'device_group_type': 'sync-failover'}
+        cm.create(**kwargs)
 
-    del cm
+        del cm
 
-    cm = ClusterManager(**kwargs)
-    cm.teardown()
+        cm = ClusterManager(**kwargs)
+        cm.teardown()
 
-
-@pytest.mark.skipif(pytest.config.getoption('--symbols') is None,
-                    reason='Symbols must be configured')
-def test_scale_up_sync_failover(BigIPSetup, ThreeBigIPTeardownSyncFailover):
-    a, b, c = BigIPSetup
-    bigip_list = [a, b]
-    cm = ClusterManager()
-    kwargs = {'devices': bigip_list,
-              'device_group_name': DEVICE_GROUP_NAME,
-              'device_group_partition': PARTITION,
-              'device_group_type': 'sync-failover'}
-    cm.create(**kwargs)
-    cm.scale_up_by_one(c)
-
-
-@pytest.mark.skipif(pytest.config.getoption('--symbols') is None,
-                    reason='Symbols must be configured')
-def test_scale_up_down_up_down_sync_failover(
-        BigIPSetup, TwoBigIPTeardownSyncFailover):
-    a, b, c = BigIPSetup
-    bigip_list = [a, b]
-    cm = ClusterManager()
-    kwargs = {'devices': bigip_list,
-              'device_group_name': DEVICE_GROUP_NAME,
-              'device_group_partition': PARTITION,
-              'device_group_type': 'sync-failover'}
-    cm.create(**kwargs)
-    for x in range(3):
+    # The following tests were removed when scaling was taken out of
+    # the clustering feature.
+    def itest_scale_up_sync_failover(
+            self, BigIPSetup, ThreeBigIPTeardownSyncFailover
+    ):
+        a, b, c, d = BigIPSetup
+        bigip_list = [a, b]
+        cm = ClusterManager()
+        kwargs = {'devices': bigip_list,
+                  'device_group_name': DEVICE_GROUP_NAME,
+                  'device_group_partition': PARTITION,
+                  'device_group_type': 'sync-failover'}
+        cm.create(**kwargs)
         cm.scale_up_by_one(c)
-        cm.scale_down_by_one(c)
+
+    def itest_scale_up_down_up_down_sync_failover(
+            BigIPSetup, TwoBigIPTeardownSyncFailover):
+        a, b, c, d = BigIPSetup
+        bigip_list = [a, b]
+        cm = ClusterManager()
+        kwargs = {'devices': bigip_list,
+                  'device_group_name': DEVICE_GROUP_NAME,
+                  'device_group_partition': PARTITION,
+                  'device_group_type': 'sync-failover'}
+        cm.create(**kwargs)
+        for x in range(3):
+            cm.scale_up_by_one(c)
+            cm.scale_down_by_one(c)
