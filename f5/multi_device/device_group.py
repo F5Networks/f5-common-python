@@ -1,3 +1,4 @@
+# coding=utf-8
 # Copyright 2016 F5 Networks Inc.
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,24 +15,76 @@
 #
 #
 
-'''Class for managing a DeviceGroup for a set of BIG-IP devices.'''
+'''Class for managing a DeviceGroup for a set of BIG-IP® devices
+
+Managing a device group for clustering is an event-driven process. Please
+use the methods here to control that process. The fundamental idea is that
+any action should have an observable outcome. Adding a device to the device
+group should have a consequence for each member of the device group,
+including the newly added member.
+
+Examples:
+
+There are two major use-cases here:
+
+    * Manage an existing device group:
+
+        list_of_bigips = [ManagementRoot(...), ManagementRoot(...)]
+        device_group = DeviceGroup(
+                            devices=list_of_bigips,
+                            device_group_name='my_cluster',
+                            device_group_type='sync-failover',
+                            device_group_partition='Common'
+                        )
+        device_group.ensure_all_devices_in_sync()
+
+    * Create a new device group and manage it:
+
+        list_of_bigips = [ManagementRoot(...), ManagementRoot(...)]
+        device_group = DeviceGroup()
+        device_group.create(
+                        devices=list_of_bigips,
+                        device_group_name='my_cluster',
+                        device_group_type='sync-failover',
+                        device_group_partition='Common'
+                    )
+        device_group.ensure_all_devices_in_sync()
+
+Methods:
+
+    * create -- create a device group from a list of devices
+    * teardown -- teardown a device group, but leave the trust domain intact
+    * validate -- ensure a device group is in the proper state based on inputs
+    * manage_extant -- manage an existing device group
+
+'''
 
 from f5.multi_device.exceptions import DeviceGroupNotSupported
-from f5.multi_device.exceptions import DeviceGroupOperationNotSupported
 from f5.multi_device.exceptions import MissingRequiredDeviceGroupParameter
 from f5.multi_device.exceptions import UnexpectedDeviceGroupDevices
 from f5.multi_device.exceptions import UnexpectedDeviceGroupState
 from f5.multi_device.exceptions import UnexpectedDeviceGroupType
 
 from f5.multi_device.utils import get_device_info
-from f5.multi_device.utils import get_device_names_to_objects
 from f5.multi_device.utils import pollster
 
 
 class DeviceGroup(object):
-    '''Class to manage device service group.'''
+    '''Class to manage device service group
 
-    available_types = ['sync-failover']
+    For the non-public methods, there are a few flavors of behavior:
+    get, check, and ensure. A 'get' retrieves some info from the device
+    without any assumptions about that info. A 'check' will assert a device's
+    info is as expected. An 'ensure' method often does one or more of the
+    above and also may take some other action to enforce the expected state,
+    such as syncing config.
+
+    Example:
+
+
+    '''
+
+    available_types = ['sync-failover', 'sync-only']
     sync_status_entry = 'https://localhost/mgmt/tm/cm/sync-status/0'
 
     def __init__(self, **kwargs):
@@ -78,8 +131,9 @@ class DeviceGroup(object):
             device_name = get_device_info(device).name
             given_device_names.append(device_name)
         if sorted(queried_device_names) != sorted(given_device_names):
-            msg = ''
+            msg = 'Given devices does not match queried devices.'
             raise UnexpectedDeviceGroupDevices(msg)
+        self.ensure_all_devices_in_sync()
 
     def _check_type(self):
         '''Check that the device group type is correct.
@@ -89,6 +143,10 @@ class DeviceGroup(object):
 
         if self.type not in self.available_types:
             msg = 'Unsupported cluster type was given: %s' % self.type
+            raise DeviceGroupNotSupported(msg)
+        elif self.type == 'sync-only' and self.name != 'device_trust_group':
+            msg = "Management of sync-only device groups only supported for " \
+                "built-in device group named 'device_trust_group'"
             raise DeviceGroupNotSupported(msg)
 
     def manage_extant(self, **kwargs):
@@ -120,48 +178,6 @@ class DeviceGroup(object):
         dg.delete()
         pollster(self._check_devices_active_licensed)()
         pollster(self._check_all_devices_in_sync)()
-
-    def scale_up_by_one(self, device):
-        '''Scale device group up by one device
-
-        :param device: ManagementRoot object -- device to add to device group
-        '''
-
-        device_name = get_device_info(device).name
-        if device_name in self._get_device_names_in_group():
-            msg = 'Device: %r is already in device group' % device_name
-            raise DeviceGroupOperationNotSupported(msg)
-        self._check_device_failover_status(device, 'In Sync')
-        self._add_device_to_device_group(device)
-        device.tm.sys.config.exec_cmd('save')
-        self.devices.append(device)
-        self.ensure_all_devices_in_sync()
-
-    def scale_down_by_one(self, device):
-        '''Scale device group down by one device
-
-        :param device: ManagementRoot object -- device to delete from device
-                       group
-        '''
-
-        device_name = get_device_info(device).name
-        if device_name not in self._get_device_names_in_group():
-            msg = 'Device: %r is not in device group' % device_name
-            raise DeviceGroupOperationNotSupported(msg)
-        self._delete_device_from_device_group(device)
-        device.tm.sys.config.exec_cmd('save')
-        name_to_objects = get_device_names_to_objects(self.devices)
-        self.devices.remove(name_to_objects[device_name])
-        self.ensure_all_devices_in_sync()
-
-    def cleanup_scaled_down_device(self, device):
-        '''Remove all devices from device group on orphaned device.
-
-        :param device: bigip object -- device to cleanup
-        '''
-
-        dg = self._delete_all_devices_from_device_group(device)
-        dg.delete()
 
     def _get_device_names_in_group(self):
         '''_get_device_names_in_group

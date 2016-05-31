@@ -34,18 +34,12 @@ to the group. After this step, a cluster exists.
 
 Currently the only supported type of cluster is a 'sync-failover' cluster.
 
-ClusterManager Methods:
+Methods:
 
     * create -- creates a cluster based on kwargs given by user
     * teardown -- tears down an existing cluster
-    * scale_up_by_one -- add one device to the cluster
-    * scale_down_by_one -- remove one device from the cluster
 
-Classes:
-
-    * ClusterManager -- manages a cluster of devices with the methods above
-
-Usage:
+Examples:
 
 There are two major use-cases here:
 
@@ -58,9 +52,6 @@ There are two major use-cases here:
                             device_group_type='sync-failover',
                             device_group_partition='Common'
                         )
-        new_bigip_device = ManagementRoot(...)
-        cluster_mgr.scale_up_by_one(new_bigip_device)
-        list_of_bigips.append(new_bigip_device)
         assert cluster_mgr.cluster.devices == list_of_bigips
 
     * Create a new cluster and manage it:
@@ -178,35 +169,3 @@ class ClusterManager(object):
         self.device_group.teardown()
         self.trust_domain.teardown()
         self.cluster = None
-
-    def scale_up_by_one(self, device):
-        '''Scale cluster up by one device.
-
-        :param bigip: bigip object -- bigip to add
-        :raises: ClusterNotSupported
-        '''
-
-        if len(self.cluster.devices) == 8:
-            msg = 'The number of devices to cluster is not supported.'
-            raise ClusterNotSupported(msg)
-        print('Scaling cluster up by one device...')
-        self.trust_domain.scale_up_by_one(device)
-        self.device_group.scale_up_by_one(device)
-        self.cluster.devices.append(device)
-        self.device_group.ensure_all_devices_in_sync()
-
-    def scale_down_by_one(self, device):
-        '''Scale cluster down by one device.
-
-        :param device: ManagementRoot object -- device to delete
-        :raises: ClusterNotSupported
-        '''
-
-        if len(self.cluster.devices) < 3:
-            msg = 'The number of devices to cluster is not supported.'
-            raise ClusterNotSupported(msg)
-        print('Scaling cluster down by one device...')
-        self.device_group.scale_down_by_one(device)
-        self.trust_domain.scale_down_by_one(device, self.device_group)
-        self.cluster.devices.remove(device)
-        self.device_group.ensure_all_devices_in_sync()
