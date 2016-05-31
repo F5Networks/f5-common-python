@@ -144,32 +144,3 @@ class TestCluster(object):
 
         cm = ClusterManager(**kwargs)
         cm.teardown()
-
-    # The following tests were removed when scaling was taken out of
-    # the clustering feature.
-    def itest_scale_up_sync_failover(
-            self, BigIPSetup, ThreeBigIPTeardownSyncFailover
-    ):
-        a, b, c, d = BigIPSetup
-        bigip_list = [a, b]
-        cm = ClusterManager()
-        kwargs = {'devices': bigip_list,
-                  'device_group_name': DEVICE_GROUP_NAME,
-                  'device_group_partition': PARTITION,
-                  'device_group_type': 'sync-failover'}
-        cm.create(**kwargs)
-        cm.scale_up_by_one(c)
-
-    def itest_scale_up_down_up_down_sync_failover(
-            BigIPSetup, TwoBigIPTeardownSyncFailover):
-        a, b, c, d = BigIPSetup
-        bigip_list = [a, b]
-        cm = ClusterManager()
-        kwargs = {'devices': bigip_list,
-                  'device_group_name': DEVICE_GROUP_NAME,
-                  'device_group_partition': PARTITION,
-                  'device_group_type': 'sync-failover'}
-        cm.create(**kwargs)
-        for x in range(3):
-            cm.scale_up_by_one(c)
-            cm.scale_down_by_one(c)
