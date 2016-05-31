@@ -57,7 +57,6 @@ class ManagementRoot(PathElement):
             'password': password,
             'tmos_version': None,
         }
-        self._get_tmos_version()
 
     @property
     def hostname(self):
@@ -69,11 +68,18 @@ class ManagementRoot(PathElement):
 
     @property
     def tmos_version(self):
-        return self._meta_data['tmos_version']
+        # We return tmos_version, or if None,
+        # we grab it and return value via _get_tmos_version(),
+        # at the same time updating _meta_data['tmos_version']
+        return self._meta_data['tmos_version'] or self._get_tmos_version()
 
     def _get_tmos_version(self):
         connect = self._meta_data['bigip']._meta_data['icr_session']
-        base_uri = self._meta_data['uri'] + 'tm/sys/'
+        # Need to add this due to BIGIP class URI manipulation
+        if self._meta_data['uri'].endswith('tm/'):
+            base_uri = self._meta_data['uri'] + 'sys/'
+        else:
+            base_uri = self._meta_data['uri'] + 'tm/sys/'
         response = connect.get(base_uri)
         ver = response.json()
         version = str(ver['selfLink']).split('=')[1]
