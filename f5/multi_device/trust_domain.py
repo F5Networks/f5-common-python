@@ -54,7 +54,7 @@ from f5.multi_device.utils import pollster
 
 
 class TrustDomain(object):
-    '''Manages the trusted peers of a BigIP device.'''
+    '''Manages the trust domain of a BIG-IP® device.'''
 
     iapp_actions = {'definition': {'implementation': None, 'presentation': ''}}
 
@@ -234,6 +234,9 @@ class TrustDomain(object):
         tmpl = deploying_device.tm.sys.applications.templates.template
         serv = deploying_device.tm.sys.applications.services.service
         tmpl.create(name=iapp_name, partition=self.partition, actions=actions)
+        pollster(deploying_device.tm.sys.applications.templates.template.load)(
+            name=iapp_name, partition=self.partition
+        )
         serv.create(
             name=iapp_name,
             partition=self.partition,

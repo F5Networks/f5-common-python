@@ -79,8 +79,14 @@ class DeviceGroup(object):
     above and also may take some other action to enforce the expected state,
     such as syncing config.
 
+    The pollster is used heavliy here for 'check' and 'get' methods, since we
+    are often waiting for the device or devices to respond to some action.
+
     Example:
 
+        * dg = self._get_device_group()
+        * self._check_all_devices_in_sync()
+        * self.ensure_all_devices_in_sync()
 
     '''
 
@@ -189,7 +195,8 @@ class DeviceGroup(object):
         dg = pollster(self._get_device_group)(self.devices[0])
         members = dg.devices_s.get_collection()
         for member in members:
-            device_names.append(member.name)
+            member_name = member.name.replace('/%s/' % self.partition, '')
+            device_names.append(member_name)
         return device_names
 
     def _get_device_group(self, device):
@@ -222,9 +229,9 @@ class DeviceGroup(object):
 
         device_name = get_device_info(device).name
         dg = pollster(self._get_device_group)(device)
+        print('Adding following device to group: ' + device_name)
         dg.devices_s.devices.create(name=device_name, partition=self.partition)
         pollster(self._check_device_exists_in_device_group)(device_name)
-        print('added following device to group: ' + device_name)
 
     def _check_device_exists_in_device_group(self, device_name):
         '''Check whether a device exists in the device group
@@ -235,18 +242,6 @@ class DeviceGroup(object):
         dg = self._get_device_group(self.devices[0])
         dg.devices_s.devices.load(name=device_name, partition=self.partition)
 
-    def _delete_all_devices_from_device_group(self, device):
-        '''Remove all devices from device service cluster group.
-
-        :param device: ManagementRoot object -- device from which to remove
-        '''
-
-        dg = pollster(self._get_device_group)(device)
-        dg_devices = dg.devices_s.get_collection()
-        for device in dg_devices:
-            device.delete()
-        return dg
-
     def _delete_device_from_device_group(self, device):
         '''Remove device from device service cluster group.
 
@@ -254,6 +249,7 @@ class DeviceGroup(object):
         '''
 
         device_name = get_device_info(device).name
+        print('Deleting following device from group: %s ' % device_name)
         dg = pollster(self._get_device_group)(device)
         device_to_remove = dg.devices_s.devices.load(
             name=device_name, partition=self.partition

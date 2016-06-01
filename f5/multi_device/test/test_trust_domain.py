@@ -14,6 +14,7 @@
 #
 
 from f5.multi_device.cluster import TrustDomain
+from f5.multi_device.exceptions import DeviceAlreadyInTrustDomain
 from f5.multi_device.exceptions import DeviceNotTrusted
 
 import mock
@@ -54,3 +55,77 @@ def test_validate_device_not_trusted(TrustDomainCreateNew):
         td.validate()
     assert "'test' is not trusted by 'test', which trusts: []" in \
         ex.value.message
+
+
+@mock.patch('f5.multi_device.trust_domain.TrustDomain._set_attributes')
+@mock.patch('f5.multi_device.trust_domain.TrustDomain.validate')
+def test___init__(mock_set_attr, mock_validate, BigIPs):
+    mock_bigips = BigIPs
+    td = TrustDomain(devices=mock_bigips)
+    assert td._set_attributes.call_args == mock.call(devices=mock_bigips)
+
+
+def test__set_attributes(BigIPs):
+    mock_bigips = BigIPs
+    td = TrustDomain()
+    td._set_attributes(devices=mock_bigips, partition='test')
+    assert td.devices == mock_bigips
+    assert td.partition == 'test'
+    assert td.device_group_name == 'device_trust_group'
+    assert td.device_group_type == 'sync-only'
+
+
+@mock.patch('f5.multi_device.trust_domain.TrustDomain._add_trustee')
+@mock.patch('f5.multi_device.trust_domain.pollster')
+def test_create(mock_add_trustee, mock_pollster, TrustDomainCreateNew):
+    td, mock_bigips = TrustDomainCreateNew
+    td.create(devices=mock_bigips, partition='test')
+    assert td.devices == mock_bigips
+    assert td.partition == 'test'
+    assert td._add_trustee.call_args_list == \
+        [
+            mock.call(mock_bigips[1]),
+            mock.call(mock_bigips[2]),
+            mock.call(mock_bigips[3])
+        ]
+
+
+@mock.patch('f5.multi_device.trust_domain.TrustDomain._add_trustee')
+@mock.patch('f5.multi_device.trust_domain.pollster')
+@mock.patch('f5.multi_device.trust_domain.TrustDomain._remove_trustee')
+def test_teardown(
+        mock_add_trustee, mock_pollster, mock_rem_trustee, TrustDomainCreateNew
+):
+    td, mock_bigips = TrustDomainCreateNew
+    td.create(devices=mock_bigips, partition='test')
+    td.teardown()
+    assert td.domain == {}
+    assert td._remove_trustee.call_args_list == \
+        [
+            mock.call(mock_bigips[0]),
+            mock.call(mock_bigips[1]),
+            mock.call(mock_bigips[2]),
+            mock.call(mock_bigips[3])
+        ]
+
+
+@mock.patch('f5.multi_device.trust_domain.get_device_info')
+@mock.patch('f5.multi_device.trust_domain.TrustDomain._modify_trust')
+def test__add_trustee(mock_dev_info, mock_mod_trust, TrustDomainCreateNew):
+    td, mock_bigips = TrustDomainCreateNew
+    td._set_attributes(devices=mock_bigips, partition='test')
+    td._add_trustee(mock_bigips[1])
+    assert td._modify_trust.call_args == \
+        mock.call(mock_bigips[0], td._get_add_trustee_cmd, mock_bigips[1])
+
+
+@mock.patch('f5.multi_device.trust_domain.TrustDomain._modify_trust')
+def test__add_trustee_already_in_domain(
+        mock_mod_trust, TrustDomainCreateNew
+):
+    td, mock_bigips = TrustDomainCreateNew
+    td._set_attributes(devices=mock_bigips, partition='test')
+    td.domain = {'test': 'device'}
+    with pytest.raises(DeviceAlreadyInTrustDomain) as ex:
+        td._add_trustee(mock_bigips[1])
+    assert "Device: 'test' is already in this trust domain" in ex.value.message

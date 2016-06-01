@@ -45,21 +45,12 @@ def BigIPSetup():
         symbols.bigip2['netloc'],
         symbols.bigip2['username'],
         symbols.bigip2['password'])
-    c = ManagementRoot(
-        symbols.bigip3['netloc'],
-        symbols.bigip3['username'],
-        symbols.bigip3['password'])
-    d = ManagementRoot(
-        symbols.bigip4['netloc'],
-        symbols.bigip4['username'],
-        symbols.bigip4['password']
-    )
-    return a, b, c, d
+    return a, b
 
 
 @pytest.fixture
 def TwoBigIPTeardownSyncFailover(request, BigIPSetup):
-    a, b, c, d = BigIPSetup
+    a, b = BigIPSetup
     bigip_list = [a, b]
 
     def teardown_cluster():
@@ -74,8 +65,8 @@ def TwoBigIPTeardownSyncFailover(request, BigIPSetup):
 
 @pytest.fixture
 def ThreeBigIPTeardownSyncFailover(request, BigIPSetup):
-    a, b, c, d = BigIPSetup
-    bigip_list = [a, b, c]
+    a, b = BigIPSetup
+    bigip_list = [a, b]
 
     def teardown_cluster():
         cm = ClusterManager(
@@ -94,44 +85,20 @@ def ThreeBigIPTeardownSyncFailover(request, BigIPSetup):
                     "'run_cluster_tests: True'")
 class TestCluster(object):
     def test_new_failover_cluster_two_member(self, BigIPSetup):
-        a, b, c, d = BigIPSetup
+        a, b = BigIPSetup
         bigip_list = [a, b]
-        cm = ClusterManager()
+        for x in range(5):
+            cm = ClusterManager()
 
-        cm.create(
-            devices=bigip_list,
-            device_group_name=DEVICE_GROUP_NAME,
-            device_group_partition=PARTITION,
-            device_group_type='sync-failover')
-        cm.teardown()
-
-    def test_new_failover_cluster_three_member(self, BigIPSetup):
-        a, b, c, d = BigIPSetup
-        bigip_list = [a, b, c]
-        cm = ClusterManager()
-
-        cm.create(
-            devices=bigip_list,
-            device_group_name=DEVICE_GROUP_NAME,
-            device_group_partition=PARTITION,
-            device_group_type='sync-failover')
-        cm.teardown()
-
-    def test_new_failover_cluster_four_member(self, BigIPSetup):
-        a, b, c, d = BigIPSetup
-        bigip_list = [a, b, c, d]
-        cm = ClusterManager()
-
-        cm.create(
-            devices=bigip_list,
-            device_group_name=DEVICE_GROUP_NAME,
-            device_group_partition=PARTITION,
-            device_group_type='sync-failover'
-        )
-        cm.teardown()
+            cm.create(
+                devices=bigip_list,
+                device_group_name=DEVICE_GROUP_NAME,
+                device_group_partition=PARTITION,
+                device_group_type='sync-failover')
+            cm.teardown()
 
     def test_existing_failover_cluster(self, BigIPSetup):
-        a, b, c, d = BigIPSetup
+        a, b = BigIPSetup
         bigip_list = [a, b]
         cm = ClusterManager()
         kwargs = {'devices': bigip_list,
