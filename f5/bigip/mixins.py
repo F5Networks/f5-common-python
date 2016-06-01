@@ -117,7 +117,7 @@ class LazyAttributeMixin(object):
 
     def _check_supported_versions(container, attribute):
         tmos_v = container._meta_data['bigip'].tmos_version
-        if tmos_v not in attribute._meta_data['supported_versions']:
+        if tmos_v not in attribute.supported_versions:
             error = "There was an attempt to access API which " \
                     "has not been implemented or supported " \
                     "in the device's TMOS version: {}".format(tmos_v)

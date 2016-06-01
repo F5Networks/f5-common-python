@@ -152,6 +152,8 @@ class PathElement(LazyAttributeMixin):
     those elements and does not support any of the CURDLE methods that
     the other objects do.
     """
+    # Supported version for each class will be defined here.
+    supported_versions = ['11.6.0', '12.0.0']
     def __init__(self, container):
         self._meta_data = {
             'container': container,
@@ -350,8 +352,6 @@ class ResourceBase(PathElement, ToDictMixin):
         super(ResourceBase, self).__init__(container)
         # Commands you can run on a resource or collection, we define it here
         self._meta_data['allowed_commands'] = []
-        # Supported version for each class will be defined here.
-        self._meta_data['supported_versions'] = ['11.6.0', '12.0.0']
 
     def _update(self, **kwargs):
         """wrapped with update, override that in a subclass to customize"""

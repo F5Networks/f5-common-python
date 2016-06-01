@@ -28,6 +28,7 @@ class Add_To_Trust(UnnamedResourceMixin, ExclusiveAttributesMixin,
     Use this object to set or overwrite device trust
 
     """
+    supported_versions = ['12.0.0']
 
     def __init__(self, cm):
         super(Add_To_Trust, self).__init__(cm)
@@ -41,7 +42,6 @@ class Add_To_Trust(UnnamedResourceMixin, ExclusiveAttributesMixin,
         self._meta_data['required_json_kind'] = \
             'tm:cm:add-to-trust:runstate'
         self._meta_data['allowed_commands'].append('run')
-        self._meta_data['supported_versions'].remove('11.6.0')
 
 
 class Remove_From_Trust(UnnamedResourceMixin, CommandExecutionMixin, Resource):
@@ -55,6 +55,7 @@ class Remove_From_Trust(UnnamedResourceMixin, CommandExecutionMixin, Resource):
         carried out on both target devices
 
     """
+    supported_versions = ['12.0.0']
 
     def __init__(self, cm):
         super(Remove_From_Trust, self).__init__(cm)
@@ -66,4 +67,4 @@ class Remove_From_Trust(UnnamedResourceMixin, CommandExecutionMixin, Resource):
         self._meta_data['required_json_kind'] = \
             'tm:cm:remove-from-trust:runstate'
         self._meta_data['allowed_commands'].append('run')
-        self._meta_data['supported_versions'].remove('11.6.0')
+

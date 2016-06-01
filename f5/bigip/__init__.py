@@ -18,6 +18,7 @@
 
 
 from icontrol.session import iControlRESTSession
+from urlparse import urlparse, parse_qs
 
 from f5.bigip.cm import Cm
 from f5.bigip.resource import PathElement
@@ -82,7 +83,7 @@ class ManagementRoot(PathElement):
             base_uri = self._meta_data['uri'] + 'tm/sys/'
         response = connect.get(base_uri)
         ver = response.json()
-        version = str(ver['selfLink']).split('=')[1]
+        version = str(parse_qs(urlparse(ver['selfLink']).query)['ver'][0])
         self._meta_data['tmos_version'] = version
 
 
