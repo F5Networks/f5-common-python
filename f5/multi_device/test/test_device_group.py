@@ -17,6 +17,7 @@ from f5.multi_device.cluster import DeviceGroup
 from f5.multi_device.exceptions import DeviceGroupNotSupported
 from f5.multi_device.exceptions import DeviceGroupOperationNotSupported
 from f5.multi_device.exceptions import MissingRequiredDeviceGroupParameter
+from f5.multi_device.exceptions import UnexpectedDeviceGroupDevices
 from f5.multi_device.exceptions import UnexpectedDeviceGroupState
 from f5.multi_device.exceptions import UnexpectedDeviceGroupType
 
@@ -28,6 +29,7 @@ class MockDeviceInfo(object):
     def __init__(self, name):
         self.name = name
         self.selfDevice = 'true'
+        self.type = 'sync-failover'
 
 
 class FakeActDevice(object):
@@ -162,3 +164,40 @@ def test__check_all_devices_in_sync_unexpected(DeviceGroupCreateNew):
         dg._check_all_devices_in_sync()
     assert "Expected all devices in group to have 'In Sync' status." == \
         ex.value.message
+
+
+@mock.patch(
+    'f5.multi_device.device_group.DeviceGroup._get_device_group',
+    return_value=MockDeviceInfo('test')
+)
+@mock.patch(
+    'f5.multi_device.device_group.DeviceGroup._get_device_names_in_group',
+    return_value=['test', 'test', 'test', 'test']
+)
+@mock.patch(
+    'f5.multi_device.device_group.DeviceGroup.ensure_all_devices_in_sync'
+)
+def test_validate(mock_get_dg, mock_dev_map, mock_in_sync, BigIPs):
+    dg = DeviceGroup(
+        devices=BigIPs, device_group_name='test',
+        device_group_type='sync-failover', device_group_partition='Common')
+    assert dg.devices == BigIPs
+    assert dg.name == 'test'
+    assert dg.type == 'sync-failover'
+    assert dg.partition == 'Common'
+    assert dg.ensure_all_devices_in_sync.call_args == mock.call()
+
+
+@mock.patch(
+    'f5.multi_device.device_group.DeviceGroup._get_device_group',
+    return_value=MockDeviceInfo('test')
+)
+@mock.patch(
+    'f5.multi_device.device_group.DeviceGroup._get_device_names_in_group',
+)
+def test_validate_given_devices_dont_match(mock_get_dg, mock_dev_map, BigIPs):
+    with pytest.raises(UnexpectedDeviceGroupDevices) as ex:
+        DeviceGroup(
+            devices=BigIPs, device_group_name='device_not_found',
+            device_group_type='sync-failover', device_group_partition='Common')
+    assert 'Given devices does not match queried devices.' in ex.value.message
