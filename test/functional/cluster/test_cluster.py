@@ -76,6 +76,8 @@ def ThreeBigIPTeardownSyncFailover(request, BigIPSetup):
     request.addfinalizer(teardown_cluster)
 
 
+@pytest.mark.skipif(pytest.config.getoption('--symbols') is None,
+                    reason='Symbols must be configured')
 def test_new_failover_cluster_two_member(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b]
@@ -89,6 +91,8 @@ def test_new_failover_cluster_two_member(BigIPSetup):
     cm.teardown()
 
 
+@pytest.mark.skipif(pytest.config.getoption('--symbols') is None,
+                    reason='Symbols must be configured')
 def test_new_failover_cluster_three_member(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b, c]
@@ -102,6 +106,8 @@ def test_new_failover_cluster_three_member(BigIPSetup):
     cm.teardown()
 
 
+@pytest.mark.skipif(pytest.config.getoption('--symbols') is None,
+                    reason='Symbols must be configured')
 def test_existing_failover_cluster(BigIPSetup):
     a, b, c = BigIPSetup
     bigip_list = [a, b]
@@ -118,6 +124,8 @@ def test_existing_failover_cluster(BigIPSetup):
     cm.teardown()
 
 
+@pytest.mark.skipif(pytest.config.getoption('--symbols') is None,
+                    reason='Symbols must be configured')
 def test_scale_up_sync_failover(BigIPSetup, ThreeBigIPTeardownSyncFailover):
     a, b, c = BigIPSetup
     bigip_list = [a, b]
@@ -130,6 +138,8 @@ def test_scale_up_sync_failover(BigIPSetup, ThreeBigIPTeardownSyncFailover):
     cm.scale_up_by_one(c)
 
 
+@pytest.mark.skipif(pytest.config.getoption('--symbols') is None,
+                    reason='Symbols must be configured')
 def test_scale_up_down_up_down_sync_failover(
         BigIPSetup, TwoBigIPTeardownSyncFailover):
     a, b, c = BigIPSetup
