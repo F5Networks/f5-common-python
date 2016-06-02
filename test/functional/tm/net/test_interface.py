@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import pytest
 
 
 def cleanup_test(request, bigip):
@@ -30,6 +31,8 @@ class TestInterfaces(object):
             assert ifc.generation
 
 
+@pytest.skip('A known issue with generation number.'
+             'See: https://github.com/F5Networks/f5-common-python/issues/334')
 class TestInterface(object):
     def test_RUL(self, request, bigip):
         cleanup_test(request, bigip)

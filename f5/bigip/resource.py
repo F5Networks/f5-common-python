@@ -87,6 +87,15 @@ from f5.sdk_exception import F5SDKError
 from requests.exceptions import HTTPError
 
 
+class MissingUpdateParameter(F5SDKError):
+    """Raises this when update requires specific
+
+    parameters together
+
+    """
+    pass
+
+
 class RequestParamKwargCollision(F5SDKError):
     pass
 
