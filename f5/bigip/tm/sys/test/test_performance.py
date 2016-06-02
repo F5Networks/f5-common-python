@@ -24,7 +24,9 @@ from f5.bigip.tm.sys.performance import Performances
 @pytest.fixture
 def FakePerformance():
     fake_sys = mock.MagicMock()
-    return Performances(fake_sys)
+    performances = Performances(fake_sys)
+    performances._meta_data['bigip'].tmos_version = '11.6.0'
+    return performances
 
 
 class TestPerformance(object):

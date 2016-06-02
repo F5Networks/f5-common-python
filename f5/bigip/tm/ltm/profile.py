@@ -511,6 +511,7 @@ class Iiops(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Iiop]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:iiop:iiopstate': Iiop}
+        self._meta_data['supported_versions'].discard('11.6.0')
 
 
 class Iiop(Resource):
@@ -1034,6 +1035,7 @@ class Tftps(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Tftp]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:tftp:tftpstate': Tftp}
+        self._meta_data['supported_versions'].discard('11.6.0')
 
 
 class Tftp(Resource):

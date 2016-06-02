@@ -26,14 +26,14 @@ from f5.bigip.tm.sys import Sys
 
 
 @pytest.fixture
-def FakeBigIP():
+def FakeBigIP(fakeicontrolsession):
     FBIP = BigIP('FakeHostName', 'admin', 'admin')
     FBIP.icontrol = mock.MagicMock()
     return FBIP
 
 
 @pytest.fixture
-def FakeBigIPWithPort():
+def FakeBigIPWithPort(fakeicontrolsession):
     FBIP = BigIP('FakeHostName', 'admin', 'admin', port='10443')
     FBIP.icontrol = mock.MagicMock()
     return FBIP

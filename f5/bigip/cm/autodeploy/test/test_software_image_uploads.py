@@ -24,7 +24,7 @@ from f5.bigip import ManagementRoot
 CHUNKSIZE = 20
 
 
-def test_software_image_uploads_80a(tmpdir):
+def test_software_image_uploads_80a(tmpdir, fakeicontrolsession):
     filepath = tmpdir.mkdir('testdir').join('eightya.iso')
     filepath.write(80*'a')
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
@@ -37,7 +37,7 @@ def test_software_image_uploads_80a(tmpdir):
         assert d == 'a'*CHUNKSIZE
 
 
-def test_software_image_uploads_70a(tmpdir):
+def test_software_image_uploads_70a(tmpdir, fakeicontrolsession):
     filepath = tmpdir.mkdir('testdir').join('seventya.iso')
     filepath.write(70*'a')
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
@@ -53,7 +53,7 @@ def test_software_image_uploads_70a(tmpdir):
     assert 10*'a' == lchunk
 
 
-def test_non_ISO_extension(tmpdir):
+def test_non_ISO_extension(tmpdir, fakeicontrolsession):
     filepath = tmpdir.mkdir('testdir').join('wrong.name')
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
     sius = mr.cm.autodeploy.software_image_uploads

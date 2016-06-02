@@ -23,7 +23,9 @@ from f5.bigip.tm.sys.folder import Folders
 @pytest.fixture
 def FakeFolders():
     fake_sys = mock.MagicMock()
-    return Folders(fake_sys)
+    folders = Folders(fake_sys)
+    folders._meta_data['bigip'].tmos_version = '11.6.0'
+    return folders
 
 
 class TestFolder(object):

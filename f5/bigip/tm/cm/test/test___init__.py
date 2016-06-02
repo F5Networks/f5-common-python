@@ -20,7 +20,7 @@ import pytest
 
 
 @pytest.fixture
-def FakeiControl():
+def FakeiControl(fakeicontrolsession):
     bigip = BigIP('host', 'fake_admin', 'fake_admin')
     mock_session = mock.MagicMock()
     mock_session.post.return_value.json.return_value = {}
