@@ -18,6 +18,9 @@
 
 
 from icontrol.session import iControlRESTSession
+from urlparse import parse_qs
+from urlparse import urlparse
+
 
 from f5.bigip.cm import Cm
 from f5.bigip.resource import PathElement
@@ -54,8 +57,10 @@ class ManagementRoot(PathElement):
             'bigip': self,
             'icontrol_version': icontrol_version,
             'username': username,
-            'password': password
+            'password': password,
+            'tmos_version': None,
         }
+        self._get_tmos_version()
 
     @property
     def hostname(self):
@@ -64,6 +69,18 @@ class ManagementRoot(PathElement):
     @property
     def icontrol_version(self):
         return self._meta_data['icontrol_version']
+
+    @property
+    def tmos_version(self):
+        return self._meta_data['tmos_version']
+
+    def _get_tmos_version(self):
+        connect = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['uri'] + 'tm/sys/'
+        response = connect.get(base_uri)
+        ver = response.json()
+        version = str(parse_qs(urlparse(ver['selfLink']).query)['ver'][0])
+        self._meta_data['tmos_version'] = version
 
 
 class BigIP(ManagementRoot):
