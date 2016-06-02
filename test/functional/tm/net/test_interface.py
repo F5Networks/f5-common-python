@@ -14,6 +14,7 @@
 #
 import pytest
 
+
 def cleanup_test(request, bigip):
     def teardown():
         for ifc in bigip.net.interfaces.get_collection():
