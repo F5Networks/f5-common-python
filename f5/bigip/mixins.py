@@ -36,6 +36,14 @@ class LazyAttributesRequired(F5SDKError):
     pass
 
 
+class UnsupportedTmosVersion(F5SDKError):
+    """Raise the error if a class of an API is instantiated,
+
+    on a TMOS version where API was not yet implemented/supported.
+    """
+    pass
+
+
 class ToDictMixin(object):
     """Convert an object's attributes to a dictionary"""
     traversed = {}
@@ -101,9 +109,19 @@ class LazyAttributeMixin(object):
             if name == lazy_attribute.__name__.lower():
                 attribute = lazy_attribute(container)
                 bases = [base.__name__ for base in lazy_attribute.__bases__]
+                # Doing version check per each resource
+                container._check_supported_versions(attribute)
                 if 'Resource' not in bases:
-                    setattr(container, name, attribute)
+                        setattr(container, name, attribute)
                 return attribute
+
+    def _check_supported_versions(container, attribute):
+        tmos_v = container._meta_data['bigip'].tmos_version
+        if tmos_v not in attribute.supported_versions:
+            error = "There was an attempt to access API which " \
+                    "has not been implemented or supported " \
+                    "in the device's TMOS version: {}".format(tmos_v)
+            raise UnsupportedTmosVersion(error)
 
 
 class ExclusiveAttributesMixin(object):

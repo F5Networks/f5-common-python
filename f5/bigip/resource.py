@@ -90,7 +90,6 @@ from requests.exceptions import HTTPError
 class RequestParamKwargCollision(F5SDKError):
     pass
 
-
 class KindTypeMismatch(F5SDKError):
     """Raise this when server JSON keys are incorrect for the Resource type."""
     pass
@@ -153,6 +152,8 @@ class PathElement(LazyAttributeMixin):
     those elements and does not support any of the CURDLE methods that
     the other objects do.
     """
+    # Supported version for each class will be defined here.
+    supported_versions = ['11.6.0', '12.0.0']
     def __init__(self, container):
         self._meta_data = {
             'container': container,
@@ -454,7 +455,6 @@ class ResourceBase(PathElement, ToDictMixin):
         """
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
-
 
 class OrganizingCollection(ResourceBase):
     """Base class for objects that collect resources under them.
