@@ -153,6 +153,7 @@ class PathElement(LazyAttributeMixin):
     those elements and does not support any of the CURDLE methods that
     the other objects do.
     """
+
     def __init__(self, container):
         self._meta_data = {
             'container': container,
@@ -161,6 +162,9 @@ class PathElement(LazyAttributeMixin):
             'icontrol_version': container._meta_data['icontrol_version']
         }
         self._set_meta_data_uri()
+        # Supported versions for each class will be defined here.
+        # List can be modified downstream in each sub-class
+        self._meta_data['supported_versions'] = set(['11.6.0', '12.0.0'])
 
     def _set_meta_data_uri(self):
         base_uri = self.__class__.__name__.lower()
