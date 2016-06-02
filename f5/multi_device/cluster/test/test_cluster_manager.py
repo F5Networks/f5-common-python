@@ -30,7 +30,7 @@ class MockDeviceInfo(object):
 
 
 @pytest.fixture
-def BigIPs():
+def BigIPs(fakeicontrolsession):
     mock_bigips = []
     for bigip in range(4):
         mock_bigips.append(ManagementRoot('test', 'un', 'pw'))

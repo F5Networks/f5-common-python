@@ -14,7 +14,10 @@
 #
 
 from f5.bigip import BigIP
+import mock
 import pytest
+
+from icontrol.session import iControlRESTSession
 
 
 def pytest_addoption(parser):
@@ -31,6 +34,19 @@ def pytest_addoption(parser):
     parser.addoption("--release", action="store",
                      help="TMOS version, in dotted format, eg. 12.0.0",
                      default='11.6.0')
+
+
+@pytest.fixture
+def fakeicontrolsession(monkeypatch):
+    class Response(object):
+        def json(self):
+            return {'selfLink': 'https://localhost/mgmt/tm/sys?ver=11.6.0'}
+    fakesessionclass = mock.create_autospec(iControlRESTSession, spec_set=True)
+    fakesessioninstance =\
+        mock.create_autospec(iControlRESTSession('A', 'B'), spec_set=True)
+    fakesessioninstance.get = mock.MagicMock(return_value=Response())
+    fakesessionclass.return_value = fakesessioninstance
+    monkeypatch.setattr('f5.bigip.iControlRESTSession', fakesessionclass)
 
 
 @pytest.fixture

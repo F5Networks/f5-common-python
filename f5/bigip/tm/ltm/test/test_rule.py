@@ -29,7 +29,7 @@ def FakeRule():
 
 
 class TestCreate(object):
-    def test_create_two(self):
+    def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
         r1 = b.ltm.rules.rule
         r2 = b.ltm.rules.rule
