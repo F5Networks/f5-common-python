@@ -79,7 +79,7 @@ class ManagementRoot(PathElement):
         base_uri = self._meta_data['uri'] + 'tm/sys/'
         response = connect.get(base_uri)
         ver = response.json()
-        version = str(parse_qs(urlparse(ver['selfLink']).query)['ver'][0])
+        version = parse_qs(urlparse(ver['selfLink']).query)['ver'][0]
         self._meta_data['tmos_version'] = version
 
 
