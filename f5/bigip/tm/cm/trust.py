@@ -31,6 +31,9 @@ class Add_To_Trust(UnnamedResourceMixin, ExclusiveAttributesMixin,
 
     def __init__(self, cm):
         super(Add_To_Trust, self).__init__(cm)
+        base_uri = type(self).__name__.replace('_', '-').lower()
+        self._meta_data['uri'] =\
+            self._meta_data['container']._meta_data['uri'] + base_uri + '/'
         self._meta_data['exclusive_attributes'].append(
             ('caDevice', 'nonCaDevice'))
         self._meta_data['required_creation_parameters'].update(
@@ -38,6 +41,7 @@ class Add_To_Trust(UnnamedResourceMixin, ExclusiveAttributesMixin,
         self._meta_data['required_json_kind'] = \
             'tm:cm:add-to-trust:runstate'
         self._meta_data['allowed_commands'].append('run')
+        self._meta_data['supported_versions'].discard('11.6.0')
 
 
 class Remove_From_Trust(UnnamedResourceMixin, CommandExecutionMixin, Resource):
@@ -54,8 +58,12 @@ class Remove_From_Trust(UnnamedResourceMixin, CommandExecutionMixin, Resource):
 
     def __init__(self, cm):
         super(Remove_From_Trust, self).__init__(cm)
+        base_uri = type(self).__name__.replace('_', '-').lower()
+        self._meta_data['uri'] =\
+            self._meta_data['container']._meta_data['uri'] + base_uri + '/'
         self._meta_data['required_creation_parameters'].update(
             ('deviceName',))
         self._meta_data['required_json_kind'] = \
             'tm:cm:remove-from-trust:runstate'
         self._meta_data['allowed_commands'].append('run')
+        self._meta_data['supported_versions'].discard('11.6.0')
