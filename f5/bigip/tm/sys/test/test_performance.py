@@ -28,6 +28,7 @@ def FakePerformance():
     performances._meta_data['bigip'].tmos_version = '11.6.0'
     return performances
 
+
 class TestPerformance(object):
     def test_get_collection_raises(self):
         perf = FakePerformance()
