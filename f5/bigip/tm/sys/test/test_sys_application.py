@@ -171,7 +171,7 @@ class MockHTTPErrorResponse400(HTTPError):
 
 
 class TestServiceCreate(object):
-    def test_create_two(self):
+    def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
         serv1 = b.sys.applications.services.service
         serv2 = b.sys.applications.services.service
@@ -323,7 +323,7 @@ class TestServiceUpdate(object):
 
 
 class TestTemplateCreate(object):
-    def test_create_two(self):
+    def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
         templ1 = b.sys.applications.templates.template
         templ2 = b.sys.applications.templates.template
@@ -337,7 +337,7 @@ class TestTemplateCreate(object):
 
 
 class TestAplscript(object):
-    def test_create_two(self):
+    def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
         templ1 = b.sys.applications.aplscripts.aplscript
         templ2 = b.sys.applications.aplscripts.aplscript
@@ -350,7 +350,7 @@ class TestAplscript(object):
 
 
 class TestCustomstat(object):
-    def test_create_two(self):
+    def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
         templ1 = b.sys.applications.customstats.customstat
         templ2 = b.sys.applications.customstats.customstat

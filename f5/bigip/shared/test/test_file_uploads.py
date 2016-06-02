@@ -22,7 +22,7 @@ from f5.bigip.shared.file_transfer import\
     FileMustNotHaveDotISOExtension
 
 
-def test_file_upload_80a(tmpdir):
+def test_file_upload_80a(tmpdir, fakeicontrolsession):
     filepath = tmpdir.mkdir('testdir').join('eightya.txt')
     filepath.write(80*'a')
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
@@ -35,7 +35,7 @@ def test_file_upload_80a(tmpdir):
         assert d == 'aaaaaaaaaaaaaaaaaaaa'
 
 
-def test_file_upload_70a(tmpdir):
+def test_file_upload_70a(tmpdir, fakeicontrolsession):
     filepath = tmpdir.mkdir('testdir').join('seventya.txt')
     filepath.write(70*'a')
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
@@ -51,7 +51,7 @@ def test_file_upload_70a(tmpdir):
     assert 10*'a' == lchunk
 
 
-def test_ISO_extension(tmpdir):
+def test_ISO_extension(tmpdir, fakeicontrolsession):
     filepath = tmpdir.mkdir('testdir').join('wrongname.iso')
     filepath.write('fake')
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
@@ -61,7 +61,7 @@ def test_ISO_extension(tmpdir):
     assert EIO.value.message == 'wrongname.iso'
 
 
-def test_stringio_upload_80a(tmpdir):
+def test_stringio_upload_80a(tmpdir, fakeicontrolsession):
     sio = StringIO(80*'a')
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
     mr._meta_data['icr_session'] = mock.MagicMock()
@@ -73,7 +73,7 @@ def test_stringio_upload_80a(tmpdir):
         assert d == 'aaaaaaaaaaaaaaaaaaaa'
 
 
-def test_stringio_upload_70a(tmpdir):
+def test_stringio_upload_70a(tmpdir, fakeicontrolsession):
     sio = StringIO(70*'a')
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
     mr._meta_data['icr_session'] = mock.MagicMock()
@@ -87,7 +87,7 @@ def test_stringio_upload_70a(tmpdir):
     assert 10*'a' == lchunk
 
 
-def test_bytes_upload_80a(tmpdir):
+def test_bytes_upload_80a(tmpdir, fakeicontrolsession):
     bytestring80a = 80*'a'
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
     mr._meta_data['icr_session'] = mock.MagicMock()
@@ -99,7 +99,7 @@ def test_bytes_upload_80a(tmpdir):
         assert d == 'aaaaaaaaaaaaaaaaaaaa'
 
 
-def test_bytes_upload_70a(tmpdir):
+def test_bytes_upload_70a(tmpdir, fakeicontrolsession):
     bytestring70a = 70*'a'
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
     mr._meta_data['icr_session'] = mock.MagicMock()

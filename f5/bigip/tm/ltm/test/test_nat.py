@@ -29,7 +29,7 @@ def FakeNat():
 
 
 class TestCreate(object):
-    def test_create_two(self):
+    def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
         n1 = b.ltm.nats.nat
         n2 = b.ltm.nats.nat

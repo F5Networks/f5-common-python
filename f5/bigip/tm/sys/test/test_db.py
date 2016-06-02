@@ -22,12 +22,15 @@ import pytest
 @pytest.fixture
 def fake_dbs():
     fake_sys = mock.MagicMock()
-    return Dbs(fake_sys)
+    dbs = Dbs(fake_sys)
+    dbs._meta_data['bigip'].tmos_version = '11.6.0'
+    return dbs
 
 
 class TestDb(object):
     def test_create_raises(self):
         dbs = fake_dbs()
+        print(dbs.raw)
         db = dbs.db
         with pytest.raises(UnsupportedOperation):
             db.create()

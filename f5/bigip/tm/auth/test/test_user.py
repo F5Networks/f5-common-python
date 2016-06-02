@@ -29,7 +29,7 @@ def FakeUser():
 
 
 class TestCreate(object):
-    def test_create_two(self):
+    def test_create_two(self, fakeicontrolsession):
         b = BigIP('localhost', 'admin', 'admin')
         n1 = b.auth.users.user
         n2 = b.auth.users.user
