@@ -94,6 +94,8 @@ class TestPoolMembers(object):
         member, _ = setup_member_test(request, bigip, 'membertestpool1',
                                       'Common')
 
+    @pytest.skip('A known issue with generation number.'
+                 'See: https://github.com/F5Networks/f5-common-python/issues/334')
     def test_update_member(self, request, bigip):
         member, _ = setup_member_test(request, bigip, 'membertestpool1',
                                       'Common')

@@ -29,6 +29,7 @@ REST Kind
 
 from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.resource import Collection
+from f5.bigip.resource import MissingUpdateParameter
 from f5.bigip.resource import Resource
 
 
@@ -74,3 +75,37 @@ class Interfaces(Resource, ExclusiveAttributesMixin):
             'tm:net:vlan:interfaces:interfacesstate'
         # You cannot send both tagged and untagged attributes on update
         self._meta_data['exclusive_attributes'].append(('tagged', 'untagged'))
+
+    def create(self, **kwargs):
+        """Create the resource on the BIG-IP®.
+
+        Uses HTTP POST to the `collection` URI to create a resource associated
+        with a new unique URI on the device.
+
+        As tagMode parameter will be required
+        only if tagged is set to 'True'
+        we have to use conditional to capture this logic during create.
+
+        """
+        if 'tagged' in kwargs and kwargs['tagged'] is True:
+            tup_par = ('tagMode', 'tagged')
+            self._meta_data['required_creation_parameters'].update(tup_par)
+
+        self._create(**kwargs)
+
+        return self
+
+    def update(self, **kwargs):
+        if 'tagged' in kwargs:
+            if kwargs['tagged'] is True and 'tagMode' not in kwargs:
+                error = 'Missing tagMode parameter value.'
+                raise MissingUpdateParameter(error)
+        if hasattr(self, 'tagged'):
+            if getattr(self, 'tagged') is True and \
+               getattr(self, 'tagMode') == 'none':
+                error = 'Missing tagMode parameter value.'
+                raise MissingUpdateParameter(error)
+
+        self._update(**kwargs)
+
+        return self

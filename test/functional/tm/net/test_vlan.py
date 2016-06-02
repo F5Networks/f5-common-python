@@ -16,6 +16,7 @@
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.bigip.resource import MissingUpdateParameter
 from icontrol.session import iControlUnexpectedHTTPError
 from requests.exceptions import HTTPError
 
@@ -90,9 +91,10 @@ class TestVLANInterfaces(object):
         ifc.update()
         assert ifc.untagged is True
         ifc.tagged = True
+        ifc.tagMode = 'service'
         assert not hasattr(ifc, 'untagged')
         ifc.update()
-        ifc.tagged is True
+        assert ifc.tagged is True
 
     def test_update(self, request, bigip):
         i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
@@ -112,9 +114,15 @@ class TestVLANInterfaces(object):
         assert not hasattr(i, 'tagged')
         assert i.untagged is True
         with pytest.raises(iControlUnexpectedHTTPError) as err:
-            i.update(tagged=True)
+            i.update(tagged=True, tagMode='service')
             assert err.response.status_code == 400
             assert "may not be specified with" in err.response.text
+
+    def test_update_without_tagmode(self, request, bigip):
+        i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
+        i.tagged = True
+        with pytest.raises(MissingUpdateParameter):
+            i.update()
 
     def test_load(self, request, bigip):
         i1, v = setup_interfaces_test(request, bigip, 'v1', 'Common')
@@ -148,7 +156,7 @@ class TestVLAN(object):
         v1 = bigip.net.vlans.vlan
         v1.create(name='v1', partition='Common')
         i1 = v1.interfaces_s.interfaces
-        i1.create(name='1.1', tagged=True)
+        i1.create(name='1.1', tagged=True, tagMode='service')
         v1_ifcs = v1.interfaces_s.get_collection()
         gen1 = v1.generation
         assert v1.name == 'v1'
