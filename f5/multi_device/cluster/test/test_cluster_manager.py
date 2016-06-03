@@ -147,7 +147,7 @@ def test_teardown_cluster(ClusterManagerCreateNew, BigIPs):
     assert cm.cluster is None
 
 
-def test_scale_up_too_many_devices(ClusterManagerCreateNew, BigIPs):
+def itest_scale_up_too_many_devices(ClusterManagerCreateNew, BigIPs):
     cm = ClusterManagerCreateNew
     mock_bigips = BigIPs
     cm.create(
@@ -168,7 +168,7 @@ def test_scale_up_too_many_devices(ClusterManagerCreateNew, BigIPs):
         ex.value.message
 
 
-def test_scale_down_cluster_not_supported(ClusterManagerCreateNew, BigIPs):
+def itest_scale_down_cluster_not_supported(ClusterManagerCreateNew, BigIPs):
     cm = ClusterManagerCreateNew
     mock_bigips = BigIPs
     cm.create(

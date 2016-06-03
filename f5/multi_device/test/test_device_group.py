@@ -82,6 +82,15 @@ def test_validate_unsupported_type(BigIPs):
     assert 'Unsupported cluster type was given: wrong' == ex.value.message
 
 
+def test_validate_sync_only_not_device_trust_group(BigIPs):
+    with pytest.raises(DeviceGroupNotSupported) as ex:
+        DeviceGroup(
+            devices=BigIPs, device_group_name='test',
+            device_group_type='sync-only', device_group_partition='Common')
+    assert "Management of sync-only device groups only supported for " \
+        "built-in device group named 'device_trust_group'" in ex.value.message
+
+
 def test_validate_type_mismatch(BigIPs):
     with pytest.raises(UnexpectedDeviceGroupType) as ex:
         with mock.patch(
@@ -96,7 +105,7 @@ def test_validate_type_mismatch(BigIPs):
         "device group type: 'sync-failover'" == ex.value.message
 
 
-def test_scale_up_device_already_in_group(DeviceGroupCreateNew, BigIPs):
+def itest_scale_up_device_already_in_group(DeviceGroupCreateNew, BigIPs):
     dg, mock_bigips = DeviceGroupCreateNew
     mock_bigip = mock.MagicMock()
     mock_bigip.tm.cm.devices.get_collection.return_value = \
@@ -111,7 +120,7 @@ def test_scale_up_device_already_in_group(DeviceGroupCreateNew, BigIPs):
     assert "Device: 'test' is already in device group" == ex.value.message
 
 
-def test_scale_down_device_not_in_group(DeviceGroupCreateNew, BigIPs):
+def itest_scale_down_device_not_in_group(DeviceGroupCreateNew, BigIPs):
     dg, mock_bigips = DeviceGroupCreateNew
     mock_bigip = mock.MagicMock()
     mock_bigip.tm.cm.devices.get_collection.return_value = \
