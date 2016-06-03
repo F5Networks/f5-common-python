@@ -156,6 +156,7 @@ class ClusterManager(object):
         if hasattr(self, 'cluster'):
             msg = 'The ClusterManager is already managing a cluster.'
             raise AlreadyManagingCluster(msg)
+        self._check_device_number(kwargs['devices'])
         print('Adding trusted peers to root BigIP...')
         self.trust_domain.create(
             devices=kwargs['devices'],
