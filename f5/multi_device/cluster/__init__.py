@@ -1,3 +1,4 @@
+# coding=utf-8
 # Copyright 2016 F5 Networks Inc.
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +19,9 @@
 
 Definitions:
     Cluster: The manager of the TrustDomain and DeviceGroup objects.
-    TrustDomain: a group of BIG-IP devices that have exchanged certificates
+    TrustDomain: a group of BIG-IP® devices that have exchanged certificates
                  and trust one another
-    DeviceGroup: a group of BIG-IP device that sync configuration data and
+    DeviceGroup: a group of BIG-IP® device that sync configuration data and
                  failover connections.
 
 Clustering is broken down into three component parts: a cluster manager, a
@@ -33,6 +34,9 @@ those devices trust one another, a device group is created and each is added
 to the group. After this step, a cluster exists.
 
 Currently the only supported type of cluster is a 'sync-failover' cluster.
+The number of devices supported officially is currently two, for an
+active-standby cluster, but the code below can accommodate a four-member
+cluster.
 
 Methods:
 
@@ -85,7 +89,7 @@ Cluster = namedtuple(
 
 
 class ClusterManager(object):
-    '''Manage a cluster of BigIPs.
+    '''Manage a cluster of BIG-IP® devices.
 
     This is accomplished with REST URI calls only, but some operations are
     only permitted via tmsh commands (such as adding cm/trust-domain peers).
@@ -120,12 +124,12 @@ class ClusterManager(object):
         raise AttributeError(name)
 
     def _check_device_number(self, devices):
-        '''Check if number of devices is < 2 or > 8.
+        '''Check if number of devices is between 2 and 4
 
         :param kwargs: dict -- keyword args in dict
         '''
 
-        if len(devices) < 2 or len(devices) > 8:
+        if len(devices) < 2 or len(devices) > 4:
             msg = 'The number of devices to cluster is not supported.'
             raise ClusterNotSupported(msg)
 
@@ -144,7 +148,7 @@ class ClusterManager(object):
         self.cluster = Cluster(**kwargs)
 
     def create(self, **kwargs):
-        '''Create a cluster of BigIP devices.
+        '''Create a cluster of BIG-IP® devices.
 
         :param kwargs: dict -- keyword arguments for cluster manager
         '''
@@ -152,6 +156,7 @@ class ClusterManager(object):
         if hasattr(self, 'cluster'):
             msg = 'The ClusterManager is already managing a cluster.'
             raise AlreadyManagingCluster(msg)
+        self._check_device_number(kwargs['devices'])
         print('Adding trusted peers to root BigIP...')
         self.trust_domain.create(
             devices=kwargs['devices'],
@@ -163,7 +168,7 @@ class ClusterManager(object):
         self.cluster = Cluster(**kwargs)
 
     def teardown(self):
-        '''Teardown the cluster of BigIP devices.'''
+        '''Teardown the cluster of BIG-IP® devices.'''
 
         print('Tearing down the cluster...')
         self.device_group.teardown()

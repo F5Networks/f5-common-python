@@ -15,6 +15,8 @@
 
 from f5.bigip import ManagementRoot
 from f5.multi_device.cluster import ClusterManager
+from f5.multi_device.exceptions import AlreadyManagingCluster
+from f5.multi_device.exceptions import ClusterNotSupported
 
 import pytest
 from pytest import symbols
@@ -45,21 +47,12 @@ def BigIPSetup():
         symbols.bigip2['netloc'],
         symbols.bigip2['username'],
         symbols.bigip2['password'])
-    c = ManagementRoot(
-        symbols.bigip3['netloc'],
-        symbols.bigip3['username'],
-        symbols.bigip3['password'])
-    d = ManagementRoot(
-        symbols.bigip4['netloc'],
-        symbols.bigip4['username'],
-        symbols.bigip4['password']
-    )
-    return a, b, c, d
+    return a, b
 
 
 @pytest.fixture
 def TwoBigIPTeardownSyncFailover(request, BigIPSetup):
-    a, b, c, d = BigIPSetup
+    a, b = BigIPSetup
     bigip_list = [a, b]
 
     def teardown_cluster():
@@ -74,8 +67,8 @@ def TwoBigIPTeardownSyncFailover(request, BigIPSetup):
 
 @pytest.fixture
 def ThreeBigIPTeardownSyncFailover(request, BigIPSetup):
-    a, b, c, d = BigIPSetup
-    bigip_list = [a, b, c]
+    a, b = BigIPSetup
+    bigip_list = [a, b]
 
     def teardown_cluster():
         cm = ClusterManager(
@@ -94,44 +87,22 @@ def ThreeBigIPTeardownSyncFailover(request, BigIPSetup):
                     "'run_cluster_tests: True'")
 class TestCluster(object):
     def test_new_failover_cluster_two_member(self, BigIPSetup):
-        a, b, c, d = BigIPSetup
+        a, b = BigIPSetup
         bigip_list = [a, b]
-        cm = ClusterManager()
+        for x in range(2):
+            cm = ClusterManager()
 
-        cm.create(
-            devices=bigip_list,
-            device_group_name=DEVICE_GROUP_NAME,
-            device_group_partition=PARTITION,
-            device_group_type='sync-failover')
-        cm.teardown()
+            cm.create(
+                devices=bigip_list,
+                device_group_name=DEVICE_GROUP_NAME,
+                device_group_partition=PARTITION,
+                device_group_type='sync-failover')
+            cm.teardown()
 
-    def test_new_failover_cluster_three_member(self, BigIPSetup):
-        a, b, c, d = BigIPSetup
-        bigip_list = [a, b, c]
-        cm = ClusterManager()
-
-        cm.create(
-            devices=bigip_list,
-            device_group_name=DEVICE_GROUP_NAME,
-            device_group_partition=PARTITION,
-            device_group_type='sync-failover')
-        cm.teardown()
-
-    def test_new_failover_cluster_four_member(self, BigIPSetup):
-        a, b, c, d = BigIPSetup
-        bigip_list = [a, b, c, d]
-        cm = ClusterManager()
-
-        cm.create(
-            devices=bigip_list,
-            device_group_name=DEVICE_GROUP_NAME,
-            device_group_partition=PARTITION,
-            device_group_type='sync-failover'
-        )
-        cm.teardown()
-
-    def test_existing_failover_cluster(self, BigIPSetup):
-        a, b, c, d = BigIPSetup
+    def test_existing_failover_cluster(
+            self, BigIPSetup, TwoBigIPTeardownSyncFailover
+    ):
+        a, b = BigIPSetup
         bigip_list = [a, b]
         cm = ClusterManager()
         kwargs = {'devices': bigip_list,
@@ -139,18 +110,42 @@ class TestCluster(object):
                   'device_group_partition': PARTITION,
                   'device_group_type': 'sync-failover'}
         cm.create(**kwargs)
-
+        assert sorted(cm.cluster.devices) == sorted(bigip_list)
         del cm
 
-        cm = ClusterManager(**kwargs)
-        cm.teardown()
+        cm2 = ClusterManager(**kwargs)
+        assert sorted(cm2.cluster.devices) == sorted(bigip_list)
 
-    # The following tests were removed when scaling was taken out of
-    # the clustering feature.
-    def itest_scale_up_sync_failover(
-            self, BigIPSetup, ThreeBigIPTeardownSyncFailover
+    def test_too_few_devices(self, BigIPSetup):
+        a, b = BigIPSetup
+        bigip_list = [a]
+        cm = ClusterManager()
+        with pytest.raises(ClusterNotSupported) as ex:
+            kwargs = {'devices': bigip_list,
+                      'device_group_name': DEVICE_GROUP_NAME,
+                      'device_group_partition': PARTITION,
+                      'device_group_type': 'sync-failover'}
+            cm.create(**kwargs)
+        assert 'The number of devices to cluster is not supported.' in \
+            ex.value.message
+
+    def test_too_many_devices(self, BigIPSetup):
+        a, b = BigIPSetup
+        bigip_list = [a, b, a, a, a, a, a]
+        cm = ClusterManager()
+        with pytest.raises(ClusterNotSupported) as ex:
+            kwargs = {'devices': bigip_list,
+                      'device_group_name': DEVICE_GROUP_NAME,
+                      'device_group_partition': PARTITION,
+                      'device_group_type': 'sync-failover'}
+            cm.create(**kwargs)
+        assert 'The number of devices to cluster is not supported.' in \
+            ex.value.message
+
+    def test_already_managing_cluster(
+            self, BigIPSetup, TwoBigIPTeardownSyncFailover
     ):
-        a, b, c, d = BigIPSetup
+        a, b = BigIPSetup
         bigip_list = [a, b]
         cm = ClusterManager()
         kwargs = {'devices': bigip_list,
@@ -158,18 +153,7 @@ class TestCluster(object):
                   'device_group_partition': PARTITION,
                   'device_group_type': 'sync-failover'}
         cm.create(**kwargs)
-        cm.scale_up_by_one(c)
-
-    def itest_scale_up_down_up_down_sync_failover(
-            BigIPSetup, TwoBigIPTeardownSyncFailover):
-        a, b, c, d = BigIPSetup
-        bigip_list = [a, b]
-        cm = ClusterManager()
-        kwargs = {'devices': bigip_list,
-                  'device_group_name': DEVICE_GROUP_NAME,
-                  'device_group_partition': PARTITION,
-                  'device_group_type': 'sync-failover'}
-        cm.create(**kwargs)
-        for x in range(3):
-            cm.scale_up_by_one(c)
-            cm.scale_down_by_one(c)
+        with pytest.raises(AlreadyManagingCluster) as ex:
+            cm.create(**kwargs)
+        assert 'The ClusterManager is already managing a cluster.' in \
+            ex.value.message
