@@ -26,7 +26,7 @@ SYNCONLYPART = 'test'
 
 
 skip_cluster_tests = True
-if getattr(symbols, 'run_cluster_tests') and symbols.run_cluster_tests is True:
+if hasattr(symbols, 'run_cluster_tests') and symbols.run_cluster_tests is True:
     skip_cluster_tests = False
 
 
