@@ -329,8 +329,8 @@ class PathElement(LazyAttributeMixin):
         key_set = set(kwargs.keys())
         required_minus_received = rqset - key_set
         if required_minus_received != set():
-            error_message = 'Missing required params: {}'\
-                .format(required_minus_received)
+            error_message = 'Missing required params: %s' % \
+                            required_minus_received
             return True, error_message
         else:
             return False
