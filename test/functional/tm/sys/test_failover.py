@@ -13,23 +13,27 @@
 # limitations under the License.
 #
 
+from f5.bigip.tm.sys.failover import InvalidParameterValue
 from pprint import pprint as pp
+
+import pytest
 
 
 class TestFailover(object):
     def test_failover_LR(self, bigip):
-        '''Test failover refresh and load.
+        """Test failover refresh and load.
 
         Test that the failover object can be refreshed and loaded. The object
         also supports update, but this will force a failover on the
         device and this may have negative consequences to the device we
         are using to test if it is not setup properly so I am not testing
         it here.
-        '''
+        """
+
         f = bigip.sys.failover.load()
-        assert f.apiRawValues['apiAnonymous'].startswith('Failover active')
+        assert 'Failover active' in f.apiRawValues['apiAnonymous']
         f.refresh()
-        assert f.apiRawValues['apiAnonymous'].startswith('Failover active')
+        assert 'Failover active' in f.apiRawValues['apiAnonymous']
 
     def test_toggle_standby(self, bigip):
         f = bigip.sys.failover
@@ -44,3 +48,29 @@ class TestFailover(object):
         f.refresh()
         pp(f.raw)
         assert 'Failover active' in f.apiRawValues['apiAnonymous']
+
+    def test_attribute_values(self, bigip):
+        fl = bigip.sys.failover
+        # Testing both conditions
+        with pytest.raises(InvalidParameterValue):
+            fl.exec_cmd('run', online=True, offline=True)
+        with pytest.raises(InvalidParameterValue):
+            fl.exec_cmd('run', online=False, offline=False)
+
+    def test_exec_cmd(self, bigip):
+        f = bigip.sys.failover
+        f.exec_cmd('run', offline=True)
+        fl = bigip.sys.failover.load()
+        assert 'Failover forced_offline' in fl.apiRawValues['apiAnonymous']
+        f.exec_cmd('run', offline=False, online=True)
+        fl.refresh()
+        assert 'Failover active' in fl.apiRawValues['apiAnonymous']
+
+    def test_exec_cmd_cmdargs(self, bigip):
+        f = bigip.sys.failover
+        f.exec_cmd('run', utilCmdArgs='offline persist')
+        fl = bigip.sys.failover.load()
+        assert 'Failover forced_offline' in fl.apiRawValues['apiAnonymous']
+        f.exec_cmd('run', utilCmdArgs='online')
+        fl.refresh()
+        assert 'Failover active' in fl.apiRawValues['apiAnonymous']

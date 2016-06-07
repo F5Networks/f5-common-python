@@ -21,7 +21,7 @@ class TestSyncStatus(object):
         sync_status = bigip.cm.sync_status
         pp(sync_status.raw)
         assert sync_status._meta_data['uri'].endswith(
-            u"/mgmt/tm/cm/sync-status")
+            "/mgmt/tm/cm/sync-status/")
         sync_status.refresh()
         des =\
             (sync_status.entries['https://localhost/mgmt/tm/cm/sync-status/0']

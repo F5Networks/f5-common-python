@@ -26,12 +26,25 @@ REST Kind
     ``tm:sys:failover:*``
 """
 
+from f5.bigip.mixins import CommandExecutionMixin
+from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.resource import ResourceBase
+from f5.sdk_exception import F5SDKError
 
 
-class Failover(UnnamedResourceMixin, ResourceBase):
-    '''BIG-IP® Failover stats and state change.
+class InvalidParameterValue(F5SDKError):
+    """This class covers corner cases
+
+    where certain boolean parameters
+    cannot have the same value
+    """
+    pass
+
+
+class Failover(UnnamedResourceMixin, ResourceBase,
+               CommandExecutionMixin, ExclusiveAttributesMixin):
+    """BIG-IP® Failover stats and state change.
 
     The failover object only supports load, update, and refresh because it is
      an unnamed resource.
@@ -45,44 +58,82 @@ class Failover(UnnamedResourceMixin, ResourceBase):
 
         This is an unnamed resource so it has not ~Partition~Name pattern
         at the end of its URI.
-    '''
+    """
     def __init__(self, sys):
         super(Failover, self).__init__(sys)
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
             'tm:sys:failover:failoverstats'
+        self._meta_data['allowed_commands'].append('run')
 
     def update(self, **kwargs):
-        '''Update is not supported for Failover
+        """Update is not supported for Failover
 
         :raises: UnsupportedOperation
-        '''
+        """
         raise self.UnsupportedMethod(
             "%s does not support the update method" % self.__class__.__name__
         )
 
+    def exec_cmd(self, command, **kwargs):
+        """Defining custom method to append 'exclusive_attributes'.
+
+        WARNING: Some parameters are hyphenated therefore the function
+                 will need to utilize variable keyword argument syntax.
+                 This only applies when utilCmdArgs method is not in use.
+
+                 eg.
+
+                 param_set ={'standby':True 'traffic-group': 'traffic-group-1'}
+                 bigip.tm.sys.failover.exec_cmd('run', **param_set
+
+        The 'standby' attribute cannot be present with either 'offline'
+        or 'online' attribute, whichever is present. Additionally
+        we check for existence of same attribute values in
+        'offline' and 'online' if both present.
+
+
+        note:: There is also another way of using failover endpoint,
+               by the means of 'utilCmdArgs' attribute, here the syntax
+               will resemble more that of the 'tmsh run sys failover...'
+               command.
+                    eg. exec_cmd('run', utilCmdArgs='standby traffic-group
+                    traffic-group-1')
+
+        :: raises InvalidParameterValue
+        """
+
+        if 'online' in kwargs and 'offline' in kwargs:
+            if kwargs['online'] is True and kwargs['offline'] is True or \
+               kwargs['online'] is False and kwargs['offline'] is False:
+                error = 'Both parameters cannot have the same value' \
+                        'Currently they are: online={} offline={}'.format(
+                            kwargs['online'], kwargs['offline'])
+                raise InvalidParameterValue(error)
+
+        if 'offline' in kwargs:
+            self._meta_data['exclusive_attributes'].append(
+                ('offline', 'standby'))
+
+        if 'online' in kwargs:
+            self._meta_data['exclusive_attributes'].append(
+                ('online', 'standby'))
+
+        return self._exec_cmd(command, **kwargs)
+
     def toggle_standby(self, **kwargs):
-        '''Toggle the standby status of a traffic group.
+        """Toggle the standby status of a traffic group.
 
-        WARNING: This method which used POST obtains json keys from the device
-        that are not available in the response to a GET against the same URI.
+         WARNING: This method which used POST obtains json keys from the device
+         that are not available in the response to a GET against the same URI.
 
-        Unique to refresh/GET:
-        u"apiRawValues"
-        u"selfLink"
-        Unique to toggle_standby/POST:
-        u"command"
-        u"standby"
-        u"traffic-group"
-        '''
-        state = kwargs.pop('state')
+         NOTE: This method method is deprecated and probably will be removed,
+               usage of exec_cmd is encouraged.
+        """
+
         trafficgroup = kwargs.pop('trafficgroup')
+        state = kwargs.pop('state')
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
-        payload = {u"command": u"run",
-                   u"standby": state,
-                   u"traffic-group": trafficgroup}
-        standby_session = self._meta_data["bigip"]._meta_data["icr_session"]
-        uri = self._meta_data['uri']
-        response = standby_session.post(uri, json=payload)
-        self._local_update(response.json())
+        arguments = {'standby': state, 'traffic-group': trafficgroup}
+        self.exec_cmd('run', **arguments)
