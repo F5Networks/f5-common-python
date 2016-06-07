@@ -315,9 +315,10 @@ class PathElement(LazyAttributeMixin):
             ex_set = set(self._meta_data['exclusive_attributes'][0])
             common_set = attr_set.intersection(ex_set)
             if len(common_set) > 1:
+                cset = ', '.join(common_set)
                 error = 'Mutually exclusive arguments submitted. ' \
                         'The following arguments cannot be set ' \
-                        'together: "{}".'.format(', '.join(common_set))
+                        'together: "%s".' % cset
                 raise ExclusiveAttributesPresent(error)
 
     @staticmethod
