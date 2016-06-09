@@ -18,13 +18,16 @@ import requests
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import DeviceProvidesIncompatibleKey
+from f5.bigip.resource import ExclusiveAttributesPresent
 from f5.bigip.resource import GenerationMismatch
 from f5.bigip.resource import InvalidForceType
 from f5.bigip.resource import InvalidResource
 from f5.bigip.resource import KindTypeMismatch
+from f5.bigip.resource import MissingRequiredCommandParameter
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.resource import PathElement
 from f5.bigip.resource import RequestParamKwargCollision
 from f5.bigip.resource import Resource
 from f5.bigip.resource import ResourceBase
@@ -96,7 +99,7 @@ class TestResourcecreate(object):
         with pytest.raises(MissingRequiredCreationParameter) as MRCPEIO:
             r.create(partition="Common", name='CreateTest')
         assert MRCPEIO.value.message ==\
-            "Missing required params: set(['NONEMPTY'])"
+            "Missing required params: ['NONEMPTY']"
 
     def test_KindTypeMismatch(self):
         r = Resource(mock.MagicMock())
@@ -290,7 +293,7 @@ class TestResource_load(object):
         with pytest.raises(MissingRequiredReadParameter) as MRREIO:
             r.load(partition='Common', name='test_load')
         assert MRREIO.value.message ==\
-            "Missing required params: set(['IMPOSSIBLE'])"
+            "Missing required params: ['IMPOSSIBLE']"
 
     def test_requests_params_collision(self):
         r = Resource(mock.MagicMock())
@@ -443,3 +446,64 @@ def test_collection_s():
     }
     tc_s = Under_s(MC)
     assert tc_s._meta_data['uri'] == 'BASEURI/under/'
+
+
+class TestPathElement(object):
+
+    def test_missing_req_param_true(self):
+        p = PathElement(mock.MagicMock())
+        rqset = set(['FOOPAR1', 'FOOPAR2'])
+        fakearg = {'FOOPAR1': 'FOOVAL'}
+        mrq = p._missing_required_parameters(rqset, **fakearg)
+        assert mrq
+        assert mrq == ['FOOPAR2']
+
+    def test_missing_req_param_false(self):
+        p = PathElement(mock.MagicMock())
+        rqset = set(['FOOPAR1'])
+        fakearg = {'FOOPAR1': 'FOOVAL'}
+        mrq = p._missing_required_parameters(rqset, **fakearg)
+        assert not mrq
+
+    def test_check_load_parameters_fail(self):
+        p = PathElement(mock.MagicMock())
+        p._meta_data['required_load_parameters'] = set(['FAKELOAD'])
+        with pytest.raises(MissingRequiredReadParameter) as RLPEIO:
+            p._check_load_parameters(FOOLOAD='FOOVAL')
+        assert "['FAKELOAD']" in RLPEIO.value.message
+
+    def test_check_create_parameters_fail(self):
+        p = PathElement(mock.MagicMock())
+        p._meta_data['required_creation_parameters'] = set(['FAKECREATE'])
+        with pytest.raises(MissingRequiredCreationParameter) as RCPEIO:
+            p._check_create_parameters(FOOCREATE='FOOVAL')
+        assert "['FAKECREATE']" in RCPEIO.value.message
+
+    def test_check_command_parameters_fail(self):
+        p = PathElement(mock.MagicMock())
+        p._meta_data['required_command_parameters'] = set(['FAKECOMMAND'])
+        with pytest.raises(MissingRequiredCommandParameter) as RCPEIO:
+            p._check_command_parameters(BARCOMMAND='FOOVAL')
+        assert "['FAKECOMMAND']" in RCPEIO.value.message
+
+    def test_check_exclusive_parameters_empty_attr(self):
+        p = PathElement(mock.MagicMock())
+        p._meta_data['exclusive_attributes'] = []
+        fakearg = {'FOOEX': 'FOOVAL'}
+        # Check that any other exception is not thrown
+        p._check_exclusive_parameters(**fakearg)
+
+    def test_check_exclusive_parameters_pass(self):
+        p = PathElement(mock.MagicMock())
+        p._meta_data['exclusive_attributes'] = [('FOOEX', 'BAREX')]
+        fakearg = {'FOOEX': 'FOOVAL'}
+        # Check ExclusiveAttributesPresent is not thrown
+        p._check_exclusive_parameters(**fakearg)
+
+    def test_check_exclusive_parameters_fail(self):
+        p = PathElement(mock.MagicMock())
+        p._meta_data['exclusive_attributes'] = [('FOOEX', 'BAREX')]
+        fakearg = {'FOOEX': 'FOOVAL', 'BAREX': 'BARVAL'}
+        with pytest.raises(ExclusiveAttributesPresent) as EAEIO:
+            p._check_exclusive_parameters(**fakearg)
+        assert 'FOOEX, BAREX' in EAEIO.value.message
