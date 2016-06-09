@@ -16,8 +16,8 @@
 from f5.bigip.tm.sys.failover import InvalidParameterValue
 from pprint import pprint as pp
 
-import time
 import pytest
+import time
 
 
 class TestFailover(object):
@@ -64,6 +64,9 @@ class TestFailover(object):
         fl = bigip.sys.failover.load()
         assert 'Failover forced_offline' in fl.apiRawValues['apiAnonymous']
         f.exec_cmd('run', offline=False, online=True)
+        # We need this 2 sec delay as sometimes the status does not change
+        # straight away, causing the assertion to fail.
+        time.sleep(2)
         fl.refresh()
         assert 'Failover active' in fl.apiRawValues['apiAnonymous']
 
@@ -73,8 +76,8 @@ class TestFailover(object):
         fl = bigip.sys.failover.load()
         assert 'Failover forced_offline' in fl.apiRawValues['apiAnonymous']
         f.exec_cmd('run', utilCmdArgs='online')
-        # We need this 1 sec delay as sometimes the status does not change
+        # We need this 2 sec delay as sometimes the status does not change
         # straight away, causing the assertion to fail.
-        time.sleep(1)
+        time.sleep(2)
         fl.refresh()
         assert 'Failover active' in fl.apiRawValues['apiAnonymous']
