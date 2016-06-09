@@ -87,19 +87,18 @@ from f5.sdk_exception import F5SDKError
 from requests.exceptions import HTTPError
 
 
-class ExclusiveAttributesPresent(F5SDKError):
-    """Raises this when exclusive attributes are present
+class MissingRequiredCommandParameter(F5SDKError):
+    """Various values MUST be provided to execute a command."""
+    pass
 
-    during resource creation
-    """
+
+class ExclusiveAttributesPresent(F5SDKError):
+    """Raises this when exclusive attributes are present."""
     pass
 
 
 class MissingUpdateParameter(F5SDKError):
-    """Raises this when update requires specific
-
-    parameters together
-    """
+    """Raises this when update requires specific parameters together."""
     pass
 
 
@@ -209,9 +208,34 @@ class PathElement(LazyAttributeMixin):
         :raises: MissingRequiredReadParameter
         """
         rset = self._meta_data['required_load_parameters']
-        check = self._check_required_parameters(rset, **kwargs)
+        check = self._missing_required_parameters(rset, **kwargs)
         if check:
-            raise MissingRequiredReadParameter(check[1])
+            error_message = 'Missing required params: %s' % check
+            raise MissingRequiredReadParameter(error_message)
+
+    def _check_create_parameters(self, **kwargs):
+        """Params given to create should satisfy required params.
+
+        :params: kwargs
+        :raises: MissingRequiredCreateParameter
+        """
+        rset = self._meta_data['required_creation_parameters']
+        check = self._missing_required_parameters(rset, **kwargs)
+        if check:
+            error_message = 'Missing required params: %s' % check
+            raise MissingRequiredCreationParameter(error_message)
+
+    def _check_command_parameters(self, **kwargs):
+        """Params given to exec_cmd should satisfy required params.
+
+        :params: kwargs
+        :raises: MissingRequiredCommandParameter
+        """
+        rset = self._meta_data['required_command_parameters']
+        check = self._missing_required_parameters(rset, **kwargs)
+        if check:
+            error_message = 'Missing required params: %s' % check
+            raise MissingRequiredCommandParameter(error_message)
 
     def _local_update(self, rdict):
         """Call this with a response dictionary to update instance attrs.
@@ -322,19 +346,19 @@ class PathElement(LazyAttributeMixin):
                 raise ExclusiveAttributesPresent(error)
 
     @staticmethod
-    def _check_required_parameters(rqset, **kwargs):
-        """Helper function to do operation on sets
+    def _missing_required_parameters(rqset, **kwargs):
+        """Helper function to do operation on sets.
 
-        ::returns bool and variable
+        Checks for any missing required parameters.
+        Returns non-empty or empty list. With empty
+        list being False.
+
+        ::returns list
         """
         key_set = set(kwargs.keys())
         required_minus_received = rqset - key_set
         if required_minus_received != set():
-            error_message = 'Missing required params: %s' % \
-                            required_minus_received
-            return True, error_message
-        else:
-            return False
+            return list(required_minus_received)
 
     @property
     def raw(self):
@@ -704,13 +728,7 @@ class Resource(ResourceBase):
             raise URICreationCollision(error)
         self._check_exclusive_parameters(**kwargs)
         requests_params = self._handle_requests_params(kwargs)
-
-        # Using helper method to check for required keys.
-        # Defining convenience variables to make code readable
-        rset = self._meta_data['required_creation_parameters']
-        check = self._check_required_parameters(rset, **kwargs)
-        if check:
-            raise MissingRequiredCreationParameter(check[1])
+        self._check_create_parameters(**kwargs)
 
         # Make convenience variable with short names for this method.
         _create_uri = self._meta_data['container']._meta_data['uri']
