@@ -32,8 +32,7 @@ def setup_device_group_test(request, bigip, name, partition):
     request.addfinalizer(teardown)
 
     dgs = bigip.cm.device_groups
-    dg = dgs.device_group
-    dg.create(name=name, partition=partition)
+    dg = dgs.device_group.create(name=name, partition=partition)
     return dg, dgs
 
 

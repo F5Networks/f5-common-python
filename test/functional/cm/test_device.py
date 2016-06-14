@@ -19,6 +19,9 @@ TEST_DESCR = "TEST DESCRIPTION"
 
 
 def setup_device_test(request, bigip, name, partition, **kwargs):
+    d = bigip.cm.devices.device.create(
+        name=name, partition=partition, **kwargs)
+
     def teardown():
         try:
             d.delete()
@@ -26,8 +29,6 @@ def setup_device_test(request, bigip, name, partition, **kwargs):
             if err.response.status_code is not 404:
                 raise
     request.addfinalizer(teardown)
-    d = bigip.cm.devices.device.create(
-        name=name, partition=partition, **kwargs)
     return d
 
 

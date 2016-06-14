@@ -26,10 +26,9 @@ REST Kind
     ``tm:shared:licensing:*``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.mixins import UnsupportedMethod
 from f5.bigip.resource import PathElement
-from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import UnnamedResource
 
 
 class Licensing(PathElement):
@@ -57,7 +56,7 @@ class Licensing(PathElement):
         }
 
 
-class Activation(UnnamedResourceMixin, ResourceBase):
+class Activation(UnnamedResource):
     """BIG-IP® license activation status
 
     Activation state objects only support the
@@ -86,7 +85,7 @@ class Activation(UnnamedResourceMixin, ResourceBase):
         )
 
 
-class Registration(UnnamedResourceMixin, ResourceBase):
+class Registration(UnnamedResource):
     """BIG-IP® license registration status
 
     Registration state objects only support the

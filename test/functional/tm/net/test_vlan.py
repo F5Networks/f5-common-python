@@ -24,9 +24,8 @@ DESCRIPTION = "TESTDESCRIPTION"
 
 
 def delete_vlan(bigip, name, partition):
-    v = bigip.net.vlans.vlan
     try:
-        v.load(name=name, partition=partition)
+        v = bigip.net.vlans.vlan.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -38,16 +37,15 @@ def setup_basic_test(request, bigip, name, partition):
     def teardown():
         delete_vlan(bigip, name, partition)
 
-    v = bigip.net.vlans.vlan
-    v.create(name=name, partition=partition)
+    teardown()
+    v = bigip.net.vlans.vlan.create(name=name, partition=partition)
     request.addfinalizer(teardown)
     return v
 
 
 def setup_interfaces_test(request, bigip, name, partition, iname='1.1'):
     v = setup_basic_test(request, bigip, name, partition)
-    i = v.interfaces_s.interfaces
-    i.create(name=iname)
+    i = v.interfaces_s.interfaces.create(name=iname)
     return i, v
 
 
@@ -126,8 +124,7 @@ class TestVLANInterfaces(object):
 
     def test_load(self, request, bigip):
         i1, v = setup_interfaces_test(request, bigip, 'v1', 'Common')
-        i2 = v.interfaces_s.interfaces
-        i2.load(name='1.1')
+        i2 = v.interfaces_s.interfaces.load(name='1.1')
         assert i1.name == i2.name
         assert i1.generation == i2.generation
 
@@ -153,10 +150,9 @@ class TestVLAN(object):
     def test_CURDL(self, request, bigip):
         setup_vlan_collection_get_test(request, bigip)
         # Create a VLAN and verify some of the attributes
-        v1 = bigip.net.vlans.vlan
-        v1.create(name='v1', partition='Common')
-        i1 = v1.interfaces_s.interfaces
-        i1.create(name='1.1', tagged=True, tagMode='service')
+        v1 = bigip.net.vlans.vlan.create(name='v1', partition='Common')
+        v1.interfaces_s.interfaces.create(
+            name='1.1', tagged=True, tagMode='service')
         v1_ifcs = v1.interfaces_s.get_collection()
         gen1 = v1.generation
         assert v1.name == 'v1'

@@ -29,8 +29,7 @@ def setup_virtual_test(request, bigip, partition, name):
     request.addfinalizer(teardown)
     vc1 = bigip.ltm.virtuals
     pp('****')
-    virtual1 = vc1.virtual
-    virtual1.create(name=name, partition=partition)
+    virtual1 = vc1.virtual.create(name=name, partition=partition)
     return virtual1, vc1
 
 
@@ -44,16 +43,13 @@ class TestVirtual(object):
         virtual1.description = ''
         virtual1.refresh()
         assert virtual1.description == TESTDESCRIPTION
-        virtual2 = vc1.virtual
-        virtual2.load(partition='Common', name='vstest1')
+        virtual2 = vc1.virtual.load(partition='Common', name='vstest1')
         assert virtual2.selfLink == virtual1.selfLink
 
 
 def test_profiles_CE(bigip, opt_release):
-    v1 = bigip.ltm.virtuals.virtual
-    v1.create(name="tv1", partition="Common")
-    p1 = v1.profiles_s.profiles
-    p1.create(name="http")
+    v1 = bigip.ltm.virtuals.virtual.create(name="tv1", partition="Common")
+    p1 = v1.profiles_s.profiles.create(name="http")
     pp(p1.raw)
     test_profiles_s = v1.profiles_s
     pp(test_profiles_s.raw)

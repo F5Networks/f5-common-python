@@ -23,13 +23,13 @@ TESTDESCRIPTION = "TESTDESCRIPTION"
 
 def setup_node_test(request, bigip, partition, name, addr):
     def teardown():
-        node.delete()
+        node1.delete()
     request.addfinalizer(teardown)
 
     nodes = bigip.ltm.nodes
-    node = bigip.ltm.nodes.node
-    node.create(name=name, partition=partition, address=addr)
-    return node, nodes
+    node1 = bigip.ltm.nodes.node.create(
+        name=name, partition=partition, address=addr)
+    return node1, nodes
 
 
 class TestNode(object):
@@ -42,8 +42,7 @@ class TestNode(object):
         # We will assume that the setup/teardown will test create/delete
         n1, nc1 = setup_node_test(
             request, bigip, 'Common', 'node1', '192.168.100.1')
-        n2 = bigip.ltm.nodes.node
-        n2.load(name=n1.name, partition=n1.partition)
+        n2 = bigip.ltm.nodes.node.load(name=n1.name, partition=n1.partition)
         assert n1.name == 'node1'
         assert n2.name == n1.name
         assert n1.generation == n2.generation

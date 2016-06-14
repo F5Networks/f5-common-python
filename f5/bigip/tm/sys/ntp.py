@@ -27,13 +27,12 @@ REST Kind
     ``tm:sys:ntp:*``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
-from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import UnnamedResource
 
 
-class Ntp(UnnamedResourceMixin, ResourceBase):
+class Ntp(UnnamedResource):
     """BIG-IP® system NTP unnamed resource
 
         .. note::

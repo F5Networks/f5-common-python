@@ -52,8 +52,7 @@ def setup_http_test(request, bigip, partition, name):
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.https
     pp(hc1._meta_data)
-    http1 = hc1.http
-    http1.create(name=name, partition=partition)
+    http1 = hc1.http.create(name=name, partition=partition)
     return http1, hc1
 
 
@@ -74,8 +73,7 @@ class TestMonitorHTTP(object):
         http1.description = ''
         http1.refresh()
         assert http1.description == TESTDESCRIPTION
-        http2 = hc1.http
-        http2.load(partition='Common', name='test1')
+        http2 = hc1.http.load(partition='Common', name='test1')
         assert http2.selfLink == http1.selfLink
 
 
@@ -87,8 +85,7 @@ def setup_https_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.https_s
-    https1 = hc1.https
-    https1.create(name=name, partition=partition)
+    https1 = hc1.https.create(name=name, partition=partition)
     return https1, hc1
 
 
@@ -102,8 +99,7 @@ class TestMonitorHTTPS(object):
         https1.description = ''
         https1.refresh()
         assert https1.description == TESTDESCRIPTION
-        https2 = hc1.https
-        https2.load(partition='Common', name='httpstest')
+        https2 = hc1.https.load(partition='Common', name='httpstest')
         assert https2.selfLink == https1.selfLink
 
 
@@ -115,8 +111,7 @@ def setup_diameter_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.diameters
-    diameter1 = hc1.diameter
-    diameter1.create(name=name, partition=partition)
+    diameter1 = hc1.diameter.create(name=name, partition=partition)
     return diameter1, hc1
 
 
@@ -131,8 +126,7 @@ class TestMonitorDiameter(object):
         diameter1.description = ''
         diameter1.refresh()
         assert diameter1.description == TESTDESCRIPTION
-        diameter2 = hc1.diameter
-        diameter2.load(partition='Common', name='diametertest')
+        diameter2 = hc1.diameter.load(partition='Common', name='diametertest')
         assert diameter2.selfLink == diameter1.selfLink
 
 
@@ -144,8 +138,7 @@ def setup_dns_test(request, bigip, partition, name, qname):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.dns_s
-    dns1 = hc1.dns
-    dns1.create(name=name, partition=partition, qname=qname)
+    dns1 = hc1.dns.create(name=name, partition=partition, qname=qname)
     return dns1, hc1
 
 
@@ -159,8 +152,7 @@ class TestMonitorDNS(object):
         dns1.description = ''
         dns1.refresh()
         assert dns1.description == TESTDESCRIPTION
-        dns2 = hc1.dns
-        dns2.load(partition='Common', name='dnstest')
+        dns2 = hc1.dns.load(partition='Common', name='dnstest')
         assert dns2.selfLink == dns1.selfLink
 
 
@@ -172,8 +164,7 @@ def setup_external_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.externals
-    external1 = hc1.external
-    external1.create(name=name, partition=partition)
+    external1 = hc1.external.create(name=name, partition=partition)
     return external1, hc1
 
 
@@ -188,8 +179,7 @@ class TestMonitorExternal(object):
         external1.description = ''
         external1.refresh()
         assert external1.description == TESTDESCRIPTION
-        external2 = hc1.external
-        external2.load(partition='Common', name='externaltest')
+        external2 = hc1.external.load(partition='Common', name='externaltest')
         assert external2.selfLink == external1.selfLink
 
 
@@ -201,8 +191,7 @@ def setup_firepass_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.firepass_s
-    firepass1 = hc1.firepass
-    firepass1.create(name=name, partition=partition)
+    firepass1 = hc1.firepass.create(name=name, partition=partition)
     return firepass1, hc1
 
 
@@ -217,8 +206,7 @@ class TestMonitorFirePass(object):
         firepass1.description = ''
         firepass1.refresh()
         assert firepass1.description == TESTDESCRIPTION
-        firepass2 = hc1.firepass
-        firepass2.load(partition='Common', name='firepasstest')
+        firepass2 = hc1.firepass.load(partition='Common', name='firepasstest')
         assert firepass2.selfLink == firepass1.selfLink
 
 
@@ -230,8 +218,7 @@ def setup_ftp_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.ftps
-    ftp1 = hc1.ftp
-    ftp1.create(name=name, partition=partition)
+    ftp1 = hc1.ftp.create(name=name, partition=partition)
     return ftp1, hc1
 
 
@@ -245,8 +232,7 @@ class TestMonitorFTP(object):
         ftp1.description = ''
         ftp1.refresh()
         assert ftp1.description == TESTDESCRIPTION
-        ftp2 = hc1.ftp
-        ftp2.load(partition='Common', name='ftptest')
+        ftp2 = hc1.ftp.load(partition='Common', name='ftptest')
         assert ftp2.selfLink == ftp1.selfLink
 
 
@@ -258,8 +244,7 @@ def setup_gateway_icmp_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.gateway_icmps
-    gateway_icmp1 = hc1.gateway_icmp
-    gateway_icmp1.create(name=name, partition=partition)
+    gateway_icmp1 = hc1.gateway_icmp.create(name=name, partition=partition)
     return gateway_icmp1, hc1
 
 
@@ -279,8 +264,8 @@ class TestMonitorGateWay_ICMP(object):
         gateway_icmp1.description = ''
         gateway_icmp1.refresh()
         assert gateway_icmp1.description == TESTDESCRIPTION
-        gateway_icmp2 = hc1.gateway_icmp
-        gateway_icmp2.load(partition='Common', name='gateway_icmptest')
+        gateway_icmp2 = hc1.gateway_icmp.load(
+            partition='Common', name='gateway_icmptest')
         assert gateway_icmp2.selfLink == gateway_icmp1.selfLink
 
 
@@ -292,8 +277,7 @@ def setup_icmp_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.icmps
-    icmp1 = hc1.icmp
-    icmp1.create(name=name, partition=partition)
+    icmp1 = hc1.icmp.create(name=name, partition=partition)
     return icmp1, hc1
 
 
@@ -307,8 +291,7 @@ class TestMonitorICMP(object):
         icmp1.description = ''
         icmp1.refresh()
         assert icmp1.description == TESTDESCRIPTION
-        icmp2 = hc1.icmp
-        icmp2.load(partition='Common', name='icmptest')
+        icmp2 = hc1.icmp.load(partition='Common', name='icmptest')
         assert icmp2.selfLink == icmp1.selfLink
 
 
@@ -320,8 +303,7 @@ def setup_imap_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.imaps
-    imap1 = hc1.imap
-    imap1.create(name=name, partition=partition)
+    imap1 = hc1.imap.create(name=name, partition=partition)
     return imap1, hc1
 
 
@@ -335,8 +317,7 @@ class TestMonitorIMAP(object):
         imap1.description = ''
         imap1.refresh()
         assert imap1.description == TESTDESCRIPTION
-        imap2 = hc1.imap
-        imap2.load(partition='Common', name='imaptest')
+        imap2 = hc1.imap.load(partition='Common', name='imaptest')
         assert imap2.selfLink == imap1.selfLink
 
 
@@ -348,8 +329,7 @@ def setup_inband_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.inbands
-    inband1 = hc1.inband
-    inband1.create(name=name, partition=partition)
+    inband1 = hc1.inband.create(name=name, partition=partition)
     return inband1, hc1
 
 
@@ -364,8 +344,7 @@ class TestMonitorInBand(object):
         inband1.description = ''
         inband1.refresh()
         assert inband1.description == TESTDESCRIPTION
-        inband2 = hc1.inband
-        inband2.load(partition='Common', name='inbandtest')
+        inband2 = hc1.inband.load(partition='Common', name='inbandtest')
         assert inband2.selfLink == inband1.selfLink
 
 
@@ -377,8 +356,7 @@ def setup_ldap_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.ldaps
-    ldap1 = hc1.ldap
-    ldap1.create(name=name, partition=partition)
+    ldap1 = hc1.ldap.create(name=name, partition=partition)
     return ldap1, hc1
 
 
@@ -392,8 +370,7 @@ class TestMonitorLDAP(object):
         ldap1.description = ''
         ldap1.refresh()
         assert ldap1.description == TESTDESCRIPTION
-        ldap2 = hc1.ldap
-        ldap2.load(partition='Common', name='ldaptest')
+        ldap2 = hc1.ldap.load(partition='Common', name='ldaptest')
         assert ldap2.selfLink == ldap1.selfLink
 
 # End LDAP Tests
@@ -405,11 +382,10 @@ def setup_module_score_test(request, bigip, partition, name, snmpaddr):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.module_scores
-    module_score1 = hc1.module_score
     creation_params = {'name': name,
                        'partition': partition,
                        'snmp-ip-address': snmpaddr}
-    module_score1.create(**creation_params)
+    module_score1 = hc1.module_score.create(**creation_params)
     return module_score1, hc1
 
 
@@ -429,8 +405,8 @@ class TestMonitorModule_Score(object):
         module_score1.description = ''
         module_score1.refresh()
         assert module_score1.description == TESTDESCRIPTION
-        module_score2 = hc1.module_score
-        module_score2.load(partition='Common', name='module_scoretest')
+        module_score2 = hc1.module_score.load(
+            partition='Common', name='module_scoretest')
         assert module_score2.selfLink == module_score1.selfLink
 
 
@@ -442,10 +418,9 @@ def setup_mssql_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.mssqls
-    mssql1 = hc1.mssql
     creation_params = {'name': name,
                        'partition': partition}
-    mssql1.create(**creation_params)
+    mssql1 = hc1.mssql.create(**creation_params)
     return mssql1, hc1
 
 
@@ -459,8 +434,7 @@ class TestMonitorMSSQL(object):
         mssql1.description = ''
         mssql1.refresh()
         assert mssql1.description == TESTDESCRIPTION
-        mssql2 = hc1.mssql
-        mssql2.load(partition='Common', name='mssqltest')
+        mssql2 = hc1.mssql.load(partition='Common', name='mssqltest')
         assert mssql2.selfLink == mssql1.selfLink
 
 
@@ -472,10 +446,9 @@ def setup_mysql_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.mysqls
-    mysql1 = hc1.mysql
     creation_params = {'name': name,
                        'partition': partition}
-    mysql1.create(**creation_params)
+    mysql1 = hc1.mysql.create(**creation_params)
     return mysql1, hc1
 
 
@@ -489,8 +462,7 @@ class TestMonitorMYSQL(object):
         mysql1.description = ''
         mysql1.refresh()
         assert mysql1.description == TESTDESCRIPTION
-        mysql2 = hc1.mysql
-        mysql2.load(partition='Common', name='mysqltest')
+        mysql2 = hc1.mysql.load(partition='Common', name='mysqltest')
         assert mysql2.selfLink == mysql1.selfLink
 
 # End MYSQL
@@ -502,10 +474,9 @@ def setup_nntp_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.nntps
-    nntp1 = hc1.nntp
     creation_params = {'name': name,
                        'partition': partition}
-    nntp1.create(**creation_params)
+    nntp1 = hc1.nntp.create(**creation_params)
     return nntp1, hc1
 
 
@@ -519,8 +490,7 @@ class TestMonitorNNTP(object):
         nntp1.description = ''
         nntp1.refresh()
         assert nntp1.description == TESTDESCRIPTION
-        nntp2 = hc1.nntp
-        nntp2.load(partition='Common', name='nntptest')
+        nntp2 = hc1.nntp.load(partition='Common', name='nntptest')
         assert nntp2.selfLink == nntp1.selfLink
 
 
@@ -564,10 +534,9 @@ def setup_oracle_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.oracles
-    oracle1 = hc1.oracle
     creation_params = {'name': name,
                        'partition': partition}
-    oracle1.create(**creation_params)
+    oracle1 = hc1.oracle.create(**creation_params)
     return oracle1, hc1
 
 
@@ -582,8 +551,7 @@ class TestMonitorOracle(object):
         oracle1.description = ''
         oracle1.refresh()
         assert oracle1.description == TESTDESCRIPTION
-        oracle2 = hc1.oracle
-        oracle2.load(partition='Common', name='oracletest')
+        oracle2 = hc1.oracle.load(partition='Common', name='oracletest')
         assert oracle2.selfLink == oracle1.selfLink
 
 
@@ -595,10 +563,9 @@ def setup_pop3_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.pop3s
-    pop31 = hc1.pop3
     creation_params = {'name': name,
                        'partition': partition}
-    pop31.create(**creation_params)
+    pop31 = hc1.pop3.create(**creation_params)
     return pop31, hc1
 
 
@@ -612,8 +579,7 @@ class TestMonitorPOP3(object):
         pop31.description = ''
         pop31.refresh()
         assert pop31.description == TESTDESCRIPTION
-        pop32 = hc1.pop3
-        pop32.load(partition='Common', name='pop3test')
+        pop32 = hc1.pop3.load(partition='Common', name='pop3test')
         assert pop32.selfLink == pop31.selfLink
 
 
@@ -625,10 +591,9 @@ def setup_postgresql_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.postgresqls
-    postgresql1 = hc1.postgresql
     creation_params = {'name': name,
                        'partition': partition}
-    postgresql1.create(**creation_params)
+    postgresql1 = hc1.postgresql.create(**creation_params)
     return postgresql1, hc1
 
 
@@ -644,8 +609,8 @@ class TestMonitorPostGRESQL(object):
         postgresql1.description = ''
         postgresql1.refresh()
         assert postgresql1.description == TESTDESCRIPTION
-        postgresql2 = hc1.postgresql
-        postgresql2.load(partition='Common', name='postgresqltest')
+        postgresql2 = hc1.postgresql.load(
+            partition='Common', name='postgresqltest')
         assert postgresql2.selfLink == postgresql1.selfLink
 
 
@@ -657,10 +622,9 @@ def setup_radius_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.radius_s
-    radius1 = hc1.radius
     creation_params = {'name': name,
                        'partition': partition}
-    radius1.create(**creation_params)
+    radius1 = hc1.radius.create(**creation_params)
     return radius1, hc1
 
 
@@ -675,8 +639,7 @@ class TestMonitorRadius(object):
         radius1.description = ''
         radius1.refresh()
         assert radius1.description == TESTDESCRIPTION
-        radius2 = hc1.radius
-        radius2.load(partition='Common', name='radiustest')
+        radius2 = hc1.radius.load(partition='Common', name='radiustest')
         assert radius2.selfLink == radius1.selfLink
 
 
@@ -688,10 +651,9 @@ def setup_radius_accounting_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.radius_accountings
-    radius_accounting1 = hc1.radius_accounting
     creation_params = {'name': name,
                        'partition': partition}
-    radius_accounting1.create(**creation_params)
+    radius_accounting1 = hc1.radius_accounting.create(**creation_params)
     return radius_accounting1, hc1
 
 
@@ -710,9 +672,9 @@ class TestMonitorRadius_Accounting(object):
         radius_accounting1.description = ''
         radius_accounting1.refresh()
         assert radius_accounting1.description == TESTDESCRIPTION
-        radius_accounting2 = hc1.radius_accounting
-        radius_accounting2.load(partition='Common',
-                                name='radius_accountingtest')
+        radius_accounting2 = hc1.radius_accounting.load(
+            partition='Common',
+            name='radius_accountingtest')
         assert radius_accounting2.selfLink == radius_accounting1.selfLink
 
 
@@ -724,10 +686,9 @@ def setup_real_server_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.real_servers
-    real_server1 = hc1.real_server
     creation_params = {'name': name,
                        'partition': partition}
-    real_server1.create(**creation_params)
+    real_server1 = hc1.real_server.create(**creation_params)
     return real_server1, hc1
 
 
@@ -743,8 +704,8 @@ class TestMonitorReal_Server(object):
         real_server1.description = ''
         real_server1.refresh()
         assert real_server1.description == TESTDESCRIPTION
-        real_server2 = hc1.real_server
-        real_server2.load(partition='Common', name='real_servertest')
+        real_server2 = hc1.real_server.load(
+            partition='Common', name='real_servertest')
         assert real_server2.selfLink == real_server1.selfLink
 
 
@@ -756,10 +717,9 @@ def setup_rpc_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.rpcs
-    rpc1 = hc1.rpc
     creation_params = {'name': name,
                        'partition': partition}
-    rpc1.create(**creation_params)
+    rpc1 = hc1.rpc.create(**creation_params)
     return rpc1, hc1
 
 
@@ -773,8 +733,7 @@ class TestMonitorRPC(object):
         rpc1.description = ''
         rpc1.refresh()
         assert rpc1.description == TESTDESCRIPTION
-        rpc2 = hc1.rpc
-        rpc2.load(partition='Common', name='rpctest')
+        rpc2 = hc1.rpc.load(partition='Common', name='rpctest')
         assert rpc2.selfLink == rpc1.selfLink
 
 
@@ -786,11 +745,10 @@ def setup_sasp_test(request, bigip, partition, name, primaryAddress='1.1.1.1'):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.sasps
-    sasp1 = hc1.sasp
     creation_params = {'name': name,
                        'partition': partition,
                        'primaryAddress': primaryAddress}
-    sasp1.create(**creation_params)
+    sasp1 = hc1.sasp.create(**creation_params)
     return sasp1, hc1
 
 
@@ -805,8 +763,7 @@ class TestMonitorSASP(object):
         sasp1.description = ''
         sasp1.refresh()
         assert sasp1.description == TESTDESCRIPTION
-        sasp2 = hc1.sasp
-        sasp2.load(partition='Common', name='sasptest')
+        sasp2 = hc1.sasp.load(partition='Common', name='sasptest')
         assert sasp2.selfLink == sasp1.selfLink
 
 
@@ -818,10 +775,9 @@ def setup_scripted_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.scripteds
-    scripted1 = hc1.scripted
     creation_params = {'name': name,
                        'partition': partition}
-    scripted1.create(**creation_params)
+    scripted1 = hc1.scripted.create(**creation_params)
     return scripted1, hc1
 
 
@@ -836,8 +792,8 @@ class TestMonitorScripted(object):
         scripted1.description = ''
         scripted1.refresh()
         assert scripted1.description == TESTDESCRIPTION
-        scripted2 = hc1.scripted
-        scripted2.load(partition='Common', name='scriptedtest')
+        scripted2 = hc1.scripted.load(
+            partition='Common', name='scriptedtest')
         assert scripted2.selfLink == scripted1.selfLink
 
 
@@ -849,10 +805,9 @@ def setup_sip_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.sips
-    sip1 = hc1.sip
     creation_params = {'name': name,
                        'partition': partition}
-    sip1.create(**creation_params)
+    sip1 = hc1.sip.create(**creation_params)
     return sip1, hc1
 
 
@@ -866,8 +821,7 @@ class TestMonitorSIP(object):
         sip1.description = ''
         sip1.refresh()
         assert sip1.description == TESTDESCRIPTION
-        sip2 = hc1.sip
-        sip2.load(partition='Common', name='siptest')
+        sip2 = hc1.sip.load(partition='Common', name='siptest')
         assert sip2.selfLink == sip1.selfLink
 
 
@@ -879,10 +833,9 @@ def setup_smb_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.smbs
-    smb1 = hc1.smb
     creation_params = {'name': name,
                        'partition': partition}
-    smb1.create(**creation_params)
+    smb1 = hc1.smb.create(**creation_params)
     return smb1, hc1
 
 
@@ -896,8 +849,7 @@ class TestMonitorSMB(object):
         smb1.description = ''
         smb1.refresh()
         assert smb1.description == TESTDESCRIPTION
-        smb2 = hc1.smb
-        smb2.load(partition='Common', name='smbtest')
+        smb2 = hc1.smb.load(partition='Common', name='smbtest')
         assert smb2.selfLink == smb1.selfLink
 
 
@@ -909,10 +861,9 @@ def setup_smtp_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.smtps
-    smtp1 = hc1.smtp
     creation_params = {'name': name,
                        'partition': partition}
-    smtp1.create(**creation_params)
+    smtp1 = hc1.smtp.create(**creation_params)
     return smtp1, hc1
 
 
@@ -926,8 +877,7 @@ class TestMonitorSMTP(object):
         smtp1.description = ''
         smtp1.refresh()
         assert smtp1.description == TESTDESCRIPTION
-        smtp2 = hc1.smtp
-        smtp2.load(partition='Common', name='smtptest')
+        smtp2 = hc1.smtp.load(partition='Common', name='smtptest')
         assert smtp2.selfLink == smtp1.selfLink
 
 
@@ -939,10 +889,9 @@ def setup_snmp_dca_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.snmp_dcas
-    snmp_dca1 = hc1.snmp_dca
     creation_params = {'name': name,
                        'partition': partition}
-    snmp_dca1.create(**creation_params)
+    snmp_dca1 = hc1.snmp_dca.create(**creation_params)
     return snmp_dca1, hc1
 
 
@@ -957,8 +906,7 @@ class TestMonitorSNMP_DCA(object):
         snmp_dca1.description = ''
         snmp_dca1.refresh()
         assert snmp_dca1.description == TESTDESCRIPTION
-        snmp_dca2 = hc1.snmp_dca
-        snmp_dca2.load(partition='Common', name='snmp_dcatest')
+        snmp_dca2 = hc1.snmp_dca.load(partition='Common', name='snmp_dcatest')
         assert snmp_dca2.selfLink == snmp_dca1.selfLink
 
 
@@ -970,10 +918,9 @@ def setup_snmp_dca_base_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.snmp_dca_bases
-    snmp_dca_base1 = hc1.snmp_dca_base
     creation_params = {'name': name,
                        'partition': partition}
-    snmp_dca_base1.create(**creation_params)
+    snmp_dca_base1 = hc1.snmp_dca_base.create(**creation_params)
     return snmp_dca_base1, hc1
 
 
@@ -992,8 +939,9 @@ class TestMonitorSNMP_DCA_Base(object):
         snmp_dca_base1.description = ''
         snmp_dca_base1.refresh()
         assert snmp_dca_base1.description == TESTDESCRIPTION
-        snmp_dca_base2 = hc1.snmp_dca_base
-        snmp_dca_base2.load(partition='Common', name='snmp_dca_basetest')
+        snmp_dca_base2 = hc1.snmp_dca_base.load(
+            partition='Common', name='snmp_dca_basetest'
+        )
         assert snmp_dca_base2.selfLink == snmp_dca_base1.selfLink
 
 
@@ -1005,10 +953,9 @@ def setup_soap_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.soaps
-    soap1 = hc1.soap
     creation_params = {'name': name,
                        'partition': partition}
-    soap1.create(**creation_params)
+    soap1 = hc1.soap.create(**creation_params)
     return soap1, hc1
 
 
@@ -1022,8 +969,7 @@ class TestMonitorSOAP(object):
         soap1.description = ''
         soap1.refresh()
         assert soap1.description == TESTDESCRIPTION
-        soap2 = hc1.soap
-        soap2.load(partition='Common', name='soaptest')
+        soap2 = hc1.soap.load(partition='Common', name='soaptest')
         assert soap2.selfLink == soap1.selfLink
 
 
@@ -1035,10 +981,9 @@ def setup_tcp_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.tcps
-    tcp1 = hc1.tcp
     creation_params = {'name': name,
                        'partition': partition}
-    tcp1.create(**creation_params)
+    tcp1 = hc1.tcp.create(**creation_params)
     return tcp1, hc1
 
 
@@ -1052,8 +997,7 @@ class TestMonitorTCP(object):
         tcp1.description = ''
         tcp1.refresh()
         assert tcp1.description == TESTDESCRIPTION
-        tcp2 = hc1.tcp
-        tcp2.load(partition='Common', name='tcptest')
+        tcp2 = hc1.tcp.load(partition='Common', name='tcptest')
         assert tcp2.selfLink == tcp1.selfLink
 
 
@@ -1065,10 +1009,9 @@ def setup_tcp_echo_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.tcp_echos
-    tcp_echo1 = hc1.tcp_echo
     creation_params = {'name': name,
                        'partition': partition}
-    tcp_echo1.create(**creation_params)
+    tcp_echo1 = hc1.tcp_echo.create(**creation_params)
     return tcp_echo1, hc1
 
 
@@ -1083,8 +1026,7 @@ class TestMonitorTCP_Echo(object):
         tcp_echo1.description = ''
         tcp_echo1.refresh()
         assert tcp_echo1.description == TESTDESCRIPTION
-        tcp_echo2 = hc1.tcp_echo
-        tcp_echo2.load(partition='Common', name='tcp_echotest')
+        tcp_echo2 = hc1.tcp_echo.load(partition='Common', name='tcp_echotest')
         assert tcp_echo2.selfLink == tcp_echo1.selfLink
 
 
@@ -1096,10 +1038,9 @@ def setup_tcp_half_open_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.tcp_half_opens
-    tcp_half_open1 = hc1.tcp_half_open
     creation_params = {'name': name,
                        'partition': partition}
-    tcp_half_open1.create(**creation_params)
+    tcp_half_open1 = hc1.tcp_half_open.create(**creation_params)
     return tcp_half_open1, hc1
 
 
@@ -1118,8 +1059,8 @@ class TestMonitorTCP_Half_Open(object):
         tcp_half_open1.description = ''
         tcp_half_open1.refresh()
         assert tcp_half_open1.description == TESTDESCRIPTION
-        tcp_half_open2 = hc1.tcp_half_open
-        tcp_half_open2.load(partition='Common', name='tcp_half_opentest')
+        tcp_half_open2 = hc1.tcp_half_open.load(
+            partition='Common', name='tcp_half_opentest')
         assert tcp_half_open2.selfLink == tcp_half_open1.selfLink
 
 
@@ -1131,10 +1072,9 @@ def setup_udp_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.udps
-    udp1 = hc1.udp
     creation_params = {'name': name,
                        'partition': partition}
-    udp1.create(**creation_params)
+    udp1 = hc1.udp.create(**creation_params)
     return udp1, hc1
 
 
@@ -1148,8 +1088,7 @@ class TestMonitorUDP(object):
         udp1.description = ''
         udp1.refresh()
         assert udp1.description == TESTDESCRIPTION
-        udp2 = hc1.udp
-        udp2.load(partition='Common', name='udptest')
+        udp2 = hc1.udp.load(partition='Common', name='udptest')
         assert udp2.selfLink == udp1.selfLink
 
 
@@ -1161,11 +1100,10 @@ def setup_virtual_location_test(request, bigip, partition, name, pool='tp1'):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.virtual_locations
-    virtual_location1 = hc1.virtual_location
     creation_params = {'name': name,
                        'partition': partition,
                        'pool': pool}
-    virtual_location1.create(**creation_params)
+    virtual_location1 = hc1.virtual_location.create(**creation_params)
     return virtual_location1, hc1
 
 
@@ -1184,8 +1122,9 @@ class TestMonitorVirtual_Location(object):
         virtual_location1.description = ''
         virtual_location1.refresh()
         assert virtual_location1.description == TESTDESCRIPTION
-        virtual_location2 = hc1.virtual_location
-        virtual_location2.load(partition='Common', name='virtual_locationtest')
+        virtual_location2 = hc1.virtual_location.load(
+            partition='Common', name='virtual_locationtest'
+        )
         assert virtual_location2.selfLink == virtual_location1.selfLink
 
 
@@ -1197,10 +1136,9 @@ def setup_wap_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.waps
-    wap1 = hc1.wap
     creation_params = {'name': name,
                        'partition': partition}
-    wap1.create(**creation_params)
+    wap1 = hc1.wap.create(**creation_params)
     return wap1, hc1
 
 
@@ -1214,8 +1152,7 @@ class TestMonitorWAP(object):
         wap1.description = ''
         wap1.refresh()
         assert wap1.description == TESTDESCRIPTION
-        wap2 = hc1.wap
-        wap2.load(partition='Common', name='waptest')
+        wap2 = hc1.wap.load(partition='Common', name='waptest')
         assert wap2.selfLink == wap1.selfLink
 
 
@@ -1227,10 +1164,9 @@ def setup_wmi_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.wmis
-    wmi1 = hc1.wmi
     creation_params = {'name': name,
                        'partition': partition}
-    wmi1.create(**creation_params)
+    wmi1 = hc1.wmi.create(**creation_params)
     return wmi1, hc1
 
 
@@ -1244,6 +1180,5 @@ class TestMonitorWMI(object):
         wmi1.description = ''
         wmi1.refresh()
         assert wmi1.description == TESTDESCRIPTION
-        wmi2 = hc1.wmi
-        wmi2.load(partition='Common', name='wmitest')
+        wmi2 = hc1.wmi.load(partition='Common', name='wmitest')
         assert wmi2.selfLink == wmi1.selfLink

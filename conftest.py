@@ -17,6 +17,9 @@ from f5.bigip import BigIP
 from f5.bigip import ManagementRoot
 import mock
 import pytest
+import requests
+
+requests.packages.urllib3.disable_warnings()
 
 from icontrol.session import iControlRESTSession
 

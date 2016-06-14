@@ -19,6 +19,9 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.gtm.rule import Rule
 from requests.exceptions import HTTPError
 
+pytestmark = pytest.mark.skipif(
+    True, reason='these tests require the optional gtm module')
+
 
 RULE = '''when LB_SELECTED {
    set wipHost [LB::server addr]

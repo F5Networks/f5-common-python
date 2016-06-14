@@ -17,11 +17,10 @@
 
 from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.mixins import ExclusiveAttributesMixin
-from f5.bigip.mixins import UnnamedResourceMixin
-from f5.bigip.resource import PathElement
+from f5.bigip.resource import UnnamedResource
 
 
-class Add_To_Trust(PathElement, UnnamedResourceMixin, ExclusiveAttributesMixin,
+class Add_To_Trust(UnnamedResource, ExclusiveAttributesMixin,
                    CommandExecutionMixin):
     """BIG-IP® Add-To-Trust resource
 
@@ -41,8 +40,7 @@ class Add_To_Trust(PathElement, UnnamedResourceMixin, ExclusiveAttributesMixin,
         self._meta_data['minimum_version'] = '12.0.0'
 
 
-class Remove_From_Trust(PathElement, UnnamedResourceMixin,
-                        CommandExecutionMixin):
+class Remove_From_Trust(UnnamedResource, CommandExecutionMixin):
     """BIG-IP®« Remove-From-Trust resource
 
     Use this object to remove device trust

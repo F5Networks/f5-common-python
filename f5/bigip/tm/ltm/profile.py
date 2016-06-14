@@ -629,9 +629,7 @@ class Ocsp_Stapling_Params(Resource):
             tup_par = ('dnsResolver', 'trustedCa', 'useProxyServer')
 
         self._meta_data['required_creation_parameters'].update(tup_par)
-        self._create(**kwargs)
-
-        return self
+        return self._create(**kwargs)
 
     def update(self, **kwargs):
         """When setting useProxyServer to enable we need to supply
@@ -1116,17 +1114,17 @@ class Web_Securitys(Collection):
     """BIG-IP® Web_Security profile collection."""
     def __init__(self, profile):
         super(Web_Securitys, self).__init__(profile)
-        self._meta_data['allowed_lazy_attributes'] = [Web_Security]
+        self._meta_data['allowed_lazy_attributes'] = [Websecurity]
         self._meta_data['attribute_registry'] = \
-            {'tm:ltm:profile:web-security:web-securitystate': Web_Security}
+            {'tm:ltm:profile:websecurity:websecuritystate': Websecurity}
 
 
-class Web_Security(Resource):
+class Websecurity(Resource):
     """BIG-IP® Web_Security resource."""
     def __init__(self, Web_Securitys):
-        super(Web_Security, self).__init__(Web_Securitys)
+        super(Websecurity, self).__init__(Web_Securitys)
         self._meta_data['required_json_kind'] = \
-            'tm:ltm:profile:web-security:web-securitystate'
+            'tm:ltm:profile:websecurity:websecuritystate'
 
     def create(self, **kwargs):
         """Create is not supported for Web Security

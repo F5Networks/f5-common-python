@@ -33,25 +33,22 @@ def setup_self_test(request, bigip, partition, name,
 
     sc1 = bigip.net.selfips
     vc1 = bigip.net.vlans
-    v1 = vc1.vlan
-    v1.create(name=vlan, partition=vlan_partition)
-    s1 = sc1.selfip
-    s1.create(name=name, partition=partition,
-              address='192.168.101.1/32', vlan='v1')
+    vc1.vlan.create(name=vlan, partition=vlan_partition)
+    s1 = sc1.selfip.create(
+        name=name, partition=partition, address='192.168.101.1/32', vlan='v1')
     return s1, sc1
 
 
 class TestSelfIP(object):
     def test_create_missing_args(self, request, bigip):
-        s1 = bigip.net.selfips.selfip
         with pytest.raises(MissingRequiredCreationParameter):
-            s1.create(name="s1", partition='Common')
+            bigip.net.selfips.selfip.create(name="s1", partition='Common')
 
     def test_CURDL(self, request, bigip):
         # We will assume that the setup/teardown will test create/delete
         s1, sc1 = setup_self_test(request, bigip, 'Common', 'self1')
-        s2 = bigip.net.selfips.selfip
-        s2.load(name=s1.name, partition=s1.partition)
+        s2 = bigip.net.selfips.selfip.load(
+            name=s1.name, partition=s1.partition)
         assert s1.name == 'self1'
         assert s2.name == s1.name
         assert s1.generation == s2.generation

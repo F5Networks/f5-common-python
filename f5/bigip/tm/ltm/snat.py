@@ -95,5 +95,4 @@ class Snat(Resource):
                 error_message = error_message + str(req_sing) + ', ' +\
                     str(req_val) + '\n'
             raise RequireOneOf(error_message)
-        self._create(**kwargs)
-        return self
+        return self._create(**kwargs)

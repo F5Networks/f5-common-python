@@ -32,10 +32,10 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 
 
-class Tunnels_s(OrganizingCollection):
+class TunnelS(OrganizingCollection):
     """BIG-IP® network tunnels collection"""
     def __init__(self, net):
-        super(Tunnels_s, self).__init__(net)
+        super(TunnelS, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [
             Gres,
             Tunnels,
@@ -45,8 +45,8 @@ class Tunnels_s(OrganizingCollection):
 
 class Tunnels(Collection):
     """BIG-IP® network tunnels resource (collection for GRE, Tunnel, VXLANs"""
-    def __init__(self, tunnels_s):
-        super(Tunnels, self).__init__(tunnels_s)
+    def __init__(self, tunnels):
+        super(Tunnels, self).__init__(tunnels)
         self._meta_data['allowed_lazy_attributes'] = [Gres, Tunnel, Vxlans]
         self._meta_data['attribute_registry'] =\
             {'tm:net:tunnels:tunnel:tunnelstate': Tunnel}
@@ -63,8 +63,8 @@ class Tunnel(Resource):
 
 class Gres(Collection):
     """BIG-IP® tunnels GRE sub-collection"""
-    def __init__(self, tunnels_s):
-        super(Gres, self).__init__(tunnels_s)
+    def __init__(self, tunnels):
+        super(Gres, self).__init__(tunnels)
         self._meta_data['allowed_lazy_attributes'] = [Gre]
         self._meta_data['attribute_registry'] =\
             {'tm:net:tunnels:gre:grestate': Gre}
@@ -81,8 +81,8 @@ class Gre(Resource):
 
 class Vxlans(Collection):
     """BIG-IP® tunnels VXLAN sub-collection"""
-    def __init__(self, tunnels_s):
-        super(Vxlans, self).__init__(tunnels_s)
+    def __init__(self, tunnels):
+        super(Vxlans, self).__init__(tunnels)
         self._meta_data['allowed_lazy_attributes'] = [Vxlan]
         self._meta_data['attribute_registry'] =\
             {'tm:net:tunnels:vxlan:vxlanstate': Vxlan}

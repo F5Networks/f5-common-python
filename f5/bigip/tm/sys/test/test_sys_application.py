@@ -99,24 +99,41 @@ def FakeCustomstat():
 
 
 @pytest.fixture
-@mock.patch('f5.bigip')
-def MakeFakeContainer(FakeService, mock_json, mock_bigip):
+def MakeFakeContainer(FakeService, fake_bigip_data):
+    class FakeMetaData(object):
+        def __init__(self, **kwargs):
+            self._meta_data = {}
+            meta_data_defaults = {
+                'uri': mock.MagicMock(),
+                'icontrol_version': '',
+                'icr_session': kwargs['icr_session'],
+                'bigip': self
+            }
+            self._meta_data.update(meta_data_defaults)
     mock_session = mock.MagicMock(name='mock_session')
     mock_get_response = mock.MagicMock(name='mock_get_response')
     mock_put_response = mock.MagicMock(name='mock_put_response')
-    mock_get_response.json.return_value = mock_json.copy()
+    mock_get_response.json.return_value = fake_bigip_data.copy()
     mock_put_response.json.return_value = SUCCESSFUL_CREATE.copy()
     # Mock the get and put when the container calls icr_session.get/put
     mock_session.get.return_value = mock_get_response
     mock_session.put.return_value = mock_put_response
-    mock_bigip._meta_data = {
+    mock_session.post.return_value = mock_put_response
+    FakeService._meta_data = {
         'hostname': 'testhost',
         'icr_session': mock_session,
         'uri': '',
-        'icontrol_version': ''
+        'icontrol_version': '',
+        'required_load_parameters': set(),
+        'disallowed_load_parameters': set(),
+        'bigip': FakeMetaData(icr_session=mock_session),
+        'container': FakeMetaData(
+            bigip=FakeMetaData(icr_session=mock_session),
+            icr_session=mock_session
+        )
     }
-    FakeService._meta_data['bigip'] = mock_bigip
-    FakeService._meta_data['icontrol_version'] = ''
+    # FakeService._meta_data['bigip'] = mock_bigip
+    # FakeService._meta_data['icontrol_version'] = ''
     return FakeService
 
 
@@ -173,8 +190,8 @@ class MockHTTPErrorResponse400(HTTPError):
 class TestServiceCreate(object):
     def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        serv1 = b.sys.applications.services.service
-        serv2 = b.sys.applications.services.service
+        serv1 = b.sys.application.services.service
+        serv2 = b.sys.application.services.service
         assert serv1 is not serv2
 
     def test_create_no_args(self, FakeService):
@@ -300,7 +317,7 @@ class TestServiceUpdate(object):
                 name='test_service',
                 template='test_template'
             )
-            sv1.update()
+            sv1.update(force=True)
             assert hasattr(sv1, 'deviceGroup') is False
 
     def test_update_inherit_tg_false(self, FakeService):
@@ -314,7 +331,7 @@ class TestServiceUpdate(object):
                 name='test_service',
                 template='test_template'
             )
-            sv1.update()
+            sv1.update(force=True)
             # Since the SUCCESSFUL_CREATE dictionary is the result of the
             # update, the inheritedDevicegroup and deviceGroup should not
             # be there.
@@ -325,8 +342,8 @@ class TestServiceUpdate(object):
 class TestTemplateCreate(object):
     def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.applications.templates.template
-        templ2 = b.sys.applications.templates.template
+        templ1 = b.sys.application.templates.template
+        templ2 = b.sys.application.templates.template
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeTemplate):
@@ -339,8 +356,8 @@ class TestTemplateCreate(object):
 class TestAplscript(object):
     def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.applications.aplscripts.aplscript
-        templ2 = b.sys.applications.aplscripts.aplscript
+        templ1 = b.sys.application.aplscripts.aplscript
+        templ2 = b.sys.application.aplscripts.aplscript
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeAplscript):
@@ -352,8 +369,8 @@ class TestAplscript(object):
 class TestCustomstat(object):
     def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.applications.customstats.customstat
-        templ2 = b.sys.applications.customstats.customstat
+        templ1 = b.sys.application.customstats.customstat
+        templ2 = b.sys.application.customstats.customstat
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeCustomstat):
