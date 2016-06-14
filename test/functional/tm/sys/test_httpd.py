@@ -21,7 +21,9 @@ def cleaner(request, bigip):
     initial_httpd = bigip.sys.httpd.load()
 
     def teardown():
-        initial_httpd.update()
+        # There is a difference in 11.6.0 and 12.0.0 default for max clients.
+        # Added explicit maxClient to facilitate this change.
+        initial_httpd.update(maxClients=10)
     request.addfinalizer(teardown)
 
 
