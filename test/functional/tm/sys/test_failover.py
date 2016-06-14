@@ -59,9 +59,11 @@ class TestFailover(object):
             fl.exec_cmd('run', online=False, offline=False)
 
     def test_exec_cmd(self, bigip):
+        fl = bigip.sys.failover.load()
         f = bigip.sys.failover
         f.exec_cmd('run', offline=True)
-        fl = bigip.sys.failover.load()
+        time.sleep(4)
+        fl.refresh()
         assert 'Failover forced_offline' in fl.apiRawValues['apiAnonymous']
         f.exec_cmd('run', offline=False, online=True)
         # We need this 2 sec delay as sometimes the status does not change
@@ -71,9 +73,11 @@ class TestFailover(object):
         assert 'Failover active' in fl.apiRawValues['apiAnonymous']
 
     def test_exec_cmd_cmdargs(self, bigip):
+        fl = bigip.sys.failover.load()
         f = bigip.sys.failover
         f.exec_cmd('run', utilCmdArgs='offline')
-        fl = bigip.sys.failover.load()
+        time.sleep(4)
+        fl.refresh()
         assert 'Failover forced_offline' in fl.apiRawValues['apiAnonymous']
         f.exec_cmd('run', utilCmdArgs='online')
         # We need this 2 sec delay as sometimes the status does not change
