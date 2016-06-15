@@ -48,7 +48,7 @@ class Bigip_Failover_State(UnnamedResourceMixin, ResourceBase):
         super(Bigip_Failover_State, self).__init__(shared)
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] = ''
-        self._meta_data['supported_versions'].discard('11.6.0')
+        self._meta_data['minimum_version'] = '12.0.0'
 
     def update(self, **kwargs):
         '''Update is not supported for BIG-IP® failover state.

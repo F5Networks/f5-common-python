@@ -38,7 +38,7 @@ class Add_To_Trust(PathElement, UnnamedResourceMixin, ExclusiveAttributesMixin,
         self._meta_data['required_json_kind'] = \
             'tm:cm:add-to-trust:runstate'
         self._meta_data['allowed_commands'].append('run')
-        self._meta_data['supported_versions'].discard('11.6.0')
+        self._meta_data['minimum_version'] = '12.0.0'
 
 
 class Remove_From_Trust(PathElement, UnnamedResourceMixin,
@@ -61,4 +61,4 @@ class Remove_From_Trust(PathElement, UnnamedResourceMixin,
         self._meta_data['required_json_kind'] = \
             'tm:cm:remove-from-trust:runstate'
         self._meta_data['allowed_commands'].append('run')
-        self._meta_data['supported_versions'].discard('11.6.0')
+        self._meta_data['minimum_version'] = '12.0.0'

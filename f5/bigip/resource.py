@@ -179,7 +179,7 @@ class PathElement(LazyAttributeMixin):
         self._set_meta_data_uri()
         # Supported versions for each class will be defined here.
         # List can be modified downstream in each sub-class
-        self._meta_data['supported_versions'] = set(['11.6.0', '12.0.0'])
+        self._meta_data['minimum_version'] = '11.6.0'
         # Commands you can run on a resource or collection, we define it here
         self._meta_data['allowed_commands'] = []
         # Define required command parameters
