@@ -28,6 +28,7 @@ REST Kind
 
 
 from f5.bigip.resource import Collection
+from f5.bigip.resource import MissingUpdateParameter
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 from f5.bigip.resource import UnsupportedOperation
@@ -511,7 +512,7 @@ class Iiops(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Iiop]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:iiop:iiopstate': Iiop}
-        self._meta_data['supported_versions'].discard('11.6.0')
+        self._meta_data['minimum_version'] = '12.0.0'
 
 
 class Iiop(Resource):
@@ -629,6 +630,26 @@ class Ocsp_Stapling_Params(Resource):
 
         self._meta_data['required_creation_parameters'].update(tup_par)
         self._create(**kwargs)
+
+        return self
+
+    def update(self, **kwargs):
+        """When setting useProxyServer to enable we need to supply
+
+            proxyServerPool value as well
+        """
+        if 'useProxyServer' in kwargs and \
+                kwargs['useProxyServer'] == 'enabled':
+            if 'proxyServerPool' not in kwargs:
+                error = 'Missing proxyServerPool parameter value.'
+                raise MissingUpdateParameter(error)
+        if hasattr(self, 'useProxyServer'):
+            if getattr(self, 'useProxyServer') == 'enabled' and \
+                    not hasattr(self, 'proxyServerPool'):
+                error = 'Missing proxyServerPool parameter value.'
+                raise MissingUpdateParameter(error)
+
+        self._update(**kwargs)
 
         return self
 
@@ -1035,7 +1056,7 @@ class Tftps(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Tftp]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:tftp:tftpstate': Tftp}
-        self._meta_data['supported_versions'].discard('11.6.0')
+        self._meta_data['minimum_version'] = '12.0.0'
 
 
 class Tftp(Resource):

@@ -27,10 +27,11 @@ REST Kind
 """
 
 from f5.bigip.mixins import UnnamedResourceMixin
-from f5.bigip.resource import Resource
+from f5.bigip.mixins import UnsupportedMethod
+from f5.bigip.resource import ResourceBase
 
 
-class Bigip_Failover_State(UnnamedResourceMixin, Resource):
+class Bigip_Failover_State(UnnamedResourceMixin, ResourceBase):
     """BIG-IP® failover state information
 
     Failover state objects only support the
@@ -47,12 +48,13 @@ class Bigip_Failover_State(UnnamedResourceMixin, Resource):
         super(Bigip_Failover_State, self).__init__(shared)
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] = ''
+        self._meta_data['minimum_version'] = '12.0.0'
 
     def update(self, **kwargs):
         '''Update is not supported for BIG-IP® failover state.
 
         :raises: UnsupportedOperation
         '''
-        raise self.UnsupportedMethod(
+        raise UnsupportedMethod(
             "%s does not support the update method" % self.__class__.__name__
         )

@@ -35,9 +35,6 @@ class Traffic_Groups(Collection):
     """BIG-IP® cluster traffic-group collection"""
     def __init__(self, cm):
         super(Traffic_Groups, self).__init__(cm)
-        endpoint = 'traffic-group'
-        self._meta_data['uri'] =\
-            self._meta_data['container']._meta_data['uri'] + endpoint + '/'
         self._meta_data['allowed_lazy_attributes'] = [Traffic_Group]
         self._meta_data['attribute_registry'] =\
             {'tm:cm:traffic-group:traffic-groupstate': Traffic_Group}
