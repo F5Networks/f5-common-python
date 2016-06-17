@@ -32,7 +32,7 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class Ntp(UnnamedResourceMixin, Resource):
+class Ntp(Resource, UnnamedResourceMixin):
     """BIG-IP® system NTP unnamed resource
 
         .. note::
