@@ -14,29 +14,28 @@
 #
 
 
-def setup_ntp_test(request, bigip):
+def setup_ntp_test(request, mgmt_root):
     def teardown():
-        n.servers = servers
+        n.servers = []
         n.update()
     request.addfinalizer(teardown)
-    n = bigip.sys.ntp.load()
-    servers = n.servers
-    return n, servers
+    n = mgmt_root.tm.sys.ntp.load()
+    return n
 
 
-class iTestGlobal_Setting(object):
-    def itest_RUL(self, request, bigip):
+class TestGlobal_Setting(object):
+    def test_RUL(self, request, mgmt_root):
         # Load
         ip = '192.168.1.1'
-        ntp1, orig_servers = setup_ntp_test(request, bigip)
-        ntp2 = bigip.sys.ntp.load()
-        assert len(ntp1.servers) == len(ntp2.servers)
+        ntp1 = setup_ntp_test(request, mgmt_root)
+        ntp2 = mgmt_root.tm.sys.ntp.load()
 
         # Update
         ntp1.servers = [ip]
         ntp1.update()
+
         assert ip in ntp1.servers
-        assert ip not in ntp2.servers
+        assert not hasattr(ntp2, 'servers')
 
         # Refresh
         ntp2.refresh()
