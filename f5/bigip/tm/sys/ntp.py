@@ -30,9 +30,10 @@ REST Kind
 from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.bigip.resource import ResourceBase
 
 
-class Ntp(UnnamedResourceMixin, Resource):
+class Ntp(UnnamedResourceMixin, ResourceBase):
     """BIG-IP® system NTP unnamed resource
 
         .. note::
@@ -47,6 +48,7 @@ class Ntp(UnnamedResourceMixin, Resource):
         self._meta_data['attribute_registry'] = {
             'tm:sys:ntp:restrict:restrictcollectionstate': Restricts
         }
+        self._meta_data['allowed_lazy_attributes'] = [Restricts]
 
 
 class Restricts(Collection):
