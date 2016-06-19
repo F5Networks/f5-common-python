@@ -1,7 +1,6 @@
 # coding=utf-8
 #
-"""Classes and functions for configuring BIG-IP"""
-# Copyright 2016 F5 Networks Inc.
+# Copyright 2015-2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,29 +15,27 @@
 # limitations under the License.
 #
 
+"""BIG-IP® Global Traffic Manager™ (GTM®) module.
+
+REST URI
+    ``http://localhost/mgmt/tm/gtm/``
+
+GUI Path
+    ``DNS``
+
+REST Kind
+    ``tm:gtm:*``
+"""
+
+
 from f5.bigip.resource import OrganizingCollection
-
-from f5.bigip.tm.auth import Auth
-from f5.bigip.tm.cm import Cm
-from f5.bigip.tm.gtm import Gtm
-from f5.bigip.tm.ltm import Ltm
-from f5.bigip.tm.net import Net
-from f5.bigip.tm.shared import Shared
-from f5.bigip.tm.sys import Sys
-from f5.bigip.tm.transaction import Transactions
+from f5.bigip.tm.gtm.rule import Rules
 
 
-class Tm(OrganizingCollection):
-    """An organizing collection for TM resources."""
-    def __init__(self, bigip):
-        super(Tm, self).__init__(bigip)
+class Gtm(OrganizingCollection):
+    """BIG-IP® Global Traffic Manager (GTM) organizing collection."""
+    def __init__(self, tm):
+        super(Gtm, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Auth,
-            Cm,
-            Gtm,
-            Ltm,
-            Net,
-            Shared,
-            Sys,
-            Transactions
+            Rules
         ]
