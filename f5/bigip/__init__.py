@@ -27,6 +27,7 @@ from f5.bigip.resource import PathElement
 from f5.bigip.shared import Shared
 from f5.bigip.tm.auth import Auth as TmAuth
 from f5.bigip.tm.cm import Cm as TmCm
+from f5.bigip.tm.gtm import Gtm
 from f5.bigip.tm.ltm import Ltm
 from f5.bigip.tm.net import Net
 from f5.bigip.tm.shared import Shared as TmShared
@@ -92,4 +93,4 @@ class BigIP(ManagementRoot):
         super(BigIP, self).__init__(hostname, username, password, **kwargs)
         self._meta_data['uri'] = self._meta_data['uri'] + 'tm/'
         self._meta_data['allowed_lazy_attributes'] =\
-            [TmAuth, TmCm, Ltm, Net, TmShared, Sys, Transactions]
+            [TmAuth, TmCm, Ltm, Gtm, Net, TmShared, Sys, Transactions]

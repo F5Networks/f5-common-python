@@ -14,6 +14,7 @@
 #
 
 from f5.bigip import BigIP
+from f5.bigip import ManagementRoot
 import mock
 import pytest
 
@@ -74,6 +75,13 @@ def bigip(opt_bigip, opt_username, opt_password, opt_port, scope="module"):
     '''bigip fixture'''
     b = BigIP(opt_bigip, opt_username, opt_password, port=opt_port)
     return b
+
+
+@pytest.fixture
+def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, scope="module"):
+    '''bigip fixture'''
+    m = ManagementRoot(opt_bigip, opt_username, opt_password, port=opt_port)
+    return m
 
 
 @pytest.fixture
