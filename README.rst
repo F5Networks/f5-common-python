@@ -55,6 +55,76 @@ Usage
         pool_b = mgmt.tm.ltm.pools.pool.load(name='mypool', partition='Common')
         pool_b.delete()
 
+Design Patterns
+~~~~~~~~~~~~~~~
+
+I intend the SDK to be easy to use and easy to hack.  These overarching goals
+have a strong influence on my thinking when I am reviewing contributions, this
+means it is in their own interest that I make them as explicit as possible!
+
+The original interface specification was given to me by Shawn Wormke, who I
+believe was influenced by the Jira and Django projects.  At the time I was
+reading Brett Slatkin's 'Effective Python', and I tried to follow its advice
+where possible.
+
+List of Patterns For Contributing Developers
+--------------------------------------------
+
+#. Hack this list to make it more correct/complete
+    For list additions assign @zancas as the PR reviewer.
+#. The call operator ``()`` means: "Try to communicate with the device."
+    This is a strong contract we offer the consumer of the SDK. If an SDK
+    function is invoked with the call operator ``()`` the program is initiating
+    a communication with the device.  That communication may fail before
+    reaching the wire, but it has nonetheless been initiated.  Conversely, if
+    an SDK user evaluates an SDK expression that *DOES NOT* invoke the ``()``
+    call operator, then the SDK does *NOT* initiate a communication with the
+    device.  Any extension to the SDK that is not consistent with this contract
+    is unlikely to be incorporated into the supported repository.
+#. The SDK is stupid
+    The SDK doesn't decide things for the consumer, it's
+    simply an interface so that Python programs can manipulate device resources
+    without implementing custom URI/HTTP/network logic.  Implications:
+
+   #. NO DEFAULTS
+       The consumers of this library are themselves Python
+       programs.  The Application programmer must say what they mean in their
+       SDK-using program.  It violates a critical separation of concerns to add
+       default values to the SDK.  Don't do it!  (Unless you have a good
+       reason.)
+   #. Failures generate exceptions  
+       If the SDK enters a surprising or
+       unexpected state it raises an exception.  That's it.  It's not generally
+       up to the SDK to implement decision logic that handles edge-cases..
+       EXCEPT where the SDK is smoothing known issues in the device REST
+       server. (See below.)  
+   #. The SDK never interprets responses
+       It just records whatever response
+       the device returns as attributes of the relevant object. (Except where
+       handling significant inconsistencies in the device interface.)
+
+#. public-nonpublic pairs
+    e.g. 'create' and '_create' XXX add content here.
+#. Handle known issues in the device REST server.
+    The SDK intends to provide
+    a rational interface to consumers that does the right thing.  This means
+    that one case where it does NOT simply do the stupid thing is when it
+    handles a known idiosyncrasy in the device REST server.  For example, some?
+    resources ignore 'disable' and 'enable' configuration options when they are
+    set to 'False'. Rather than force a consumer to learn about this quirk in
+    the server, the SDK guesses that '"disable": False' means '"enable": True'
+    , and submits that value on the consumers behalf.
+#. Implement-Reimplement-Abstract
+    Solve the problem concretely and simply, if
+    the same problem arises again, solve it concretely, then take the two
+    concrete solutions and use them as your specification to generate an
+    abstraction. In the SDK this usually goes something like this:
+
+   #. Add logic to a concrete subclass
+   #. Add similar logic to another concrete subclass
+   #. Create a new method in a mixin or Abstract 'resource.py' base class and
+      have both concrete subclasses inherit and use that method.
+  
 
 Submodules
 ~~~~~~~~~~
