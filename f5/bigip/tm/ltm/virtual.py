@@ -27,9 +27,9 @@ REST Kind
     ``tm:ltm:virtual:*``
 """
 
+from f5.bigip.mixins import StatsMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
-from f5.bigip.resource import StatsBase
 
 
 class Virtuals(Collection):
@@ -41,19 +41,15 @@ class Virtuals(Collection):
             {'tm:ltm:virtual:virtualstate': Virtual}
 
 
-class Virtual(Resource):
+class Virtual(Resource, StatsMixin):
     """BIG-IP® LTM virtual resource"""
     def __init__(self, virtual_s):
         super(Virtual, self).__init__(virtual_s)
         self._meta_data['allowed_lazy_attributes'] = [Profiles_s]
         self._meta_data['required_json_kind'] = 'tm:ltm:virtual:virtualstate'
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:virtual:profiles:profilescollectionstate': Profiles_s,
-             'tm:ltm:virtual:virtualstats': Stats}
-
-class Stats(StatsBase):
-    def __init__(self, Virtual):
-        super(Stats, self).__init__(Virtual)
+            {'tm:ltm:virtual:profiles:profilescollectionstate': Profiles_s}
+        self._meta_data['allowed_commands'] = 'reset-stats'
 
 
 class Profiles(Resource):
