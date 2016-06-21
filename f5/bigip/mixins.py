@@ -316,3 +316,60 @@ class DeviceMixin(object):
         device = [device for device in coll if device.selfDevice == 'true']
         assert len(device) == 1
         return device[0]
+
+
+class StatsMixin(object):
+    """This class serves as base for stats resource.
+
+
+        Stats are available on some objects, and require
+        the target object to be loaded first.
+        Stats only support: 'refresh' and 'load' methods
+    """
+
+    def _key_dot_replace(self, rdict):
+        """Replace fullstops in returned keynames"""
+        if isinstance(rdict, dict):
+            return {key.replace('.', '_'): self._key_dot_replace(val)
+                    for key, val in rdict.items()}
+
+    def _get_stats(self, rdict):
+        """Helper method to convert dictionary into an object"""
+
+        class DictConvert(object):
+            def __init__(self, rdict):
+                """Convert a dictionary to a class
+
+                Taken from:
+                http://kiennt.com/blog/2012/06/14/python-object-and-dictionary-convertion.html
+
+                @param :rdict Dictionary
+                """
+                self.__dict__.update(rdict)
+                for k, v in rdict.items():
+                    if isinstance(v, dict):
+                        self.__dict__[k] = DictConvert(v)
+        return DictConvert(rdict)
+
+    def get_stats(self):
+        rdict = self._get_stats_raw()
+        self._update_dict(rdict)
+
+    @property
+    def stats_raw(self):
+        return self._get_stats_raw()
+
+    def _get_stats_raw(self):
+        """Displays JSON object transformed into python dictionary"""
+        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['uri'] + 'stats/'
+        response = read_session.get(base_uri)
+        rdict = response.json()
+        return rdict
+
+    def _update_dict(self, rdict):
+        """Updates dictionary stats key with class object"""
+        sanitized = self._check_keys(rdict.pop('entries'))
+        stat_vals = self._key_dot_replace(sanitized)
+        tmp_dict = self._get_stats(stat_vals)
+        self.__dict__['stats'] = tmp_dict
