@@ -319,12 +319,14 @@ class DeviceMixin(object):
 
 
 class StatsMixin(object):
-    """This class serves as base for stats resource.
-
+    """This mixin allows attaching 'stats' object as an
+        attribute to a resource.
 
         Stats are available on some objects, and require
         the target object to be loaded first.
-        Stats only support: 'refresh' and 'load' methods
+        It also allows the caller to retrieve the converted json
+        response in unprocessed state.
+
     """
 
     def _key_dot_replace(self, rdict):
@@ -334,7 +336,13 @@ class StatsMixin(object):
                     for key, val in rdict.items()}
 
     def _get_stats(self, rdict):
-        """Helper method to convert dictionary into an object"""
+        """Helper method to convert dictionary into an object
+
+            Each stat element in the returned json
+            contains a single key:value pair dictionary.
+            Hence this method will allow access to each stat value
+            using python 'dot' notation.
+        """
 
         class DictConvert(object):
             def __init__(self, rdict):
@@ -352,11 +360,13 @@ class StatsMixin(object):
         return DictConvert(rdict)
 
     def get_stats(self):
+        """Attaches stats object to a VS"""
         rdict = self._get_stats_raw()
         self._update_dict(rdict)
 
     @property
     def stats_raw(self):
+        """Provides json blob converted to python dictionary"""
         return self._get_stats_raw()
 
     def _get_stats_raw(self):
@@ -368,7 +378,16 @@ class StatsMixin(object):
         return rdict
 
     def _update_dict(self, rdict):
-        """Updates dictionary stats key with class object"""
+        """Updates dictionary stats key with class object
+
+        We are only interested in the contents 'entries'
+        key of the returned json, rest is irrelevant
+        for us.
+
+        We still utilize _check_keys method to sanitze
+        the values before further processing.
+
+        """
         sanitized = self._check_keys(rdict.pop('entries'))
         stat_vals = self._key_dot_replace(sanitized)
         tmp_dict = self._get_stats(stat_vals)
