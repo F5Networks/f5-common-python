@@ -737,21 +737,24 @@ class Resource(ResourceBase):
         # Invoke the REST operation on the device.
         response = session.post(_create_uri, json=kwargs, **requests_params)
 
-        # Post-process the response
-        self._local_update(response.json())
+        # Make new instance of self
+        new_self = self.__class__.__init__(self._meta_data['container'])
 
-        if self.kind != self._meta_data['required_json_kind'] \
-           and self.kind != "tm:transaction:commandsstate":
+        # Post-process the response
+        new_self._local_update(response.json())
+
+        if new_self.kind != new_self._meta_data['required_json_kind'] \
+           and new_self.kind != "tm:transaction:commandsstate":
             error_message = "For instances of type '%r' the corresponding"\
                 " kind must be '%r' but creation returned JSON with kind: %r"\
-                % (self.__class__.__name__,
-                   self._meta_data['required_json_kind'],
-                   self.kind)
+                % (new_self.__class__.__name__,
+                   new_self._meta_data['required_json_kind'],
+                   new_self.kind)
             raise KindTypeMismatch(error_message)
 
         # Update the object to have the correct functional uri.
-        self._activate_URI(self.selfLink)
-        return self
+        new_self._activate_URI(new_self.selfLink)
+        return new_self
 
     def create(self, **kwargs):
         """Create the resource on the BIG-IP®.
@@ -798,9 +801,11 @@ class Resource(ResourceBase):
         base_uri = self._meta_data['container']._meta_data['uri']
         kwargs.update(requests_params)
         response = refresh_session.get(base_uri, **kwargs)
-        self._local_update(response.json())
-        self._activate_URI(self.selfLink)
-        return self
+        # Make new instance of self
+        new_self = self.__class__.__init__(self._meta_data['container'])
+        new_self._local_update(response.json())
+        new_self._activate_URI(new_self.selfLink)
+        return new_self
 
     def load(self, **kwargs):
         """Load an already configured service into this instance.

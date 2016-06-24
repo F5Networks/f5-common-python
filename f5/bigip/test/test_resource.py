@@ -102,7 +102,9 @@ class TestResourcecreate(object):
             "Missing required params: ['NONEMPTY']"
 
     def test_KindTypeMismatch(self):
-        r = Resource(mock.MagicMock())
+        mock_container = mock.MagicMock()
+        mock_container.__init__.return_value = None
+        r = Resource(mock_container)
         r._meta_data['bigip']._meta_data['icr_session'].post.return_value =\
             MockResponse({u"kind": u"tm:"})
         r._meta_data['required_json_kind'] = 'INCORRECT!'
