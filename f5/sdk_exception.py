@@ -19,3 +19,8 @@ class F5SDKError(Exception):
     '''Import and subclass this exception in all exceptions in this library.'''
     def __init__(self, *args, **kwargs):
         super(F5SDKError, self).__init__(*args, **kwargs)
+
+
+class UnsupportedMethod(F5SDKError):
+    """Raise this if a method supplied is unsupported."""
+    pass

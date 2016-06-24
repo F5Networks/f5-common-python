@@ -26,7 +26,7 @@ REST Kind
     ``tm:shared:licensing:*``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import Resource
 
 

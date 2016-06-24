@@ -27,11 +27,11 @@ REST Kind
     ``tm:sys:global-settings:*``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import ResourceBase
 
 
-class Global_Settings(UnnamedResourceMixin, ResourceBase):
+class Global_Settings(UnnamedResource):
     """BIG-IP® system global-settings resource
 
     The global_settings object only supports load and update because it is an

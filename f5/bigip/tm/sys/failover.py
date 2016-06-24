@@ -26,11 +26,11 @@ REST Kind
     ``tm:sys:failover:*``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import ResourceBase
 
 
-class Failover(UnnamedResourceMixin, ResourceBase):
+class Failover(UnnamedResource):
     '''BIG-IP® Failover stats and state change.
 
     The failover object only supports load, update, and refresh because it is

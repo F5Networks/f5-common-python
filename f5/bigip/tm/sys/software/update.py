@@ -27,11 +27,11 @@ REST Kind
     ``tm:sys:software:update:updatestate``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import ResourceBase
 
 
-class Update(UnnamedResourceMixin, ResourceBase):
+class Update(UnnamedResource):
     """BIG-IP® system software update unnamed resource
 
         .. note::

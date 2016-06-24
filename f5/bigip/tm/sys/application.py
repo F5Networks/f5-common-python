@@ -28,7 +28,6 @@ REST Kind
 """
 
 from f5.bigip.resource import Collection
-from f5.bigip.resource import KindTypeMismatch
 from f5.bigip.resource import Resource
 
 from requests import HTTPError
@@ -131,16 +130,7 @@ class Service(Resource):
                     kwargs.pop(key)
             # If response was created successfully, do a local_update.
             # If not, call to overridden _load method via load
-            self.load(**kwargs)
-            if self.kind != self._meta_data['required_json_kind']:
-                error_message = "For instances of type '%r' the corresponding"\
-                    " kind must be '%r' but creation returned JSON with "\
-                    " kind: %r" % (self.__class__.__name__,
-                                   self._meta_data['required_json_kind'],
-                                   self.kind)
-                raise KindTypeMismatch(error_message)
-
-        return self
+            return self.load(**kwargs)
 
     def update(self, **kwargs):
         '''Push local updates to the object on the device.
@@ -173,9 +163,7 @@ class Service(Resource):
 
         load_uri = self._build_service_uri(base_uri, partition, name)
         response = read_session.get(load_uri, uri_as_parts=False, **kwargs)
-        self._local_update(response.json())
-        self._activate_URI(self.selfLink)
-        return self
+        return self._produce_instance(response)
 
     def _build_service_uri(self, base_uri, partition, name):
         '''Build the proper uri for a service resource.

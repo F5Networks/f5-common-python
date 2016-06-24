@@ -17,7 +17,7 @@ import pytest
 
 from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.mixins import ToDictMixin
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.mixins import UnsupportedMethod
 
 

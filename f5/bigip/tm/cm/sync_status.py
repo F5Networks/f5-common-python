@@ -27,7 +27,7 @@ REST Kind
     ``tm:cm:sync-status:*``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import Resource
 
 

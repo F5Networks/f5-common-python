@@ -27,11 +27,11 @@ REST Kind
     ``tm:sys:dns:*``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import ResourceBase
 
 
-class Dns(UnnamedResourceMixin, ResourceBase):
+class Dns(UnnamedResource):
     """BIG-IP® system DNS unnamed resource
 
         .. note::

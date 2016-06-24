@@ -85,9 +85,7 @@ class Folder(Resource):
         read_session = self._meta_data['bigip']._meta_data['icr_session']
         load_uri = self._create_subpath_uri(kwargs)
         response = read_session.get(load_uri, uri_as_parts=False, **kwargs)
-        self._local_update(response.json())
-        self._activate_URI(self.selfLink)
-        return self
+        return self._produce_instance(response)
 
     def update(self, **kwargs):
         '''Update the object, removing device group if inherited

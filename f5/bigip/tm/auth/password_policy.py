@@ -30,11 +30,11 @@ REST Kind
     ``tm:auth:password-policy:password-policystate``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import ResourceBase
 
 
-class Password_Policy(UnnamedResourceMixin, ResourceBase):
+class Password_Policy(UnnamedResource):
     """BIG-IP® password policy unnamed resource
 
         .. note::

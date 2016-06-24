@@ -26,11 +26,11 @@ REST Kind
     ``tm:sys:config:*``
 """
 from f5.bigip.mixins import CommandExecutionMixin
-from f5.bigip.mixins import UnnamedResourceMixin
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import ResourceBase
 
 
-class Config(UnnamedResourceMixin, ResourceBase,
+class Config(UnnamedResource,
              CommandExecutionMixin):
     def __init__(self, sys):
         super(Config, self).__init__(sys)

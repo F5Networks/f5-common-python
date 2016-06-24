@@ -84,6 +84,7 @@ import urlparse
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
 from f5.sdk_exception import F5SDKError
+from f5.sdk_exception import UnsupportedMethod
 from requests.exceptions import HTTPError
 
 
@@ -468,6 +469,27 @@ class ResourceBase(PathElement, ToDictMixin):
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
 
+    def _produce_instance(self, response):
+        '''Generate a new self, which is an instance of the self.'''
+
+        new_instance = self.__class__.__init__(self._meta_data['container'])
+
+        # Post-process the response
+        new_instance._local_update(response.json())
+
+        if new_instance.kind != new_instance._meta_data['required_json_kind'] \
+           and new_instance.kind != "tm:transaction:commandsstate":
+            error_message = "For instances of type '%r' the corresponding"\
+                " kind must be '%r' but creation returned JSON with kind: %r"\
+                % (new_instance.__class__.__name__,
+                   new_instance._meta_data['required_json_kind'],
+                   new_instance.kind)
+            raise KindTypeMismatch(error_message)
+
+        # Update the object to have the correct functional uri.
+        new_instance._activate_URI(new_instance.selfLink)
+        return new_instance
+
 
 class OrganizingCollection(ResourceBase):
     """Base class for objects that collect resources under them.
@@ -682,23 +704,7 @@ class Resource(ResourceBase):
         response = session.post(_create_uri, json=kwargs, **requests_params)
 
         # Make new instance of self
-        new_self = self.__class__.__init__(self._meta_data['container'])
-
-        # Post-process the response
-        new_self._local_update(response.json())
-
-        if new_self.kind != new_self._meta_data['required_json_kind'] \
-           and new_self.kind != "tm:transaction:commandsstate":
-            error_message = "For instances of type '%r' the corresponding"\
-                " kind must be '%r' but creation returned JSON with kind: %r"\
-                % (new_self.__class__.__name__,
-                   new_self._meta_data['required_json_kind'],
-                   new_self.kind)
-            raise KindTypeMismatch(error_message)
-
-        # Update the object to have the correct functional uri.
-        new_self._activate_URI(new_self.selfLink)
-        return new_self
+        return self._produce_instance(response)
 
     def create(self, **kwargs):
         """Create the resource on the BIG-IP®.
@@ -746,10 +752,7 @@ class Resource(ResourceBase):
         kwargs.update(requests_params)
         response = refresh_session.get(base_uri, **kwargs)
         # Make new instance of self
-        new_self = self.__class__.__init__(self._meta_data['container'])
-        new_self._local_update(response.json())
-        new_self._activate_URI(new_self.selfLink)
-        return new_self
+        return self._produce_instance(response)
 
     def load(self, **kwargs):
         """Load an already configured service into this instance.
@@ -836,3 +839,49 @@ class Resource(ResourceBase):
             else:
                 raise
         return True
+
+
+class UnnamedResource(ResourceBase):
+    '''This makes a resource object work if there is no name.
+
+    These objects do not support create or delete and are often found
+    as Resources that are under an organizing collection.  For example
+    the `mgmt/tm/sys/global-settings` is one of these and has a kind of
+    `tm:sys:global-settings:global-settingsstate` and the URI does not
+    match the kind.
+    '''
+
+    def create(self, **kwargs):
+        '''Create is not supported for unnamed resources
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        '''Delete is not supported for unnamed resources
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the delete method" % self.__class__.__name__
+        )
+
+    def load(self, **kwargs):
+        return self._load(**kwargs)
+
+    def _load(self, **kwargs):
+        '''Override _load because Unnamed Resources use their uri directly.
+
+        The Unnamed resources don't have URIs that match their kinds so
+        we need to use their URI directly instead of the container's URI
+        with name/partitions.
+        '''
+        self._check_load_parameters(**kwargs)
+        kwargs['uri_as_parts'] = True
+        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['uri']
+        response = read_session.get(base_uri, **kwargs)
+        return self._produce_instance(response)
