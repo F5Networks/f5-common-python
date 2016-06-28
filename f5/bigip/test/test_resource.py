@@ -28,8 +28,11 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import RequestParamKwargCollision
 from f5.bigip.resource import Resource
 from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import UnregisteredKind
 from f5.bigip.resource import URICreationCollision
+from f5.bigip.tm.ltm.virtual import Virtual
+from f5.sdk_exception import UnsupportedMethod
 
 
 class MockResponse(object):
@@ -99,28 +102,27 @@ class TestResourcecreate(object):
             "Missing required params: set(['NONEMPTY'])"
 
     def test_KindTypeMismatch(self):
-        mock_container = mock.MagicMock()
-        mock_container.__init__.return_value = None
-        r = Resource(mock_container)
+        r = Virtual(mock.MagicMock())
         r._meta_data['bigip']._meta_data['icr_session'].post.return_value =\
             MockResponse({u"kind": u"tm:"})
-        r._meta_data['required_json_kind'] = 'INCORRECT!'
         with pytest.raises(KindTypeMismatch) as KTMmEIO:
             r.create(partition="Common", name="test_create")
         assert KTMmEIO.value.message ==\
-            "For instances of type ''Resource'' the corresponding kind must"\
-            " be ''INCORRECT!'' but creation returned JSON with kind: u'tm:'"
+            "For instances of type ''Virtual'' the corresponding kind must "\
+            "be ''tm:ltm:virtual:virtualstate'' but creation returned "\
+            "JSON with kind: u'tm:'"
 
-    def test_successful(self):
-        r = Resource(mock.MagicMock())
-        MRO = MockResponse({u"kind": u"tm:",
+    def test_success(self):
+        r = Virtual(mock.MagicMock())
+        MRO = MockResponse({u"kind": u"tm:ltm:virtual:virtualstate",
                             u"selfLink": u".../~Common~test_create"})
         r._meta_data['bigip']._meta_data['icr_session'].post.return_value = MRO
-        r._meta_data['required_json_kind'] = u"tm:"
+        r._meta_data['required_json_kind'] = u"tm:ltm:virtual:virtualstate"
         r._meta_data['allowed_lazy_attributes'] = []
-        r.create(partition="Common", name="test_create")
-        assert r.kind == u"tm:"
-        assert r.selfLink == u".../~Common~test_create"
+        x = r.create(partition="Common", name="test_create")
+        pp.pprint(x.raw)
+        assert x.kind == u"tm:ltm:virtual:virtualstate"
+        assert x.selfLink == u".../~Common~test_create"
 
 
 def test__activate_URI():
@@ -337,19 +339,25 @@ class TestResource_load(object):
         assert 'params' not in submitted
 
     def test_success(self):
-        r = Resource(mock.MagicMock())
+        r = Virtual(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
-        mockuri = "https://localhost:443/mgmt/tm/ltm/nat/~Common~test_load"
+        mockuri = "https://localhost:443/mgmt/tm/ltm/virtual/~Common~test_load"
         attrs = {'get.return_value':
-                 MockResponse({u"generation": 0, u"selfLink": mockuri})}
+                 MockResponse(
+                     {
+                         u"generation": 0,
+                         u"selfLink": mockuri,
+                         u"kind": u"tm:ltm:virtual:virtualstate"
+                     }
+                 )}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data =\
             {'icr_session': mock_session,
              'hostname': 'TESTDOMAINNAME',
              'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
         r.generation = 0
-        r.load(partition='Common', name='test_load')
-        assert r.selfLink == mockuri
+        x = r.load(partition='Common', name='test_load')
+        assert x.selfLink == mockuri
 
 
 class TestResource_exists(object):
@@ -445,3 +453,15 @@ def test_collection_s():
     }
     tc_s = Under_s(MC)
     assert tc_s._meta_data['uri'] == 'BASEURI/under/'
+
+
+class TestUnnamedResource(object):
+    def test_create_raises(self):
+        unnamed_resource = UnnamedResource(mock.MagicMock())
+        with pytest.raises(UnsupportedMethod):
+            unnamed_resource.create()
+
+    def test_delete_raises(self):
+        unnamed_resource = UnnamedResource(mock.MagicMock())
+        with pytest.raises(UnsupportedMethod):
+            unnamed_resource.create()

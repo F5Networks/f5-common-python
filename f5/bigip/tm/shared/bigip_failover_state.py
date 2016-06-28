@@ -27,10 +27,9 @@ REST Kind
 """
 
 from f5.bigip.resource import UnnamedResource
-from f5.bigip.resource import Resource
 
 
-class Bigip_Failover_State(UnnamedResourceMixin, Resource):
+class Bigip_Failover_State(UnnamedResource):
     """BIG-IP® failover state information
 
     Failover state objects only support the

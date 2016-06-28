@@ -99,8 +99,10 @@ def FakeCustomstat():
 
 
 @pytest.fixture
-@mock.patch('f5.bigip')
-def MakeFakeContainer(FakeService, mock_json, mock_bigip):
+def MakeFakeContainer(FakeService, mock_json):
+    class F(object):
+        pass
+    mock_bigip = F()
     mock_session = mock.MagicMock(name='mock_session')
     mock_get_response = mock.MagicMock(name='mock_get_response')
     mock_put_response = mock.MagicMock(name='mock_put_response')
@@ -109,14 +111,19 @@ def MakeFakeContainer(FakeService, mock_json, mock_bigip):
     # Mock the get and put when the container calls icr_session.get/put
     mock_session.get.return_value = mock_get_response
     mock_session.put.return_value = mock_put_response
-    mock_bigip._meta_data = {
+    mock_session.post.return_value = mock_put_response
+    FakeService._meta_data = {
         'hostname': 'testhost',
         'icr_session': mock_session,
         'uri': '',
-        'icontrol_version': ''
+        'icontrol_version': '',
+        'required_load_parameters': set(),
+        'disallowed_load_parameters': set(),
+        'bigip': mock.MagicMock(),
+        'container': mock.MagicMock()
     }
-    FakeService._meta_data['bigip'] = mock_bigip
-    FakeService._meta_data['icontrol_version'] = ''
+    # FakeService._meta_data['bigip'] = mock_bigip
+    # FakeService._meta_data['icontrol_version'] = ''
     return FakeService
 
 
@@ -300,7 +307,7 @@ class TestServiceUpdate(object):
                 name='test_service',
                 template='test_template'
             )
-            sv1.update()
+            sv1.update(force=True)
             assert hasattr(sv1, 'deviceGroup') is False
 
     def test_update_inherit_tg_false(self, FakeService):

@@ -156,8 +156,8 @@ class Service(Resource):
                 kwargs.pop(key)
 
         self._check_load_parameters(**kwargs)
-        name = kwargs.pop('name')
-        partition = kwargs.pop('partition')
+        name = kwargs.pop('name', '')
+        partition = kwargs.pop('partition', '')
         read_session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
 

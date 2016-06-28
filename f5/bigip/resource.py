@@ -472,7 +472,9 @@ class ResourceBase(PathElement, ToDictMixin):
     def _produce_instance(self, response):
         '''Generate a new self, which is an instance of the self.'''
 
-        new_instance = self.__class__.__init__(self._meta_data['container'])
+        container = self._meta_data['container']
+        new_instance = self.__class__.__new__(self.__class__)
+        new_instance.__init__(container)
 
         # Post-process the response
         new_instance._local_update(response.json())
@@ -734,8 +736,7 @@ class Resource(ResourceBase):
                   configuration and state on the BIG-IP®.
 
         """
-        self._create(**kwargs)
-        return self
+        return self._create(**kwargs)
 
     def _load(self, **kwargs):
         """wrapped with load, override that in a subclass to customize"""
@@ -771,8 +772,7 @@ class Resource(ResourceBase):
         be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
         :returns: a Resource Instance (with a populated _meta_data['uri'])
         """
-        self._load(**kwargs)
-        return self
+        return self._load(**kwargs)
 
     def _delete(self, **kwargs):
         """wrapped with delete, override that in a subclass to customize """
