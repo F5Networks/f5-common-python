@@ -29,10 +29,11 @@ REST Kind
 
 
 from f5.bigip.resource import Collection
+from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 
 
-class Fdbs(Collection):
+class Fdbs(OrganizingCollection):
     '''A Collection concrete subclass docstring.'''
     def __init__(self, net):
         '''Auto generated constructor.'''
