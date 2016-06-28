@@ -100,9 +100,9 @@ def FakeCustomstat():
 
 @pytest.fixture
 def MakeFakeContainer(FakeService, fake_bigip_data):
-    class FakeBigIP(object):
-        def __init__(self, mock_session):
-            self._meta_data = {'icr_session': mock_session}
+    class FakeMetaData(object):
+        def __init__(self, **kwargs):
+            self._meta_data = kwargs
     mock_session = mock.MagicMock(name='mock_session')
     mock_get_response = mock.MagicMock(name='mock_get_response')
     mock_put_response = mock.MagicMock(name='mock_put_response')
@@ -119,8 +119,8 @@ def MakeFakeContainer(FakeService, fake_bigip_data):
         'icontrol_version': '',
         'required_load_parameters': set(),
         'disallowed_load_parameters': set(),
-        'bigip': FakeBigIP(mock_session),
-        'container': mock.MagicMock()
+        'bigip': FakeMetaData(icr_session=mock_session),
+        'container': FakeMetaData(bigip=FakeMetaData(uri=mock.MagicMock(), icontrol_version='', icr_session=mock_session), uri=mock.MagicMock(), icontrol_version='', icr_session=mock_session)
     }
     # FakeService._meta_data['bigip'] = mock_bigip
     # FakeService._meta_data['icontrol_version'] = ''
