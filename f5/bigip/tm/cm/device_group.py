@@ -37,7 +37,7 @@ class Device_Groups(Collection):
         super(Device_Groups, self).__init__(cm)
         self._meta_data['allowed_lazy_attributes'] = [Device_Group]
         self._meta_data['attribute_registry'] =\
-            {'tm:cm:device:device-groupstate': Device_Group}
+            {'tm:cm:device-group:device-groupstate': Device_Group}
 
 
 class Device_Group(Resource):

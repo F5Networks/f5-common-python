@@ -13,6 +13,12 @@
 # limitations under the License.
 #
 
+import logging
+from pprint import pprint as pp
+
+from f5.bigip.mixins import UnsupportedTmosVersion
+from f5.bigip.resource import OrganizingCollection
+from f5.bigip.resource import Collection
 
 def register_collection_atoms(collection):
     '''Given a collection return a registry of all of its atoms (elements).
@@ -21,8 +27,17 @@ def register_collection_atoms(collection):
     A registry provides a snapshot of all resources of a type on the device.
     '''
     resource_registry = {}
-    for resource in collection.get_collection():
-            resource_registry[resource.selfLink] = resource
+    try:
+        resources = collection.get_collection()
+    except Exception as ex:
+        logging.debug(ex)
+        return resource_registry
+    for resource in resources:
+            try:
+                resource_registry[resource.selfLink] = resource
+            except KeyError as ex:
+                pp(resource.raw)
+                raise ex
     return resource_registry
     
 
@@ -35,6 +50,38 @@ def register_OC_atoms(organizing_collection):
     OC_atoms_registry = {}
     OC_types = organizing_collection._meta_data['allowed_lazy_attributes']
     for OC_type in OC_types:
-        collection = getattr(organizing_collection, OC_type.__name__.lower())
-        OC_atoms_registry.update(register_collection_atoms(collection))
+        try:
+            lazy_instance =\
+                getattr(organizing_collection, OC_type.__name__.lower())
+        except UnsupportedTmosVersion as ex:
+            logging.debug(ex)
+            continue
+        if isinstance(lazy_instance, Collection):
+            OC_atoms_registry.update(register_collection_atoms(lazy_instance))
+        elif isinstance(lazy_instance, OrganizingCollection):
+            OC_atoms_registry.update(register_OC_atoms(lazy_instance))
+        #else:
+        #    OC_atoms_registry.update({lazy_instance.selfLink: lazy_instance})
     return OC_atoms_registry
+
+
+def register_loadbalancer_elements(mgmt_rt):
+    monitor_registry = register_OC_atoms(mgmt_rt.tm.ltm.monitor)
+    pool_registry = register_collection_atoms(mgmt_rt.tm.ltm.pools)
+    snat_registry = register_collection_atoms(mgmt_rt.tm.ltm.snats)
+    virtual_registry = register_collection_atoms(mgmt_rt.tm.ltm.virtuals)
+    virtual_address_s_registry =\
+        register_collection_atoms(mgmt_rt.tm.ltm.virtual_address_s)
+    member_registry = {}
+    for pool in pool_registry.values():
+        mc = pool.members_s
+        member_registry.update(reqister_collection_atoms(mc))        
+    folder_registry = register_collection_atoms(mgmt_rt.tm.sys.folders)
+    registries = {'monitor_registry': monitor_registry,
+                  'pool_registry': pool_registry,
+                  'snat_registry': snat_registry,
+                  'virtual_registry': virtual_registry,
+                  'virtual_address_s_registry': virtual_address_s_registry,
+                  'member_registry': member_registry,
+                  'folder_registry': folder_registry}
+    return registries
