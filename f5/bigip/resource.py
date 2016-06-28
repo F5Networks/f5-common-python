@@ -370,7 +370,7 @@ class ResourceBase(PathElement, ToDictMixin):
         """wrapped with update, override that in a subclass to customize"""
         requests_params = self._handle_requests_params(kwargs)
         update_uri = self._meta_data['uri']
-        session = self._meta_data['bigip']._meta_data['icr_session']
+        session = self._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
 
         # Get the current state of the object on BIG-IP® and check the

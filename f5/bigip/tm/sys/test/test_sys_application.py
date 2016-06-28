@@ -99,14 +99,14 @@ def FakeCustomstat():
 
 
 @pytest.fixture
-def MakeFakeContainer(FakeService, mock_json):
-    class F(object):
-        pass
-    mock_bigip = F()
+def MakeFakeContainer(FakeService, fake_bigip_data):
+    class FakeBigIP(object):
+        def __init__(self, mock_session):
+            self._meta_data = {'icr_session': mock_session}
     mock_session = mock.MagicMock(name='mock_session')
     mock_get_response = mock.MagicMock(name='mock_get_response')
     mock_put_response = mock.MagicMock(name='mock_put_response')
-    mock_get_response.json.return_value = mock_json.copy()
+    mock_get_response.json.return_value = fake_bigip_data.copy()
     mock_put_response.json.return_value = SUCCESSFUL_CREATE.copy()
     # Mock the get and put when the container calls icr_session.get/put
     mock_session.get.return_value = mock_get_response
@@ -119,7 +119,7 @@ def MakeFakeContainer(FakeService, mock_json):
         'icontrol_version': '',
         'required_load_parameters': set(),
         'disallowed_load_parameters': set(),
-        'bigip': mock.MagicMock(),
+        'bigip': FakeBigIP(mock_session),
         'container': mock.MagicMock()
     }
     # FakeService._meta_data['bigip'] = mock_bigip
@@ -321,7 +321,7 @@ class TestServiceUpdate(object):
                 name='test_service',
                 template='test_template'
             )
-            sv1.update()
+            sv1.update(force=True)
             # Since the SUCCESSFUL_CREATE dictionary is the result of the
             # update, the inheritedDevicegroup and deviceGroup should not
             # be there.
