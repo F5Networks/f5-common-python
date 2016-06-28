@@ -27,9 +27,8 @@ REST Kind
     ``tm:sys:performance:*``
 """
 
-from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import Collection
-from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import UnsupportedOperation
 
 

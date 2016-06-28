@@ -26,10 +26,9 @@ REST Kind
     ``tm:shared:licensing:*``
 """
 
-from f5.bigip.resource import UnnamedResource
 from f5.bigip.mixins import UnsupportedMethod
 from f5.bigip.resource import PathElement
-from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import UnnamedResource
 
 
 class Licensing(PathElement):

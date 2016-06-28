@@ -27,7 +27,6 @@ REST Kind
 """
 from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import UnnamedResource
-from f5.bigip.resource import ResourceBase
 
 
 class Config(UnnamedResource,

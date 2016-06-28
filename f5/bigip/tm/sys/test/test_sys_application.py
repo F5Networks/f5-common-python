@@ -102,7 +102,14 @@ def FakeCustomstat():
 def MakeFakeContainer(FakeService, fake_bigip_data):
     class FakeMetaData(object):
         def __init__(self, **kwargs):
-            self._meta_data = kwargs
+            self._meta_data = {}
+            meta_data_defaults = {
+                'uri': mock.MagicMock(),
+                'icontrol_version': '',
+                'icr_session': kwargs['icr_session'],
+                'bigip': self
+            }
+            self._meta_data.update(meta_data_defaults)
     mock_session = mock.MagicMock(name='mock_session')
     mock_get_response = mock.MagicMock(name='mock_get_response')
     mock_put_response = mock.MagicMock(name='mock_put_response')
@@ -120,7 +127,10 @@ def MakeFakeContainer(FakeService, fake_bigip_data):
         'required_load_parameters': set(),
         'disallowed_load_parameters': set(),
         'bigip': FakeMetaData(icr_session=mock_session),
-        'container': FakeMetaData(bigip=FakeMetaData(uri=mock.MagicMock(), icontrol_version='', icr_session=mock_session), uri=mock.MagicMock(), icontrol_version='', icr_session=mock_session)
+        'container': FakeMetaData(
+            bigip=FakeMetaData(icr_session=mock_session),
+            icr_session=mock_session
+        )
     }
     # FakeService._meta_data['bigip'] = mock_bigip
     # FakeService._meta_data['icontrol_version'] = ''

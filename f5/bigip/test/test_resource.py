@@ -120,7 +120,6 @@ class TestResourcecreate(object):
         r._meta_data['required_json_kind'] = u"tm:ltm:virtual:virtualstate"
         r._meta_data['allowed_lazy_attributes'] = []
         x = r.create(partition="Common", name="test_create")
-        pp.pprint(x.raw)
         assert x.kind == u"tm:ltm:virtual:virtualstate"
         assert x.selfLink == u".../~Common~test_create"
 
