@@ -28,8 +28,8 @@ REST Kind
 """
 
 from f5.bigip.resource import Collection
-from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import KindTypeMismatch
+from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 
 from requests import HTTPError

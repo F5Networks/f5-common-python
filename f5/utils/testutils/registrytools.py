@@ -17,8 +17,9 @@ import logging
 from pprint import pprint as pp
 
 from f5.bigip.mixins import UnsupportedTmosVersion
-from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Collection
+from f5.bigip.resource import OrganizingCollection
+
 
 def register_collection_atoms(collection):
     '''Given a collection return a registry of all of its atoms (elements).
@@ -39,7 +40,7 @@ def register_collection_atoms(collection):
                 pp(resource.raw)
                 raise ex
     return resource_registry
-    
+
 
 def register_OC_atoms(organizing_collection):
     '''Given an OrganizingCollection (OC) return a registry of its atoms.
@@ -60,9 +61,16 @@ def register_OC_atoms(organizing_collection):
             OC_atoms_registry.update(register_collection_atoms(lazy_instance))
         elif isinstance(lazy_instance, OrganizingCollection):
             OC_atoms_registry.update(register_OC_atoms(lazy_instance))
-        #else:
-        #    OC_atoms_registry.update({lazy_instance.selfLink: lazy_instance})
     return OC_atoms_registry
+
+
+def register_device(mgmt_rt):
+    OCs = [getattr(mgmt_rt, c.__name__.lower())
+           for c in mgmt_rt._meta_data['allowed_lazy_attributes']]
+    grand_registry = {}
+    for OC in OCs:
+        grand_registry.update(register_OC_atoms(OC))
+    return grand_registry
 
 
 def register_loadbalancer_elements(mgmt_rt):
@@ -75,7 +83,7 @@ def register_loadbalancer_elements(mgmt_rt):
     member_registry = {}
     for pool in pool_registry.values():
         mc = pool.members_s
-        member_registry.update(reqister_collection_atoms(mc))        
+        member_registry.update(register_collection_atoms(mc))
     folder_registry = register_collection_atoms(mgmt_rt.tm.sys.folders)
     registries = {'monitor_registry': monitor_registry,
                   'pool_registry': pool_registry,
