@@ -66,4 +66,3 @@ class TestUCSCommand(object):
                 "has not been implemented or supported " \
                 "in the device's TMOS version: 12.0.0. " \
                 "Minimum TMOS version supported is 12.1.0"
-
