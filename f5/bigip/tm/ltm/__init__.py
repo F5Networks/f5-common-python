@@ -29,7 +29,7 @@ REST Kind
 
 
 from f5.bigip.resource import OrganizingCollection
-from f5.bigip.tm.ltm.data_group import Data_Groups
+from f5.bigip.tm.ltm.data_group import Data_Group
 from f5.bigip.tm.ltm.monitor import Monitor
 from f5.bigip.tm.ltm.nat import Nats
 from f5.bigip.tm.ltm.node import Nodes
@@ -50,7 +50,7 @@ class Ltm(OrganizingCollection):
     def __init__(self, tm):
         super(Ltm, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Data_Groups,
+            Data_Group,
             Monitor,
             Nats,
             Nodes,
