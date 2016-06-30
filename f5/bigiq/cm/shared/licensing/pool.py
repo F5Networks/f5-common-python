@@ -26,15 +26,24 @@ GUI Path
 REST Kind
     ``cm:shared:licensing:pools:licensepoolworkercollectionstate:*``
 """
+import json
 
 from requests.exceptions import HTTPError
 
 from f5.bigip.resource import Collection
-from f5.bigip.resource import Resource
+from f5.bigiq.resource import Resource
 from f5.sdk_exception import F5SDKError
 
 
+class LicensePoolCreateError(F5SDKError):
+    pass
+
+
 class LicensePoolMemberReadOnly(F5SDKError):
+    pass
+
+
+class LicensePoolMemberCreationError(F5SDKError):
     pass
 
 
@@ -67,6 +76,41 @@ class Pool(Resource):
             Members_s
         }
 
+    def create(self, **kwargs):
+        """Create Pool - Not supported to allow for EULA manually"""
+
+        raise LicensePoolCreateError("Please create BIG-IQ License Pool " +
+                                     "through the GUI to accept the EULA")
+
+    def load(self, **kwargs):
+        """Loaded the uuid object on the BigIQ
+
+        Sends an HTTP GET to the URI of the named object and if it fails with
+        a :exc:~requests.HTTPError` exception it checks the exception for
+        status code of 404 and returns :obj:`False` in that case.
+
+        :param kwargs: Keyword arguments required to get objects, "uuid"
+        is required.
+        """
+
+        self._check_load_parameters(**kwargs)
+        kwargs['uri_as_parts'] = False
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = "%s%s" % (
+            self._meta_data['container']._meta_data['uri'],
+            kwargs['uuid']
+        )
+        try:
+            response = session.get(base_uri)
+            self._local_update(response.json())
+            self._activate_URI(self.selfLink)
+            return self
+        except HTTPError as err:
+            if err.response.status_code == 404:
+                return None
+            else:
+                raise
+
     def license_unmanaged_device(self,
                                  hostname=None,
                                  username=None,
@@ -76,17 +120,23 @@ class Pool(Resource):
                             "username": username,
                             "password": password}
 
-        self._meta_data['icr_session'].post(pool_members_uri,
-                                            json=unmanaged_device)
+        response = self._meta_data['icr_session'].post(pool_members_uri,
+                                                       json=unmanaged_device)
+        if not response.status_code == 200:
+            raise LicensePoolMemberCreationError(response.text)
+        pool_member = json.loads(response.text)
+        return self.members_s.member.load(uuid=pool_member['uuid'])
 
-    def license_managed_device(self,
-                               device=None):
+    def license_managed_device(self, device=None):
         if hasattr(device, 'uuid') and hasattr(device, 'selfLink'):
             pool_members_uri = "%s%s" % (self._meta_data['uri'], 'members')
-            device_data = {"deviceReference": {"link": device['selfLink']}}
-            self._meta_data['icr_session'].post(
-                pool_members_uri, device_data
-            )
+            device_data = {"deviceReference": {"link": device.selfLink}}
+            response = self._meta_data['icr_session'].post(pool_members_uri,
+                                                           json=device_data)
+            if not response.status_code == 200:
+                raise LicensePoolMemberCreationError(response.text)
+            pool_member = json.loads(response.text)
+            return self.members_s.member.load(uuid=pool_member['uuid'])
         else:
             raise LicensePoolManagedDeviceError(
                 'supplied device is not a valid Device object'
@@ -110,7 +160,8 @@ class Member(Resource):
         super(Member, self).__init__(members_s)
         self._meta_data['required_json_kind'] =\
             'cm:shared:licensing:pools:licensepoolmemberstate'
-        self._meta_data['required_creation_parameters'] = {'deviceAddress',
+        self._meta_data['required_creation_parameters'] = {'pool',
+                                                           'deviceAddress',
                                                            'username',
                                                            'password'}
 
@@ -122,9 +173,18 @@ class Member(Resource):
 
         pool.license_unmanaged_device(deviceAddress, username, password)
         """
-        raise LicensePoolMemberReadOnly(
-            'create handled through pool.license_managed_device' +
-            ' or pool.license_unmanaged_device methods ')
+        pool = kwargs.pop('pool')
+        hostname = kwargs.pop('deviceAddress')
+        username = kwargs.pop('username')
+        password = kwargs.pop('password')
+        if not isinstance(pool, Pool):
+            raise LicensePoolMemberCreationError(
+                      'Supplied pool is not a ' +
+                      'bigiq.cm.shared.licensing.pool.Pool object')
+        self = pool.license_unmanaged_device(hostname=hostname,
+                                             username=username,
+                                             password=password)
+        return self
 
     def update(self, **kwargs):
         """License Pool Members are Read Only."""

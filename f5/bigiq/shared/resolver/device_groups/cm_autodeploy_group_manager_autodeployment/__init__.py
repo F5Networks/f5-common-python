@@ -28,7 +28,7 @@ REST Kind
 """
 from requests.exceptions import HTTPError
 
-from f5.bigip.resource import Resource
+from f5.bigiq.resource import Resource
 from f5.bigip.resource import Collection
 from f5.sdk_exception import F5SDKError
 
@@ -103,64 +103,3 @@ class Device(Resource):
         raise CMAutoDeployDeviceReadOnly(
             'Auto Deploy items can be created or deleted, not updated'
         )
-
-    def exists(self, **kwargs):
-        """Check for the existence of the device by uuid on the BigIQ.
-
-        Sends an HTTP GET to the URI of the named object and if it fails with
-        a :exc:~requests.HTTPError` exception it checks the exception for
-        status code of 404 and returns :obj:`False` in that case.
-
-        :param kwargs: Keyword arguments required to get objects, "uuid"
-        is required.
-        """
-
-        self._check_load_parameters(**kwargs)
-        kwargs['uri_as_parts'] = False
-        session = self._meta_data['bigip']._meta_data['icr_session']
-        base_uri = "%s%s" % (
-            self._meta_data['container']._meta_data['uri'],
-            kwargs['uuid']
-        )
-        try:
-            response = session.get(base_uri)
-        except HTTPError as err:
-            if err.response.status_code == 404:
-                return False
-            else:
-                raise
-        rdict = response.json()
-        if u"uuid" not in rdict:
-            # We can add 'or' conditions to be more restrictive.
-            return False
-        # Only after all conditions are met...
-        return True
-
-    def load(self, **kwargs):
-        """Loaded the uuid object on the BigIQ
-
-        Sends an HTTP GET to the URI of the named object and if it fails with
-        a :exc:~requests.HTTPError` exception it checks the exception for
-        status code of 404 and returns :obj:`False` in that case.
-
-        :param kwargs: Keyword arguments required to get objects, "uuid"
-        is required.
-        """
-
-        self._check_load_parameters(**kwargs)
-        kwargs['uri_as_parts'] = False
-        session = self._meta_data['bigip']._meta_data['icr_session']
-        base_uri = "%s%s" % (
-            self._meta_data['container']._meta_data['uri'],
-            kwargs['uuid']
-        )
-        try:
-            response = session.get(base_uri)
-            self._local_update(response.json())
-            self._activate_URI(self.selfLink)
-            return self
-        except HTTPError as err:
-            if err.response.status_code == 404:
-                return None
-            else:
-                raise
