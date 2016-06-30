@@ -16,6 +16,7 @@
 from pprint import pprint as pp
 import pytest
 
+pp('')
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
@@ -39,9 +40,8 @@ def setup_policy_test(request, bigip, partition, name, strategy="first-match"):
         delete_resource(pc1)
     request.addfinalizer(teardown)
     pc1 = bigip.ltm.policys
-    policy1 = pc1.policy
-    pp('****')
-    policy1.create(name=name, partition=partition, strategy=strategy)
+    policy1 = pc1.policy.create(
+        name=name, partition=partition, strategy=strategy)
     return policy1, pc1
 
 
@@ -56,8 +56,7 @@ class TestPolicy(object):
         policy1.strategy = '/Common/first-match'
         policy1.refresh()
         assert policy1.strategy == '/Common/all-match'
-        policy2 = pc1.policy
-        policy2.load(partition='Common', name='poltest1')
+        policy2 = pc1.policy.load(partition='Common', name='poltest1')
         assert policy2.selfLink == policy1.selfLink
         p2rc = policy2.rules_s
         p2rc.refresh()
@@ -71,10 +70,8 @@ class TestRulesAndActions(object):
         test_pol1 = rulespc.policy.load(partition='Common',
                                         name='_sys_CEC_video_policy')
         rules_s1 = test_pol1.rules_s
-        rules1 = rules_s1.rules
-        rules1.load(name='youporn_web_1')
-        r1actions = rules1.actions_s.actions
-        r1actions.load(name="1")
+        rules1 = rules_s1.rules.load(name='youporn_web_1')
+        r1actions = rules1.actions_s.actions.load(name="1")
         assert r1actions.kind == r1actions._meta_data['required_json_kind']
         delete_resource(rulespc)
 
@@ -85,10 +82,8 @@ class TestRulesAndConditions(object):
         test_pol1 = rulespc.policy.load(partition='Common',
                                         name='_sys_CEC_video_policy')
         rules_s1 = test_pol1.rules_s
-        rules1 = rules_s1.rules
-        rules1.load(name='youporn_web_1')
-        r1conditions = rules1.conditions_s.conditions
-        r1conditions.load(name="1")
+        rules1 = rules_s1.rules.load(name='youporn_web_1')
+        r1conditions = rules1.conditions_s.conditions.load(name="1")
         assert r1conditions.kind ==\
             r1conditions._meta_data['required_json_kind']
         delete_resource(rulespc)

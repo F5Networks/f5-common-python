@@ -27,24 +27,16 @@ REST Kind
 """
 
 from f5.bigip.mixins import CommandExecutionMixin
-from f5.bigip.mixins import ExclusiveAttributesMixin
-from f5.bigip.mixins import UnnamedResourceMixin
-from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import UnnamedResource
 from f5.sdk_exception import F5SDKError
 
 
 class InvalidParameterValue(F5SDKError):
-    """This class covers corner cases
-
-    where certain boolean parameters
-    cannot have the same value
-    """
     pass
 
 
-class Failover(UnnamedResourceMixin, ResourceBase,
-               CommandExecutionMixin, ExclusiveAttributesMixin):
-    """BIG-IP® Failover stats and state change.
+class Failover(UnnamedResource, CommandExecutionMixin):
+    '''BIG-IP® Failover stats and state change.
 
     The failover object only supports load, update, and refresh because it is
      an unnamed resource.
@@ -58,7 +50,7 @@ class Failover(UnnamedResourceMixin, ResourceBase,
 
         This is an unnamed resource so it has not ~Partition~Name pattern
         at the end of its URI.
-    """
+    '''
     def __init__(self, sys):
         super(Failover, self).__init__(sys)
         self._meta_data['required_load_parameters'] = set()

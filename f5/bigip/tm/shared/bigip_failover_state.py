@@ -26,12 +26,11 @@ REST Kind
     ``tm:shared:licensing:*``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
-from f5.bigip.mixins import UnsupportedMethod
-from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import UnnamedResource
+from f5.sdk_exception import UnsupportedMethod
 
 
-class Bigip_Failover_State(UnnamedResourceMixin, ResourceBase):
+class Bigip_Failover_State(UnnamedResource):
     """BIG-IP® failover state information
 
     Failover state objects only support the

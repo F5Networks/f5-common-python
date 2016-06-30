@@ -90,8 +90,8 @@ class Nat(Resource, ExclusiveAttributesMixin):
             except KeyError:
                 pass
         kwargs = self._endis_able(kwargs)
-        self._create(**kwargs)
-        return self
+        new_instance = self._create(**kwargs)
+        return new_instance
 
     def _endis_able(self, config_dict):
         if 'enabled' in config_dict and not config_dict['enabled']:

@@ -27,9 +27,8 @@ EXPECTED_ORIGINS_DELETION_MESSAGE = 'one of the following must be ',\
 
 
 def delete_snat(bigip, name, partition):
-    s = bigip.ltm.snats.snat
     try:
-        s.load(name=name, partition=partition)
+        s = bigip.ltm.snats.snat.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -49,9 +48,9 @@ def setup_basic_test(request, bigip, name, partition, orig='1.1.1.1'):
     def teardown():
         delete_snat(bigip, name, partition)
 
-    snat1 = bigip.ltm.snats.snat
     snat_s1 = bigip.ltm.snats
-    snat1.create(name=name, partition=partition, origins=orig, automap=True)
+    snat1 = bigip.ltm.snats.snat.create(
+        name=name, partition=partition, origins=orig, automap=True)
     request.addfinalizer(teardown)
     return snat1, snat_s1
 
@@ -63,9 +62,9 @@ class TestSNAT(object):
             snat1.create()
 
     def test_create(self, request, bigip):
-        snat1 = setup_create_test(request, bigip, 'snat1', 'Common')
-        snat1.create(name='snat1', partition='Common', origins='1.1.1.1',
-                     automap=True)
+        snat = setup_create_test(request, bigip, 'snat1', 'Common')
+        snat1 = snat.create(
+            name='snat1', partition='Common', origins='1.1.1.1', automap=True)
         assert snat1.name == 'snat1'
         assert snat1.partition == 'Common'
         assert snat1.generation and isinstance(snat1.generation, int)
@@ -87,8 +86,6 @@ class TestSNAT(object):
 
     def test_load_and_delete(self, request, bigip):
         snat1, sc1 = setup_basic_test(request, bigip, 'snat1', 'Common')
-        snat2 = sc1.snat
-        snat2.load(name='snat1', partition='Common')
         snat1.delete()
         assert snat1.__dict__ == {'deleted': True}
 

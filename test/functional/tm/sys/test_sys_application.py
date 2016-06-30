@@ -13,8 +13,10 @@
 # limitations under the License.
 #
 
+from pprint import pprint as pp
 from requests import HTTPError
 
+pp(__file__)
 TESTDESCRIPTION = 'TESTDESCRIPTION'
 
 # Application Service Dictionary
@@ -27,15 +29,15 @@ definition = {'definition': sections}
 
 
 def setup_application_test(request, bigip):
-    return bigip.sys.applications
+    return bigip.sys.application
 
 
 def setup_template_collection_test(request, bigip):
-    return bigip.sys.applications.templates
+    return bigip.sys.application.templates
 
 
 def setup_service_collection_test(request, bigip):
-    return bigip.sys.applications.services
+    return bigip.sys.application.services
 
 
 def delete_resource(resource):
@@ -47,40 +49,39 @@ def delete_resource(resource):
 
 
 def setup_template_test(request, bigip, name, partition):
+    template_s = setup_template_collection_test(request, bigip)
+
     def teardown():
         delete_resource(test_template)
-
     request.addfinalizer(teardown)
-    template_s = setup_template_collection_test(request, bigip)
-    test_template = template_s.template
-    return template_s, test_template.create(
+    test_template = template_s.template.create(
         name=name,
         partition=partition,
         actions=definition
     )
+    return template_s, test_template
 
 
 def setup_service_test(request, bigip, name, partition, template_name, tgroup):
+    service_s = setup_service_collection_test(request, bigip)
+
     def teardown():
         delete_resource(test_service)
         delete_resource(test_template)
 
-    request.addfinalizer(teardown)
-    service_s = setup_service_collection_test(request, bigip)
-    test_template = setup_template_collection_test(request, bigip).template
-
-    test_template.create(
+    template_factory = setup_template_collection_test(request, bigip).template
+    test_template = template_factory.create(
         name=template_name,
         partition=partition,
         actions=definition
     )
-    test_service = None
     test_service = service_s.service.create(
         name=name,
         partition=partition,
         template=template_name,
         trafficGroup=tgroup
     )
+    request.addfinalizer(teardown)
     return service_s, test_service
 
 

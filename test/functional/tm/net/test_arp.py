@@ -38,16 +38,15 @@ def setup_arp_test(request, bigip, partition, name, ip, mac):
     request.addfinalizer(teardown)
 
     ac1 = bigip.net.arps
-    a1 = ac1.arp
-    a1.create(partition=partition, name=name, ipAddress=ip, macAddress=mac)
+    a1 = ac1.arp.create(
+        partition=partition, name=name, ipAddress=ip, macAddress=mac)
     return a1, ac1
 
 
 class TestArp(object):
     def test_create_missing_args(self, request, bigip):
-        a = bigip.net.arps.arp
         with pytest.raises(MissingRequiredCreationParameter):
-            a.create(name='s1', partition='Common')
+            bigip.net.arps.arp.create(name='s1', partition='Common')
 
     def test_CURDL(self, request, bigip):
         # We assume that setup and teardown will create/delete
@@ -55,8 +54,7 @@ class TestArp(object):
         partition = 'Common'
         a1, ac1 = setup_arp_test(
             request, bigip, partition, name, TEST_IP, TEST_MAC)
-        a2 = bigip.net.arps.arp
-        a2.load(name=name, partition=partition)
+        a2 = bigip.net.arps.arp.load(name=name, partition=partition)
         assert a1.name == name
         assert a1.ipAddress == TEST_IP
         assert a1.macAddress == TEST_MAC

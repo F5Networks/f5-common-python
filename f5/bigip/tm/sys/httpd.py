@@ -30,11 +30,10 @@ REST Kind
     ``tm:sys:httpd:*``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
-from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import UnnamedResource
 
 
-class Httpd(UnnamedResourceMixin, ResourceBase):
+class Httpd(UnnamedResource):
     """BIG-IP® system HTTPD unnamed resource
 
         .. note::

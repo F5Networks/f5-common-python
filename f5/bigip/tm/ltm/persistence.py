@@ -33,11 +33,11 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 
 
-class Persistences(OrganizingCollection):
+class Persistence(OrganizingCollection):
     '''A Collection concrete subclass docstring.'''
     def __init__(self, ltm):
         '''Auto generated constructor.'''
-        super(Persistences, self).__init__(ltm)
+        super(Persistence, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [
             Source_Addrs,
             Hashs,
@@ -136,8 +136,8 @@ class Cookies(Collection):
         '''Auto generated constructor.'''
         super(Cookies, self).__init__(persistence)
         self._meta_data['allowed_lazy_attributes'] = [Cookie]
-        # self._meta_data['attribute_registry'] =\
-        #     {u'tm:ltm:persistence:cookie:cookiestate': Cookie}
+        self._meta_data['attribute_registry'] =\
+            {u'tm:ltm:persistence:cookie:cookiestate': Cookie}
         self._meta_data['template_generated'] = True
 
 

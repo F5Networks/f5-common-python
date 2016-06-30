@@ -91,9 +91,7 @@ class Interfaces(Resource, ExclusiveAttributesMixin):
             tup_par = ('tagMode', 'tagged')
             self._meta_data['required_creation_parameters'].update(tup_par)
 
-        self._create(**kwargs)
-
-        return self
+        return self._create(**kwargs)
 
     def update(self, **kwargs):
         if 'tagged' in kwargs:

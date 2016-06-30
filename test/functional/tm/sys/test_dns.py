@@ -29,7 +29,7 @@ def setup_dns_test(request, bigip):
 class TestDns(object):
     def test_RUL(self, request, bigip):
         # Load
-        ip = '192.168.1.1'
+        ip = '192.168.100.85'
         dns1, orig_servers = setup_dns_test(request, bigip)
         dns2 = bigip.sys.dns.load()
         assert len(dns1.nameServers) == len(dns2.nameServers)

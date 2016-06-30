@@ -19,6 +19,9 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.gtm.datacenter import Datacenter
 from requests.exceptions import HTTPError
 
+pytestmark = pytest.mark.skipif(
+    True, reason='these tests require the optional gtm module')
+
 
 def delete_dc(mgmt_root, name, partition):
     r = mgmt_root.tm.gtm.datacenters.datacenter
@@ -41,22 +44,21 @@ def setup_basic_test(request, mgmt_root, name, partition):
     def teardown():
         delete_dc(mgmt_root, name, partition)
 
-    dc1 = mgmt_root.tm.gtm.datacenters.datacenter
-    dc1.create(name=name, partition=partition)
+    dc1 = mgmt_root.tm.gtm.datacenters.datacenter.create(
+        name=name, partition=partition)
     request.addfinalizer(teardown)
     return dc1
 
 
 class TestCreate(object):
     def test_create_no_args(self, mgmt_root):
-        dc1 = mgmt_root.tm.gtm.datacenters.datacenter
         with pytest.raises(MissingRequiredCreationParameter):
-            dc1.create()
+            mgmt_root.tm.gtm.datacenters.datacenter.create()
 
     def test_create(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, 'dc1', 'Common')
-        dc1 = mgmt_root.tm.gtm.datacenters.datacenter
-        dc1.create(name='dc1', partition='Common')
+        dc1 = mgmt_root.tm.gtm.datacenters.datacenter.create(
+            name='dc1', partition='Common')
         assert dc1.name == 'dc1'
         assert dc1.partition == 'Common'
         assert dc1.generation and isinstance(dc1.generation, int)
@@ -66,13 +68,13 @@ class TestCreate(object):
 
     def test_create_optional_args(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, 'dc1', 'Common')
-        dc1 = mgmt_root.tm.gtm.datacenters.datacenter
-        dc1.create(name='dc1',
-                   partition='Common',
-                   enabled=False,
-                   contact="admin@root.local",
-                   description="A datacenter is fine too",
-                   location="Between the earth and the moon")
+        dc1 = mgmt_root.tm.gtm.datacenters.datacenter.create(
+            name='dc1',
+            partition='Common',
+            enabled=False,
+            contact="admin@root.local",
+            description="A datacenter is fine too",
+            location="Between the earth and the moon")
         assert False == dc1.enabled
         assert "admin@root.local" == dc1.contact
         assert "A datacenter is fine too" == dc1.description
@@ -80,11 +82,9 @@ class TestCreate(object):
 
     def test_create_duplicate(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, 'dc1', 'Common')
-        dc1 = mgmt_root.tm.gtm.datacenters.datacenter
-        dc1.create(name='dc1', partition='Common')
-        dc2 = mgmt_root.tm.gtm.datacenters.datacenter
         with pytest.raises(HTTPError) as err:
-            dc2.create(name='dc1', partition='Common')
+            mgmt_root.tm.gtm.datacenters.datacenter.create(
+                name='dc1', partition='Common')
             assert err.response.status_code == 400
 
 
@@ -153,8 +153,8 @@ class TestDelete(object):
 class TestDatacenterCollection(object):
     def test_datacenter_collection(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, 'dc1', 'Common')
-        dc1 = mgmt_root.tm.gtm.datacenters.datacenter
-        dc1.create(name='dc1', partition='Common')
+        dc1 = mgmt_root.tm.gtm.datacenters.datacenter.create(
+            name='dc1', partition='Common')
         assert dc1.name == 'dc1'
         assert dc1.partition == 'Common'
         assert dc1.generation and isinstance(dc1.generation, int)

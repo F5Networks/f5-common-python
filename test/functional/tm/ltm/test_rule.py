@@ -29,9 +29,8 @@ pool my_pool
 
 
 def delete_rule(bigip, name, partition):
-    r = bigip.ltm.rules.rule
     try:
-        r.load(name=name, partition=partition)
+        r = bigip.ltm.rules.rule.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -49,27 +48,25 @@ def setup_basic_test(request, bigip, name, partition):
     def teardown():
         delete_rule(bigip, name, partition)
 
-    rule1 = bigip.ltm.rules.rule
-    rule1.create(name=name, partition=partition, apiAnonymous=RULE)
+    rule1 = bigip.ltm.rules.rule.create(
+        name=name, partition=partition, apiAnonymous=RULE)
     request.addfinalizer(teardown)
     return rule1
 
 
 class TestCreate(object):
     def test_create_no_args(self, bigip):
-        rule1 = bigip.ltm.rules.rule
         with pytest.raises(MissingRequiredCreationParameter):
-            rule1.create()
+            bigip.ltm.rules.rule.create()
 
     def test_create_no_apianonymous(self, bigip):
-        rule1 = bigip.ltm.rules.rule
         with pytest.raises(MissingRequiredCreationParameter):
-            rule1.create(name='rule1', partition='Common')
+            bigip.ltm.rules.rule.create(name='rule1', partition='Common')
 
     def test_create(self, request, bigip):
         setup_create_test(request, bigip, 'rule1', 'Common')
-        rule1 = bigip.ltm.rules.rule
-        rule1.create(name='rule1', partition='Common', apiAnonymous=RULE)
+        rule1 = bigip.ltm.rules.rule.create(
+            name='rule1', partition='Common', apiAnonymous=RULE)
         assert rule1.name == 'rule1'
         assert rule1.partition == 'Common'
         assert rule1.generation and isinstance(rule1.generation, int)
@@ -84,10 +81,10 @@ class TestCreate(object):
 
     def test_create_optional_args(self, request, bigip):
         setup_create_test(request, bigip, 'rule1', 'Common')
-        rule1 = bigip.ltm.rules.rule
-        rule1.create(name='rule1', partition='Common',
-                     apiAnonymous=RULE,
-                     ignoreVerification=True)
+        rule1 = bigip.ltm.rules.rule.create(
+            name='rule1', partition='Common',
+            apiAnonymous=RULE,
+            ignoreVerification=True)
         assert rule1.ignoreVerification == 'true'
 
         # These are assertions that fail due to BigIP REST API problems
@@ -95,15 +92,17 @@ class TestCreate(object):
 
     def test_create_duplicate(self, request, bigip):
         setup_create_test(request, bigip, 'rule1', 'Common')
-        rule1 = bigip.ltm.rules.rule
-        rule1.create(name='rule1', partition='Common',
-                     apiAnonymous=RULE,
-                     ignoreVerification=True)
-        rule2 = bigip.ltm.rules.rule
+        bigip.ltm.rules.rule.create(
+            name='rule1',
+            partition='Common',
+            apiAnonymous=RULE,
+            ignoreVerification=True)
         with pytest.raises(HTTPError) as err:
-            rule2.create(name='rule1', partition='Common',
-                         apiAnonymous=RULE,
-                         ignoreVerification=True)
+            bigip.ltm.rules.rule.create(
+                name='rule1',
+                partition='Common',
+                apiAnonymous=RULE,
+                ignoreVerification=True)
             assert err.response.status_code == 400
 
 

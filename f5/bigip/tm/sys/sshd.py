@@ -27,11 +27,10 @@ REST Kind
     ``tm:sys:sshd:sshdstate``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
-from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import UnnamedResource
 
 
-class Sshd(UnnamedResourceMixin, ResourceBase):
+class Sshd(UnnamedResource):
     """BIG-IP® system SSHD unnamed resource
 
         .. note::

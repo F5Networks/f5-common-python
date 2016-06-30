@@ -22,12 +22,12 @@ from requests.exceptions import HTTPError
 def delete_user(bigip, name):
     user = bigip.auth.users.user
     try:
-        user.load(name=name)
+        user1 = user.load(name=name)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
         return
-    user.delete()
+    user1.delete()
 
 
 def setup_loadable_user_test(request, bigip, user):
@@ -36,8 +36,8 @@ def setup_loadable_user_test(request, bigip, user):
 
     request.addfinalizer(teardown)
 
-    user.create(name='user1')
-    assert user.name == 'user1'
+    user1 = user.create(name='user1')
+    assert user1.name == 'user1'
 
 
 def setup_create_test(request, bigip):
@@ -96,8 +96,8 @@ class TestCreate(object):
 
     def test_create_description(self, request, bigip, USER):
         setup_create_test(request, bigip)
-        USER.create(name='user1', description='foo')
-        assert USER.description == 'foo'
+        USER1 = USER.create(name='user1', description='foo')
+        assert USER1.description == 'foo'
 
 
 class TestLoad(object):

@@ -27,9 +27,8 @@ REST Kind
     ``tm:sys:performance:*``
 """
 
-from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.resource import Collection
-from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import UnsupportedOperation
 
 
@@ -50,7 +49,7 @@ class Performances(Collection):
         )
 
 
-class All_Stats(UnnamedResourceMixin, ResourceBase):
+class All_Stats(UnnamedResource):
     """BIG-IP® system performace stats unnamed resource"""
     def __init__(self, performance):
         super(All_Stats, self).__init__(performance)

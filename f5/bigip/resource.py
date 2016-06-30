@@ -84,6 +84,7 @@ import urlparse
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
 from f5.sdk_exception import F5SDKError
+from f5.sdk_exception import UnsupportedMethod
 from requests.exceptions import HTTPError
 
 
@@ -389,7 +390,6 @@ class ResourceBase(PathElement, ToDictMixin):
     This can be shortened to just the last line:
 
     .. code-block:: python
-
         nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3', '1.2.3.4')
 
     Critically this enforces a convention relating device published uris to
@@ -530,6 +530,31 @@ class ResourceBase(PathElement, ToDictMixin):
         """
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
+
+    def _stamp_out_core(self):
+        container = self._meta_data['container']
+        core = self.__class__.__new__(self.__class__)
+        core.__init__(container)
+        return core
+
+    def _produce_instance(self, response):
+        '''Generate a new self, which is an instance of the self.'''
+        new_instance = self._stamp_out_core()
+        # Post-process the response
+        new_instance._local_update(response.json())
+
+        if new_instance.kind != new_instance._meta_data['required_json_kind'] \
+           and new_instance.kind != "tm:transaction:commandsstate":
+            error_message = "For instances of type '%r' the corresponding"\
+                " kind must be '%r' but creation returned JSON with kind: %r"\
+                % (new_instance.__class__.__name__,
+                   new_instance._meta_data['required_json_kind'],
+                   new_instance.kind)
+            raise KindTypeMismatch(error_message)
+
+        # Update the object to have the correct functional uri.
+        new_instance._activate_URI(new_instance.selfLink)
+        return new_instance
 
 
 class OrganizingCollection(ResourceBase):
@@ -737,21 +762,8 @@ class Resource(ResourceBase):
         # Invoke the REST operation on the device.
         response = session.post(_create_uri, json=kwargs, **requests_params)
 
-        # Post-process the response
-        self._local_update(response.json())
-
-        if self.kind != self._meta_data['required_json_kind'] \
-           and self.kind != "tm:transaction:commandsstate":
-            error_message = "For instances of type '%r' the corresponding"\
-                " kind must be '%r' but creation returned JSON with kind: %r"\
-                % (self.__class__.__name__,
-                   self._meta_data['required_json_kind'],
-                   self.kind)
-            raise KindTypeMismatch(error_message)
-
-        # Update the object to have the correct functional uri.
-        self._activate_URI(self.selfLink)
-        return self
+        # Make new instance of self
+        return self._produce_instance(response)
 
     def create(self, **kwargs):
         """Create the resource on the BIG-IP®.
@@ -781,8 +793,7 @@ class Resource(ResourceBase):
                   configuration and state on the BIG-IP®.
 
         """
-        self._create(**kwargs)
-        return self
+        return self._create(**kwargs)
 
     def _load(self, **kwargs):
         """wrapped with load, override that in a subclass to customize"""
@@ -798,9 +809,8 @@ class Resource(ResourceBase):
         base_uri = self._meta_data['container']._meta_data['uri']
         kwargs.update(requests_params)
         response = refresh_session.get(base_uri, **kwargs)
-        self._local_update(response.json())
-        self._activate_URI(self.selfLink)
-        return self
+        # Make new instance of self
+        return self._produce_instance(response)
 
     def load(self, **kwargs):
         """Load an already configured service into this instance.
@@ -819,12 +829,12 @@ class Resource(ResourceBase):
         be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
         :returns: a Resource Instance (with a populated _meta_data['uri'])
         """
-        self._load(**kwargs)
-        return self
+        return self._load(**kwargs)
 
     def _delete(self, **kwargs):
         """wrapped with delete, override that in a subclass to customize """
         requests_params = self._handle_requests_params(kwargs)
+
         delete_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
 
@@ -887,3 +897,37 @@ class Resource(ResourceBase):
             else:
                 raise
         return True
+
+
+class UnnamedResource(ResourceBase):
+    '''This makes a resource object work if there is no name.
+
+    These objects do not support create or delete and are often found
+    as Resources that are under an organizing collection.  For example
+    the `mgmt/tm/sys/global-settings` is one of these and has a kind of
+    `tm:sys:global-settings:global-settingsstate` and the URI does not
+    match the kind.
+    '''
+
+    def create(self, **kwargs):
+        '''Create is not supported for unnamed resources
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        '''Delete is not supported for unnamed resources
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the delete method" % self.__class__.__name__
+        )
+
+    def load(self, **kwargs):
+        newinst = self._stamp_out_core()
+        newinst._refresh(**kwargs)
+        return newinst

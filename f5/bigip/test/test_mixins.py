@@ -17,7 +17,6 @@ import pytest
 
 from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.mixins import ToDictMixin
-from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.mixins import UnsupportedMethod
 
 
@@ -105,18 +104,6 @@ def test_TestClass_Basic():
     TDMAttrObj.y = DictableClass()
     mtc_as_dict = TDMAttrObj.to_dict()
     assert json.dumps(mtc_as_dict) == '{"y": {"test_attribute": 42}}'
-
-
-class TestUnnamedResourceMixin(object):
-    def test_create_raises(self):
-        unnamed_resource = UnnamedResourceMixin()
-        with pytest.raises(UnsupportedMethod):
-            unnamed_resource.create()
-
-    def test_delete_raises(self):
-        unnamed_resource = UnnamedResourceMixin()
-        with pytest.raises(UnsupportedMethod):
-            unnamed_resource.create()
 
 
 class TestCommandExecutionMixin(object):
