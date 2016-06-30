@@ -31,9 +31,9 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class Data_Groups(OrganizingCollection):
+class Data_Group(OrganizingCollection):
     def __init__(self, ltm):
-        super(Data_Groups, self).__init__(ltm)
+        super(Data_Group, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [
             Internals,
             Internal
@@ -53,7 +53,4 @@ class Internal(Resource):
     def __init__(self, internals):
         super(Internal, self).__init__(internals)
         self._meta_data['required_json_kind'] = u'tm:ltm:data-group:internal:internalstate'
-        self._meta_data['required_creation_parameters'].create('name', 'type', 'records')
-
-
-
+        self._meta_data['required_creation_parameters'].update(('name', 'type', 'records'))
