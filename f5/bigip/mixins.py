@@ -127,6 +127,24 @@ class LazyAttributeMixin(object):
                         tmos_v, minimum)
             raise UnsupportedTmosVersion(error)
 
+    def _is_version_supported_method(container, method_version):
+        """Helper method
+
+         To use in instances where class methods on some resources
+         require a specific TMOS version to run.
+
+        Raises::
+                UnsupportedTmosVersion
+        """
+        tmos_v = container._meta_data['bigip'].tmos_version
+        if LooseVersion(tmos_v) < LooseVersion(method_version):
+            error = "There was an attempt to use a method which " \
+                    "has not been implemented or supported " \
+                    "in the device's TMOS version: {}. " \
+                    "Minimum TMOS version supported is {}".format(
+                        tmos_v, method_version)
+            raise UnsupportedTmosVersion(error)
+
 
 class ExclusiveAttributesMixin(object):
     """Overrides ``__setattr__`` to remove exclusive attrs from the object."""
