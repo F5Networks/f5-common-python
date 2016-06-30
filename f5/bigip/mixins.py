@@ -141,8 +141,8 @@ class LazyAttributeMixin(object):
             error = "There was an attempt to use a method which " \
                     "has not been implemented or supported " \
                     "in the device's TMOS version: %s. " \
-                    "Minimum TMOS version supported is %s" % \
-                        tmos_v, method_version
+                    "Minimum TMOS version supported is %s" % (
+                        tmos_v, method_version)
             raise UnsupportedTmosVersion(error)
 
 
