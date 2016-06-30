@@ -140,9 +140,9 @@ class LazyAttributeMixin(object):
         if LooseVersion(tmos_v) < LooseVersion(method_version):
             error = "There was an attempt to use a method which " \
                     "has not been implemented or supported " \
-                    "in the device's TMOS version: {}. " \
-                    "Minimum TMOS version supported is {}".format(
-                        tmos_v, method_version)
+                    "in the device's TMOS version: %s. " \
+                    "Minimum TMOS version supported is %s" % \
+                        tmos_v, method_version
             raise UnsupportedTmosVersion(error)
 
 
