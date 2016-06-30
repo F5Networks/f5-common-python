@@ -316,3 +316,79 @@ class DeviceMixin(object):
         device = [device for device in coll if device.selfDevice == 'true']
         assert len(device) == 1
         return device[0]
+
+
+class StatsMixin(object):
+    """This mixin allows attaching 'stats' object as an
+        attribute to a resource.
+
+        Stats are available on some objects, and require
+        the target object to be loaded first.
+        It also allows the caller to retrieve the converted json
+        response in unprocessed state.
+
+    """
+
+    def _key_dot_replace(self, rdict):
+        """Replace fullstops in returned keynames"""
+        if isinstance(rdict, dict):
+            return {key.replace('.', '_'): self._key_dot_replace(val)
+                    for key, val in rdict.items()}
+
+    def _get_stats(self, rdict):
+        """Helper method to convert dictionary into an object
+
+            Each stat element in the returned json
+            contains a single key:value pair dictionary.
+            Hence this method will allow access to each stat value
+            using python 'dot' notation.
+        """
+
+        class DictConvert(object):
+            def __init__(self, rdict):
+                """Convert a dictionary to a class
+
+                Taken from:
+                http://kiennt.com/blog/2012/06/14/python-object-and-dictionary-convertion.html
+
+                @param :rdict Dictionary
+                """
+                self.__dict__.update(rdict)
+                for k, v in rdict.items():
+                    if isinstance(v, dict):
+                        self.__dict__[k] = DictConvert(v)
+        return DictConvert(rdict)
+
+    def get_stats(self):
+        """Attaches stats object to a VS"""
+        rdict = self._get_stats_raw()
+        self._update_dict(rdict)
+
+    @property
+    def stats_raw(self):
+        """Provides json blob converted to python dictionary"""
+        return self._get_stats_raw()
+
+    def _get_stats_raw(self):
+        """Displays JSON object transformed into python dictionary"""
+        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['uri'] + 'stats/'
+        response = read_session.get(base_uri)
+        rdict = response.json()
+        return rdict
+
+    def _update_dict(self, rdict):
+        """Updates dictionary stats key with class object
+
+        We are only interested in the contents 'entries'
+        key of the returned json, rest is irrelevant
+        for us.
+
+        We still utilize _check_keys method to sanitze
+        the values before further processing.
+
+        """
+        sanitized = self._check_keys(rdict.pop('entries'))
+        stat_vals = self._key_dot_replace(sanitized)
+        tmp_dict = self._get_stats(stat_vals)
+        self.__dict__['stats'] = tmp_dict

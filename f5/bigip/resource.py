@@ -887,3 +887,5 @@ class Resource(ResourceBase):
             else:
                 raise
         return True
+
+
