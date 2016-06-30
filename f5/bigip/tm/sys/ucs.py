@@ -27,29 +27,41 @@ REST Kind
 """
 
 from f5.bigip.mixins import CommandExecutionMixin
-from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.mixins import InvalidCommand
-from f5.bigip.resource import Collection
+from f5.bigip.mixins import UnnamedResourceMixin
 from f5.bigip.resource import ResourceBase
 from requests.exceptions import HTTPError
 
 
-class Ucs_s(Collection, CommandExecutionMixin):
-    """BIG-IP® system UCS collection
+class Ucs(UnnamedResourceMixin, ResourceBase,
+          CommandExecutionMixin):
+    """BIG-IP® system UCS resource
 
         .. note::
+        Given the fact that 11.6.0 UCS via rest is
+        broken, this feature will be supported in 12.0.0 and above.
+        Listing of installed UCS has been fixed in 12.1.0.
+        This resource is a collection which does not allow listing
+        of each ucs as a resource. 'Items' attribute of the loaded object
+        is used to access the list of installed UCS files.
+
+        Caveat:
+        Loading UCS will result in ICRD restarting, therefore
+        due to ID476518 502 Bad Gateway is generated, this is
+        working as intended, at least until some architecture
+        changes have been made.
+
 
     """
     def __init__(self, sys):
-        super(Ucs_s, self).__init__(sys)
-        self._meta_data['allowed_lazy_attributes'] = [Ucs]
+        super(Ucs, self).__init__(sys)
+        self._meta_data['required_load_parameters'] = set()
         self._meta_data['allowed_commands'].extend(['load', 'save'])
-        self._meta_data['attribute_registry'] = \
-            {'tm:sys:ucs:ucsstate': Ucs}
+        self._meta_data['required_json_kind'] = ''
         self._meta_data['minimum_version'] = '12.0.0'
 
     def exec_cmd(self, command, **kwargs):
-
+        """Due to ID476518 the load command need special treatment"""
         cmds = self._meta_data['allowed_commands']
 
         if command not in self._meta_data['allowed_commands']:
@@ -76,10 +88,15 @@ class Ucs_s(Collection, CommandExecutionMixin):
         else:
             return self._exec_cmd(command, **kwargs)
 
+    def load(self, **kwargs):
+        """Method to list the UCS on the system
 
-class Ucs(UnnamedResourceMixin, ResourceBase):
-    def __init__(self, Ucs_s):
-        super(Ucs, self).__init__(Ucs_s)
-        self._meta_data['required_load_parameters'] = set()
-        self._meta_data['required_json_kind'] = 'tm:sys:ucs:ucsstate'
-        self._meta_data['minimum_version'] = '12.1.0'
+        Since this is only fixed in 12.1.0 and up
+        we implemented version check here
+        """
+
+        # Check if we are using 12.1.0 version or above when using this method
+        self._is_version_supported_method('12.1.0')
+
+        self._load(**kwargs)
+        return self
