@@ -19,8 +19,8 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.gtm.datacenter import Datacenter
 from requests.exceptions import HTTPError
 
-pytestmark = pytest.mark.skipif(
-    True, reason='these tests require the optional gtm module')
+# pytestmark = pytest.mark.skipif(
+#    True, reason='these tests require the optional gtm module')
 
 
 def delete_dc(mgmt_root, name, partition):
