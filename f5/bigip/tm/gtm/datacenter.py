@@ -128,15 +128,15 @@ class Datacenter(Resource, ExclusiveAttributesMixin):
         if 'disabled' in kwargs and kwargs['disabled']:
             del kwargs['enabled']
 
-        self._create(**kwargs)
-        self._endis_attrs()
-        return self
+        inst = self._create(**kwargs)
+        inst._endis_attrs()
+        return inst
 
     def load(self, **kwargs):
         kwargs = self._endis_able(kwargs)
-        self._load(**kwargs)
-        self._endis_attrs()
-        return self
+        inst = self._load(**kwargs)
+        inst._endis_attrs()
+        return inst
 
     def refresh(self, **kwargs):
         kwargs = self._endis_able(kwargs)

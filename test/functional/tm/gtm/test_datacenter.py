@@ -19,19 +19,17 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.gtm.datacenter import Datacenter
 from requests.exceptions import HTTPError
 
-pytestmark = pytest.mark.skipif(
-    True, reason='these tests require the optional gtm module')
-
 
 def delete_dc(mgmt_root, name, partition):
-    r = mgmt_root.tm.gtm.datacenters.datacenter
     try:
-        r.load(name=name, partition=partition)
+        foo = mgmt_root.tm.gtm.datacenters.datacenter.load(
+            name=name, partition=partition
+        )
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
         return
-    r.delete()
+    foo.delete()
 
 
 def setup_create_test(request, mgmt_root, name, partition):
@@ -81,7 +79,7 @@ class TestCreate(object):
         assert "Between the earth and the moon" == dc1.location
 
     def test_create_duplicate(self, request, mgmt_root):
-        setup_create_test(request, mgmt_root, 'dc1', 'Common')
+        setup_basic_test(request, mgmt_root, 'dc1', 'Common')
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.datacenters.datacenter.create(
                 name='dc1', partition='Common')

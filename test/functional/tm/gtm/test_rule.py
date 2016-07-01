@@ -19,9 +19,6 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.gtm.rule import Rule
 from requests.exceptions import HTTPError
 
-pytestmark = pytest.mark.skipif(
-    True, reason='these tests require the optional gtm module')
-
 
 RULE = '''when LB_SELECTED {
    set wipHost [LB::server addr]
@@ -30,14 +27,13 @@ RULE = '''when LB_SELECTED {
 
 
 def delete_rule(mgmt_root, name, partition):
-    r = mgmt_root.tm.gtm.rules.rule
     try:
-        r.load(name=name, partition=partition)
+        foo = mgmt_root.tm.gtm.rules.rule.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
         return
-    r.delete()
+    foo.delete()
 
 
 def setup_create_test(request, mgmt_root, name, partition):
@@ -50,8 +46,9 @@ def setup_basic_test(request, mgmt_root, name, partition):
     def teardown():
         delete_rule(mgmt_root, name, partition)
 
-    rule1 = mgmt_root.tm.gtm.rules.rule
-    rule1.create(name=name, partition=partition, apiAnonymous=RULE)
+    rule1 = mgmt_root.tm.gtm.rules.rule.create(
+        name=name, partition=partition, apiAnonymous=RULE
+    )
     request.addfinalizer(teardown)
     return rule1
 
@@ -69,8 +66,10 @@ class TestCreate(object):
 
     def test_create(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, 'rule1', 'Common')
-        rule1 = mgmt_root.tm.gtm.rules.rule
-        rule1.create(name='rule1', partition='Common', apiAnonymous=RULE)
+
+        rule1 = mgmt_root.tm.gtm.rules.rule.create(
+            name='rule1', partition='Common', apiAnonymous=RULE
+        )
         assert rule1.name == 'rule1'
         assert rule1.partition == 'Common'
         assert rule1.generation and isinstance(rule1.generation, int)
@@ -82,10 +81,11 @@ class TestCreate(object):
 
     def test_create_optional_args(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, 'rule1', 'Common')
-        rule1 = mgmt_root.tm.gtm.rules.rule
-        rule1.create(name='rule1', partition='Common',
-                     apiAnonymous=RULE,
-                     check='syntax')
+
+        rule1 = mgmt_root.tm.gtm.rules.rule.create(
+            name='rule1', partition='Common',
+            apiAnonymous=RULE, check='syntax'
+        )
         assert 'check syntax' in rule1.apiAnonymous
 
     def test_create_duplicate(self, request, mgmt_root):
@@ -164,8 +164,10 @@ class TestDelete(object):
 class TestRuleCollection(object):
     def test_rule_collection(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, 'rule1', 'Common')
-        rule1 = mgmt_root.tm.gtm.rules.rule
-        rule1.create(name='rule1', partition='Common', apiAnonymous=RULE)
+
+        rule1 = mgmt_root.tm.gtm.rules.rule.create(
+            name='rule1', partition='Common', apiAnonymous=RULE
+        )
         assert rule1.name == 'rule1'
         assert rule1.partition == 'Common'
         assert rule1.generation and isinstance(rule1.generation, int)
