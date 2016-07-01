@@ -32,7 +32,7 @@ def setup_tunnel_test(request, bigip, name, partition, ip, profile):
         delete_resource(tunnel)
     request.addfinalizer(teardown)
 
-    tunnel = bigip.net.tunnels.tunnels.tunnel.create(
+    tunnel = bigip.net.tunnels_s.tunnels.tunnel.create(
         name=name, partition=partition, localAddress=ip, profile=profile)
     return tunnel
 
@@ -42,7 +42,7 @@ def setup_gre_test(request, bigip, name, partition):
         delete_resource(gre)
     request.addfinalizer(teardown)
 
-    gre = bigip.net.tunnels.gres.gre.create(
+    gre = bigip.net.tunnels_s.gres.gre.create(
         name=name, partition=partition)
     return gre
 
@@ -52,14 +52,14 @@ def setup_vxlan_test(request, bigip, name, partition):
         delete_resource(vxlan)
     request.addfinalizer(teardown)
 
-    vxlan = bigip.net.tunnels.vxlans.vxlan.create(
+    vxlan = bigip.net.tunnels_s.vxlans.vxlan.create(
         name=name, partition=partition)
     return vxlan
 
 
 class TestTunnels(object):
     def test_tunnel_list(self, bigip):
-        tunnels = bigip.net.tunnels.tunnels.get_collection()
+        tunnels = bigip.net.tunnels_s.tunnels.get_collection()
         assert len(tunnels)
         for tunnel in tunnels:
             assert tunnel.generation
@@ -74,7 +74,7 @@ class TestTunnel(object):
         )
 
         # Load
-        t2 = bigip.net.tunnels.tunnels.tunnel.load(
+        t2 = bigip.net.tunnels_s.tunnels.tunnel.load(
             name='tunnel-test', partition='Common')
         assert t1.name == 'tunnel-test'
         assert t1.name == t2.name
@@ -99,7 +99,7 @@ class TestGre(object):
         assert g1.name == 'gre-test'
 
         # Load
-        g2 = bigip.net.tunnels.gres.gre.load(
+        g2 = bigip.net.tunnels_s.gres.gre.load(
             name='gre-test', partition='Common')
         assert g1.name == g2.name
         assert g1.generation == g2.generation
@@ -123,7 +123,7 @@ class TestVxlan(object):
         assert vx1.name == 'vxlan-test'
 
         # Load
-        vx2 = bigip.net.tunnels.vxlans.vxlan.load(
+        vx2 = bigip.net.tunnels_s.vxlans.vxlan.load(
             name='vxlan-test', partition='Common')
         assert vx1.name == vx2.name
         assert vx1.generation == vx2.generation
