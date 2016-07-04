@@ -36,7 +36,9 @@ class Data_Group(OrganizingCollection):
         super(Data_Group, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [
             Internals,
-            Internal
+            Internal,
+            Externals,
+            External
         ]
 
 
@@ -44,13 +46,40 @@ class Internals(Collection):
     def __init__(self, data_groups):
         super(Internals, self).__init__(data_groups)
         self._meta_data['allowed_lazy_attributes'] = [Internal]
-        self._meta_data['required_json_kind'] = u'tm:ltm:data-group:internal:internalcollectionstate'
-        self._meta_data['attribute_registry'] = {u'tm:ltm:data-group:internal:internalstate': Internal}
+        self._meta_data['required_json_kind'] = \
+            u'tm:ltm:data-group:internal:internalcollectionstate'
+        self._meta_data['attribute_registry'] = \
+            {u'tm:ltm:data-group:internal:internalstate': Internal}
         self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
 
 
 class Internal(Resource):
     def __init__(self, internals):
         super(Internal, self).__init__(internals)
-        self._meta_data['required_json_kind'] = u'tm:ltm:data-group:internal:internalstate'
+        self._meta_data['required_json_kind'] = \
+            u'tm:ltm:data-group:internal:internalstate'
         self._meta_data['required_creation_parameters'].update(('name', 'type', 'records'))
+
+    def update(self, **kwargs):
+        if 'type' in self.__dict__:
+            del self.__dict__['type']
+        return self._update(**kwargs)
+
+
+class Externals(Collection):
+    def __init__(self, data_groups):
+        super(Externals, self).__init__(data_groups)
+        self._meta_data['allowed_lazy_attributes'] = [External]
+        self._meta_data['required_json_kind'] =\
+            u'tm:ltm:data-group:external:externalcollectionstate'
+        self._meta_data['attribute_registry'] =\
+            {u'tm:ltm:data-group:external:externalstate': External}
+        self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
+
+
+class External(Resource):
+    def __init__(self, externals):
+        super(External, self).__init__(externals)
+        self._meta_data['required_json_kind'] =\
+            u'tm:ltm:data-group:external:externalstate'
+        self._meta_data['required_creation_parameters'].update(('name', 'externalFileName'))

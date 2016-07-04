@@ -34,6 +34,7 @@ from f5.bigip.tm.sys.crypto import Crypto
 from f5.bigip.tm.sys.db import Dbs
 from f5.bigip.tm.sys.dns import Dns
 from f5.bigip.tm.sys.failover import Failover
+from f5.bigip.tm.sys.file import File
 from f5.bigip.tm.sys.folder import Folders
 from f5.bigip.tm.sys.global_settings import Global_Settings
 from f5.bigip.tm.sys.httpd import Httpd
@@ -49,6 +50,7 @@ class Sys(OrganizingCollection):
         self._meta_data['allowed_lazy_attributes'] = [
             Config,
             Crypto,
+            File,
             Folders,
             Application,
             Performances,
