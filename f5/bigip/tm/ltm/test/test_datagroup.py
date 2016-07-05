@@ -19,7 +19,8 @@ import pytest
 
 from f5.bigip import ManagementRoot
 from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.tm.ltm.data_group import Internal, External
+from f5.bigip.tm.ltm.data_group import External
+from f5.bigip.tm.ltm.data_group import Internal
 
 
 @pytest.fixture
@@ -27,6 +28,7 @@ def FakeData_Group_Internal():
     fake_dg = mock.MagicMock()
     fake_dg = Internal(fake_dg)
     return fake_dg
+
 
 @pytest.fixture
 def FakeData_Group_External():

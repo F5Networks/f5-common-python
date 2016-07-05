@@ -26,8 +26,8 @@ REST Kind
     ``tm:ltm:data-group*``
 """
 
-from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Collection
+from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 
 
@@ -58,7 +58,9 @@ class Internal(Resource):
         super(Internal, self).__init__(internals)
         self._meta_data['required_json_kind'] = \
             u'tm:ltm:data-group:internal:internalstate'
-        self._meta_data['required_creation_parameters'].update(('name', 'type', 'records'))
+        self._meta_data['required_creation_parameters'].update(
+            ('name', 'type', 'records')
+        )
 
     def update(self, **kwargs):
         if 'type' in self.__dict__:
@@ -82,4 +84,6 @@ class External(Resource):
         super(External, self).__init__(externals)
         self._meta_data['required_json_kind'] =\
             u'tm:ltm:data-group:external:externalstate'
-        self._meta_data['required_creation_parameters'].update(('name', 'externalFileName'))
+        self._meta_data['required_creation_parameters'].update(
+            ('name', 'externalFileName')
+        )

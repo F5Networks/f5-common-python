@@ -54,4 +54,6 @@ class Data_Group(Resource):
         super(Data_Group, self).__init__(data_groups)
         self._meta_data['required_json_kind'] =\
             u'tm:sys:file:data-group:data-groupstate'
-        self._meta_data['required_creation_parameters'].update(('name', 'sourcePath', 'type'))
+        self._meta_data['required_creation_parameters'].update(
+            ('name', 'sourcePath', 'type')
+        )
