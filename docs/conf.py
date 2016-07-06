@@ -29,7 +29,7 @@ VERSION = f5.__version__
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-# needs_sphinx = '1.0'
+needs_sphinx = '1.4'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -41,6 +41,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'sphinx.ext.autosectionlabel',
 ]
 
 autodoc_default_flags = ['inherited-members', 'show-inheritance']
@@ -335,5 +336,15 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'requests': ('http://docs.python-requests.org/en/latest/', None)
+    'requests': ('http://docs.python-requests.org/en/latest/', None),
+    'heat': (
+    'http://f5-openstack-heat.readthedocs.io/en/latest', None),
+    'heatplugins': (
+    'http://f5-openstack-heat-plugins.readthedocs.io/en/latest', None),
+    'lbaasv1': (
+    'http://f5-openstack-lbaasv1.readthedocs.io/en/latest/', None),
+    'lbaasv2': (
+    'http://f5-openstack-lbaasv2-driver.readthedocs.io/en/latest', None),
+    'agent': (
+    'http://f5-openstack-agent.readthedocs.io/en/latest', None),
 }

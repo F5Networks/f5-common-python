@@ -28,7 +28,7 @@ REST Kind
 """
 
 from f5.bigip.resource import OrganizingCollection
-from f5.bigip.tm.sys.application import Applications
+from f5.bigip.tm.sys.application import Application
 from f5.bigip.tm.sys.config import Config
 from f5.bigip.tm.sys.crypto import Crypto
 from f5.bigip.tm.sys.db import Dbs
@@ -50,7 +50,7 @@ class Sys(OrganizingCollection):
             Config,
             Crypto,
             Folders,
-            Applications,
+            Application,
             Performances,
             Dbs,
             Global_Settings,

@@ -17,7 +17,7 @@ from pprint import pprint as pp
 
 
 def test_persist_universal_CURDLE(bigip, opt_release):
-    u1 = bigip.ltm.persistences.universals.universal
+    u1 = bigip.ltm.persistence.universals.universal
     u1.create(partition="Common", name="UniversalTest")
     pp(u1.raw)
     assert u1.selfLink ==\
@@ -27,7 +27,7 @@ def test_persist_universal_CURDLE(bigip, opt_release):
     u1.timeout = 179
     u1.update()
     assert u1.timeout == u"179"
-    u2 = bigip.ltm.persistences.universals.universal
+    u2 = bigip.ltm.persistence.universals.universal
     u2.load(partition="Common", name="UniversalTest")
     u2.timeout = u"180"
     u2.update()
@@ -39,7 +39,7 @@ def test_persist_universal_CURDLE(bigip, opt_release):
 
 
 def test_persist_cookie_CURDLE(bigip, opt_release):
-    c1 = bigip.ltm.persistences.cookies.cookie
+    c1 = bigip.ltm.persistence.cookies.cookie
     c1.create(partition="Common", name="CookieTest")
     assert c1.selfLink ==\
         u"https://localhost/mgmt/tm/ltm/persistence/cookie/"\
@@ -48,7 +48,7 @@ def test_persist_cookie_CURDLE(bigip, opt_release):
     c1.timeout = 179
     c1.update()
     assert c1.timeout == u"179"
-    c2 = bigip.ltm.persistences.cookies.cookie
+    c2 = bigip.ltm.persistence.cookies.cookie
     c2.load(partition="Common", name="CookieTest")
     c2.timeout = u"180"
     c2.update()

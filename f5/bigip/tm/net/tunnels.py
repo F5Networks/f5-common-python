@@ -28,10 +28,11 @@ REST Kind
 """
 
 from f5.bigip.resource import Collection
+from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 
 
-class Tunnels_s(Collection):
+class Tunnels_s(OrganizingCollection):
     """BIG-IP® network tunnels collection"""
     def __init__(self, net):
         super(Tunnels_s, self).__init__(net)

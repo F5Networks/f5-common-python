@@ -212,7 +212,7 @@ class TrustDomain(object):
                                  iapp will be deleted
         '''
 
-        iapp = deploying_device.tm.sys.applications
+        iapp = deploying_device.tm.sys.application
         iapp_serv = iapp.services.service.load(
             name=iapp_name, partition=self.partition
         )
@@ -231,10 +231,10 @@ class TrustDomain(object):
                                  iapp will be created
         '''
 
-        tmpl = deploying_device.tm.sys.applications.templates.template
-        serv = deploying_device.tm.sys.applications.services.service
+        tmpl = deploying_device.tm.sys.application.templates.template
+        serv = deploying_device.tm.sys.application.services.service
         tmpl.create(name=iapp_name, partition=self.partition, actions=actions)
-        pollster(deploying_device.tm.sys.applications.templates.template.load)(
+        pollster(deploying_device.tm.sys.application.templates.template.load)(
             name=iapp_name, partition=self.partition
         )
         serv.create(

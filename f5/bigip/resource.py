@@ -87,12 +87,18 @@ from f5.sdk_exception import F5SDKError
 from requests.exceptions import HTTPError
 
 
+class MissingRequiredCommandParameter(F5SDKError):
+    """Various values MUST be provided to execute a command."""
+    pass
+
+
+class ExclusiveAttributesPresent(F5SDKError):
+    """Raises this when exclusive attributes are present."""
+    pass
+
+
 class MissingUpdateParameter(F5SDKError):
-    """Raises this when update requires specific
-
-    parameters together
-
-    """
+    """Raises this when update requires specific parameters together."""
     pass
 
 
@@ -173,7 +179,13 @@ class PathElement(LazyAttributeMixin):
         self._set_meta_data_uri()
         # Supported versions for each class will be defined here.
         # List can be modified downstream in each sub-class
-        self._meta_data['supported_versions'] = set(['11.6.0', '12.0.0'])
+        self._meta_data['minimum_version'] = '11.6.0'
+        # Commands you can run on a resource or collection, we define it here
+        self._meta_data['allowed_commands'] = []
+        # Define required command parameters
+        self._meta_data['required_command_parameters'] = set()
+        # You can't have more than one of the attributes in any of these sets.
+        self._meta_data['exclusive_attributes'] = []
 
     def _set_meta_data_uri(self):
         base_uri = self.__class__.__name__.lower()
@@ -190,18 +202,40 @@ class PathElement(LazyAttributeMixin):
         self._meta_data['uri'] = final_uri
 
     def _check_load_parameters(self, **kwargs):
-        '''Params given to load should at least satisfy required params.
+        """Params given to load should at least satisfy required params.
 
         :params: kwargs
         :raises: MissingRequiredReadParameter
-        '''
-        key_set = set(kwargs.keys())
-        required_minus_received =\
-            self._meta_data['required_load_parameters'] - key_set
-        if required_minus_received != set():
-            error_message = 'Missing required params: %r'\
-                % required_minus_received
+        """
+        rset = self._meta_data['required_load_parameters']
+        check = self._missing_required_parameters(rset, **kwargs)
+        if check:
+            error_message = 'Missing required params: %s' % check
             raise MissingRequiredReadParameter(error_message)
+
+    def _check_create_parameters(self, **kwargs):
+        """Params given to create should satisfy required params.
+
+        :params: kwargs
+        :raises: MissingRequiredCreateParameter
+        """
+        rset = self._meta_data['required_creation_parameters']
+        check = self._missing_required_parameters(rset, **kwargs)
+        if check:
+            error_message = 'Missing required params: %s' % check
+            raise MissingRequiredCreationParameter(error_message)
+
+    def _check_command_parameters(self, **kwargs):
+        """Params given to exec_cmd should satisfy required params.
+
+        :params: kwargs
+        :raises: MissingRequiredCommandParameter
+        """
+        rset = self._meta_data['required_command_parameters']
+        check = self._missing_required_parameters(rset, **kwargs)
+        if check:
+            error_message = 'Missing required params: %s' % check
+            raise MissingRequiredCommandParameter(error_message)
 
     def _local_update(self, rdict):
         """Call this with a response dictionary to update instance attrs.
@@ -295,6 +329,37 @@ class PathElement(LazyAttributeMixin):
             requests_params.update({'params': params})
         return requests_params
 
+    def _check_exclusive_parameters(self, **kwargs):
+        """Check for mutually exclusive attributes in kwargs.
+
+        :raises ExclusiveAttributesPresent
+        """
+        if len(self._meta_data['exclusive_attributes']) > 0:
+            attr_set = set(kwargs.keys())
+            ex_set = set(self._meta_data['exclusive_attributes'][0])
+            common_set = attr_set.intersection(ex_set)
+            if len(common_set) > 1:
+                cset = ', '.join(common_set)
+                error = 'Mutually exclusive arguments submitted. ' \
+                        'The following arguments cannot be set ' \
+                        'together: "%s".' % cset
+                raise ExclusiveAttributesPresent(error)
+
+    @staticmethod
+    def _missing_required_parameters(rqset, **kwargs):
+        """Helper function to do operation on sets.
+
+        Checks for any missing required parameters.
+        Returns non-empty or empty list. With empty
+        list being False.
+
+        ::returns list
+        """
+        key_set = set(kwargs.keys())
+        required_minus_received = rqset - key_set
+        if required_minus_received != set():
+            return list(required_minus_received)
+
     @property
     def raw(self):
         """Display the attributes that the current object has and their values.
@@ -362,8 +427,6 @@ class ResourceBase(PathElement, ToDictMixin):
         :param container: instance is an attribute of a ResourceBase container
         """
         super(ResourceBase, self).__init__(container)
-        # Commands you can run on a resource or collection, we define it here
-        self._meta_data['allowed_commands'] = []
 
     def _update(self, **kwargs):
         """wrapped with update, override that in a subclass to customize"""
@@ -603,8 +666,6 @@ class Resource(ResourceBase):
         self._meta_data['required_creation_parameters'] = set(('name',))
         # Refresh fails without these.
         self._meta_data['required_load_parameters'] = set(('name',))
-        # You can't have more than one of the attrs in any of these sets.
-        self._meta_data['exclusive_attributes'] = []
         # You can't set these attributes, only 'read' them.
         self._meta_data['read_only_attributes'] = []
 
@@ -665,14 +726,9 @@ class Resource(ResourceBase):
                     "resource, the _meta_data['uri'] is %s and it should"\
                     " not be changed." % (self._meta_data['uri'])
             raise URICreationCollision(error)
+        self._check_exclusive_parameters(**kwargs)
         requests_params = self._handle_requests_params(kwargs)
-        key_set = set(kwargs.keys())
-        required_minus_received =\
-            self._meta_data['required_creation_parameters'] - key_set
-        if required_minus_received != set():
-            error_message = 'Missing required params: %r'\
-                % required_minus_received
-            raise MissingRequiredCreationParameter(error_message)
+        self._check_create_parameters(**kwargs)
 
         # Make convenience variable with short names for this method.
         _create_uri = self._meta_data['container']._meta_data['uri']

@@ -1,3 +1,6 @@
+# If using TLC to run these tests (in Boulder office), you can use
+# the heat templates in the common directory to standup infrastructure to
+# run these tests. They boot two devices and the networks to connect them
 run_cluster_tests: True
 bigip1:
     netloc: <bigip1_ip>

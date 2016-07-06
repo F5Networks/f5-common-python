@@ -32,7 +32,7 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.ltm.monitor import Monitor
 from f5.bigip.tm.ltm.nat import Nats
 from f5.bigip.tm.ltm.node import Nodes
-from f5.bigip.tm.ltm.persistence import Persistences
+from f5.bigip.tm.ltm.persistence import Persistence
 from f5.bigip.tm.ltm.policy import Policys
 from f5.bigip.tm.ltm.pool import Pools
 from f5.bigip.tm.ltm.profile import Profile
@@ -52,7 +52,7 @@ class Ltm(OrganizingCollection):
             Monitor,
             Nats,
             Nodes,
-            Persistences,
+            Persistence,
             Policys,
             Pools,
             Profile,
