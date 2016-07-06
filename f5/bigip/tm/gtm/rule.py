@@ -33,8 +33,8 @@ from f5.bigip.resource import Resource
 
 class Rules(Collection):
     """BIG-IP® GTM rule collection"""
-    def __init__(self, ltm):
-        super(Rules, self).__init__(ltm)
+    def __init__(self, gtm):
+        super(Rules, self).__init__(gtm)
         self._meta_data['allowed_lazy_attributes'] = [Rule]
         self._meta_data['attribute_registry'] =\
             {'tm:gtm:rule:rulestate': Rule}

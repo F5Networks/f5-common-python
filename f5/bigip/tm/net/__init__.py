@@ -35,7 +35,7 @@ from f5.bigip.tm.net.interface import Interfaces
 from f5.bigip.tm.net.route import Routes
 from f5.bigip.tm.net.route_domain import Route_Domains
 from f5.bigip.tm.net.selfip import Selfips
-from f5.bigip.tm.net.tunnels import TunnelS
+from f5.bigip.tm.net.tunnels import Tunnels_s
 from f5.bigip.tm.net.vlan import Vlans
 
 
@@ -50,6 +50,6 @@ class Net(OrganizingCollection):
             Routes,
             Route_Domains,
             Selfips,
-            TunnelS,
+            Tunnels_s,
             Vlans
         ]
