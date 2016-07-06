@@ -437,8 +437,9 @@ class ResourceBase(PathElement, ToDictMixin):
 
         # Get the current state of the object on BIG-IP® and check the
         # generation Use pop here because we don't want force in the data_dict
-        force = self._check_force_arg(kwargs.pop('force', False))
+        force = self._check_force_arg(kwargs.pop('force', True))
         if not force:
+            # generation has a known server-side error
             self._check_generation()
 
         # Save the meta data so we can add it back into self after we
