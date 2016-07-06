@@ -34,7 +34,8 @@ class File(OrganizingCollection):
     def __init__(self, sys):
         super(File, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [
-            Data_Groups
+            Data_Groups,
+            Ifiles
         ]
 
 
@@ -56,4 +57,24 @@ class Data_Group(Resource):
             u'tm:sys:file:data-group:data-groupstate'
         self._meta_data['required_creation_parameters'].update(
             ('name', 'sourcePath', 'type')
+        )
+
+
+class Ifiles(Collection):
+    def __init__(self, File):
+        super(Ifiles, self).__init__(File)
+        self._meta_data['allowed_lazy_attributes'] = [Ifile]
+        self._meta_data['required_json_kind'] = \
+            u'tm:sys:file:ifile:ifilecollectionstate'
+        self._meta_data['attribute_registry'] = \
+            {u'tm:sys:file:ifile:ifilestate': Ifile}
+
+
+class Ifile(Resource):
+    def __init__(self, ifiles):
+        super(Ifile, self).__init__(ifiles)
+        self._meta_data['required_json_kind'] =\
+            u'tm:sys:file:ifile:ifilestate'
+        self._meta_data['required_creation_parameters'].update(
+            ('name', 'sourcePath')
         )
