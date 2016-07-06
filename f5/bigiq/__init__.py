@@ -67,7 +67,7 @@ class ManagementRoot(PathElement):
     def tmos_version(self):
         return self._meta_data['tmos_version']
 
-    def _get_tmos_version(self):
+    def _get_tmos_version(self, **kwargs):
         connect = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['uri'] + 'tm/sys/'
         response = connect.get(base_uri)
