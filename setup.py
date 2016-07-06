@@ -35,7 +35,7 @@ setup(
         exclude=["*.test", "*.test.*", "test.*", "test_*", "test", "test*"]
     ),
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
