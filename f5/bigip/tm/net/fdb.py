@@ -33,11 +33,11 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 
 
-class Fdbs(OrganizingCollection):
+class Fdb(OrganizingCollection):
     '''A Collection concrete subclass docstring.'''
     def __init__(self, net):
         '''Auto generated constructor.'''
-        super(Fdbs, self).__init__(net)
+        super(Fdb, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [Tunnels]
         self._meta_data['template_generated'] = True
         self._meta_data['icontrol_version'] = '11.5.0'
