@@ -28,13 +28,14 @@ REST Kind
 """
 
 from f5.bigip.resource import Collection
+from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 
 
-class Tunnels_s(Collection):
+class TunnelS(OrganizingCollection):
     """BIG-IP® network tunnels collection"""
     def __init__(self, net):
-        super(Tunnels_s, self).__init__(net)
+        super(TunnelS, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [
             Gres,
             Tunnels,
@@ -44,8 +45,8 @@ class Tunnels_s(Collection):
 
 class Tunnels(Collection):
     """BIG-IP® network tunnels resource (collection for GRE, Tunnel, VXLANs"""
-    def __init__(self, tunnels_s):
-        super(Tunnels, self).__init__(tunnels_s)
+    def __init__(self, tunnelS):
+        super(Tunnels, self).__init__(tunnelS)
         self._meta_data['allowed_lazy_attributes'] = [Gres, Tunnel, Vxlans]
         self._meta_data['attribute_registry'] =\
             {'tm:net:tunnels:tunnel:tunnelstate': Tunnel}
