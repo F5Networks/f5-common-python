@@ -1,0 +1,10 @@
+[run]
+omit =
+    # omit all functional tests
+    tests/*
+    # omit anything in a test directory anywhere
+    */test/*
+    # omit the devtools
+    devtools/*
+    # omit the conftest?
+    conftest.py
