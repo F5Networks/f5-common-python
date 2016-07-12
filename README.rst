@@ -222,3 +222,6 @@ project.
     :target: https://f5-openstack-slack.herokuapp.com/
     :alt: Slack
 
+.. |coveralls| image:: https://coveralls.io/repos/github/F5Networks/f5-common-python/badge.svg
+    :target: https://coveralls.io/github/F5Networks/f5-common-python
+    :alt: Coveralls
