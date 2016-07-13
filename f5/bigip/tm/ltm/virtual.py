@@ -31,6 +31,7 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
+
 class Virtuals(Collection):
     """BIG-IP® LTM virtual collection"""
     def __init__(self, ltm):
@@ -48,6 +49,8 @@ class Virtual(Resource):
         self._meta_data['required_json_kind'] = 'tm:ltm:virtual:virtualstate'
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:virtual:profiles:profilescollectionstate': Profiles_s}
+        self._meta_data['object_has_stats'] = True
+
 
 
 class Profiles(Resource):
