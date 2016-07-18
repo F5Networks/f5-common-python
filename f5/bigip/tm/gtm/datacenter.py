@@ -116,12 +116,6 @@ class Datacenter(Resource, ExclusiveAttributesMixin, EnDisableMixin):
 
     def create(self, **kwargs):
         kwargs = self._endis_able(kwargs)
-
-        if 'enabled' in kwargs and kwargs['enabled']:
-            del kwargs['disabled']
-        if 'disabled' in kwargs and kwargs['disabled']:
-            del kwargs['enabled']
-
         inst = self._create(**kwargs)
         inst._endis_attrs()
         return inst
