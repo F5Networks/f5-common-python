@@ -27,6 +27,7 @@ REST Kind
     ``tm:gtm:datacenter:*``
 """
 
+from f5.bigip.mixins import EnDisableMixin
 from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
@@ -41,20 +42,13 @@ class Datacenters(Collection):
             {'tm:gtm:datacenter:datacenterstate': Datacenter}
 
 
-class Datacenter(Resource, ExclusiveAttributesMixin):
+class Datacenter(Resource, ExclusiveAttributesMixin, EnDisableMixin):
     """BIG-IP® GTM datacenter resource"""
     def __init__(self, dc_s):
         super(Datacenter, self).__init__(dc_s)
         self._meta_data['required_json_kind'] =\
             'tm:gtm:datacenter:datacenterstate'
         self._meta_data['exclusive_attributes'].append(('enabled', 'disabled'))
-
-    def _endis_able(self, config_dict):
-        if 'enabled' in config_dict and not config_dict['enabled']:
-            config_dict['disabled'] = True
-        elif 'disabled' in config_dict and not config_dict['disabled']:
-            config_dict['enabled'] = True
-        return config_dict
 
     def _endis_attrs(self):
         """Manipulate return value to equal negation of set value

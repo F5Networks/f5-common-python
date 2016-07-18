@@ -26,6 +26,7 @@ REST Kind
     ``tm:ltm:nat:*``
 """
 
+from f5.bigip.mixins import EnDisableMixin
 from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import MissingRequiredCreationParameter
@@ -41,7 +42,7 @@ class Nats(Collection):
             {'tm:ltm:nat:natstate': Nat}
 
 
-class Nat(Resource, ExclusiveAttributesMixin):
+class Nat(Resource, ExclusiveAttributesMixin, EnDisableMixin):
     """BIG-IP® LTM Nat collection resource"""
     def __init__(self, nat_s):
         super(Nat, self).__init__(nat_s)
@@ -92,13 +93,6 @@ class Nat(Resource, ExclusiveAttributesMixin):
         kwargs = self._endis_able(kwargs)
         new_instance = self._create(**kwargs)
         return new_instance
-
-    def _endis_able(self, config_dict):
-        if 'enabled' in config_dict and not config_dict['enabled']:
-            config_dict['disabled'] = True
-        elif 'disabled' in config_dict and not config_dict['disabled']:
-            config_dict['enabled'] = True
-        return config_dict
 
     def update(self, **kwargs):
         # This is an example implementation of read-only params

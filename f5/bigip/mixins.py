@@ -264,3 +264,16 @@ class DeviceMixin(object):
         device = [device for device in coll if device.selfDevice == 'true']
         assert len(device) == 1
         return device[0]
+
+
+class EnDisableMixin(object):
+    '''Ensure only enable or disable is sent to device, whichever is true.'''
+
+    def _endis_able(self, config_dict):
+        if 'enabled' in config_dict and not config_dict['enabled']:
+            config_dict['disabled'] = True
+            config_dict.pop('enabled')
+        elif 'disabled' in config_dict and not config_dict['disabled']:
+            config_dict['enabled'] = True
+            config_dict.pop('disabled')
+        return config_dict

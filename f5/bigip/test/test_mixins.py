@@ -16,6 +16,7 @@ import json
 import pytest
 
 from f5.bigip.mixins import CommandExecutionMixin
+from f5.bigip.mixins import EnDisableMixin
 from f5.bigip.mixins import ToDictMixin
 from f5.bigip.mixins import UnsupportedMethod
 
@@ -121,3 +122,23 @@ class TestCommandExecutionMixin(object):
         command_resource = CommandExecutionMixin()
         with pytest.raises(UnsupportedMethod):
             command_resource.load()
+
+
+class TestEnDisableMixin(object):
+    def test_endisable_removes_enable(self):
+        config_dict = {'enabled': False}
+        endis = EnDisableMixin()
+        modded_dict = endis._endis_able(config_dict)
+        assert modded_dict == {'disabled': True}
+
+    def test_endisable_removes_disable(self):
+        config_dict = {'disabled': False}
+        endis = EnDisableMixin()
+        modded_dict = endis._endis_able(config_dict)
+        assert modded_dict == {'enabled': True}
+
+    def test_endisable_removes_nothing(self):
+        config_dict = {'enabled': True}
+        endis = EnDisableMixin()
+        modded_dict = endis._endis_able(config_dict)
+        assert modded_dict == config_dict
