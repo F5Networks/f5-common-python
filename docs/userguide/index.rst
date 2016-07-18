@@ -12,4 +12,5 @@ using the configuration utility (the GUI). More useful still would be if you are
    endpoints
    object_path
    ltm_pools_members_code_example
+   odata_queries
    further_reading
