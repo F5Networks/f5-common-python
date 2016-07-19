@@ -27,8 +27,8 @@ REST Kind
     ``tm:gtm:datacenter:*``
 """
 
-from f5.bigip.mixins import EnDisableMixin
 from f5.bigip.mixins import ExclusiveAttributesMixin
+from f5.bigip.mixins import ReduceBooleanPairToTrueMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
@@ -42,7 +42,9 @@ class Datacenters(Collection):
             {'tm:gtm:datacenter:datacenterstate': Datacenter}
 
 
-class Datacenter(Resource, ExclusiveAttributesMixin, EnDisableMixin):
+class Datacenter(
+        Resource, ExclusiveAttributesMixin, ReduceBooleanPairToTrueMixin
+):
     """BIG-IP® GTM datacenter resource"""
     def __init__(self, dc_s):
         super(Datacenter, self).__init__(dc_s)
@@ -115,19 +117,19 @@ class Datacenter(Resource, ExclusiveAttributesMixin, EnDisableMixin):
         return None
 
     def create(self, **kwargs):
-        kwargs = self._endis_able(kwargs)
+        kwargs = self._reduce_boolean_pair(kwargs, 'enabled', 'disabled')
         inst = self._create(**kwargs)
         inst._endis_attrs()
         return inst
 
     def load(self, **kwargs):
-        kwargs = self._endis_able(kwargs)
+        kwargs = self._reduce_boolean_pair(kwargs, 'enabled', 'disabled')
         inst = self._load(**kwargs)
         inst._endis_attrs()
         return inst
 
     def refresh(self, **kwargs):
-        kwargs = self._endis_able(kwargs)
+        kwargs = self._reduce_boolean_pair(kwargs, 'enabled', 'disabled')
         self._refresh(**kwargs)
         self._endis_attrs()
         return self
@@ -137,6 +139,6 @@ class Datacenter(Resource, ExclusiveAttributesMixin, EnDisableMixin):
             kwargs['enabled'] = self.__dict__.pop('enabled')
         elif 'disabled' in self.__dict__ and 'disabled' not in kwargs:
             kwargs['disabled'] = self.__dict__.pop('disabled')
-        kwargs = self._endis_able(kwargs)
+        kwargs = self._reduce_boolean_pair(kwargs, 'enabled', 'disabled')
         self._update(**kwargs)
         self._endis_attrs()

@@ -42,6 +42,11 @@ class LazyAttributesRequired(F5SDKError):
     pass
 
 
+class BooleansToReduceHaveSameValue(F5SDKError):
+    '''Dict contains two keys with same boolean value.'''
+    pass
+
+
 class ToDictMixin(object):
     """Convert an object's attributes to a dictionary"""
     traversed = {}
@@ -266,14 +271,21 @@ class DeviceMixin(object):
         return device[0]
 
 
-class EnDisableMixin(object):
+class ReduceBooleanPairToTrueMixin(object):
     '''Ensure only enable or disable is sent to device, whichever is true.'''
 
-    def _endis_able(self, config_dict):
-        if 'enabled' in config_dict and not config_dict['enabled']:
-            config_dict['disabled'] = True
-            config_dict.pop('enabled')
-        elif 'disabled' in config_dict and not config_dict['disabled']:
-            config_dict['enabled'] = True
-            config_dict.pop('disabled')
+    def _reduce_boolean_pair(self, config_dict, key1, key2):
+        if key1 in config_dict and key2 in config_dict \
+                and config_dict[key1] == config_dict[key2]:
+            msg = 'Boolean pair, %s and %s, have same value: %s. If both ' \
+                'are given to this method, they cannot be the same, as this ' \
+                'method cannot decide which one should be True.' \
+                % (key1, key2, config_dict[key1])
+            raise BooleansToReduceHaveSameValue(msg)
+        elif key1 in config_dict and not config_dict[key1]:
+            config_dict[key2] = True
+            config_dict.pop(key1)
+        elif key2 in config_dict and not config_dict[key2]:
+            config_dict[key1] = True
+            config_dict.pop(key2)
         return config_dict

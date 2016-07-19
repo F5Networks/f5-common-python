@@ -26,8 +26,8 @@ REST Kind
     ``tm:ltm:nat:*``
 """
 
-from f5.bigip.mixins import EnDisableMixin
 from f5.bigip.mixins import ExclusiveAttributesMixin
+from f5.bigip.mixins import ReduceBooleanPairToTrueMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import Resource
@@ -42,7 +42,7 @@ class Nats(Collection):
             {'tm:ltm:nat:natstate': Nat}
 
 
-class Nat(Resource, ExclusiveAttributesMixin, EnDisableMixin):
+class Nat(Resource, ExclusiveAttributesMixin, ReduceBooleanPairToTrueMixin):
     """BIG-IP® LTM Nat collection resource"""
     def __init__(self, nat_s):
         super(Nat, self).__init__(nat_s)
@@ -90,7 +90,7 @@ class Nat(Resource, ExclusiveAttributesMixin, EnDisableMixin):
                         % kwargs['trafficGroup'])
             except KeyError:
                 pass
-        kwargs = self._endis_able(kwargs)
+        kwargs = self._reduce_boolean_pair(kwargs, 'enabled', 'disabled')
         new_instance = self._create(**kwargs)
         return new_instance
 
@@ -101,6 +101,6 @@ class Nat(Resource, ExclusiveAttributesMixin, EnDisableMixin):
             kwargs['enabled'] = self.__dict__.pop('enabled')
         elif 'disabled' in self.__dict__ and 'disabled' not in kwargs:
             kwargs['disabled'] = self.__dict__.pop('disabled')
-        kwargs = self._endis_able(kwargs)
+        kwargs = self._reduce_boolean_pair(kwargs, 'enabled', 'disabled')
         self._update(**kwargs)
         self.__dict__['translationAddress'] = stash_translation_address
