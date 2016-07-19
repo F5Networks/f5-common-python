@@ -19,6 +19,7 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
 
 import copy
+from f5.bigip.resource import DottedDict
 from pprint import pprint as pp
 import pytest
 
@@ -76,6 +77,15 @@ class TestVirtual(object):
                 original_dict[k] = virtual1.__dict__[k]
             elif k == desc:
                 virtual1.__dict__[k] == 'Cool mod test'
+    def test_virtual_stats(self, request, bigip):
+        virtual1, vc1 = setup_virtual_test(request, bigip, 'Common', 'vstest1')
+        v1_stats = virtual1.stats
+        assert v1_stats.kind == 'tm:ltm:virtual:virtualstats'
+        assert hasattr(v1_stats, 'stat')
+        assert isinstance(v1_stats.stat.cmpEnableMode, DottedDict)
+        assert v1_stats.stat.cmpEnableMode.description == 'all-cpus'
+        assert hasattr(v1_stats.stat.clientside_pktsOut, 'value')
+        assert isinstance(v1_stats.stat.clientside_pktsOut.value, int)
 
 
 def test_profiles_CE(

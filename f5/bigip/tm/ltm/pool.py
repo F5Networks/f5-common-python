@@ -55,7 +55,6 @@ class Pool(Resource):
         self._meta_data['attribute_registry'] = {
             'tm:ltm:pool:memberscollectionstate': Members_s
         }
-        self._meta_data['object_has_stats'] = True
 
 
 class Members_s(Collection):

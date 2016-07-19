@@ -229,7 +229,8 @@ class PathElement(LazyAttributeMixin):
         self._meta_data['required_command_parameters'] = set()
         # You can't have more than one of the attributes in any of these sets.
         self._meta_data['exclusive_attributes'] = []
-        # We assume that resource does not have stats, to be overridden in subclasses
+        # We assume that resource does not have stats,
+        # to be overridden in subclasses
         self._meta_data['object_has_stats'] = False
 
     def _set_meta_data_uri(self):
@@ -340,7 +341,8 @@ class PathElement(LazyAttributeMixin):
 
     def _get_nest_stats(self, rdict):
         """Helper method to deal with nestedStats
-           as json format changed in v12.x
+
+        as json format changed in v12.x
         """
         for x in rdict:
             check = urlparse.urlparse(x)
@@ -1090,13 +1092,14 @@ class UnnamedResource(ResourceBase):
 
 class Stats(PathElement):
     """This class allows attaching 'stats' object as an
+
         attribute to a resource.
 
         Stats are available on some objects, and require
         the target object to be loaded or created first.
+
         It also allows the caller to retrieve the converted json
         response in unprocessed state.
-
     """
     def __init__(self, container):
         super(Stats, self).__init__(container)
