@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+from f5.bigip.resource import DottedDict
 from pprint import pprint as pp
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
@@ -45,6 +46,15 @@ class TestVirtual(object):
         assert virtual1.description == TESTDESCRIPTION
         virtual2 = vc1.virtual.load(partition='Common', name='vstest1')
         assert virtual2.selfLink == virtual1.selfLink
+
+    def test_virtual_stats(self, request, bigip):
+        virtual1, vc1 = setup_virtual_test(request, bigip, 'Common', 'vstest1')
+        v1_stats = virtual1.stats
+        assert hasattr(v1_stats, 'stat')
+        assert isinstance(v1_stats.stat.cmpEnableMode, DottedDict)
+        assert v1_stats.stat.cmpEnableMode.description == 'all-cpus'
+        assert hasattr(v1_stats.stat.clientside_pktsOut, 'value')
+        assert isinstance(v1_stats.stat.clientside_pktsOut.value, int)
 
 
 def test_profiles_CE(bigip, opt_release):

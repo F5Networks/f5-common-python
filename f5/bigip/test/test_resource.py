@@ -18,10 +18,12 @@ import requests
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import DeviceProvidesIncompatibleKey
+from f5.bigip.resource import DottedDict
 from f5.bigip.resource import ExclusiveAttributesPresent
 from f5.bigip.resource import GenerationMismatch
 from f5.bigip.resource import InvalidForceType
 from f5.bigip.resource import InvalidResource
+from f5.bigip.resource import InvalidStatsJsonReturned
 from f5.bigip.resource import KindTypeMismatch
 from f5.bigip.resource import MissingRequiredCommandParameter
 from f5.bigip.resource import MissingRequiredCreationParameter
@@ -36,6 +38,63 @@ from f5.bigip.resource import UnregisteredKind
 from f5.bigip.resource import URICreationCollision
 from f5.bigip.tm.ltm.virtual import Virtual
 from f5.sdk_exception import UnsupportedMethod
+
+from types import ClassType
+from types import TypeType
+
+
+NESTED_DICT = \
+    {u'https://localhost/mgmt/tm/fakemod/fake/fakeone/~Common~fakeone/stats': {
+        u'nestedStats': {
+            u'kind': u'tm:fakemod:fake:fakestats',
+            u'selfLink': u'https://localhost/mgmt/tm/fakemod/fake/fakeone/'
+                         u'~Common~fakeone/stats?ver=12.1.0',
+            u'entries': {u'syncookie.accepts': {
+                u'value': 0}, u'ephemeral.bitsOut': {
+                u'value': 0}, u'clientside.bitsOut': {u'value': 0}}}}}
+
+NOT_NESTED_DICT = {u'syncookie.accepts': {u'value': 0},
+                   u'ephemeral.bitsOut': {u'value': 0},
+                   u'clientside.bitsOut': {u'value': 0}}
+
+NESTED_DICT_NO_URI = {u'fakekey.some': {
+    u'nestedStats': {
+        u'kind': u'tm:fakemod:fake:fakestats',
+        u'selfLink': u'https://localhost/mgmt/tm/fakemod/'
+                     u'fake/fakeone/~Common~fakeone/stats?ver=12.1.0',
+        u'entries': {u'syncookie.accepts': {u'value': 0},
+                     u'ephemeral.bitsOut': {u'value': 0},
+                     u'clientside.bitsOut': {u'value': 0}}}}}
+
+EXPECTED_CONVERTED_DICT = {u'syncookie_accepts': {u'value': 0},
+                           u'ephemeral_bitsOut': {u'value': 0},
+                           u'clientside_bitsOut': {u'value': 0}}
+
+EXPECTED_CONVERTED_DICT_NO_URI = {u'fakekey_some': {u'nestedStats': {
+    u'kind': u'tm:fakemod:fake:fakestats', u'selfLink':
+        u'https://localhost/mgmt/tm/fakemod/fake/fakeone/'
+        u'~Common~fakeone/stats?ver=12.1.0',
+    u'entries': {u'syncookie_accepts': {u'value': 0},
+                 u'ephemeral_bitsOut': {u'value': 0},
+                 u'clientside_bitsOut': {u'value': 0}}}}}
+
+RAW_DICT = {u'generation': 9575, u'kind': u'tm:ltm:virtual:virtualstats',
+            u'selfLink': u'https://testhost/mgmt/tm/ltm/virtual/'
+                         u'~Common~test_load/stats?ver=12.1.0',
+            u'entries': {
+                u'https://testhost/mgmt/tm/ltm/virtual/'
+                u'~Common~test_load/~Common~test_load/stats': {
+                    u'nestedStats': {u'kind': u'tm:ltm:virtual:virtualstats',
+                                     u'selfLink': u'https://testhost/mgmt/tm/'
+                                                  u'ltm/virtual/~Common'
+                                                  u'~test_load/~Common~'
+                                                  u'test_load/stats?'
+                                                  u'ver=12.1.0',
+                                     u'entries':
+                                         {u'syncookie.accepts': {u'value': 0},
+                                          u'ephemeral.bitsOut': {u'value': 0},
+                                          u'clientside.bitsOut': {u'value': 0}
+                                          }}}}}
 
 
 class MockResponse(object):
@@ -127,7 +186,33 @@ class TestResourcecreate(object):
         assert x.selfLink == u".../~Common~test_create"
 
 
-def test__activate_URI():
+def test__activate_URI_with_stats():
+    r = Resource(mock.MagicMock())
+    r._meta_data['allowed_lazy_attributes'] = []
+    r._meta_data['attribute_registry'] = {u"tm:": u"SPAM"}
+    r._meta_data['bigip']._meta_data = {
+        'hostname': 'TESTDOMAIN',
+        'uri': 'https://TESTDOMAIN:443/mgmt/tm/'
+    }
+    assert not r._meta_data['object_has_stats']
+    r._meta_data['object_has_stats'] = True
+    assert r._meta_data['object_has_stats']
+    TURI = 'https://localhost:443/mgmt/tm/'\
+           'ltm/virtual/~Common~testvirtual/?ver=11.6&a=b#FOO'
+    assert r._meta_data['allowed_lazy_attributes'] == []
+    r._activate_URI(TURI)
+    assert r._meta_data['uri'] ==\
+        'https://TESTDOMAIN:443/mgmt/tm/ltm/virtual/~Common~testvirtual/'
+    assert r._meta_data['creation_uri_qargs'] ==\
+        {'a': ['b'], 'ver': ['11.6']}
+    assert r._meta_data['creation_uri_frag'] == 'FOO'
+    chk_lst = r._meta_data['allowed_lazy_attributes']
+    assert u"SPAM" in chk_lst
+    assert 'stats' in [cls.__name__.lower() for cls in chk_lst
+                       if type(cls) in [TypeType, ClassType]]
+
+
+def test__activate_URI_no_stats():
     r = Resource(mock.MagicMock())
     r._meta_data['allowed_lazy_attributes'] = []
     r._meta_data['attribute_registry'] = {u"tm:": u"SPAM"}
@@ -137,6 +222,7 @@ def test__activate_URI():
     }
     TURI = 'https://localhost:443/mgmt/tm/'\
            'ltm/nat/~Common~testnat/?ver=11.5&a=b#FOO'
+    assert not r._meta_data['object_has_stats']
     assert r._meta_data['allowed_lazy_attributes'] == []
     r._activate_URI(TURI)
     assert r._meta_data['uri'] ==\
@@ -517,6 +603,192 @@ class TestPathElement(object):
         with pytest.raises(ExclusiveAttributesPresent) as EAEIO:
             p._check_exclusive_parameters(**fakearg)
         assert 'FOOEX, BAREX' in EAEIO.value.message
+
+
+@pytest.fixture
+def FakePath():
+    fake_path = mock.MagicMock()
+    return PathElement(fake_path)
+
+
+@pytest.fixture
+def FakeVirtual():
+    r = Virtual(mock.MagicMock())
+    mockuri = "https://localhost:443/mgmt/tm/ltm/virtual/~Common~test_load"
+    attrs = {'get.return_value': MockResponse(
+            {
+                u"generation": 0,
+                u"selfLink": mockuri,
+                u"kind": u"tm:ltm:virtual:virtualstate"
+            }
+        )}
+    mock_session = mock.MagicMock(**attrs)
+    r._meta_data['bigip']._meta_data = \
+        {'icr_session': mock_session,
+         'hostname': 'TESTDOMAINNAME',
+         'uri': 'https://TESTDOMAIN:443/mgmt/tm/'
+         }
+    r._meta_data['bigip'].tmos_version = '12.1.0'
+    r.generation = 0
+    x = r.load(partition='Common', name='test_load')
+    return x
+
+
+@pytest.fixture
+def MakeFakeResourceContainer(FakePath):
+    class FakeMetaData(object):
+        def __init__(self, **kwargs):
+            self._meta_data = {}
+            meta_data_defaults = {
+                'uri': kwargs['uri'],
+                'icontrol_version': '',
+                'icr_session': kwargs['icr_session'],
+                'bigip': self
+            }
+            self._meta_data.update(meta_data_defaults)
+
+    mockconturi = 'https://testhost/mgmt/tm/ltm/virtual/~Common~test_load/'
+    bigipuri = 'https://testhost/mgmt/tm/'
+    attrs = {'get.return_value': MockResponse(RAW_DICT)}
+    return_session = mock.MagicMock(**attrs)
+    FakePath._meta_data = {
+        'hostname': 'testhost',
+        'icr_session': '',
+        'uri': '',
+        'icontrol_version': '',
+        'bigip': FakeMetaData(icr_session=return_session, uri=bigipuri),
+        'container': FakeMetaData(uri=mockconturi, icr_session='')
+    }
+
+    return FakePath
+
+
+class TestPathElementStatsModuleHelpers(object):
+    def test_key_dot_replace(self):
+        p = PathElement(mock.MagicMock())
+        fake_dict = {'foo.bar': 'foo', 'baz': 'baz.foo',
+                     'fuz.bar': {'baz.foo': {'faz': {'baz.fuz': 1}}}}
+        undotted_fake_dict = p._key_dot_replace(fake_dict)
+        assert undotted_fake_dict == {'foo_bar': 'foo', 'baz': 'baz.foo',
+                                      'fuz_bar': {'baz_foo': {'faz': {
+                                          'baz_fuz': 1}}}}
+
+    def test_pop_nest_stats_nested(self):
+        p = PathElement(mock.MagicMock())
+        nest = p._get_nest_stats(NESTED_DICT)
+        assert nest == EXPECTED_CONVERTED_DICT
+
+    def test_pop_nest_stats_not_nested(self):
+        p = PathElement(mock.MagicMock())
+        not_nest = p._get_nest_stats(NOT_NESTED_DICT)
+        assert not_nest == EXPECTED_CONVERTED_DICT
+
+    def test_pop_nest_stats_nested_no_uri(self):
+        p = PathElement(mock.MagicMock())
+        nested_nouri = p._get_nest_stats(NESTED_DICT_NO_URI)
+        assert nested_nouri == EXPECTED_CONVERTED_DICT_NO_URI
+
+    def test_get_stats_raw(self, FakePath):
+        v = MakeFakeResourceContainer(FakePath)
+        raw_dict = v._get_stats_raw()
+        ret_uri = 'https://testhost/mgmt/tm/ltm/virtual/~Common~test_load/'
+        assert v._meta_data['container']._meta_data['uri'] == ret_uri
+        assert raw_dict == RAW_DICT
+
+    def test_update_stats_invalid_json(self):
+        fake_dict = {'foo.bar': 'foo', 'baz': 'baz.foo',
+                     'fuz.bar': {'baz.foo': {'faz': {'baz.fuz': 1}}}}
+        p = PathElement(mock.MagicMock())
+        with pytest.raises(InvalidStatsJsonReturned)as err:
+            p._update_stats(fake_dict)
+        assert err.value.message == 'Missing "entries" key in returned JSON'
+
+    def test_update_stats(self):
+        p = PathElement(mock.MagicMock())
+        p._update_stats(RAW_DICT)
+        assert 'stat' in p.__dict__
+        assert hasattr(p.__dict__['stat'], 'syncookie_accepts')
+        assert hasattr(p.__dict__['stat'], 'ephemeral_bitsOut')
+        assert hasattr(p.__dict__['stat'], 'clientside_bitsOut')
+
+
+class TestStats(object):
+    def test_resource_preload(self):
+        virt = FakeVirtual()
+        chk_lst = virt._meta_data['allowed_lazy_attributes']
+        assert virt._meta_data['object_has_stats']
+        assert 'stats' in [cls.__name__.lower() for cls in chk_lst
+                           if type(cls) in [TypeType, ClassType]]
+
+    def test_stats_init(self):
+        virt = FakeVirtual()
+        attrs = {'get.return_value': MockResponse(RAW_DICT)}
+        return_session = mock.MagicMock(**attrs)
+        virt._meta_data['bigip']._meta_data['icr_session'] = return_session
+        fake_stats = virt.stats
+        uri = 'https://TESTDOMAIN:443/mgmt/tm/' \
+              'ltm/virtual/~Common~test_load/stats/'
+        assert fake_stats._meta_data['uri'] == uri
+        assert 'stat' in fake_stats.__dict__
+        assert hasattr(fake_stats.stat, 'syncookie_accepts')
+        assert hasattr(fake_stats.stat, 'ephemeral_bitsOut')
+        assert hasattr(fake_stats.stat, 'clientside_bitsOut')
+        assert fake_stats.stat.syncookie_accepts.value == 0
+        assert fake_stats.stat.ephemeral_bitsOut.value == 0
+        assert fake_stats.stat.clientside_bitsOut.value == 0
+
+    def test_stats_raw(self):
+        virt = FakeVirtual()
+        attrs = {'get.return_value': MockResponse(RAW_DICT)}
+        return_session = mock.MagicMock(**attrs)
+        virt._meta_data['bigip']._meta_data['icr_session'] = return_session
+        fake_stats = virt.stats
+        assert fake_stats.stats_raw == RAW_DICT
+
+
+class TestDottedDict(object):
+        def test_init_dict(self):
+            undotted_fake_dict = {'foo_bar': 'foo', 'baz': 'baz.foo',
+                                  'fuz_bar': {'baz_foo': {
+                                      'faz': {'baz_fuz': 1}}}}
+            testdotted = DottedDict(undotted_fake_dict)
+            assert testdotted.keys() == undotted_fake_dict.keys()
+            assert not hasattr(testdotted, 'baz_foo')
+            assert isinstance(testdotted['fuz_bar'], dict)
+
+        def test_init_nondict_elements(self):
+            undotted_fake_mixed_dict = {'foo_bar': ('one', 'two'),
+                                        'baz': ['baz', 'foo'],
+                                        'fuz_bar': {'baz_foo': {
+                                            'faz': ['baz_fuz', (1, 2, 3)]}}}
+            testdotted = DottedDict(undotted_fake_mixed_dict)
+            assert testdotted.keys() == undotted_fake_mixed_dict.keys()
+            assert not hasattr(testdotted, 'baz_foo')
+            assert isinstance(testdotted['foo_bar'], tuple)
+            assert isinstance(testdotted['baz'], list)
+
+        def test_getattr(self):
+            undotted_fake_dict = {'foo_bar': 'foo', 'baz': 'baz.foo',
+                                  'fuz_bar': {'baz_foo': {
+                                      'faz': {'baz_fuz': 1}}}}
+            testdotted = DottedDict(undotted_fake_dict)
+            assert isinstance(testdotted.fuz_bar, DottedDict)
+            assert hasattr(testdotted.fuz_bar.baz_foo, 'faz')
+            assert isinstance(testdotted.fuz_bar.baz_foo.faz, DottedDict)
+            assert hasattr(testdotted.fuz_bar.baz_foo.faz, 'baz_fuz')
+            assert testdotted.fuz_bar.baz_foo.faz.baz_fuz == 1
+
+        def test_getattr_nondict_elements(self):
+            undotted_fake_mixed_dict = {'foo_bar': ('one', 'two'),
+                                        'baz': ['baz', 'foo'],
+                                        'fuz_bar': {'baz_foo': {'faz': [
+                                            'baz_fuz', (1, 2, 3)]}}}
+            testdotted = DottedDict(undotted_fake_mixed_dict)
+            assert isinstance(testdotted.fuz_bar, DottedDict)
+            assert hasattr(testdotted.fuz_bar.baz_foo, 'faz')
+            assert isinstance(testdotted.fuz_bar.baz_foo.faz, list)
+            assert not hasattr(testdotted.fuz_bar.baz_foo.faz, 'baz_fuz')
+            assert testdotted.fuz_bar.baz_foo.faz == ['baz_fuz', (1, 2, 3)]
 
 
 class TestUnnamedResource(object):
