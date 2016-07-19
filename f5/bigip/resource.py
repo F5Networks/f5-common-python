@@ -338,7 +338,7 @@ class PathElement(LazyAttributeMixin):
             temp_dict[key.replace('.', '_')] = value
         return temp_dict
 
-    def _pop_nest_stats(self, rdict):
+    def _get_nest_stats(self, rdict):
         """Helper method to deal with nestedStats
            as json format changed in v12.x
         """
@@ -346,7 +346,8 @@ class PathElement(LazyAttributeMixin):
             check = urlparse.urlparse(x)
             if check.scheme:
                 nested_dict = rdict[x]['nestedStats']
-                return self._key_dot_replace(nested_dict.pop('entries'))
+                tmp_dict = nested_dict['entries']
+                return self._key_dot_replace(tmp_dict)
 
         return self._key_dot_replace(rdict)
 
@@ -364,7 +365,7 @@ class PathElement(LazyAttributeMixin):
             error = 'Missing "entries" key in returned JSON'
             raise InvalidStatsJsonReturned(error)
         sanitized = self._check_keys(rdict)
-        stat_vals = self._pop_nest_stats(sanitized.pop('entries'))
+        stat_vals = self._get_nest_stats(sanitized['entries'])
         temp_meta = self._meta_data
         self.__dict__['stat'] = DottedDict(stat_vals)
         self._meta_data = temp_meta
