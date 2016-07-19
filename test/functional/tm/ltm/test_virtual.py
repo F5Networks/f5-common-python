@@ -80,7 +80,6 @@ class TestVirtual(object):
     def test_virtual_stats(self, request, bigip):
         virtual1, vc1 = setup_virtual_test(request, bigip, 'Common', 'vstest1')
         v1_stats = virtual1.stats
-        assert v1_stats.kind == 'tm:ltm:virtual:virtualstats'
         assert hasattr(v1_stats, 'stat')
         assert isinstance(v1_stats.stat.cmpEnableMode, DottedDict)
         assert v1_stats.stat.cmpEnableMode.description == 'all-cpus'
