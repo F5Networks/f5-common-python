@@ -27,15 +27,13 @@ REST Kind
 """
 
 from f5.bigip.mixins import CommandExecutionMixin
+from f5.bigip.mixins import ReduceBooleanPairToTrueMixin
 from f5.bigip.resource import UnnamedResource
-from f5.sdk_exception import F5SDKError
 
 
-class InvalidParameterValue(F5SDKError):
-    pass
-
-
-class Failover(UnnamedResource, CommandExecutionMixin):
+class Failover(
+        UnnamedResource, CommandExecutionMixin, ReduceBooleanPairToTrueMixin
+):
     '''BIG-IP® Failover stats and state change.
 
     The failover object only supports load, update, and refresh because it is
@@ -95,14 +93,7 @@ class Failover(UnnamedResource, CommandExecutionMixin):
         :: raises InvalidParameterValue
         """
 
-        if 'online' in kwargs and 'offline' in kwargs:
-            if kwargs['online'] is True and kwargs['offline'] is True or \
-               kwargs['online'] is False and kwargs['offline'] is False:
-                error = 'Both parameters cannot have the same value' \
-                        'Currently they are: online={} offline={}'.format(
-                            kwargs['online'], kwargs['offline'])
-                raise InvalidParameterValue(error)
-
+        self._reduce_boolean_pair(kwargs, 'online', 'offline')
         if 'offline' in kwargs:
             self._meta_data['exclusive_attributes'].append(
                 ('offline', 'standby'))

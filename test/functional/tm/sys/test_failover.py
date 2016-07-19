@@ -13,11 +13,36 @@
 # limitations under the License.
 #
 
-from f5.bigip.tm.sys.failover import InvalidParameterValue
+from f5.bigip.mixins import BooleansToReduceHaveSameValue
+from f5.multi_device.utils import get_device_info
+from f5.multi_device.utils import pollster
 from pprint import pprint as pp
 
 import pytest
-import time
+
+
+def get_activation_state(device):
+    '''Get the activation state for a device.'''
+
+    device_name = get_device_info(device).name
+    act = device.tm.cm.devices.device.load(
+        name=device_name,
+        partition='Common'
+    )
+    return act.failoverState
+
+
+def check_device_state_as_expected(device, expected_state):
+    assert get_activation_state(device).lower() == expected_state.lower()
+
+
+@pytest.fixture
+def teardown_device_failover_state(request, mgmt_root):
+    def teardown():
+        if get_activation_state(mgmt_root).lower() != 'active':
+            f = mgmt_root.tm.sys.failover
+            f.exec_cmd('run', utilCmdArgs='online')
+    request.addfinalizer(teardown)
 
 
 class TestFailover(object):
@@ -47,41 +72,45 @@ class TestFailover(object):
         assert f.command == u"run"
         pp('************')
         f.refresh()
+        pp('after refresh')
         pp(f.raw)
         assert 'Failover active' in f.apiRawValues['apiAnonymous']
 
     def test_attribute_values(self, bigip):
         fl = bigip.sys.failover
         # Testing both conditions
-        with pytest.raises(InvalidParameterValue):
+        with pytest.raises(BooleansToReduceHaveSameValue) as ex1:
             fl.exec_cmd('run', online=True, offline=True)
-        with pytest.raises(InvalidParameterValue):
+        assert 'online and offline, have same value: True' \
+            in ex1.value.message
+        with pytest.raises(BooleansToReduceHaveSameValue) as ex2:
             fl.exec_cmd('run', online=False, offline=False)
+        assert 'online and offline, have same value: False' \
+            in ex2.value.message
 
-    def test_exec_cmd(self, bigip):
-        fl = bigip.sys.failover.load()
-        f = bigip.sys.failover
+    def test_exec_cmd(self, mgmt_root, teardown_device_failover_state):
+        fl = mgmt_root.tm.sys.failover.load()
+        f = mgmt_root.tm.sys.failover
         f.exec_cmd('run', offline=True)
-        time.sleep(4)
+        get_activation_state(mgmt_root)
+        pollster(check_device_state_as_expected)(mgmt_root, 'forced-offline')
         fl.refresh()
+        pp(fl.raw)
         assert 'Failover forced_offline' in fl.apiRawValues['apiAnonymous']
         f.exec_cmd('run', offline=False, online=True)
-        # We need this 2 sec delay as sometimes the status does not change
-        # straight away, causing the assertion to fail.
-        time.sleep(2)
+        pollster(check_device_state_as_expected)(mgmt_root, 'active')
         fl.refresh()
+        pp(fl.raw)
         assert 'Failover active' in fl.apiRawValues['apiAnonymous']
 
-    def test_exec_cmd_cmdargs(self, bigip):
-        fl = bigip.sys.failover.load()
-        f = bigip.sys.failover
+    def test_exec_cmd_cmdargs(self, mgmt_root, teardown_device_failover_state):
+        fl = mgmt_root.tm.sys.failover.load()
+        f = mgmt_root.tm.sys.failover
         f.exec_cmd('run', utilCmdArgs='offline')
-        time.sleep(4)
+        pollster(check_device_state_as_expected)(mgmt_root, 'forced-offline')
         fl.refresh()
         assert 'Failover forced_offline' in fl.apiRawValues['apiAnonymous']
         f.exec_cmd('run', utilCmdArgs='online')
-        # We need this 2 sec delay as sometimes the status does not change
-        # straight away, causing the assertion to fail.
-        time.sleep(2)
+        pollster(check_device_state_as_expected)(mgmt_root, 'active')
         fl.refresh()
         assert 'Failover active' in fl.apiRawValues['apiAnonymous']
