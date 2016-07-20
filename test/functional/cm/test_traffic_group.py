@@ -13,6 +13,8 @@
 # limitations under the License.
 #
 
+from distutils.version import LooseVersion
+import pytest
 from requests import HTTPError
 
 TEST_DESCR = "TEST DESCRIPTION"
@@ -32,11 +34,24 @@ def setup_traffic_group_test(request, bigip, name, partition, **kwargs):
 
 
 class TestTrafficGroups(object):
-    def test_device_list(self, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) < LooseVersion('11.6.0'),
+        reason='Skip test if on a version below 11.6.0. The '
+        'mac attribute does not exist in 11.5.4.')
+    def test_device_list_11_6_and_greater(self, bigip):
         groups = bigip.cm.traffic_groups.get_collection()
         assert len(groups)
         assert groups[0].generation > 0
         assert hasattr(groups[0], 'mac')
+
+    def test_device_list_alternative(self, bigip):
+        '''An alternative to test above that works regardless of version.'''
+        groups = bigip.cm.traffic_groups.get_collection()
+        assert len(groups)
+        assert groups[0].generation > 0
+        assert hasattr(groups[0], 'isFloating')
 
 
 class TestDevice(object):
