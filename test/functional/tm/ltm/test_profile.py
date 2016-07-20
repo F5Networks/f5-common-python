@@ -13,6 +13,9 @@
 # limitations under the License.
 #
 
+
+from distutils.version import LooseVersion
+from f5.bigip.mixins import UnsupportedTmosVersion
 from pprint import pprint as pp
 pp(__file__)
 import pytest
@@ -210,10 +213,25 @@ class TestClassification(object):
 
 
 class TestClientLdap(object):
-    def test_CURDL(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        < LooseVersion('11.6.0'),
+        reason='This collection exists on 11.6.0 or greater.'
+    )
+    def test_CURDL_11_6_and_greater(self, request, bigip):
         ldap = HelperTest(end_lst, 2)
         ldap.test_CURDL(request, bigip)
 
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        >= LooseVersion('11.6.0'),
+        reason='This collection does not exist on 11.5.4 or less.'
+    )
+    def test_CURDL_11_5_4_and_less(self, request, bigip):
+        ldap = HelperTest(end_lst, 2)
+        with pytest.raises(UnsupportedTmosVersion) as ex:
+            ldap.test_CURDL(request, bigip)
+        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
 
 # End ClientLdap tests
 
@@ -232,9 +250,25 @@ class TestClientSsl(object):
 
 
 class TestDhcpv4(object):
-    def test_CURDL(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        < LooseVersion('11.6.0'),
+        reason='This collection exists on 11.6.0 or greater.'
+    )
+    def test_CURDL_11_6_and_greater(self, request, bigip):
         dhcpv4 = HelperTest(end_lst, 4)
         dhcpv4.test_CURDL(request, bigip)
+
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        >= LooseVersion('11.6.0'),
+        reason='This collection does not exist on 11.5.4 or less.'
+    )
+    def test_CURDL_11_5_4_and_less(self, request, bigip):
+        dhcpv4 = HelperTest(end_lst, 4)
+        with pytest.raises(UnsupportedTmosVersion) as ex:
+            dhcpv4.test_CURDL(request, bigip)
+        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
 
 
 # End Dhcpv4 tests
@@ -243,11 +277,25 @@ class TestDhcpv4(object):
 
 
 class TestDhcpv6(object):
-    def test_CURDL(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        < LooseVersion('11.6.0'),
+        reason='This collection exists on 11.6.0 or greater.'
+    )
+    def test_CURDL_11_6_and_greater(self, request, bigip):
         dhcpv6 = HelperTest(end_lst, 5)
         dhcpv6.test_CURDL(request, bigip)
 
-
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        >= LooseVersion('11.6.0'),
+        reason='This collection does not exist on 11.5.4 or less.'
+    )
+    def test_CURDL_11_5_4_and_less(self, request, bigip):
+        dhcpv4 = HelperTest(end_lst, 5)
+        with pytest.raises(UnsupportedTmosVersion) as ex:
+            dhcpv4.test_CURDL(request, bigip)
+        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
 # End Dhcpv6 tests
 
 # Begin Diameter tests
@@ -374,9 +422,25 @@ class TestFtp(object):
 
 
 class TestGtp(object):
-    def test_CURDL(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        < LooseVersion('11.6.0'),
+        reason='This collection exists on 11.6.0 or greater.'
+    )
+    def test_CURDL_11_6_and_greater(self, request, bigip):
         gtp = HelperTest(end_lst, 13)
         gtp.test_CURDL(request, bigip)
+
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        >= LooseVersion('11.6.0'),
+        reason='This collection does not exist on 11.5.4 or less.'
+    )
+    def test_CURDL_11_5_4_and_less(self, request, bigip):
+        dhcpv4 = HelperTest(end_lst, 13)
+        with pytest.raises(UnsupportedTmosVersion) as ex:
+            dhcpv4.test_CURDL(request, bigip)
+        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
 
 
 # End GTP tests
@@ -418,9 +482,25 @@ class TestHttpCompress(object):
 
 
 class TestHttp2(object):
-    def test_CURDL(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        < LooseVersion('11.6.0'),
+        reason='This collection exists on 11.6.0 or greater.'
+    )
+    def test_CURDL_11_6_and_greater(self, request, bigip):
         http2 = HelperTest(end_lst, 17)
         http2.test_CURDL(request, bigip)
+
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        >= LooseVersion('11.6.0'),
+        reason='This collection does not exist on 11.5.4 or less.'
+    )
+    def test_CURDL_11_5_4_and_less(self, request, bigip):
+        dhcpv4 = HelperTest(end_lst, 17)
+        with pytest.raises(UnsupportedTmosVersion) as ex:
+            dhcpv4.test_CURDL(request, bigip)
+        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
 
 
 # End HTTP tests
@@ -542,7 +622,12 @@ def setup_dns_resolver(request, bigip, name):
 
 
 class TestOcspStaplingParams(object):
-    def test_CURDL(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        < LooseVersion('11.6.0'),
+        reason='This collection exists on 11.6.0 or greater.'
+    )
+    def test_CURDL_11_6_and_greater(self, request, bigip):
 
         # Setup DNS resolver as prerequisite
         dns = setup_dns_resolver(request, bigip, 'test_resolv')
@@ -577,6 +662,27 @@ class TestOcspStaplingParams(object):
 
         assert ocsp1.selfLink == ocsp2.selfLink
 
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        >= LooseVersion('11.6.0'),
+        reason='This collection does not exist on 11.5.4 or less.'
+    )
+    def test_CURDL_11_6_and_less(self, request, bigip):
+
+        # Setup DNS resolver as prerequisite
+        dns = setup_dns_resolver(request, bigip, 'test_resolv')
+
+        # Test CURDL
+        ocsp = HelperTest(end_lst, 24)
+
+        # Testing create
+        with pytest.raises(UnsupportedTmosVersion) as ex:
+            ocsp.setup_test(
+                request, bigip, dnsResolver=dns.name,
+                trustedCa='/Common/ca-bundle.crt',
+                useProxyServer='disabled'
+            )
+        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
 
 # End Ocsp Stapling Params tests
 
@@ -795,9 +901,25 @@ class TestSctps(object):
 
 
 class TestServerLdap(object):
-    def test_CURDL(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        < LooseVersion('11.6.0'),
+        reason='This collection exists on 11.6.0 or greater.'
+    )
+    def test_CURDL_11_6_and_greater(self, request, bigip):
         sldap = HelperTest(end_lst, 35)
         sldap.test_CURDL(request, bigip)
+
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        >= LooseVersion('11.6.0'),
+        reason='This collection does not exist on 11.5.4 or less.'
+    )
+    def test_CURDL_11_5_4_and_less(self, request, bigip):
+        dhcpv4 = HelperTest(end_lst, 35)
+        with pytest.raises(UnsupportedTmosVersion) as ex:
+            dhcpv4.test_CURDL(request, bigip)
+        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
 
 
 # End Server Ldap tests
@@ -828,9 +950,25 @@ class TestSip(object):
 
 
 class TestSmtp(object):
-    def test_CURDL(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        < LooseVersion('11.6.0'),
+        reason='This collection exists on 11.6.0 or greater.'
+    )
+    def test_CURDL_11_6_and_greater(self, request, bigip):
         smtp = HelperTest(end_lst, 38)
         smtp.test_CURDL(request, bigip)
+
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        >= LooseVersion('11.6.0'),
+        reason='This collection does not exist on 11.5.4 or less.'
+    )
+    def test_CURDL_11_5_4_and_less(self, request, bigip):
+        dhcpv4 = HelperTest(end_lst, 38)
+        with pytest.raises(UnsupportedTmosVersion) as ex:
+            dhcpv4.test_CURDL(request, bigip)
+        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
 
 
 # End Smtp tests
