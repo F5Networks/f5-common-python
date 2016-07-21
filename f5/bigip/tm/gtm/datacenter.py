@@ -114,7 +114,6 @@ class Datacenter(Resource, ExclusiveAttributesMixin):
         return None
 
     def create(self, **kwargs):
-        kwargs = self._reduce_boolean_pair(kwargs, 'enabled', 'disabled')
         inst = self._create(**kwargs)
         inst._endis_attrs()
         return inst
@@ -136,6 +135,5 @@ class Datacenter(Resource, ExclusiveAttributesMixin):
             kwargs['enabled'] = self.__dict__.pop('enabled')
         elif 'disabled' in self.__dict__ and 'disabled' not in kwargs:
             kwargs['disabled'] = self.__dict__.pop('disabled')
-        kwargs = self._reduce_boolean_pair(kwargs, 'enabled', 'disabled')
         self._update(**kwargs)
         self._endis_attrs()
