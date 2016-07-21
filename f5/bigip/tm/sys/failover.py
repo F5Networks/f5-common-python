@@ -27,13 +27,10 @@ REST Kind
 """
 
 from f5.bigip.mixins import CommandExecutionMixin
-from f5.bigip.mixins import ReduceBooleanPairToTrueMixin
 from f5.bigip.resource import UnnamedResource
 
 
-class Failover(
-        UnnamedResource, CommandExecutionMixin, ReduceBooleanPairToTrueMixin
-):
+class Failover(UnnamedResource, CommandExecutionMixin):
     '''BIG-IP® Failover stats and state change.
 
     The failover object only supports load, update, and refresh because it is
@@ -93,7 +90,7 @@ class Failover(
         :: raises InvalidParameterValue
         """
 
-        self._reduce_boolean_pair(kwargs, 'online', 'offline')
+        kwargs = self._reduce_boolean_pair(kwargs, 'online', 'offline')
         if 'offline' in kwargs:
             self._meta_data['exclusive_attributes'].append(
                 ('offline', 'standby'))

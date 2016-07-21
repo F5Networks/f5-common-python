@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.bigip.mixins import BooleansToReduceHaveSameValue
+from f5.bigip.resource import BooleansToReduceHaveSameValue
 from f5.multi_device.utils import get_device_info
 from f5.multi_device.utils import pollster
 from pprint import pprint as pp
