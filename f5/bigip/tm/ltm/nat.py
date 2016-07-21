@@ -89,16 +89,8 @@ class Nat(Resource, ExclusiveAttributesMixin):
                         % kwargs['trafficGroup'])
             except KeyError:
                 pass
-        kwargs = self._endis_able(kwargs)
         new_instance = self._create(**kwargs)
         return new_instance
-
-    def _endis_able(self, config_dict):
-        if 'enabled' in config_dict and not config_dict['enabled']:
-            config_dict['disabled'] = True
-        elif 'disabled' in config_dict and not config_dict['disabled']:
-            config_dict['enabled'] = True
-        return config_dict
 
     def update(self, **kwargs):
         # This is an example implementation of read-only params
@@ -107,6 +99,5 @@ class Nat(Resource, ExclusiveAttributesMixin):
             kwargs['enabled'] = self.__dict__.pop('enabled')
         elif 'disabled' in self.__dict__ and 'disabled' not in kwargs:
             kwargs['disabled'] = self.__dict__.pop('disabled')
-        kwargs = self._endis_able(kwargs)
         self._update(**kwargs)
         self.__dict__['translationAddress'] = stash_translation_address

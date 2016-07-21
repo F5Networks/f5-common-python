@@ -49,13 +49,6 @@ class Datacenter(Resource, ExclusiveAttributesMixin):
             'tm:gtm:datacenter:datacenterstate'
         self._meta_data['exclusive_attributes'].append(('enabled', 'disabled'))
 
-    def _endis_able(self, config_dict):
-        if 'enabled' in config_dict and not config_dict['enabled']:
-            config_dict['disabled'] = True
-        elif 'disabled' in config_dict and not config_dict['disabled']:
-            config_dict['enabled'] = True
-        return config_dict
-
     def _endis_attrs(self):
         """Manipulate return value to equal negation of set value
 
@@ -121,25 +114,18 @@ class Datacenter(Resource, ExclusiveAttributesMixin):
         return None
 
     def create(self, **kwargs):
-        kwargs = self._endis_able(kwargs)
-
-        if 'enabled' in kwargs and kwargs['enabled']:
-            del kwargs['disabled']
-        if 'disabled' in kwargs and kwargs['disabled']:
-            del kwargs['enabled']
-
         inst = self._create(**kwargs)
         inst._endis_attrs()
         return inst
 
     def load(self, **kwargs):
-        kwargs = self._endis_able(kwargs)
+        kwargs = self._reduce_boolean_pair(kwargs, 'enabled', 'disabled')
         inst = self._load(**kwargs)
         inst._endis_attrs()
         return inst
 
     def refresh(self, **kwargs):
-        kwargs = self._endis_able(kwargs)
+        kwargs = self._reduce_boolean_pair(kwargs, 'enabled', 'disabled')
         self._refresh(**kwargs)
         self._endis_attrs()
         return self
@@ -149,6 +135,5 @@ class Datacenter(Resource, ExclusiveAttributesMixin):
             kwargs['enabled'] = self.__dict__.pop('enabled')
         elif 'disabled' in self.__dict__ and 'disabled' not in kwargs:
             kwargs['disabled'] = self.__dict__.pop('disabled')
-        kwargs = self._endis_able(kwargs)
         self._update(**kwargs)
         self._endis_attrs()
