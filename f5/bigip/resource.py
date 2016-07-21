@@ -768,6 +768,7 @@ class Resource(ResourceBase):
         :param config_dict: dict -- dictionary of config or kwargs
         :param key1: string -- first key name
         :param key2: string -- second key name
+        :raises: BooleansToReduceHaveSameValue
         '''
 
         if key1 in config_dict and key2 in config_dict \
