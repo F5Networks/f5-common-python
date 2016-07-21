@@ -797,7 +797,7 @@ class Resource(ResourceBase):
         requests_params = self._handle_requests_params(kwargs)
         self._check_create_parameters(**kwargs)
 
-        # Reduce any boolean pairs as specified by the meta_data entry below
+        # Reduce boolean pairs as specified by the meta_data entry below
         for key1, key2 in self._meta_data['reduction_forcing_pairs']:
             kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
 
