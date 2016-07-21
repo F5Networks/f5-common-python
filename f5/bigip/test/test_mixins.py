@@ -15,9 +15,7 @@
 import json
 import pytest
 
-from f5.bigip.mixins import BooleansToReduceHaveSameValue
 from f5.bigip.mixins import CommandExecutionMixin
-from f5.bigip.mixins import ReduceBooleanPairToTrueMixin
 from f5.bigip.mixins import ToDictMixin
 from f5.bigip.mixins import UnsupportedMethod
 
@@ -123,39 +121,3 @@ class TestCommandExecutionMixin(object):
         command_resource = CommandExecutionMixin()
         with pytest.raises(UnsupportedMethod):
             command_resource.load()
-
-
-class TestReduceBooleanPairToTrueMixin(object):
-    def test_reduce_boolean_removes_enabled(self):
-        config_dict = {'enabled': False}
-        endis = ReduceBooleanPairToTrueMixin()
-        modded_dict = endis._reduce_boolean_pair(
-            config_dict, 'enabled', 'disabled'
-        )
-        assert modded_dict == {'disabled': True}
-
-    def test_reduce_boolean_removes_disabled(self):
-        config_dict = {'disabled': False}
-        endis = ReduceBooleanPairToTrueMixin()
-        modded_dict = endis._reduce_boolean_pair(
-            config_dict, 'enabled', 'disabled'
-        )
-        assert modded_dict == {'enabled': True}
-
-    def test_reduce_boolean_removes_nothing(self):
-        config_dict = {'enabled': True}
-        endis = ReduceBooleanPairToTrueMixin()
-        modded_dict = endis._reduce_boolean_pair(
-            config_dict, 'enabled', 'disabled'
-        )
-        assert modded_dict == config_dict
-
-    def test_reduce_boolean_same_value(self):
-        config_dict = {'key1': True, 'key2': True}
-        endis = ReduceBooleanPairToTrueMixin()
-        with pytest.raises(BooleansToReduceHaveSameValue) as ex:
-            endis._reduce_boolean_pair(config_dict, 'key1', 'key2')
-        msg = 'Boolean pair, key1 and key2, have same value: True. If both ' \
-            'are given to this method, they cannot be the same, as this ' \
-            'method cannot decide which one should be True.'
-        assert msg == ex.value.message

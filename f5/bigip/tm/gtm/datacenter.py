@@ -28,7 +28,6 @@ REST Kind
 """
 
 from f5.bigip.mixins import ExclusiveAttributesMixin
-from f5.bigip.mixins import ReduceBooleanPairToTrueMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
@@ -42,9 +41,7 @@ class Datacenters(Collection):
             {'tm:gtm:datacenter:datacenterstate': Datacenter}
 
 
-class Datacenter(
-        Resource, ExclusiveAttributesMixin, ReduceBooleanPairToTrueMixin
-):
+class Datacenter(Resource, ExclusiveAttributesMixin):
     """BIG-IP® GTM datacenter resource"""
     def __init__(self, dc_s):
         super(Datacenter, self).__init__(dc_s)

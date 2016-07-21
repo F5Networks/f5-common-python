@@ -161,6 +161,11 @@ class UnsupportedOperation(F5SDKError):
     pass
 
 
+class BooleansToReduceHaveSameValue(F5SDKError):
+    '''Dict contains two keys with same boolean value.'''
+    pass
+
+
 class PathElement(LazyAttributeMixin):
     """Base class to represent a URI path element that does not contain data.
 
@@ -442,6 +447,11 @@ class ResourceBase(PathElement, ToDictMixin):
             # generation has a known server-side error
             self._check_generation()
 
+        # Reduce any boolean pairs as specified by the meta_data entry below
+        if 'reduction_forcing_pairs' in self._meta_data:
+            for key1, key2 in self._meta_data['reduction_forcing_pairs']:
+                kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
+
         # Save the meta data so we can add it back into self after we
         # load the new object.
         temp_meta = self.__dict__.pop('_meta_data')
@@ -463,6 +473,7 @@ class ResourceBase(PathElement, ToDictMixin):
             data_dict.pop(attr, '')
 
         data_dict.update(kwargs)
+
         response = session.put(update_uri, json=data_dict, **requests_params)
         self._meta_data = temp_meta
         self._local_update(response.json())
@@ -694,6 +705,12 @@ class Resource(ResourceBase):
         self._meta_data['required_load_parameters'] = set(('name',))
         # You can't set these attributes, only 'read' them.
         self._meta_data['read_only_attributes'] = []
+        self._meta_data['reduction_forcing_pairs'] = \
+            [
+                ('enabled', 'disabled'),
+                ('online', 'offline'),
+                ('vlansEnabled', 'vlansDisabled')
+            ]
 
     def _activate_URI(self, selfLinkuri):
         """Call this with a selfLink, after it's returned in _create or _load.
@@ -745,6 +762,29 @@ class Resource(ResourceBase):
                                 'creation_uri_frag': frag,
                                 'allowed_lazy_attributes': attrs})
 
+    def _reduce_boolean_pair(self, config_dict, key1, key2):
+        '''Ensure only one key with a boolean value is present in dict.
+
+        :param config_dict: dict -- dictionary of config or kwargs
+        :param key1: string -- first key name
+        :param key2: string -- second key name
+        '''
+
+        if key1 in config_dict and key2 in config_dict \
+                and config_dict[key1] == config_dict[key2]:
+            msg = 'Boolean pair, %s and %s, have same value: %s. If both ' \
+                'are given to this method, they cannot be the same, as this ' \
+                'method cannot decide which one should be True.' \
+                % (key1, key2, config_dict[key1])
+            raise BooleansToReduceHaveSameValue(msg)
+        elif key1 in config_dict and not config_dict[key1]:
+            config_dict[key2] = True
+            config_dict.pop(key1)
+        elif key2 in config_dict and not config_dict[key2]:
+            config_dict[key1] = True
+            config_dict.pop(key2)
+        return config_dict
+
     def _create(self, **kwargs):
         """wrapped by `create` override that in subclasses to customize"""
         if 'uri' in self._meta_data:
@@ -755,6 +795,10 @@ class Resource(ResourceBase):
         self._check_exclusive_parameters(**kwargs)
         requests_params = self._handle_requests_params(kwargs)
         self._check_create_parameters(**kwargs)
+
+        # Reduce any boolean pairs as specified by the meta_data entry below
+        for key1, key2 in self._meta_data['reduction_forcing_pairs']:
+            kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
 
         # Make convenience variable with short names for this method.
         _create_uri = self._meta_data['container']._meta_data['uri']
@@ -809,6 +853,8 @@ class Resource(ResourceBase):
         refresh_session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
         kwargs.update(requests_params)
+        for key1, key2 in self._meta_data['reduction_forcing_pairs']:
+            kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
         response = refresh_session.get(base_uri, **kwargs)
         # Make new instance of self
         return self._produce_instance(response)

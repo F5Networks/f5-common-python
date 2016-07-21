@@ -16,6 +16,7 @@ import mock
 import pytest
 import requests
 
+from f5.bigip.resource import BooleansToReduceHaveSameValue
 from f5.bigip.resource import Collection
 from f5.bigip.resource import DeviceProvidesIncompatibleKey
 from f5.bigip.resource import ExclusiveAttributesPresent
@@ -36,6 +37,30 @@ from f5.bigip.resource import UnregisteredKind
 from f5.bigip.resource import URICreationCollision
 from f5.bigip.tm.ltm.virtual import Virtual
 from f5.sdk_exception import UnsupportedMethod
+
+
+@pytest.fixture
+def fake_vs():
+    r = Virtual(mock.MagicMock())
+    MRO = MockResponse({u"kind": u"tm:ltm:virtual:virtualstate",
+                        u"selfLink": u".../~Common~test_create"})
+    r._meta_data['bigip']._meta_data['icr_session'].post.return_value = MRO
+    r._meta_data['required_json_kind'] = u"tm:ltm:virtual:virtualstate"
+    r._meta_data['allowed_lazy_attributes'] = []
+    return r
+
+
+@pytest.fixture
+def fake_rsrc():
+    r = Resource(mock.MagicMock())
+    r._meta_data['allowed_lazy_attributes'] = []
+    r._meta_data['uri'] = 'URI'
+    r._meta_data['read_only_attributes'] = [u"READONLY"]
+    attrs = {'put.return_value': MockResponse({u"generation": 0}),
+             'get.return_value': MockResponse({u"generation": 0})}
+    mock_session = mock.MagicMock(**attrs)
+    r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
+    return r
 
 
 class MockResponse(object):
@@ -115,16 +140,50 @@ class TestResourcecreate(object):
             "be ''tm:ltm:virtual:virtualstate'' but creation returned "\
             "JSON with kind: u'tm:'"
 
-    def test_success(self):
-        r = Virtual(mock.MagicMock())
-        MRO = MockResponse({u"kind": u"tm:ltm:virtual:virtualstate",
-                            u"selfLink": u".../~Common~test_create"})
-        r._meta_data['bigip']._meta_data['icr_session'].post.return_value = MRO
-        r._meta_data['required_json_kind'] = u"tm:ltm:virtual:virtualstate"
-        r._meta_data['allowed_lazy_attributes'] = []
-        x = r.create(partition="Common", name="test_create")
+    def test_success(self, fake_vs):
+        x = fake_vs.create(partition="Common", name="test_create")
         assert x.kind == u"tm:ltm:virtual:virtualstate"
         assert x.selfLink == u".../~Common~test_create"
+
+    def test_reduce_boolean_removes_enabled(self, fake_vs):
+        assert fake_vs._meta_data['reduction_forcing_pairs'] == \
+            [
+                ('enabled', 'disabled'),
+                ('online', 'offline'),
+                ('vlansEnabled', 'vlansDisabled')
+            ]
+        fake_vs.create(partition="Common", name="test_create", enabled=False)
+        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].post.\
+            call_args
+        assert kwargs['json']['disabled'] is True
+        assert 'enabled' not in kwargs['json']
+
+    def test_reduce_boolean_removes_disabled(self, fake_vs):
+        fake_vs.create(partition='Common', name='test_create', disabled=False)
+        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].post.\
+            call_args
+        assert kwargs['json']['enabled'] is True
+        assert 'disabled' not in kwargs['json']
+
+    def test_reduce_boolean_removes_nothing(self, fake_vs):
+        fake_vs.create(partition='Common', name='test_create', enabled=True)
+        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].post.\
+            call_args
+        assert kwargs['json']['enabled'] is True
+        assert 'disabled' not in kwargs['json']
+
+    def test_reduce_boolean_same_value(self, fake_vs):
+        with pytest.raises(BooleansToReduceHaveSameValue) as ex:
+            fake_vs.create(
+                partition='Common',
+                name='test_create',
+                enabled=True,
+                disabled=True
+            )
+        msg = 'Boolean pair, enabled and disabled, have same value: True. ' \
+            'If both are given to this method, they cannot be the same, as ' \
+            'this method cannot decide which one should be True.'
+        assert msg == ex.value.message
 
 
 def test__activate_URI():
@@ -218,6 +277,40 @@ class TestResource_update(object):
         submitted = r._meta_data['bigip'].\
             _meta_data['icr_session'].put.call_args[1]['json']
         assert 'READONLY' not in submitted
+
+    def test_reduce_boolean_removes_enabled(self, fake_rsrc):
+        fake_rsrc.update(enabled=False)
+        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
+            call_args
+        assert kwargs['json']['disabled'] is True
+        assert 'enabled' not in kwargs['json']
+
+    def test_reduce_boolean_removes_disabled(self, fake_rsrc):
+        fake_rsrc.update(disabled=False)
+        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
+            call_args
+        assert kwargs['json']['enabled'] is True
+        assert 'disabled' not in kwargs['json']
+
+    def test_reduce_boolean_removes_nothing(self, fake_rsrc):
+        fake_rsrc.update(partition='Common', name='test_create', enabled=True)
+        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
+            call_args
+        assert kwargs['json']['enabled'] is True
+        assert 'disabled' not in kwargs['json']
+
+    def test_reduce_boolean_same_value(self, fake_rsrc):
+        with pytest.raises(BooleansToReduceHaveSameValue) as ex:
+            fake_rsrc.update(
+                partition='Common',
+                name='test_create',
+                enabled=True,
+                disabled=True
+            )
+        msg = 'Boolean pair, enabled and disabled, have same value: True. ' \
+            'If both are given to this method, they cannot be the same, as ' \
+            'this method cannot decide which one should be True.'
+        assert msg == ex.value.message
 
 
 class TestResource_delete(object):
