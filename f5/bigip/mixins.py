@@ -108,20 +108,22 @@ class LazyAttributeMixin(object):
                 attribute = lazy_attribute(container)
                 bases = [base.__name__ for base in lazy_attribute.__bases__]
                 # Doing version check per each resource
-                container._check_supported_versions(attribute)
+                container._check_supported_versions(container, attribute)
                 if 'Resource' not in bases:
                     setattr(container, name, attribute)
                 return attribute
 
-    def _check_supported_versions(container, attribute):
+    def _check_supported_versions(self, container, attribute):
         tmos_v = container._meta_data['bigip'].tmos_version
         minimum = attribute._meta_data['minimum_version']
         if LooseVersion(tmos_v) < LooseVersion(minimum):
-            error = "There was an attempt to access API which " \
-                    "has not been implemented or supported " \
-                    "in the device's TMOS version: {}. "\
-                    "Minimum TMOS version supported is {}".format(
-                        tmos_v, minimum)
+            error = "There was an attempt to access resource: \n{}\n which " \
+                    "is not implemented in the device's TMOS version: {}. "\
+                    "The minimum TMOS version in which this resource *is*"\
+                    "supported is {}".format(
+                        attribute._meta_data['uri'],
+                        tmos_v,
+                        minimum)
             raise UnsupportedTmosVersion(error)
 
 
