@@ -15,6 +15,7 @@
 
 from f5.bigip import BigIP
 from f5.bigip import ManagementRoot
+from f5.utils.testutils.registrytools import register_device
 import mock
 import pytest
 import requests
@@ -53,41 +54,41 @@ def fakeicontrolsession(monkeypatch):
     monkeypatch.setattr('f5.bigip.iControlRESTSession', fakesessionclass)
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def opt_bigip(request):
     return request.config.getoption("--bigip")
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def opt_username(request):
     return request.config.getoption("--username")
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def opt_password(request):
     return request.config.getoption("--password")
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def opt_port(request):
     return request.config.getoption("--port")
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def bigip(opt_bigip, opt_username, opt_password, opt_port, scope="module"):
     '''bigip fixture'''
     b = BigIP(opt_bigip, opt_username, opt_password, port=opt_port)
     return b
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, scope="module"):
     '''bigip fixture'''
     m = ManagementRoot(opt_bigip, opt_username, opt_password, port=opt_port)
     return m
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def opt_release(request):
     return request.config.getoption("--release")
 
@@ -153,3 +154,22 @@ def pool_factory():
         request.addfinalizer(deleter)
         return pool_registry, members_registry
     return _setup_boilerplate
+
+
+@pytest.fixture(scope='module')
+def setup_device_snapshot(request, mgmt_root):
+    '''Snapshot the device to manage objects created by tests.
+
+    Snapshot the device before a test runs and after, then remove objects
+    that persist after suite runs.
+    '''
+
+    before_snapshot = register_device(mgmt_root)
+
+    def teardown():
+        after_snapshot = register_device(mgmt_root)
+        diff = set(after_snapshot) - set(before_snapshot)
+        for item in diff:
+            after_snapshot[item].delete()
+    request.addfinalizer(teardown)
+    return before_snapshot

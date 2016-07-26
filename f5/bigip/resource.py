@@ -568,6 +568,30 @@ class ResourceBase(PathElement, ToDictMixin):
         new_instance._activate_URI(new_instance.selfLink)
         return new_instance
 
+    def _reduce_boolean_pair(self, config_dict, key1, key2):
+        '''Ensure only one key with a boolean value is present in dict.
+
+        :param config_dict: dict -- dictionary of config or kwargs
+        :param key1: string -- first key name
+        :param key2: string -- second key name
+        :raises: BooleansToReduceHaveSameValue
+        '''
+
+        if key1 in config_dict and key2 in config_dict \
+                and config_dict[key1] == config_dict[key2]:
+            msg = 'Boolean pair, %s and %s, have same value: %s. If both ' \
+                'are given to this method, they cannot be the same, as this ' \
+                'method cannot decide which one should be True.' \
+                % (key1, key2, config_dict[key1])
+            raise BooleansToReduceHaveSameValue(msg)
+        elif key1 in config_dict and not config_dict[key1]:
+            config_dict[key2] = True
+            config_dict.pop(key1)
+        elif key2 in config_dict and not config_dict[key2]:
+            config_dict[key1] = True
+            config_dict.pop(key2)
+        return config_dict
+
 
 class OrganizingCollection(ResourceBase):
     """Base class for objects that collect resources under them.
@@ -761,30 +785,6 @@ class Resource(ResourceBase):
                                 'creation_uri_qargs': qargs,
                                 'creation_uri_frag': frag,
                                 'allowed_lazy_attributes': attrs})
-
-    def _reduce_boolean_pair(self, config_dict, key1, key2):
-        '''Ensure only one key with a boolean value is present in dict.
-
-        :param config_dict: dict -- dictionary of config or kwargs
-        :param key1: string -- first key name
-        :param key2: string -- second key name
-        :raises: BooleansToReduceHaveSameValue
-        '''
-
-        if key1 in config_dict and key2 in config_dict \
-                and config_dict[key1] == config_dict[key2]:
-            msg = 'Boolean pair, %s and %s, have same value: %s. If both ' \
-                'are given to this method, they cannot be the same, as this ' \
-                'method cannot decide which one should be True.' \
-                % (key1, key2, config_dict[key1])
-            raise BooleansToReduceHaveSameValue(msg)
-        elif key1 in config_dict and not config_dict[key1]:
-            config_dict[key2] = True
-            config_dict.pop(key1)
-        elif key2 in config_dict and not config_dict[key2]:
-            config_dict[key1] = True
-            config_dict.pop(key2)
-        return config_dict
 
     def _create(self, **kwargs):
         """wrapped by `create` override that in subclasses to customize"""

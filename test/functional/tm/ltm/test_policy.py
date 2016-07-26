@@ -20,25 +20,12 @@ pp('')
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
-def delete_resource(resources):
-    for resource in resources.get_collection():
-        system_policy_obj_name = ['_sys_CEC_SSL_client_policy',
-                                  '_sys_CEC_SSL_server_policy',
-                                  '_sys_CEC_video_policy']
-        if resource.name not in system_policy_obj_name:
-            resource.delete()
-
-
 @pytest.fixture
-def setup(request, bigip):
-    pc1 = bigip.ltm.policys
-    delete_resource(pc1)
+def setup(request, setup_device_snapshot):
+    return setup_device_snapshot
 
 
 def setup_policy_test(request, bigip, partition, name, strategy="first-match"):
-    def teardown():
-        delete_resource(pc1)
-    request.addfinalizer(teardown)
     pc1 = bigip.ltm.policys
     policy1 = pc1.policy.create(
         name=name, partition=partition, strategy=strategy)
@@ -70,10 +57,9 @@ class TestRulesAndActions(object):
         test_pol1 = rulespc.policy.load(partition='Common',
                                         name='_sys_CEC_video_policy')
         rules_s1 = test_pol1.rules_s
-        rules1 = rules_s1.rules.load(name='youporn_web_1')
+        rules1 = rules_s1.rules.load(name='cnn_web_1')
         r1actions = rules1.actions_s.actions.load(name="1")
         assert r1actions.kind == r1actions._meta_data['required_json_kind']
-        delete_resource(rulespc)
 
 
 class TestRulesAndConditions(object):
@@ -82,8 +68,7 @@ class TestRulesAndConditions(object):
         test_pol1 = rulespc.policy.load(partition='Common',
                                         name='_sys_CEC_video_policy')
         rules_s1 = test_pol1.rules_s
-        rules1 = rules_s1.rules.load(name='youporn_web_1')
+        rules1 = rules_s1.rules.load(name='cnn_web_1')
         r1conditions = rules1.conditions_s.conditions.load(name="1")
         assert r1conditions.kind ==\
             r1conditions._meta_data['required_json_kind']
-        delete_resource(rulespc)
