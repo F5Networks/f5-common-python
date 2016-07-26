@@ -93,6 +93,9 @@ class TestFailover(object):
         f = mgmt_root.tm.sys.failover
         f.exec_cmd('run', offline=True)
         get_activation_state(mgmt_root)
+        # Use the pollster to check for expected state. The pollster uses
+        # a method which checks for any exception. If one is found, it keeps
+        # trying.
         pollster(check_device_state_as_expected)(mgmt_root, 'forced-offline')
         fl.refresh()
         pp(fl.raw)
