@@ -59,6 +59,7 @@ def setup_template_test(request, bigip, name, partition):
         partition=partition,
         actions=definition
     )
+    assert test_template is not None
     return template_s, test_template
 
 
@@ -75,12 +76,14 @@ def setup_service_test(request, bigip, name, partition, template_name, tgroup):
         partition=partition,
         actions=definition
     )
+    assert test_template is not None
     test_service = service_s.service.create(
         name=name,
         partition=partition,
         template=template_name,
         trafficGroup=tgroup
     )
+    assert test_service is not None
     request.addfinalizer(teardown)
     return service_s, test_service
 

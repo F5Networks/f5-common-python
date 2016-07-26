@@ -111,7 +111,7 @@ class Service(Resource):
         '''
 
         try:
-            super(Service, self)._create(**kwargs)
+            return super(Service, self)._create(**kwargs)
         except HTTPError as ex:
             if "The configuration was updated successfully but could not be " \
                     "retrieved" not in ex.response.text:
