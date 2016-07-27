@@ -26,16 +26,25 @@ script:
 - ${DIST_REPO}/scripts/package.sh "redhat" "7"
 before_deploy: PKG_VERSION=$(python -c "import f5; print(f5.__version__)")
 deploy:
-  provider: releases
-  api_key:
-    secure: 2s3M+0/e4S9EEm0QQ01HNPvK60U7lTNUCbMBDPW+2RZQSiNaMZvPpRtyoQeWgBizVAzhOB3AvxbzRokh1lWjWfsuqwcJWViF6MPoZu7XjEBB6FTiJ22D3tFWqVXGGhyKwW8E4Hk5s+Rp3WaiePLVQtvJ9/aBATdzTzVm+6IbTXqakHsBhC2zXH8OPK6tuLZX+P8cuCggFW2Ip5MZc561aVE/MKUSJIAKllSQecikkJn7KIrf6+ydX7/1ycE6T/JAwBdsqsiMUzvrPwwahBswahpJ1fzhcKWQDWPvEmI6ruIXR3ItK6mlaKE98yKH3a0iyaMqOmjGMz/Xik3oU5KOSmpATMXfLcnr6KBFKfbVOmeRwW91tmJ5sSjwI/3rDfdYWsPnO63z6nRm2JL6b5JF6PAcfPFf5CEhffnCDeOEuEh4m5eexqGyZvSsdKAeJxPORJgO6kOr7fkDs4nLRmgQY9WvcARKjwgPc1eJW2fjeiiIbyf8a8AXI8TOgIIUJ3pLUns8Hv2JQkp5Km7/b2ZRT001yEQWAtQXj0r6D/WMCxDN8IlbSGibN6yyP7WnEvRS4vk6jwqyY/UY+aHvuSeanD3pl1kBHTyiQGdUIG4mw8EDW7ZkM177TJj60xB37Ef42Fjs3iIpVquvDdv+XWgp3c4+LmUAyWoxIOHJSGCPm7g=
-  file: "${DIST_REPO}/rpms/build/f5-sdk-${PKG_VERSION}-1.el7.noarch.rpm"
-  skip_cleanup: true
-  overwrite: true
-  on:
-    repo: richbrowne/f5-common-python
-    branch: development
-    tags: true
+  - provider: pypi
+    user: $PYPI_USER
+    password: $PYPI_PASSWORD
+    server: https://pypi.python.org/pypi
+    on:
+      all_branches: true
+      tags: true
+      python: 2.7
+    skip_cleanup: true
+  - provider: releases
+    api_key:
+      secure: 2s3M+0/e4S9EEm0QQ01HNPvK60U7lTNUCbMBDPW+2RZQSiNaMZvPpRtyoQeWgBizVAzhOB3AvxbzRokh1lWjWfsuqwcJWViF6MPoZu7XjEBB6FTiJ22D3tFWqVXGGhyKwW8E4Hk5s+Rp3WaiePLVQtvJ9/aBATdzTzVm+6IbTXqakHsBhC2zXH8OPK6tuLZX+P8cuCggFW2Ip5MZc561aVE/MKUSJIAKllSQecikkJn7KIrf6+ydX7/1ycE6T/JAwBdsqsiMUzvrPwwahBswahpJ1fzhcKWQDWPvEmI6ruIXR3ItK6mlaKE98yKH3a0iyaMqOmjGMz/Xik3oU5KOSmpATMXfLcnr6KBFKfbVOmeRwW91tmJ5sSjwI/3rDfdYWsPnO63z6nRm2JL6b5JF6PAcfPFf5CEhffnCDeOEuEh4m5eexqGyZvSsdKAeJxPORJgO6kOr7fkDs4nLRmgQY9WvcARKjwgPc1eJW2fjeiiIbyf8a8AXI8TOgIIUJ3pLUns8Hv2JQkp5Km7/b2ZRT001yEQWAtQXj0r6D/WMCxDN8IlbSGibN6yyP7WnEvRS4vk6jwqyY/UY+aHvuSeanD3pl1kBHTyiQGdUIG4mw8EDW7ZkM177TJj60xB37Ef42Fjs3iIpVquvDdv+XWgp3c4+LmUAyWoxIOHJSGCPm7g=
+    file: "${DIST_REPO}/rpms/build/f5-sdk-${PKG_VERSION}-1.el7.noarch.rpm"
+    skip_cleanup: true
+    overwrite: true
+    on:
+      repo: F5Networks/f5-common-python
+      all_branches: true
+      tags: true
 
 notifications:
   slack:
