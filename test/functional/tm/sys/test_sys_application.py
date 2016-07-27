@@ -16,6 +16,9 @@
 from pprint import pprint as pp
 from requests import HTTPError
 
+from f5.bigip.tm.sys.application import Service
+from f5.bigip.tm.sys.application import Template
+
 pp(__file__)
 TESTDESCRIPTION = 'TESTDESCRIPTION'
 
@@ -59,7 +62,7 @@ def setup_template_test(request, bigip, name, partition):
         partition=partition,
         actions=definition
     )
-    assert test_template is not None
+    assert isinstance(test_template, Template)
     return template_s, test_template
 
 
@@ -76,14 +79,14 @@ def setup_service_test(request, bigip, name, partition, template_name, tgroup):
         partition=partition,
         actions=definition
     )
-    assert test_template is not None
+    assert isinstance(test_template, Template)
     test_service = service_s.service.create(
         name=name,
         partition=partition,
         template=template_name,
         trafficGroup=tgroup
     )
-    assert test_service is not None
+    assert isinstance(test_service, Service)
     request.addfinalizer(teardown)
     return service_s, test_service
 
