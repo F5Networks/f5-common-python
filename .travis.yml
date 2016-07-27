@@ -23,7 +23,7 @@ script:
 - cd docs
 - make html
 - cd ../
-- ${DIST_REPO}/scripts/package "redhat" "7"
+- ${DIST_REPO}/scripts/package.sh "redhat" "7"
 before_deploy: PKG_VERSION=$(python -c "import f5; print(f5.__version__)")
 deploy:
   provider: releases
