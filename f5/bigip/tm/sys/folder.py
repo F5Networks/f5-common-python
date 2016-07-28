@@ -26,10 +26,13 @@ GUI Path
 REST Kind
     ``tm:sys:folder:*``
 """
+import logging
+from requests.exceptions import HTTPError
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
-from requests.exceptions import HTTPError
+
+logger = logging.getLogger(__name__)
 
 
 class Folders(Collection):
@@ -119,6 +122,7 @@ class Folder(Resource):
         :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
             code 404.
         """
+
         requests_params = self._handle_requests_params(kwargs)
         self._check_load_parameters(**kwargs)
         load_uri = self._create_subpath_uri(kwargs)
@@ -127,7 +131,7 @@ class Folder(Resource):
         try:
             session.get(load_uri, **kwargs)
         except HTTPError as err:
-            print(err.response.text)
+            logger.debug(err.response.text)
             if err.response.status_code == 404:
                 return False
             else:
