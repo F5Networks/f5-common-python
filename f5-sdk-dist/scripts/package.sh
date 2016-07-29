@@ -19,6 +19,5 @@ fi
 
 docker build -t ${BUILD_CONTAINER} ${DIST_DIR}/Docker/${OS_TYPE}/${OS_VERSION}
 docker run --privileged --rm -v $(pwd):${WORKING_DIR} ${BUILD_CONTAINER} /bin/bash /build-${PKG_TYPE}.sh "${WORKING_DIR}"
-sudo chown -R travis:travis ${DIST_DIR}
 
 exit 0
