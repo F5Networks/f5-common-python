@@ -1,6 +1,6 @@
 # coding=utf-8
 #
-"""Classes and functions for configuring BIG-IP"""
+"""Classes and functions for configuring BIG-IQ"""
 # Copyright 2014 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,22 +22,14 @@ from urlparse import parse_qs
 from urlparse import urlparse
 
 
-from f5.bigip.cm import Cm
+from f5.bigiq.cm import Cm
+from f5.bigiq.tm import Tm
+from f5.bigiq.shared import Shared
 from f5.bigip.resource import PathElement
-from f5.bigip.shared import Shared
-from f5.bigip.tm.auth import Auth as TmAuth
-from f5.bigip.tm.cm import Cm as TmCm
-from f5.bigip.tm.gtm import Gtm
-from f5.bigip.tm.ltm import Ltm
-from f5.bigip.tm.net import Net
-from f5.bigip.tm.shared import Shared as TmShared
-from f5.bigip.tm.sys import Sys
-from f5.bigip.tm import Tm
-from f5.bigip.tm.transaction import Transactions
 
 
 class ManagementRoot(PathElement):
-    """An interface to a single BIG-IP"""
+    """An interface to a single BIG-IQ"""
     def __init__(self, hostname, username, password, **kwargs):
         timeout = kwargs.pop('timeout', 30)
         port = kwargs.pop('port', 443)
@@ -48,7 +40,7 @@ class ManagementRoot(PathElement):
         iCRS = iControlRESTSession(username, password, timeout=timeout)
         # define _meta_data
         self._meta_data = {
-            'allowed_lazy_attributes': [Tm, Cm, Shared],
+            'allowed_lazy_attributes': [Cm, Tm, Shared],
             'hostname': hostname,
             'port': port,
             'uri': 'https://%s:%s/mgmt/' % (hostname, port),
@@ -61,7 +53,7 @@ class ManagementRoot(PathElement):
             'password': password,
             'tmos_version': None,
         }
-        self._get_tmos_version(timeout=timeout)
+        self._get_tmos_version()
 
     @property
     def hostname(self):
@@ -78,19 +70,7 @@ class ManagementRoot(PathElement):
     def _get_tmos_version(self, **kwargs):
         connect = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['uri'] + 'tm/sys/'
-        response = connect.get(base_uri, **kwargs)
+        response = connect.get(base_uri)
         ver = response.json()
         version = parse_qs(urlparse(ver['selfLink']).query)['ver'][0]
         self._meta_data['tmos_version'] = version
-
-
-class BigIP(ManagementRoot):
-    """A shim class used to access the default config resources in 'mgmt/tm.'
-
-    This class is solely implemented for backwards compatibility.
-    """
-    def __init__(self, hostname, username, password, **kwargs):
-        super(BigIP, self).__init__(hostname, username, password, **kwargs)
-        self._meta_data['uri'] = self._meta_data['uri'] + 'tm/'
-        self._meta_data['allowed_lazy_attributes'] =\
-            [TmAuth, TmCm, Ltm, Gtm, Net, TmShared, Sys, Transactions]
