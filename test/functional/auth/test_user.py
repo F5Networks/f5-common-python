@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+from distutils.version import LooseVersion
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
@@ -69,7 +70,14 @@ class TestCreate(object):
         with pytest.raises(MissingRequiredCreationParameter):
             user1.create()
 
-    def test_create_min_args(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) < LooseVersion('11.6.0'),
+        reason='Skip test if on a version below 11.6.0. The '
+        'next test will implement the same logic for 11.5.4 '
+        'and below.')
+    def test_create_min_args_11_6_greater(self, request, bigip):
         '''Test that user.create() with only required arguments work.
 
         This will also test that the default values are set correctly and are
@@ -93,6 +101,33 @@ class TestCreate(object):
             name='all-partitions',
             role='no-access'
         )]
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) >= LooseVersion('11.6.0'),
+        reason='Skip test if on a version greater than or equal to 11.6.0')
+    def test_create_min_args_11_5_4_and_lower(self, request, bigip):
+        '''Test that user.create() with only required arguments work.
+
+        This will also test that the default values are set correctly and are
+        part of the user object after creating the instance on the BigIP
+        '''
+        setup_create_test(request, bigip)
+
+        user1 = bigip.auth.users.user.create(name='user1')
+
+        assert user1.name == 'user1'
+        assert user1.generation is not None \
+            and isinstance(user1.generation, int)
+        assert user1.fullPath == 'user1'
+        assert user1.selfLink.startswith(
+            'https://localhost/mgmt/tm/auth/user/user1')
+
+        # Default Values
+        assert user1.description == 'user1'
+        assert user1.encryptedPassword == '!!'
+        assert user1.partitionAccess == 'Common'
 
     def test_create_description(self, request, bigip, USER):
         setup_create_test(request, bigip)
