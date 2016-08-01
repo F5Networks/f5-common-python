@@ -47,7 +47,22 @@ def test_get_dollar_filtered_collection(request, bigip, pool_factory):
     test_pools = (Pool1Config, Pool2Config)
     pool_registry, member_registry =\
         pool_factory(bigip, request, test_pools)
-    rp = {'params': {'$filter': 'partition eq za'}}
+    rp = {'params': '$filter=partition+eq+za'}
     pools_in_za = bigip.ltm.pools.get_collection(requests_params=rp)
     muri = pools_in_za[0]._meta_data['uri']
     assert muri.endswith('/mgmt/tm/ltm/pool/~za~TEST/')
+
+
+def test_get_dollar_select_collection_properties(request, bigip, mgmt_root):
+    http_profiles = mgmt_root.tm.ltm.profile.https
+    without_select = http_profiles.get_collection()
+    with_select = http_profiles.get_collection(
+        requests_params={'params': '$select=name'}
+    )
+    expected_profs = [
+        {'name': 'http'},
+        {'name': 'http-explicit'},
+        {'name': 'http-transparent'}
+    ]
+    assert without_select != with_select
+    assert expected_profs == with_select
