@@ -131,9 +131,8 @@ class Datacenter(Resource, ExclusiveAttributesMixin):
         return self
 
     def update(self, **kwargs):
-        if 'enabled' in self.__dict__ and 'enabled' not in kwargs:
-            kwargs['enabled'] = self.__dict__.pop('enabled')
-        elif 'disabled' in self.__dict__ and 'disabled' not in kwargs:
-            kwargs['disabled'] = self.__dict__.pop('disabled')
+        if 'enabled' in kwargs or 'disabled' in kwargs:
+            self.__dict__.pop('enabled')
+            self.__dict__.pop('disabled')
         self._update(**kwargs)
         self._endis_attrs()
