@@ -231,7 +231,8 @@ class TestClientLdap(object):
         ldap = HelperTest(end_lst, 2)
         with pytest.raises(UnsupportedTmosVersion) as ex:
             ldap.test_CURDL(request, bigip)
-        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
+        assert 'minimum TMOS version in which this resource *is* supported ' \
+            'is 11.6.0' in ex.value.message
 
 # End ClientLdap tests
 
@@ -268,7 +269,8 @@ class TestDhcpv4(object):
         dhcpv4 = HelperTest(end_lst, 4)
         with pytest.raises(UnsupportedTmosVersion) as ex:
             dhcpv4.test_CURDL(request, bigip)
-        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
+        assert 'minimum TMOS version in which this resource *is* supported ' \
+            'is 11.6.0' in ex.value.message
 
 
 # End Dhcpv4 tests
@@ -295,7 +297,8 @@ class TestDhcpv6(object):
         dhcpv4 = HelperTest(end_lst, 5)
         with pytest.raises(UnsupportedTmosVersion) as ex:
             dhcpv4.test_CURDL(request, bigip)
-        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
+        assert 'minimum TMOS version in which this resource *is* supported ' \
+            'is 11.6.0' in ex.value.message
 # End Dhcpv6 tests
 
 # Begin Diameter tests
@@ -440,7 +443,8 @@ class TestGtp(object):
         dhcpv4 = HelperTest(end_lst, 13)
         with pytest.raises(UnsupportedTmosVersion) as ex:
             dhcpv4.test_CURDL(request, bigip)
-        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
+        assert 'minimum TMOS version in which this resource *is* supported ' \
+            'is 11.6.0' in ex.value.message
 
 
 # End GTP tests
@@ -500,7 +504,8 @@ class TestHttp2(object):
         dhcpv4 = HelperTest(end_lst, 17)
         with pytest.raises(UnsupportedTmosVersion) as ex:
             dhcpv4.test_CURDL(request, bigip)
-        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
+        assert 'minimum TMOS version in which this resource *is* supported ' \
+            'is 11.6.0' in ex.value.message
 
 
 # End HTTP tests
@@ -682,7 +687,8 @@ class TestOcspStaplingParams(object):
                 trustedCa='/Common/ca-bundle.crt',
                 useProxyServer='disabled'
             )
-        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
+        assert 'minimum TMOS version in which this resource *is* supported ' \
+            'is 11.6.0' in ex.value.message
 
 # End Ocsp Stapling Params tests
 
@@ -919,7 +925,8 @@ class TestServerLdap(object):
         dhcpv4 = HelperTest(end_lst, 35)
         with pytest.raises(UnsupportedTmosVersion) as ex:
             dhcpv4.test_CURDL(request, bigip)
-        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
+        assert 'minimum TMOS version in which this resource *is* supported ' \
+            'is 11.6.0' in ex.value.message
 
 
 # End Server Ldap tests
@@ -968,7 +975,8 @@ class TestSmtp(object):
         dhcpv4 = HelperTest(end_lst, 38)
         with pytest.raises(UnsupportedTmosVersion) as ex:
             dhcpv4.test_CURDL(request, bigip)
-        assert 'Minimum TMOS version supported is 11.6.0' in ex.value.message
+        assert 'minimum TMOS version in which this resource *is* supported ' \
+            'is 11.6.0' in ex.value.message
 
 
 # End Smtp tests

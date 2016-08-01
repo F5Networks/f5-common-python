@@ -118,8 +118,8 @@ class LazyAttributeMixin(object):
         minimum = attribute._meta_data['minimum_version']
         if LooseVersion(tmos_v) < LooseVersion(minimum):
             error = "There was an attempt to access resource: \n{}\n which " \
-                    "is not implemented in the device's TMOS version: {}. "\
-                    "The minimum TMOS version in which this resource *is*"\
+                    "is not implemented in the device's TMOS version: {}. " \
+                    "The minimum TMOS version in which this resource *is* " \
                     "supported is {}".format(
                         attribute._meta_data['uri'],
                         tmos_v,
