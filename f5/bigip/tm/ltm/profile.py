@@ -235,6 +235,7 @@ class Client_Ldaps(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Client_Ldap]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:client-ldap:client-ldapstate': Client_Ldap}
+        self._meta_data['minimum_version'] = '11.6.0'
 
 
 class Client_Ldap(Resource):
@@ -252,6 +253,7 @@ class Dhcpv4s(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Dhcpv4]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:dhcpv4:dhcpv4state': Dhcpv4}
+        self._meta_data['minimum_version'] = '11.6.0'
 
 
 class Dhcpv4(Resource):
@@ -269,6 +271,7 @@ class Dhcpv6s(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Dhcpv6]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:dhcpv6:dhcpv6state': Dhcpv6}
+        self._meta_data['minimum_version'] = '11.6.0'
 
 
 class Dhcpv6(Resource):
@@ -407,6 +410,7 @@ class Gtps(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Gtp]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:gtp:gtpstate': Gtp}
+        self._meta_data['minimum_version'] = '11.6.0'
 
 
 class Gtp(Resource):
@@ -478,6 +482,7 @@ class Http2s(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Http2]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:http2:http2state': Http2}
+        self._meta_data['minimum_version'] = '11.6.0'
 
 
 class Http2(Resource):
@@ -600,6 +605,7 @@ class Ocsp_Stapling_Params_s(Collection):
             {'tm:ltm:profile:ocsp-stapling-params:ocsp-stapling-paramsstate':
                 Ocsp_Stapling_Params}
         self._meta_data['attribute_registry'] = temp
+        self._meta_data['minimum_version'] = '11.6.0'
 
 
 class Ocsp_Stapling_Params(Resource):
@@ -878,6 +884,7 @@ class Server_Ldaps(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Server_Ldap]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:server-ldap:server-ldapstate': Server_Ldap}
+        self._meta_data['minimum_version'] = '11.6.0'
 
 
 class Server_Ldap(Resource):
@@ -933,6 +940,7 @@ class Smtps(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Smtp]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:smtp:smtpstate': Smtp}
+        self._meta_data['minimum_version'] = '11.6.0'
 
 
 class Smtp(Resource):
