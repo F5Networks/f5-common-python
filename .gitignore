@@ -7,7 +7,7 @@
 *.py[cod]
 
 ### added with RM's Makefile
-**/deb_dist/**
+deb_dist/**
 localutils/**
 agent/f5/bigip/pycontrol/wsdl/**
 
