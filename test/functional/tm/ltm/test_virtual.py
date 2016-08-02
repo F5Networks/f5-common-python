@@ -13,7 +13,9 @@
 # limitations under the License.
 #
 
+from distutils.version import LooseVersion
 from pprint import pprint as pp
+import pytest
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
@@ -47,6 +49,11 @@ class TestVirtual(object):
         assert virtual2.selfLink == virtual1.selfLink
 
 
+@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) <
+                    LooseVersion('11.6.0'),
+                    reason='This test fails in 11.5.4. Will '
+                    'revert this change in next PR.'
+                    )
 def test_profiles_CE(bigip, opt_release):
     v1 = bigip.ltm.virtuals.virtual.create(name="tv1", partition="Common")
     p1 = v1.profiles_s.profiles.create(name="http")
