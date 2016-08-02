@@ -16,7 +16,6 @@
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
 
-from distutils.version import LooseVersion
 from pprint import pprint as pp
 import pytest
 
@@ -56,61 +55,48 @@ class TestVirtual(object):
         assert virtual2.selfLink == virtual1.selfLink
 
 
-@pytest.mark.skipif(
-    LooseVersion(pytest.config.getoption('--release'))
-    < LooseVersion('11.6.0'),
-    reason='Profiles do not need a partition in 11.6.0 and up.'
-)
-def test_profiles_CE_and_greater(
+def test_profiles_CE(
         mgmt_root, opt_release, setup_device_snapshot
 ):
     v1 = mgmt_root.tm.ltm.virtuals.virtual.create(
         name="tv1", partition="Common"
     )
-    p1 = v1.profiles_s.profiles.create(name="http")
+    p1 = v1.profiles_s.profiles.create(name="http", partition='Common')
     test_profiles_s = v1.profiles_s
     test_profiles_s.context = 'all'
     assert p1.selfLink ==\
         u"https://localhost/mgmt/tm/ltm/virtual/"\
-        "~Common~tv1/profiles/http?ver="+opt_release
+        "~Common~tv1/profiles/~Common~http?ver="+opt_release
 
     p2 = v1.profiles_s.profiles
-    assert p2.exists(name='http')
+    assert p2.exists(name='http', partition='Common')
 
     v1.delete()
 
 
-@pytest.mark.skipif(
-    LooseVersion(pytest.config.getoption('--release'))
-    >= LooseVersion('11.6.0'),
-    reason='Profiles are created with a partition in 11.5.4.'
-)
-def test_profiles_CE_11_5_4_and_less(
-        mgmt_root, opt_release, setup_device_snapshot
-):
+def test_profiles_CE_check_create_params(mgmt_root, setup_device_snapshot):
     v1 = mgmt_root.tm.ltm.virtuals.virtual.create(
         name="tv2", partition="Common"
     )
-    # Ensure we cannot create a profile without partition in 11.5.4
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         v1.profiles_s.profiles.create(name="http")
     assert "Missing required params: ['partition']" in ex.value.message
+    v1.delete()
 
-    # Create the profile with the partition given
+
+def test_profiles_CE_check_load_params(mgmt_root, setup_device_snapshot):
+    v1 = mgmt_root.tm.ltm.virtuals.virtual.create(
+        name="tv3", partition="Common"
+    )
     p1 = v1.profiles_s.profiles.create(name="http", partition="Common")
-    test_profiles_s = v1.profiles_s
-    test_profiles_s.context = 'all'
-    assert p1.selfLink ==\
-        u"https://localhost/mgmt/tm/ltm/virtual/"\
-        "~Common~tv2/profiles/~Common~http?ver="+opt_release
 
-    p2 = v1.profiles_s.profiles
-    # Ensure we cannot check for existence without partition in 11.5.4
     with pytest.raises(MissingRequiredReadParameter) as ex:
-        assert p2.exists(name='http')
+        assert v1.profiles_s.profiles.load(name='http')
     assert "Missing required params: ['partition']" in ex.value.message
 
+    v1.profiles_s.profiles.load(name="http", partition="Common")
+
     # Check for existence with partition given
-    p2.exists(name='http', partition='Common')
+    p1.exists(name='http', partition='Common')
 
     v1.delete()
