@@ -39,8 +39,10 @@ class Device_Groups(Collection):
         self._meta_data['uri'] =\
             self._meta_data['container']._meta_data['uri'] + endpoint + '/'
         self._meta_data['allowed_lazy_attributes'] = [Device_Group]
-        self._meta_data['attribute_registry'] =\
-            {'tm:cm:device:device-groupstate': Device_Group}
+        self._meta_data['attribute_registry'] = \
+            {'tm:cm:device-group:device-groupstate': Device_Group}
+        #self._meta_data['attribute_registry'] =\
+        #    {'tm:cm:device:device-groupstate': Device_Group}
 
 
 class Device_Group(Resource):
