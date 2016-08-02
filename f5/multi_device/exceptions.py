@@ -68,6 +68,18 @@ class DeviceNotTrusted(TrustDomainError):
     pass
 
 
+class DeviceNamesNotUnique(TrustDomainError):
+    pass
+
+
+class DeviceConfigSyncInterfaceNotConfigured(TrustDomainError):
+    pass
+
+
+class DeviceInvalidState(TrustDomainError):
+    pass
+
+
 class TrusteeNotInTrustDomain(TrustDomainError):
     pass
 

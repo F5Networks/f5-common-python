@@ -46,6 +46,9 @@ Methods:
 
 from f5.multi_device.exceptions import DeviceAlreadyInTrustDomain
 from f5.multi_device.exceptions import DeviceNotTrusted
+from f5.multi_device.exceptions import DeviceNamesNotUnique
+from f5.multi_device.exceptions import DeviceConfigSyncInterfaceNotConfigured
+from f5.multi_device.exceptions import DeviceInvalidState
 
 from f5.multi_device.device_group import DeviceGroup
 from f5.multi_device.utils import get_device_info
@@ -90,6 +93,9 @@ class TrustDomain(object):
         :raises: DeviceNotTrusted
         '''
 
+        self._validate_device_name_uniquiness()
+        self._validate_configsync_ip_set()
+        self._validate_mcpd_state()
         self._populate_domain()
         missing = []
         for domain_device in self.domain:
@@ -109,6 +115,39 @@ class TrustDomain(object):
             device_group_type=self.device_group_type,
             device_group_partition=self.partition
         )
+
+    def _validate_device_name_uniquiness(self):
+        objects = get_device_names_to_objects(self.devices)
+        if not len(self.devices) == len(objects.keys()):
+            raise DeviceNamesNotUnique(
+                'Not all devices have unique device names'
+            )
+
+    def _validate_configsync_ip_set(self):
+        for bigip in self.devices:
+            devices = bigip.tm.cm.devices.get_collection()
+            for device in devices:
+                if device.configsyncIp == 'none':
+                    raise DeviceConfigSyncInterfaceNotConfigured(
+                        'Device %s' % device.name
+                    )
+                if not hasattr(device, 'unicastAddress'):
+                    raise DeviceConfigSyncInterfaceNotConfigured(
+                        'Device %s' % device.name
+                    )
+
+    def _validate_mcpd_state(self):
+        for bigip in self.devices:
+            mcp_boot = bigip.tm.util.bash(
+                "bigstart_wb mcpd start"
+            ).rstrip('\n')
+            if not mcp_boot == 'released':
+                raise DeviceInvalidState('MCP booting')
+            mcp_up = bigip.tm.util.bash(
+                "tmsh -a show sys mcp-state field-fmt|grep running"
+            ).strip()
+            if not mcp_up == 'phase running':
+                raise DeviceInvalidState('MCP not running')
 
     def _populate_domain(self):
         '''Populate TrustDomain's domain attribute.
