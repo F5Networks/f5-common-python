@@ -173,7 +173,7 @@ class PathElement(LazyAttributeMixin):
         self._set_meta_data_uri()
         # Supported versions for each class will be defined here.
         # List can be modified downstream in each sub-class
-        self._meta_data['supported_versions'] = set(['11.6.0', '12.0.0'])
+        self._meta_data['supported_versions'] = set(['11.6.0', '12.0.0','12.1.0'])
 
     def _set_meta_data_uri(self):
         base_uri = self.__class__.__name__.lower()
