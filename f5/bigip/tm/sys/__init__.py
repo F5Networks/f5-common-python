@@ -37,6 +37,7 @@ from f5.bigip.tm.sys.failover import Failover
 from f5.bigip.tm.sys.folder import Folders
 from f5.bigip.tm.sys.global_settings import Global_Settings
 from f5.bigip.tm.sys.httpd import Httpd
+from f5.bigip.tm.sys.license import License
 from f5.bigip.tm.sys.ntp import Ntp
 from f5.bigip.tm.sys.performance import Performances
 from f5.bigip.tm.sys.software import Software
@@ -54,6 +55,7 @@ class Sys(OrganizingCollection):
             Performances,
             Dbs,
             Global_Settings,
+            License,
             Ntp,
             Failover,
             Dns,
