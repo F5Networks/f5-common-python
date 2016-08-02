@@ -13,13 +13,14 @@
 # limitations under the License.
 #
 
-from pprint import pprint as pp
 from requests import HTTPError
 
-pp(__file__)
+from f5.bigip.tm.sys.application import Service
+from f5.bigip.tm.sys.application import Template
+
 TESTDESCRIPTION = 'TESTDESCRIPTION'
 
-# Application Service Dictionary
+# Application service dictionary, which matches JSON structure
 sections = {
     'implementation': '',
     'presentation': ''
@@ -53,12 +54,15 @@ def setup_template_test(request, bigip, name, partition):
 
     def teardown():
         delete_resource(test_template)
+
     request.addfinalizer(teardown)
     test_template = template_s.template.create(
         name=name,
         partition=partition,
         actions=definition
     )
+    assert isinstance(test_template, Template)
+    assert id(test_template) != id(template_s.template)
     return template_s, test_template
 
 
@@ -66,6 +70,7 @@ def setup_service_test(request, bigip, name, partition, template_name, tgroup):
     service_s = setup_service_collection_test(request, bigip)
 
     def teardown():
+        # Delete the service first, then the template
         delete_resource(test_service)
         delete_resource(test_template)
 
@@ -75,12 +80,16 @@ def setup_service_test(request, bigip, name, partition, template_name, tgroup):
         partition=partition,
         actions=definition
     )
+    assert isinstance(test_template, Template)
+    assert id(test_template) != id(template_factory)
     test_service = service_s.service.create(
         name=name,
         partition=partition,
         template=template_name,
         trafficGroup=tgroup
     )
+    assert isinstance(test_service, Service)
+    assert id(test_service) != id(service_s.service)
     request.addfinalizer(teardown)
     return service_s, test_service
 
