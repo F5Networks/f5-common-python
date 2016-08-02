@@ -31,6 +31,13 @@ from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import MissingUpdateParameter
 from f5.bigip.resource import Resource
+from f5.sdk_exception import F5SDKError
+
+from distutils.version import LooseVersion
+
+
+class TagModeDisallowedForTMOSVersion(F5SDKError):
+    pass
 
 
 class Vlans(Collection):
@@ -87,22 +94,41 @@ class Interfaces(Resource, ExclusiveAttributesMixin):
         we have to use conditional to capture this logic during create.
 
         """
+
+        self._check_tagmode_and_tmos_version(**kwargs)
         if 'tagged' in kwargs and kwargs['tagged'] is True:
             tup_par = ('tagMode', 'tagged')
             self._meta_data['required_creation_parameters'].update(tup_par)
 
         return self._create(**kwargs)
 
+    def _check_tagmode_and_tmos_version(self, **kwargs):
+        '''Raise an exception if tagMode in kwargs and tmos version < 11.6.0
+
+        :param kwargs: dict -- keyword arguments for request
+        :raises: TagModeDisallowedForTMOSVersion
+        '''
+
+        tmos_version = self._meta_data['bigip']._meta_data['tmos_version']
+        if LooseVersion(tmos_version) < LooseVersion('11.6.0'):
+            msg = "The parameter, 'tagMode', is not allowed against the " \
+                "following version of TMOS: %s" % (tmos_version)
+            if 'tagMode' in kwargs or hasattr(self, 'tagMode'):
+                raise TagModeDisallowedForTMOSVersion(msg)
+
     def update(self, **kwargs):
-        if 'tagged' in kwargs:
-            if kwargs['tagged'] is True and 'tagMode' not in kwargs:
-                error = 'Missing tagMode parameter value.'
-                raise MissingUpdateParameter(error)
-        if hasattr(self, 'tagged'):
-            if getattr(self, 'tagged') is True and \
-               getattr(self, 'tagMode') == 'none':
-                error = 'Missing tagMode parameter value.'
-                raise MissingUpdateParameter(error)
+        self._check_tagmode_and_tmos_version(**kwargs)
+        if LooseVersion(self._meta_data['bigip']._meta_data['tmos_version']) \
+                >= LooseVersion('11.6.0'):
+            if 'tagged' in kwargs:
+                if kwargs['tagged'] is True and 'tagMode' not in kwargs:
+                    error = 'Missing tagMode parameter value.'
+                    raise MissingUpdateParameter(error)
+            if hasattr(self, 'tagged'):
+                if getattr(self, 'tagged') is True and \
+                   getattr(self, 'tagMode') == 'none':
+                    error = 'Missing tagMode parameter value.'
+                    raise MissingUpdateParameter(error)
 
         self._update(**kwargs)
 
