@@ -17,7 +17,8 @@ import copy
 from pprint import pprint as pp
 import pytest
 
-V11_SUPPORTED = ['11.6.0', '11.6.1']
+# Revert version back to 11.6.0 from 11.6.2 when PR 588
+V11_SUPPORTED = ['11.6.2', '11.6.1']
 V12_SUPPORTED = ['12.0.0', '12.1.0']
 
 

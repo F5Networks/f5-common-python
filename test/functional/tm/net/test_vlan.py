@@ -13,10 +13,12 @@
 # limitations under the License.
 #
 
+from distutils.version import LooseVersion
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingUpdateParameter
+from f5.bigip.tm.net.vlan import TagModeDisallowedForTMOSVersion
 from icontrol.session import iControlUnexpectedHTTPError
 from requests.exceptions import HTTPError
 
@@ -76,7 +78,13 @@ class TestVLANInterfaces(object):
         i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
         assert i.name == '1.1'
 
-    def test_update_exclusive_attrs(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) < LooseVersion('11.6.0'),
+        reason='tagMode is only allowed in 11.6.0 or greater.'
+    )
+    def test_update_exclusive_attrs_11_6_and_greater(self, request, bigip):
         '''Test that we remove the other exclusive args if we set one.
 
         The default interfaces that is made has the vlans set to tagged.
@@ -94,13 +102,45 @@ class TestVLANInterfaces(object):
         ifc.update()
         assert ifc.tagged is True
 
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) >= LooseVersion('11.6.0'),
+        reason='tagMode is not allowed in 11.5.4.'
+    )
+    def test_update_exclusive_attrs_11_6_0_and_less(self, request, bigip):
+        '''Test that we remove the other exclusive args if we set one.
+
+        The default interfaces that is made has the vlans set to tagged.
+        We change it to untagged and make sure that the tagged is no longer
+        an attribute.
+        '''
+        ifc, _ = setup_interfaces_test(request, bigip, 'somevlan', 'Common')
+        ifc.untagged = True
+        assert not hasattr(ifc, 'tagged')
+        ifc.update()
+        assert ifc.untagged is True
+        ifc.tagged = True
+        ifc.tagMode = 'service'
+        assert not hasattr(ifc, 'untagged')
+        with pytest.raises(TagModeDisallowedForTMOSVersion) as ex:
+            ifc.update()
+        assert "'tagMode', is not allowed against the following version of " \
+            'TMOS: 11.5.4' in ex.value.message
+
     def test_update(self, request, bigip):
         i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
         i.update(untagged=True)
         assert not hasattr(i, 'tagged')
         assert i.untagged is True
 
-    def test_update_mixed_attr_set(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) < LooseVersion('11.6.0'),
+        reason='tagMode is only allowed in 11.6.0 or greater.'
+    )
+    def test_update_mixed_attr_set_11_6_0_and_greater(self, request, bigip):
         '''Test that we get an Exception because we have both exclusives set.
 
         This only happens when the user sets the attribute and then does the
@@ -116,11 +156,50 @@ class TestVLANInterfaces(object):
             assert err.response.status_code == 400
             assert "may not be specified with" in err.response.text
 
-    def test_update_without_tagmode(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) >= LooseVersion('11.6.0'),
+        reason='tagMode is not allowed in 11.5.4 or less.'
+    )
+    def test_update_mixed_attr_set_11_6_0_and_less(self, request, bigip):
+        '''Test that we get an Exception because we have both exclusives set.
+
+        This only happens when the user sets the attribute and then does the
+        update with the other attribute set.  We don't actually know which one
+        the user wants to set.
+        '''
+        i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
+        i.untagged = True
+        assert not hasattr(i, 'tagged')
+        assert i.untagged is True
+        with pytest.raises(TagModeDisallowedForTMOSVersion) as ex:
+            i.update(tagged=True, tagMode='service')
+        assert "'tagMode', is not allowed against the following version of " \
+            'TMOS: 11.5.4' in ex.value.message
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) < LooseVersion('11.6.0'),
+        reason='tagMode is only allowed in 11.6.0 or greater.'
+    )
+    def test_update_without_tagmode_and_greater(self, request, bigip):
         i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
         i.tagged = True
         with pytest.raises(MissingUpdateParameter):
             i.update()
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) >= LooseVersion('11.6.0'),
+        reason='tagMode is not allowed in 11.5.4 or less.'
+    )
+    def test_update_without_tagmode_and_less(self, request, bigip):
+        i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
+        i.tagged = True
+        i.update()
 
     def test_load(self, request, bigip):
         i1, v = setup_interfaces_test(request, bigip, 'v1', 'Common')
@@ -147,7 +226,13 @@ class TestVLAN(object):
         with pytest.raises(MissingRequiredCreationParameter):
             v1.create()
 
-    def test_CURDL(self, request, bigip):
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) < LooseVersion('11.6.0'),
+        reason='tagMode is only allowed in 11.6.0 or greater.'
+    )
+    def test_CURDL_11_6_0_and_greater(self, request, bigip):
         setup_vlan_collection_get_test(request, bigip)
         # Create a VLAN and verify some of the attributes
         v1 = bigip.net.vlans.vlan.create(name='v1', partition='Common')
@@ -182,6 +267,22 @@ class TestVLAN(object):
         assert v1.generation > v2.generation
         assert v2.description == DESCRIPTION
         assert v1.description == DESCRIPTION + DESCRIPTION
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) >= LooseVersion('11.6.0'),
+        reason='tagMode is not allowed in 11.5.4 or less.'
+    )
+    def test_CURDL_11_6_0_and_less(self, request, bigip):
+        setup_vlan_collection_get_test(request, bigip)
+        # Create a VLAN and verify some of the attributes
+        v1 = bigip.net.vlans.vlan.create(name='v1', partition='Common')
+        with pytest.raises(TagModeDisallowedForTMOSVersion) as ex:
+            v1.interfaces_s.interfaces.create(
+                name='1.1', tagged=True, tagMode='service')
+        assert "'tagMode', is not allowed against the following version of " \
+            'TMOS: 11.5.4' in ex.value.message
 
     def test_load_subcollection_(self, request, bigip):
         '''This tests for issue #148.
