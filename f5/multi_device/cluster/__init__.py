@@ -152,7 +152,6 @@ class ClusterManager(object):
 
         :param kwargs: dict -- keyword arguments for cluster manager
         '''
-
         if hasattr(self, 'cluster'):
             msg = 'The ClusterManager is already managing a cluster.'
             raise AlreadyManagingCluster(msg)
