@@ -13,12 +13,10 @@
 #   limitations under the License.
 #
 
-import copy
 from pprint import pprint as pp
 import pytest
 
-# Revert version back to 11.6.0 from 11.6.2 when PR 588
-V11_SUPPORTED = ['11.6.2', '11.6.1']
+V11_SUPPORTED = ['11.5.4', '11.6.0', '11.6.1', '11.6.2']
 V12_SUPPORTED = ['12.0.0', '12.1.0']
 
 
@@ -44,11 +42,8 @@ def setup_sshd_test(request, bigip):
                     reason='Needs v11 TMOS to pass')
 class TestSshd11(object):
     def test_load(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         assert ssh1.allow == ssh2.allow
         assert ssh1.banner == ssh2.banner
@@ -60,11 +55,8 @@ class TestSshd11(object):
         pp(ssh2.raw)
 
     def test_update_allow(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         ssh1.allow = ['192.168.1.1']
         pp(ssh2.raw)
@@ -77,11 +69,8 @@ class TestSshd11(object):
         assert ['192.168.1.1'] == ssh2.allow
 
     def test_update_banner(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         banners = ['enabled', 'disabled']
 
@@ -97,11 +86,8 @@ class TestSshd11(object):
             assert banner == ssh2.banner
 
     def test_update_bannerText(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         ssh1.bannerText = 'foo banner'
         ssh1.update()
@@ -113,11 +99,8 @@ class TestSshd11(object):
         assert 'foo banner' == ssh2.bannerText
 
     def test_update_inactivityTimeout(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         ssh1.inactivityTimeout = 10
         ssh1.update()
@@ -129,11 +112,8 @@ class TestSshd11(object):
         assert 10 == ssh2.inactivityTimeout
 
     def test_update_logLevel(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         levels = ['debug', 'debug1', 'debug2', 'debug3', 'error', 'fatal',
                   'info', 'quiet', 'verbose']
@@ -150,11 +130,8 @@ class TestSshd11(object):
             assert level == ssh2.logLevel
 
     def test_update_login(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         logins = ['disabled', 'enabled']
 
@@ -174,11 +151,8 @@ class TestSshd11(object):
                     reason='Needs v12 TMOS to pass')
 class TestSshd12(object):
     def test_load(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         assert ssh1.allow == ssh2.allow
         assert ssh1.banner == ssh2.banner
@@ -191,11 +165,8 @@ class TestSshd12(object):
         pp(ssh2.raw)
 
     def test_update_allow(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         ssh1.allow = ['192.168.1.1']
         ssh1.update()
@@ -207,11 +178,8 @@ class TestSshd12(object):
         assert ['192.168.1.1'] == ssh2.allow
 
     def test_update_banner(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         banners = ['enabled', 'disabled']
 
@@ -226,11 +194,8 @@ class TestSshd12(object):
             assert banner == ssh2.banner
 
     def test_update_bannerText(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         ssh1.bannerText = 'foo banner'
         ssh1.update()
@@ -242,11 +207,8 @@ class TestSshd12(object):
         assert 'foo banner' == ssh2.bannerText
 
     def test_update_inactivityTimeout(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         ssh1.inactivityTimeout = 10
         ssh1.update()
@@ -258,11 +220,8 @@ class TestSshd12(object):
         assert 10 == ssh2.inactivityTimeout
 
     def test_update_logLevel(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         levels = ['debug', 'debug1', 'debug2', 'debug3', 'error', 'fatal',
                   'info', 'quiet', 'verbose']
@@ -278,11 +237,8 @@ class TestSshd12(object):
             assert level == ssh2.logLevel
 
     def test_update_login(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         logins = ['disabled', 'enabled']
 
@@ -297,11 +253,8 @@ class TestSshd12(object):
             assert login == ssh2.login
 
     def test_update_port(self, request, bigip):
-        bigip1 = copy.deepcopy(bigip)
-        bigip2 = copy.deepcopy(bigip)
-
-        ssh1 = setup_sshd_test(request, bigip1)
-        ssh2 = setup_sshd_test(request, bigip2)
+        ssh1 = setup_sshd_test(request, bigip)
+        ssh2 = setup_sshd_test(request, bigip)
 
         ssh1.port = 1234
         ssh1.update()
