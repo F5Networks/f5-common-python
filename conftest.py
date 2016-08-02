@@ -16,9 +16,14 @@
 from f5.bigip import BigIP
 from f5.bigip import ManagementRoot
 from f5.utils.testutils.registrytools import register_device
+import logging
 import mock
 import pytest
 import requests
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.WARNING)
 
 requests.packages.urllib3.disable_warnings()
 

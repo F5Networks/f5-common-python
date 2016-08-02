@@ -13,6 +13,8 @@
 # limitations under the License.
 #
 
+from distutils.version import LooseVersion
+
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
 
@@ -20,6 +22,13 @@ from pprint import pprint as pp
 import pytest
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
+
+pytestmark = pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) < LooseVersion('11.6.0'),
+    reason='An error occurs on 11.5.4 devices regarding sysdb'
+)
 
 
 def delete_resource(resources):
