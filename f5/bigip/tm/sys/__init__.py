@@ -40,6 +40,7 @@ from f5.bigip.tm.sys.httpd import Httpd
 from f5.bigip.tm.sys.license import License
 from f5.bigip.tm.sys.ntp import Ntp
 from f5.bigip.tm.sys.performance import Performances
+from f5.bigip.tm.sys.provision import Provisions
 from f5.bigip.tm.sys.software import Software
 from f5.bigip.tm.sys.sshd import Sshd
 
@@ -53,6 +54,7 @@ class Sys(OrganizingCollection):
             Folders,
             Applications,
             Performances,
+            Provisions,
             Dbs,
             Global_Settings,
             License,
