@@ -43,8 +43,8 @@ deploy:
     api_key:
       secure: QrvZh1vNhoj0ZsaD72sGg86IZdrrn7BpWvO7Ex6elsK0czBGNIDWCNURU8V5wLXDE7WlqEMIcb/DzRhp6r0lVxXV8Porq/YdJjupBmfDpMP1TPwKy+o0CIfj140rwcQV/u3OSX27JaGVKJDad4bM9gdZewHX8Cr1pcxJdA4eL3aF2i8q8VmIDus9sGEsXivIFuNaEGxPrCD6OU+Ss6agxhgpcGH0YPWPIAZism1WUzi6z13CHCS40Mza89dsqbeFt0+Ydd++q/1l8lo9m2TdUj/ZjLMpqwhAuINFnTqVyJUA0i7b5hDHEKEbmbmoqd5BUfjgzdwwHPOrnu/s59kOcjcfTsqor+eGRf2d8mk0VrTGF5cfr4jqXHvr4ZjpxMpfQov+9VzcXG3YcsgEU1gTTr11WGJVIwao1CApdkyCsATdsvWW0cwo44OowgvCN+t4914CttfQzOIslnfIo3ATX7LQV7CyEksBY88VM/tlmyQsiZSBG5nTZL4hQo3oaUwO+KJMizHmBIvibBeU5AGkZXECiYSvIdN/vvZ9byidALIFdTMnIvB9HiR7UZOwljIjt11kL+rFHJFtH23I9/nKVmZoDumGaA+n2LteefbAyG0dr5ZMZbcuWI++gNS1daTSZkpOrsiQcmcS6mnDgDPC2kuRX3SH3Hy3m7NAN6CW4Ts=
     file:
-      ${DIST_REPO}/rpms/build/f5-sdk-${PKG_VERSION}-1.el7.noarch.rpm
-      ${DIST_REPO}/deb_dist/python-f5-sdk_${PKG_VERSION}-1_1404_all.deb
+      - ${DIST_REPO}/rpms/build/f5-sdk-${PKG_VERSION}-1.el7.noarch.rpm
+      - ${DIST_REPO}/deb_dist/python-f5-sdk_${PKG_VERSION}-1_1404_all.deb
     skip_cleanup: true
     overwrite: true
     on:
