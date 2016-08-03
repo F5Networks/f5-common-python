@@ -26,6 +26,7 @@ def setup_ifile_test(request, mgmt_root, name, sourcepath):
     print(mgmt_root.tm.ltm.get_collection())
     if1 = mgmt_root.tm.sys.file.ifiles.ifile.create(name=name,
                                                     sourcePath=sourcepath)
+
     def teardown():
         '''Remove the ifile.
         '''
@@ -45,7 +46,7 @@ def test_CURDL(request, mgmt_root):
     ntf_basename = os.path.basename(ntf.name)
     ntf.write('this is a test file')
     ntf.seek(0)
-    #Upload the file
+    # Upload the file
     mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
 
     tpath_name = 'file:/var/config/rest/downloads/{0}'.format(ntf_basename)
