@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 from requests import HTTPError
 from tempfile import NamedTemporaryFile
 import os
@@ -21,7 +20,7 @@ import os
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
-def setup_ifile_test(request, bigip, name, sourcepath):
+def setup_ifile_test(request, mgmt_root, name, sourcepath):
     def teardown():
         '''Remove the ifile.
 
@@ -33,7 +32,8 @@ def setup_ifile_test(request, bigip, name, sourcepath):
                 raise
     request.addfinalizer(teardown)
 
-    if1 = bigip.tm.sys.file.ifiles.ifile.create(name=name, sourcePath=sourcepath)
+    if1 = mgmt_root.tm.sys.file.ifiles.ifile.create(name=name,
+                                                    sourcePath=sourcepath)
     return if1
 
 
@@ -43,8 +43,11 @@ class Test_iFile(object):
         ntf = NamedTemporaryFile()
         ntf_basename = os.path.basename(ntf.name)
         ntf.write('this is a test file')
+        ntf.seek(0)
         #Upload the file
-        mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
+        x = mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
+        print x
+
         if1 = setup_ifile_test(request, mgmt_root, ntf_basename,
                                'file:/var/config/rest/downloads/{0}'
                                .format(ntf_basename))
