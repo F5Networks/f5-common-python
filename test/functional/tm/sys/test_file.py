@@ -13,9 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+import os
 from requests import HTTPError
 from tempfile import NamedTemporaryFile
-import os
 
 
 import logging
@@ -28,8 +29,7 @@ def setup_ifile_test(request, mgmt_root, name, sourcepath):
                                                     sourcePath=sourcepath)
 
     def teardown():
-        '''Remove the ifile.
-        '''
+        # Remove the ifile.
         try:
             if1.delete()
         except HTTPError as err:
