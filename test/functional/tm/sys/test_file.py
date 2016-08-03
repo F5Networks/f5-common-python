@@ -37,22 +37,22 @@ def setup_ifile_test(request, mgmt_root, name, sourcepath):
     return if1
 
 
-class Test_iFile(object):
-    def test_CURDL(self, request, mgmt_root):
-        # Create
-        ntf = NamedTemporaryFile()
-        ntf_basename = os.path.basename(ntf.name)
-        ntf.write('this is a test file')
-        ntf.seek(0)
-        #Upload the file
-        x = mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
-        print x
 
-        if1 = setup_ifile_test(request, mgmt_root, ntf_basename,
-                               'file:/var/config/rest/downloads/{0}'
-                               .format(ntf_basename))
-        assert if1.name == ntf_basename
+def test_CURDL(request, mgmt_root):
+    # Create
+    ntf = NamedTemporaryFile()
+    ntf_basename = os.path.basename(ntf.name)
+    ntf.write('this is a test file')
+    ntf.seek(0)
+    #Upload the file
+    x = mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
+    print x
 
-        # Load - Test with the various partition/name combinations
-        if2 = mgmt_root.tm.sys.file.ifiles.ifile.load(name=ntf_basename)
-        assert if1.name == if2.name
+    if1 = setup_ifile_test(request, mgmt_root, ntf_basename,
+                           'file:/var/config/rest/downloads/{0}'
+                           .format(ntf_basename))
+    assert if1.name == ntf_basename
+
+    # Load - Test with the various partition/name combinations
+    if2 = mgmt_root.tm.sys.file.ifiles.ifile.load(name=ntf_basename)
+    assert if1.name == if2.name
