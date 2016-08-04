@@ -17,6 +17,11 @@ Module Contents
         device_group
         traffic_group
 
+Subpackages
+-----------
+
+.. automodule:: f5.bigip.cm.autodeploy
+    :members:
 
 Submodules
 ----------
@@ -38,3 +43,9 @@ traffic_group
 
 .. automodule:: f5.bigip.cm.traffic_group
     :members:
+
+.. toctree::
+    :hidden:
+    :glob:
+
+    f5.bigip.cm.*

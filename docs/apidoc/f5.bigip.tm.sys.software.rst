@@ -1,0 +1,35 @@
+f5.bigip.tm.sys.software
+========================
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip.tm.sys.software
+    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. py:currentmodule:: f5.bigip.tm.sys.software
+
+    .. autosummary::
+
+        update
+
+Subpackages
+-----------
+
+.. automodule:: bigip.tm.sys.software.test
+    :members:
+
+Submodules
+----------
+
+update
+~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.software.update
+    :members:
+
+
+
+

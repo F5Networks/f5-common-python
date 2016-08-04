@@ -1,13 +1,16 @@
 .. important::
 
-    When using the SDK, you'll notice that :ref:`collection <collection_section>` objects are referenced using the plural version of the |Resource| objects they contain. When the |Resource| object's type is plural (ends in an ``s``), you need to add ``_s`` to the name when referring to the collection.
+    In the SDK, :ref:`collection <collection_section>` objects are usually plural, while |Resource| objects are singular.
 
-    This ``_s`` rule applies to all object collections where the object in the collection already ends in ``s``.
+    When the |Resource| object's corresponding URI is already plural, we append the name of the :ref:`collection <collection_section>` with ``_s``.
 
-    **Examples:**
+    **Example:**
 
-    * LTM Pool objects are collected in :mod:`f5.bigip.tm.ltmpool.Pools` and are accessible via the path :meth:`f5.bigip.pools.get_collection`.
-
-    * Network Tunnels objects are stored in :class:`f5.bip.net.tunnels.Tunnels_s` and are accessible via :meth:`f5.bigip.net.tunnels_s.get_collection`.
-
+    ===========================  =====================  ===============================
+    URI                          Collection             Resource
+    ===========================  =====================  ===============================
+    /mgmt/tm/net/tunnels/        tm.net.tunnels         tm.net.tunnels.tunnel
+    /mgmt/tm/ltm/pool/           tm.ltm.pools           tm.ltm.pools.pool
+    /mgmt/tm/ltm/pool/members/   tm.ltm.pool.members_s  tm.ltm.pool.members_s.members
+    ===========================  =====================  ===============================
 

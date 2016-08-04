@@ -1,0 +1,34 @@
+f5.bigip.tm.gtm.test
+====================
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip.tm.gtm.test
+    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. py:currentmodule:: f5.bigip.tm.gtm.test
+
+    .. autosummary::
+
+        test_datacenter
+        test_rule
+
+
+Submodules
+----------
+
+test_datacenter
+~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.gtm.test.test_datacenter
+    :members:
+
+test_rule
+~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.gtm.test.test_rule
+    :members:
+

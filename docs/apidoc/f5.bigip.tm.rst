@@ -1,0 +1,78 @@
+f5.bigip.tm
+===========
+
+.. automodule:: f5.bigip.tm
+    :members:
+
+    Subpackage List
+    ~~~~~~~~~~~~~~~
+    .. currentmodule:: f5.bigip.tm
+
+    .. autosummary::
+
+        auth
+        cm
+        gtm
+        ltm
+        net
+        shared
+        sys
+        transaction
+
+Subpackages
+-----------
+
+auth
+~~~~
+
+.. automodule:: f5.bigip.tm.auth
+    :members:
+
+cm
+~~
+
+.. automodule:: f5.bigip.tm.cm
+    :members:
+
+gtm
+~~~
+
+.. automodule:: f5.bigip.tm.gtm
+    :members:
+
+ltm
+~~~
+
+.. automodule:: f5.bigip.tm.ltm
+    :members:
+
+net
+~~~
+
+.. automodule:: f5.bigip.tm.net
+    :members:
+
+shared
+~~~~~~
+
+.. automodule:: f5.bigip.tm.shared
+    :members:
+
+sys
+~~~
+
+.. automodule:: f5.bigip.tm.sys
+    :members:
+
+transaction
+~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.transaction
+    :members:
+
+
+.. toctree::
+    :hidden:
+    :glob:
+
+    f5.bigip.tm.*
