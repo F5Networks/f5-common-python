@@ -47,7 +47,8 @@ class TransactionContextManager(object):
         be able to use the API object as you normally would.
         """
 
-        self.transaction.create()
+        self.transaction = self.transaction.create()
+
         self.icr.session.headers.update({
             'X-F5-REST-Coordination-Id': self.transaction.transId
         })
