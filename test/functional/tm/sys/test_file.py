@@ -19,12 +19,7 @@ from requests import HTTPError
 from tempfile import NamedTemporaryFile
 
 
-import logging
-logging.getLogger().setLevel(logging.DEBUG)
-
-
 def setup_ifile_test(request, mgmt_root, name, sourcepath):
-    print(mgmt_root.tm.ltm.get_collection())
     if1 = mgmt_root.tm.sys.file.ifiles.ifile.create(name=name,
                                                     sourcePath=sourcepath)
 
@@ -53,6 +48,19 @@ def test_CURDL(request, mgmt_root):
     if1 = setup_ifile_test(request, mgmt_root, ntf_basename, tpath_name)
     assert if1.name == ntf_basename
 
-    # Load - Test with the various partition/name combinations
+    # Load Object
     if2 = mgmt_root.tm.sys.file.ifiles.ifile.load(name=ntf_basename)
     assert if1.name == if2.name
+
+    # Rewrite file contents and Update Object
+    ntf.write('this is still a test file')
+    ntf.seek(0)
+    mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
+
+    if3 = mgmt_root.tm.sys.file.ifiles.ifile.load(name=ntf_basename)
+    if3.update(sourcePath=tpath_name)
+    assert if1.revision != if3.revision
+
+    # Refresh if2 and make sure revision matches if3
+    if2.refresh()
+    assert if2.revision == if3.revision
