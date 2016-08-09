@@ -76,7 +76,7 @@ class BigIPMock(object):
         icr_session = mock.Mock()
         icr_session.delete = mock_response
         icr_session.get = mock_response
-        icr_session.patch = mock_response
+        icr_session.put = mock_response
         icr_session.post = mock_response
         icr_session.put = mock_response
 

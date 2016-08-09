@@ -112,13 +112,13 @@ def MakeFakeContainer(FakeService, fake_bigip_data):
             self._meta_data.update(meta_data_defaults)
     mock_session = mock.MagicMock(name='mock_session')
     mock_get_response = mock.MagicMock(name='mock_get_response')
-    mock_patch_response = mock.MagicMock(name='mock_patch_response')
+    mock_put_response = mock.MagicMock(name='mock_put_response')
     mock_get_response.json.return_value = fake_bigip_data.copy()
-    mock_patch_response.json.return_value = SUCCESSFUL_CREATE.copy()
-    # Mock the get and patch when the container calls icr_session.get/patch
+    mock_put_response.json.return_value = SUCCESSFUL_CREATE.copy()
+    # Mock the get and put when the container calls icr_session.get/patch
     mock_session.get.return_value = mock_get_response
-    mock_session.patch.return_value = mock_patch_response
-    mock_session.post.return_value = mock_patch_response
+    mock_session.put.return_value = mock_put_response
+    mock_session.post.return_value = mock_put_response
     FakeService._meta_data = {
         'hostname': 'testhost',
         'icr_session': mock_session,

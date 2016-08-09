@@ -474,7 +474,7 @@ class ResourceBase(PathElement, ToDictMixin):
 
         data_dict.update(kwargs)
 
-        response = session.patch(update_uri, json=data_dict, **requests_params)
+        response = session.put(update_uri, json=data_dict, **requests_params)
         self._meta_data = temp_meta
         self._local_update(response.json())
 
@@ -492,7 +492,7 @@ class ResourceBase(PathElement, ToDictMixin):
 
         :param kwargs: keys and associated values to alter on the device
         NOTE: If kwargs has a 'requests_params' key the corresponding dict will
-        be passed to the underlying requests.session.patch method where it will
+        be passed to the underlying requests.session.put method where it will
         be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
 
         """
