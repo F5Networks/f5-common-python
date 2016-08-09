@@ -15,6 +15,8 @@
 
 from pprint import pprint as pp
 
+import copy
+
 
 class TestPasswordPolicy(object):
     def test_load(self, bigip):
@@ -30,4 +32,17 @@ class TestPasswordPolicy(object):
         password_policy.update(maxLoginFailures=10)
         assert password_policy.maxLoginFailures == 10
         password_policy.update(maxLoginFailures=0)
+        assert password_policy.maxLoginFailures == 0
+
+    def test_modify(self, mgmt_root):
+        password_policy = mgmt_root.tm.auth.password_policy.load()
+        original_dict = copy.copy(password_policy.__dict__)
+        max_fails = 'maxLoginFailures'
+        password_policy.modify(maxLoginFailures=25)
+        for k, v in original_dict.items():
+            if k != max_fails:
+                original_dict[k] = password_policy.__dict__[k]
+            elif k == max_fails:
+                password_policy.__dict__[k] == 'Cool mod test'
+        password_policy.modify(maxLoginFailures=0)
         assert password_policy.maxLoginFailures == 0
