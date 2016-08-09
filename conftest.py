@@ -17,12 +17,12 @@ from f5.bigip import BigIP
 from f5.bigip import ManagementRoot
 from f5.utils.testutils.registrytools import register_device
 from icontrol.session import iControlRESTSession
-from tempfile import NamedTemporaryFile
 import logging
 import mock
 import os
 import pytest
 import requests
+from tempfile import NamedTemporaryFile
 
 
 logger = logging.getLogger()
