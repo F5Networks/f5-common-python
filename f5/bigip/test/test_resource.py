@@ -56,7 +56,7 @@ def fake_rsrc():
     r._meta_data['allowed_lazy_attributes'] = []
     r._meta_data['uri'] = 'URI'
     r._meta_data['read_only_attributes'] = [u"READONLY"]
-    attrs = {'patch.return_value': MockResponse({u"generation": 0}),
+    attrs = {'put.return_value': MockResponse({u"generation": 0}),
              'get.return_value': MockResponse({u"generation": 0})}
     mock_session = mock.MagicMock(**attrs)
     r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
@@ -237,7 +237,7 @@ class TestResource_update(object):
         r._meta_data['uri'] = 'URI'
         r._meta_data['bigip']._meta_data['icr_session'].get.return_value =\
             MockResponse({u"generation": 0})
-        r._meta_data['bigip']._meta_data['icr_session'].patch.return_value =\
+        r._meta_data['bigip']._meta_data['icr_session'].put.return_value =\
             MockResponse({u"generation": 0})
         r.generation = 0
         pre_meta = r._meta_data.copy()
@@ -248,7 +248,7 @@ class TestResource_update(object):
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
-        attrs = {'patch.return_value': MockResponse({u"generation": 0}),
+        attrs = {'put.return_value': MockResponse({u"generation": 0}),
                  'get.return_value': MockResponse({u"generation": 0})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
@@ -257,7 +257,7 @@ class TestResource_update(object):
         assert 'contained' in r.__dict__
         r.update(a=u"b")
         submitted = r._meta_data['bigip']. \
-            _meta_data['icr_session'].patch.call_args[1]['json']
+            _meta_data['icr_session'].put.call_args[1]['json']
 
         assert 'contained' not in submitted
 
@@ -266,7 +266,7 @@ class TestResource_update(object):
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
         r._meta_data['read_only_attributes'] = [u"READONLY"]
-        attrs = {'patch.return_value': MockResponse({u"generation": 0}),
+        attrs = {'put.return_value': MockResponse({u"generation": 0}),
                  'get.return_value': MockResponse({u"generation": 0})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
@@ -275,26 +275,26 @@ class TestResource_update(object):
         assert 'READONLY' in r.__dict__
         r.update(a=u"b")
         submitted = r._meta_data['bigip'].\
-            _meta_data['icr_session'].patch.call_args[1]['json']
+            _meta_data['icr_session'].put.call_args[1]['json']
         assert 'READONLY' not in submitted
 
     def test_reduce_boolean_removes_enabled(self, fake_rsrc):
         fake_rsrc.update(enabled=False)
-        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].patch.\
+        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
             call_args
         assert kwargs['json']['disabled'] is True
         assert 'enabled' not in kwargs['json']
 
     def test_reduce_boolean_removes_disabled(self, fake_rsrc):
         fake_rsrc.update(disabled=False)
-        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].patch.\
+        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
             call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
 
     def test_reduce_boolean_removes_nothing(self, fake_rsrc):
         fake_rsrc.update(partition='Common', name='test_create', enabled=True)
-        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].patch.\
+        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
             call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
@@ -406,7 +406,7 @@ class TestResource_load(object):
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
         r._meta_data['icontrol_version'] = '11.6.0'
-        attrs = {'patch.return_value': MockResponse({u"generation": 0}),
+        attrs = {'put.return_value': MockResponse({u"generation": 0}),
                  'get.return_value': MockResponse({u"generation": 0})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
@@ -415,14 +415,14 @@ class TestResource_load(object):
         assert 'contained' in r.__dict__
         r.update(a=u"b")
         submitted = r._meta_data['bigip']. \
-            _meta_data['icr_session'].patch.call_args[1]['params']
+            _meta_data['icr_session'].put.call_args[1]['params']
         assert submitted['ver'] == '11.6.0'
 
     def test_icontrol_version_default(self):
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
-        attrs = {'patch.return_value': MockResponse({u"generation": 0}),
+        attrs = {'put.return_value': MockResponse({u"generation": 0}),
                  'get.return_value': MockResponse({u"generation": 0})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
@@ -431,7 +431,7 @@ class TestResource_load(object):
         assert 'contained' in r.__dict__
         r.update(a=u"b")
         submitted = r._meta_data['bigip']. \
-            _meta_data['icr_session'].patch.call_args
+            _meta_data['icr_session'].put.call_args
         assert 'params' not in submitted
 
     def test_success(self):
