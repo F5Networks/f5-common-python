@@ -246,6 +246,7 @@ class TestResource_update(object):
         pre_meta = r._meta_data.copy()
         r.update(a=u"b")
         assert pre_meta == r._meta_data
+        assert r.raw == r.__dict__
 
     def test_Collection_removal(self):
         r = Resource(mock.MagicMock())
@@ -538,6 +539,34 @@ class TestResource_load(object):
         r.generation = 0
         x = r.load(partition='Common', name='test_load')
         assert x.selfLink == mockuri
+
+    def test_URICreationCollision(self):
+        r = Virtual(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        mockuri = "https://localhost:443/mgmt/tm/ltm/virtual/~Common~test_load"
+        attrs = {'get.return_value':
+                 MockResponse(
+                     {
+                         u"generation": 0,
+                         u"selfLink": mockuri,
+                         u"kind": u"tm:ltm:virtual:virtualstate"
+                     }
+                 )}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data =\
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
+        r.generation = 0
+        x = r.load(partition='Common', name='test_load')
+        assert x.selfLink == mockuri
+        with pytest.raises(URICreationCollision) as UCCEIO:
+            x.load(uri='URI')
+        assert UCCEIO.value.message ==\
+            "There was an attempt to assign a new uri to this resource, the"\
+            " _meta_data['uri'] is "\
+            "https://TESTDOMAIN:443/mgmt/tm/ltm/virtual/"\
+            "~Common~test_load/ and it should not be changed."
 
 
 class TestResource_exists(object):
