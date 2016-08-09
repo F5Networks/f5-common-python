@@ -36,6 +36,7 @@ from f5.bigip.resource import ResourceBase
 from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import UnregisteredKind
 from f5.bigip.resource import URICreationCollision
+from f5.bigip.tm.cm.sync_status import Sync_Status
 from f5.bigip.tm.ltm.virtual import Virtual
 from f5.sdk_exception import UnsupportedMethod
 
@@ -734,4 +735,25 @@ class TestUnnamedResource(object):
     def test_delete_raises(self):
         unnamed_resource = UnnamedResource(mock.MagicMock())
         with pytest.raises(UnsupportedMethod):
-            unnamed_resource.create()
+            unnamed_resource.delete()
+
+    def test_load(self):
+        r = Sync_Status(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        mockuri = "https://localhost:443/mgmt/tm/cm/sync-status"
+        attrs = {'get.return_value':
+                 MockResponse(
+                     {
+                         u"generation": 0,
+                         u"selfLink": mockuri,
+                         u"kind": u"tm:cm:sync-status:sync-statusstats"
+                     }
+                 )}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data =\
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
+        r.generation = 0
+        x = r.load(partition='Common', name='test_load')
+        assert x.selfLink == 'https://localhost:443/mgmt/tm/cm/sync-status'
