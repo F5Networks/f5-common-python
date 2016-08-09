@@ -218,16 +218,18 @@ def test__create_with_Collision():
 
 
 class TestResource_update(object):
-    def itest__check_generation_with_mismatch(self):
+    def test__check_generation_with_mismatch(self):
         # generation is borked server-side
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
         r._meta_data['bigip']._meta_data['icr_session'].get.return_value =\
             MockResponse({u"generation": 0})
+        r._meta_data['bigip']._meta_data['icr_session'].put.return_value =\
+            MockResponse({u"generation": 0})
         r.generation = 1
         with pytest.raises(GenerationMismatch) as GMEIO:
-            r.update(a=u"b")
+            r.update(a=u"b", force=False)
         assert GMEIO.value.message ==\
             'The generation of the object on the BigIP (0)'\
             ' does not match the current object(1)'
@@ -281,22 +283,22 @@ class TestResource_update(object):
 
     def test_reduce_boolean_removes_enabled(self, fake_rsrc):
         fake_rsrc.update(enabled=False)
-        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
-            call_args
+        pos, kwargs = fake_rsrc._meta_data['bigip'].\
+            _meta_data['icr_session'].put.call_args
         assert kwargs['json']['disabled'] is True
         assert 'enabled' not in kwargs['json']
 
     def test_reduce_boolean_removes_disabled(self, fake_rsrc):
         fake_rsrc.update(disabled=False)
-        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
-            call_args
+        pos, kwargs = fake_rsrc._meta_data['bigip'].\
+            _meta_data['icr_session'].put.call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
 
     def test_reduce_boolean_removes_nothing(self, fake_rsrc):
         fake_rsrc.update(partition='Common', name='test_create', enabled=True)
-        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
-            call_args
+        pos, kwargs = fake_rsrc._meta_data['bigip'].\
+            _meta_data['icr_session'].put.call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
 
