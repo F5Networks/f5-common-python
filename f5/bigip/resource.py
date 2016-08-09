@@ -166,6 +166,11 @@ class BooleansToReduceHaveSameValue(F5SDKError):
     pass
 
 
+class AttemptedMutationOfReadOnly(F5SDKError):
+    """Read only parameters cannot be set."""
+    pass
+
+
 class PathElement(LazyAttributeMixin):
     """Base class to represent a URI path element that does not contain data.
 
