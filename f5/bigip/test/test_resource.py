@@ -313,6 +313,90 @@ class TestResource_update(object):
         assert msg == ex.value.message
 
 
+class TestResource_modify(object):
+
+    def test__meta_data_state(self):
+        r = Resource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['uri'] = 'URI'
+        r._meta_data['bigip']._meta_data['icr_session'].get.return_value =\
+            MockResponse({u"generation": 0})
+        r._meta_data['bigip']._meta_data['icr_session'].patch.return_value =\
+            MockResponse({u"generation": 0})
+        r.generation = 0
+        pre_meta = r._meta_data.copy()
+        r.modify(a=u"b")
+        assert pre_meta == r._meta_data
+
+    def test_Collection_removal(self):
+        r = Resource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['uri'] = 'URI'
+        attrs = {'put.return_value': MockResponse({u"generation": 0}),
+                 'get.return_value': MockResponse({u"generation": 0})}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
+        r.generation = 0
+        r.contained = Collection(mock.MagicMock())
+        assert 'contained' in r.__dict__
+        r.modify(a=u"b")
+        submitted = r._meta_data['bigip']. \
+            _meta_data['icr_session'].patch.call_args[1]['json']
+
+        assert 'contained' not in submitted
+
+    def test_read_only_removal(self):
+        r = Resource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['uri'] = 'URI'
+        r._meta_data['read_only_attributes'] = [u"READONLY"]
+        attrs = {'put.return_value': MockResponse({u"generation": 0}),
+                 'get.return_value': MockResponse({u"generation": 0})}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
+        r.generation = 0
+        r.READONLY = True
+        assert 'READONLY' in r.__dict__
+        r.update(a=u"b")
+        submitted = r._meta_data['bigip'].\
+            _meta_data['icr_session'].put.call_args[1]['json']
+        assert 'READONLY' not in submitted
+
+    def test_reduce_boolean_removes_enabled(self, fake_rsrc):
+        fake_rsrc.update(enabled=False)
+        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
+            call_args
+        assert kwargs['json']['disabled'] is True
+        assert 'enabled' not in kwargs['json']
+
+    def test_reduce_boolean_removes_disabled(self, fake_rsrc):
+        fake_rsrc.update(disabled=False)
+        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
+            call_args
+        assert kwargs['json']['enabled'] is True
+        assert 'disabled' not in kwargs['json']
+
+    def test_reduce_boolean_removes_nothing(self, fake_rsrc):
+        fake_rsrc.update(partition='Common', name='test_create', enabled=True)
+        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
+            call_args
+        assert kwargs['json']['enabled'] is True
+        assert 'disabled' not in kwargs['json']
+
+    def test_reduce_boolean_same_value(self, fake_rsrc):
+        with pytest.raises(BooleansToReduceHaveSameValue) as ex:
+            fake_rsrc.update(
+                partition='Common',
+                name='test_create',
+                enabled=True,
+                disabled=True
+            )
+        msg = 'Boolean pair, enabled and disabled, have same value: True. ' \
+            'If both are given to this method, they cannot be the same, as ' \
+            'this method cannot decide which one should be True.'
+        assert msg == ex.value.message
+
+
 class TestResource_delete(object):
     def test_success(self):
         r = Resource(mock.MagicMock())
