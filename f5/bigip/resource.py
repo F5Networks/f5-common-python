@@ -444,9 +444,17 @@ class ResourceBase(PathElement, ToDictMixin):
         requests_params, patch_uri, session, read_only = \
             self._prepare_put_or_patch(kwargs)
         self._check_for_boolean_pair_reduction(kwargs)
-        data_dict = self._pop_read_only_attrs(kwargs, read_only)
-        data_dict.update(kwargs)
-        response = session.patch(patch_uri, json=data_dict, **requests_params)
+
+        read_only_mutations = []
+        for attr in read_only:
+            if attr in kwargs:
+                read_only_mutations.append(attr)
+        if read_only_mutations:
+            msg = 'Attempted to mutate read-only attribute(s): %s' \
+                % read_only_mutations
+            raise AttemptedMutationOfReadOnly(msg)
+
+        response = session.patch(patch_uri, json=kwargs, **requests_params)
         self._local_update(response.json())
 
     def modify(self, **kwargs):
@@ -472,13 +480,6 @@ class ResourceBase(PathElement, ToDictMixin):
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
         return requests_params, update_uri, session, read_only
-
-    def _pop_read_only_attrs(self, kwargs, read_only):
-        """Remove any read-only attributes from kwargs"""
-
-        for attr in read_only:
-            kwargs.pop(attr, '')
-        return kwargs
 
     def _update(self, **kwargs):
         """wrapped with update, override that in a subclass to customize"""
@@ -512,7 +513,8 @@ class ResourceBase(PathElement, ToDictMixin):
         # the data dict with the attributes.  If they pass in read-only attrs
         # in the method call we are going to let BIG-IP® let them know about it
         # when it fails
-        data_dict = self._pop_read_only_attrs(data_dict, read_only)
+        for attr in read_only:
+            data_dict.pop(attr, '')
 
         data_dict.update(kwargs)
 

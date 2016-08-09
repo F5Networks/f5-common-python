@@ -16,9 +16,9 @@ import mock
 import pytest
 import requests
 
+from f5.bigip.resource import AttemptedMutationOfReadOnly
 from f5.bigip.resource import BooleansToReduceHaveSameValue
 from f5.bigip.resource import Collection
-from f5.bigip.resource import AttemptedMutationOfReadOnly
 from f5.bigip.resource import DeviceProvidesIncompatibleKey
 from f5.bigip.resource import ExclusiveAttributesPresent
 from f5.bigip.resource import GenerationMismatch
@@ -346,7 +346,7 @@ class TestResource_modify(object):
         assert 'contained' in r.__dict__
         r.modify(a=u"b")
         submitted = r._meta_data['bigip']. \
-            _meta_data['r_session'].patch.call_args[1]['json']
+            _meta_data['icr_session'].patch.call_args[1]['json']
 
         assert 'contained' not in submitted
 

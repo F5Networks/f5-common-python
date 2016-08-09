@@ -18,6 +18,7 @@ from distutils.version import LooseVersion
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
 
+import copy
 from pprint import pprint as pp
 import pytest
 
@@ -62,6 +63,19 @@ class TestVirtual(object):
         assert virtual1.description == TESTDESCRIPTION
         virtual2 = vc1.virtual.load(partition='Common', name='vstest1')
         assert virtual2.selfLink == virtual1.selfLink
+
+    def test_virtual_modify(self, request, mgmt_root, setup_device_snapshot):
+        virtual1, vc1 = setup_virtual_test(
+            request, mgmt_root, 'Common', 'modtest1'
+        )
+        original_dict = copy.copy(virtual1.__dict__)
+        desc = 'description'
+        virtual1.modify(description='Cool mod test')
+        for k, v in original_dict.items():
+            if k != desc:
+                original_dict[k] = virtual1.__dict__[k]
+            elif k == desc:
+                virtual1.__dict__[k] == 'Cool mod test'
 
 
 def test_profiles_CE(
