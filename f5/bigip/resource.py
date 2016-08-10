@@ -166,6 +166,11 @@ class BooleansToReduceHaveSameValue(F5SDKError):
     pass
 
 
+class AttemptedMutationOfReadOnly(F5SDKError):
+    """Read only parameters cannot be set."""
+    pass
+
+
 class PathElement(LazyAttributeMixin):
     """Base class to represent a URI path element that does not contain data.
 
@@ -433,12 +438,54 @@ class ResourceBase(PathElement, ToDictMixin):
         """
         super(ResourceBase, self).__init__(container)
 
-    def _update(self, **kwargs):
-        """wrapped with update, override that in a subclass to customize"""
+    def _modify(self, **patch):
+        """Wrapped with modify, override in a subclass to customize."""
+
+        requests_params, patch_uri, session, read_only = \
+            self._prepare_put_or_patch(patch)
+        self._check_for_boolean_pair_reduction(patch)
+
+        read_only_mutations = []
+        for attr in read_only:
+            if attr in patch:
+                read_only_mutations.append(attr)
+        if read_only_mutations:
+            msg = 'Attempted to mutate read-only attribute(s): %s' \
+                % read_only_mutations
+            raise AttemptedMutationOfReadOnly(msg)
+
+        response = session.patch(patch_uri, json=patch, **requests_params)
+        self._local_update(response.json())
+
+    def modify(self, **patch):
+        """Modify the configuration of the resource on device based on patch
+
+        """
+
+        self._modify(**patch)
+
+    def _check_for_boolean_pair_reduction(self, kwargs):
+        """Check if boolean pairs should be reduced in this resource."""
+
+        if 'reduction_forcing_pairs' in self._meta_data:
+            for key1, key2 in self._meta_data['reduction_forcing_pairs']:
+                kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
+        return kwargs
+
+    def _prepare_put_or_patch(self, kwargs):
+        """Retrieve the appropriate request items for put or patch calls."""
+
         requests_params = self._handle_requests_params(kwargs)
         update_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
+        return requests_params, update_uri, session, read_only
+
+    def _update(self, **kwargs):
+        """wrapped with update, override that in a subclass to customize"""
+
+        requests_params, update_uri, session, read_only = \
+            self._prepare_put_or_patch(kwargs)
 
         # Get the current state of the object on BIG-IP® and check the
         # generation Use pop here because we don't want force in the data_dict
@@ -447,10 +494,7 @@ class ResourceBase(PathElement, ToDictMixin):
             # generation has a known server-side error
             self._check_generation()
 
-        # Reduce any boolean pairs as specified by the meta_data entry below
-        if 'reduction_forcing_pairs' in self._meta_data:
-            for key1, key2 in self._meta_data['reduction_forcing_pairs']:
-                kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
+        kwargs = self._check_for_boolean_pair_reduction(kwargs)
 
         # Save the meta data so we can add it back into self after we
         # load the new object.

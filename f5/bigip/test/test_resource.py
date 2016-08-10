@@ -16,6 +16,7 @@ import mock
 import pytest
 import requests
 
+from f5.bigip.resource import AttemptedMutationOfReadOnly
 from f5.bigip.resource import BooleansToReduceHaveSameValue
 from f5.bigip.resource import Collection
 from f5.bigip.resource import DeviceProvidesIncompatibleKey
@@ -35,6 +36,7 @@ from f5.bigip.resource import ResourceBase
 from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import UnregisteredKind
 from f5.bigip.resource import URICreationCollision
+from f5.bigip.tm.cm.sync_status import Sync_Status
 from f5.bigip.tm.ltm.virtual import Virtual
 from f5.sdk_exception import UnsupportedMethod
 
@@ -57,7 +59,8 @@ def fake_rsrc():
     r._meta_data['uri'] = 'URI'
     r._meta_data['read_only_attributes'] = [u"READONLY"]
     attrs = {'put.return_value': MockResponse({u"generation": 0}),
-             'get.return_value': MockResponse({u"generation": 0})}
+             'get.return_value': MockResponse({u"generation": 0}),
+             'patch.return_value': MockResponse({u"generation": 0})}
     mock_session = mock.MagicMock(**attrs)
     r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
     return r
@@ -217,16 +220,18 @@ def test__create_with_Collision():
 
 
 class TestResource_update(object):
-    def itest__check_generation_with_mismatch(self):
+    def test__check_generation_with_mismatch(self):
         # generation is borked server-side
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
         r._meta_data['bigip']._meta_data['icr_session'].get.return_value =\
             MockResponse({u"generation": 0})
+        r._meta_data['bigip']._meta_data['icr_session'].put.return_value =\
+            MockResponse({u"generation": 0})
         r.generation = 1
         with pytest.raises(GenerationMismatch) as GMEIO:
-            r.update(a=u"b")
+            r.update(a=u"b", force=False)
         assert GMEIO.value.message ==\
             'The generation of the object on the BigIP (0)'\
             ' does not match the current object(1)'
@@ -243,6 +248,7 @@ class TestResource_update(object):
         pre_meta = r._meta_data.copy()
         r.update(a=u"b")
         assert pre_meta == r._meta_data
+        assert r.raw == r.__dict__
 
     def test_Collection_removal(self):
         r = Resource(mock.MagicMock())
@@ -280,28 +286,109 @@ class TestResource_update(object):
 
     def test_reduce_boolean_removes_enabled(self, fake_rsrc):
         fake_rsrc.update(enabled=False)
-        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
-            call_args
+        pos, kwargs = fake_rsrc._meta_data['bigip'].\
+            _meta_data['icr_session'].put.call_args
         assert kwargs['json']['disabled'] is True
         assert 'enabled' not in kwargs['json']
 
     def test_reduce_boolean_removes_disabled(self, fake_rsrc):
         fake_rsrc.update(disabled=False)
-        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
-            call_args
+        pos, kwargs = fake_rsrc._meta_data['bigip'].\
+            _meta_data['icr_session'].put.call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
 
     def test_reduce_boolean_removes_nothing(self, fake_rsrc):
         fake_rsrc.update(partition='Common', name='test_create', enabled=True)
-        pos, kwargs = fake_rsrc._meta_data['bigip']._meta_data['icr_session'].put.\
-            call_args
+        pos, kwargs = fake_rsrc._meta_data['bigip'].\
+            _meta_data['icr_session'].put.call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
 
     def test_reduce_boolean_same_value(self, fake_rsrc):
         with pytest.raises(BooleansToReduceHaveSameValue) as ex:
             fake_rsrc.update(
+                partition='Common',
+                name='test_create',
+                enabled=True,
+                disabled=True
+            )
+        msg = 'Boolean pair, enabled and disabled, have same value: True. ' \
+            'If both are given to this method, they cannot be the same, as ' \
+            'this method cannot decide which one should be True.'
+        assert msg == ex.value.message
+
+
+class TestResource_modify(object):
+
+    def test__meta_data_state(self):
+        r = Resource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['uri'] = 'URI'
+        r._meta_data['bigip']._meta_data['icr_session'].get.return_value =\
+            MockResponse({u"generation": 0})
+        r._meta_data['bigip']._meta_data['icr_session'].patch.return_value =\
+            MockResponse({u"generation": 0})
+        r.generation = 0
+        pre_meta = r._meta_data.copy()
+        r.modify(a=u"b")
+        assert pre_meta == r._meta_data
+
+    def test_Collection_removal(self):
+        r = Resource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['uri'] = 'URI'
+        attrs = {'patch.return_value': MockResponse({u"generation": 0}),
+                 'get.return_value': MockResponse({u"generation": 0})}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
+        r.generation = 0
+        r.contained = Collection(mock.MagicMock())
+        assert 'contained' in r.__dict__
+        r.modify(a=u"b")
+        submitted = r._meta_data['bigip']. \
+            _meta_data['icr_session'].patch.call_args[1]['json']
+
+        assert 'contained' not in submitted
+
+    def test_read_only_validate(self):
+        r = Resource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['uri'] = 'URI'
+        r._meta_data['read_only_attributes'] = [u"READONLY"]
+        attrs = {'patch.return_value': MockResponse({u"generation": 0}),
+                 'get.return_value': MockResponse({u"generation": 0})}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
+        r.generation = 0
+        with pytest.raises(AttemptedMutationOfReadOnly) as AMOROEIO:
+            r.modify(READONLY=True)
+        assert "READONLY" in AMOROEIO.value.message
+
+    def test_reduce_boolean_removes_enabled(self, fake_rsrc):
+        fake_rsrc.modify(enabled=False)
+        pos, kwargs = fake_rsrc._meta_data['bigip'].\
+            _meta_data['icr_session'].patch.call_args
+        assert kwargs['json']['disabled'] is True
+        assert 'enabled' not in kwargs['json']
+
+    def test_reduce_boolean_removes_disabled(self, fake_rsrc):
+        fake_rsrc.modify(disabled=False)
+        pos, kwargs = fake_rsrc._meta_data['bigip'].\
+            _meta_data['icr_session'].patch.call_args
+        assert kwargs['json']['enabled'] is True
+        assert 'disabled' not in kwargs['json']
+
+    def test_reduce_boolean_removes_nothing(self, fake_rsrc):
+        fake_rsrc.modify(partition='Common', name='test_create', enabled=True)
+        pos, kwargs = fake_rsrc._meta_data['bigip'].\
+            _meta_data['icr_session'].patch.call_args
+        assert kwargs['json']['enabled'] is True
+        assert 'disabled' not in kwargs['json']
+
+    def test_reduce_boolean_same_value(self, fake_rsrc):
+        with pytest.raises(BooleansToReduceHaveSameValue) as ex:
+            fake_rsrc.modify(
                 partition='Common',
                 name='test_create',
                 enabled=True,
@@ -454,6 +541,34 @@ class TestResource_load(object):
         r.generation = 0
         x = r.load(partition='Common', name='test_load')
         assert x.selfLink == mockuri
+
+    def test_URICreationCollision(self):
+        r = Virtual(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        mockuri = "https://localhost:443/mgmt/tm/ltm/virtual/~Common~test_load"
+        attrs = {'get.return_value':
+                 MockResponse(
+                     {
+                         u"generation": 0,
+                         u"selfLink": mockuri,
+                         u"kind": u"tm:ltm:virtual:virtualstate"
+                     }
+                 )}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data =\
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
+        r.generation = 0
+        x = r.load(partition='Common', name='test_load')
+        assert x.selfLink == mockuri
+        with pytest.raises(URICreationCollision) as UCCEIO:
+            x.load(uri='URI')
+        assert UCCEIO.value.message ==\
+            "There was an attempt to assign a new uri to this resource, the"\
+            " _meta_data['uri'] is "\
+            "https://TESTDOMAIN:443/mgmt/tm/ltm/virtual/"\
+            "~Common~test_load/ and it should not be changed."
 
 
 class TestResource_exists(object):
@@ -621,4 +736,25 @@ class TestUnnamedResource(object):
     def test_delete_raises(self):
         unnamed_resource = UnnamedResource(mock.MagicMock())
         with pytest.raises(UnsupportedMethod):
-            unnamed_resource.create()
+            unnamed_resource.delete()
+
+    def test_load(self):
+        r = Sync_Status(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        mockuri = "https://localhost:443/mgmt/tm/cm/sync-status"
+        attrs = {'get.return_value':
+                 MockResponse(
+                     {
+                         u"generation": 0,
+                         u"selfLink": mockuri,
+                         u"kind": u"tm:cm:sync-status:sync-statusstats"
+                     }
+                 )}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data =\
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
+        r.generation = 0
+        x = r.load(partition='Common', name='test_load')
+        assert x.selfLink == 'https://localhost:443/mgmt/tm/cm/sync-status'
