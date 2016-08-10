@@ -302,3 +302,4 @@ def test_CURDL_sslcertfile(request, mgmt_root):
     # Refresh Key
     cert1.refresh()
     assert cert2.revision == cert1.revision
+

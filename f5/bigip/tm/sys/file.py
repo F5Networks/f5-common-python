@@ -166,3 +166,4 @@ class Ssl_Key(Resource):
         self._meta_data['required_creation_parameters'].update(
             ('name', 'sourcePath')
         )
+
