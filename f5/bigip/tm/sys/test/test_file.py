@@ -107,3 +107,4 @@ class TestSsl_Keys(object):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             key.create(name='test_key')
             assert 'sourcePath' in ex.value.message
+
