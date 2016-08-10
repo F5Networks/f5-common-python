@@ -13,8 +13,6 @@
 # limitations under the License.
 #
 
-TESTDESCRIPTION = "TESTDESCRIPTION"
-
 
 def setup_virtual_address_s_test(request, bigip, vs_name, vs_partion):
     def teardown():
@@ -27,14 +25,12 @@ def setup_virtual_address_s_test(request, bigip, vs_name, vs_partion):
 
 
 def setup_virtual_address_test(request, bigip, va_name, va_partition):
-    def teardown():
-        if bigip.ltm.virtual_address_s.virtual_address.exists(
-            name=va_name, partition=va_partition
-        ):
-            va.delete()
-    request.addfinalizer(teardown)
     vac = bigip.ltm.virtual_address_s
+    if vac.virtual_address.exists(name=va_name, partition=va_partition):
+            vac.virtual_address.load(
+                name=va_name, partition=va_partition).delete()
     va = vac.virtual_address.create(name=va_name, partition=va_partition)
+    request.addfinalizer(va.delete)
     return vac, va
 
 
