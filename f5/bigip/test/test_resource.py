@@ -59,7 +59,8 @@ def fake_rsrc():
     r._meta_data['uri'] = 'URI'
     r._meta_data['read_only_attributes'] = [u"READONLY"]
     attrs = {'put.return_value': MockResponse({u"generation": 0}),
-             'get.return_value': MockResponse({u"generation": 0})}
+             'get.return_value': MockResponse({u"generation": 0}),
+             'patch.return_value': MockResponse({u"generation": 0})}
     mock_session = mock.MagicMock(**attrs)
     r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
     return r
@@ -364,28 +365,28 @@ class TestResource_modify(object):
             r.modify(READONLY=True)
         assert "READONLY" in AMOROEIO.value.message
 
-    def itest_reduce_boolean_removes_enabled(self, fake_rsrc):
+    def test_reduce_boolean_removes_enabled(self, fake_rsrc):
         fake_rsrc.modify(enabled=False)
         pos, kwargs = fake_rsrc._meta_data['bigip'].\
             _meta_data['icr_session'].patch.call_args
         assert kwargs['json']['disabled'] is True
         assert 'enabled' not in kwargs['json']
 
-    def itest_reduce_boolean_removes_disabled(self, fake_rsrc):
+    def test_reduce_boolean_removes_disabled(self, fake_rsrc):
         fake_rsrc.modify(disabled=False)
         pos, kwargs = fake_rsrc._meta_data['bigip'].\
             _meta_data['icr_session'].patch.call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
 
-    def itest_reduce_boolean_removes_nothing(self, fake_rsrc):
+    def test_reduce_boolean_removes_nothing(self, fake_rsrc):
         fake_rsrc.modify(partition='Common', name='test_create', enabled=True)
         pos, kwargs = fake_rsrc._meta_data['bigip'].\
             _meta_data['icr_session'].patch.call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
 
-    def itest_reduce_boolean_same_value(self, fake_rsrc):
+    def test_reduce_boolean_same_value(self, fake_rsrc):
         with pytest.raises(BooleansToReduceHaveSameValue) as ex:
             fake_rsrc.modify(
                 partition='Common',

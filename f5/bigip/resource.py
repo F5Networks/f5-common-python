@@ -438,31 +438,31 @@ class ResourceBase(PathElement, ToDictMixin):
         """
         super(ResourceBase, self).__init__(container)
 
-    def _modify(self, **kwargs):
+    def _modify(self, **patch):
         """Wrapped with modify, override in a subclass to customize."""
 
         requests_params, patch_uri, session, read_only = \
-            self._prepare_put_or_patch(kwargs)
-        self._check_for_boolean_pair_reduction(kwargs)
+            self._prepare_put_or_patch(patch)
+        self._check_for_boolean_pair_reduction(patch)
 
         read_only_mutations = []
         for attr in read_only:
-            if attr in kwargs:
+            if attr in patch:
                 read_only_mutations.append(attr)
         if read_only_mutations:
             msg = 'Attempted to mutate read-only attribute(s): %s' \
                 % read_only_mutations
             raise AttemptedMutationOfReadOnly(msg)
 
-        response = session.patch(patch_uri, json=kwargs, **requests_params)
+        response = session.patch(patch_uri, json=patch, **requests_params)
         self._local_update(response.json())
 
-    def modify(self, **kwargs):
-        """Modify the configuration of the resource on device based on kwargs
+    def modify(self, **patch):
+        """Modify the configuration of the resource on device based on patch
 
         """
 
-        self._modify(**kwargs)
+        self._modify(**patch)
 
     def _check_for_boolean_pair_reduction(self, kwargs):
         """Check if boolean pairs should be reduced in this resource."""
