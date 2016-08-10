@@ -14,6 +14,7 @@
 #
 
 
+import copy
 from distutils.version import LooseVersion
 from f5.bigip.mixins import UnsupportedTmosVersion
 from pprint import pprint as pp
@@ -50,7 +51,7 @@ class HelperTest(object):
         request.addfinalizer(created.delete)
         return created, resourcecollection
 
-    def test_CURDL(self, request, bigip, **kwargs):
+    def test_MCURDL(self, request, bigip, **kwargs):
 
         # Testing create
         profile1, rescollection = self.setup_test(request, bigip, **kwargs)
@@ -68,12 +69,40 @@ class HelperTest(object):
         if hasattr(profile1, 'description'):
             assert profile1.description == TESTDESCRIPTION
 
+        # Testing modify
+        meta_data = profile1.__dict__.pop('_meta_data')
+        start_dict = copy.deepcopy(profile1.__dict__)
+        profile1.__dict__['_meta_data'] = meta_data
+        profile1.modify(description='MODIFIED')
+        for k, v in profile1.__dict__.items():
+            if k != 'description' and\
+               k != 'generation' and\
+               k != '_meta_data' and\
+               k != 'secret':
+                assert getattr(profile1, k) == start_dict[k]
+            elif k == 'description':
+                assert getattr(profile1, 'description') == 'MODIFIED'
+
+        if '~Common~test.client_ssl' in profile1.selfLink:
+            assert profile1.secureRenegotiation == 'require'
+            meta_data = profile1.__dict__.pop('_meta_data')
+            start_dict = copy.deepcopy(profile1.__dict__)
+            profile1.__dict__['_meta_data'] = meta_data
+            profile1.modify(secureRenegotiation='require-strict')
+            for k, v in profile1.__dict__.items():
+                if k != 'secureRenegotiation'\
+                        and k != 'generation'\
+                        and k != '_meta_data':
+                    assert getattr(profile1, k) == start_dict[k]
+                elif k == 'secureRenegotiation':
+                    assert profile1.secureRenegotiation == 'require-strict'
+            profile1.modify(secureRenegotiation='require')
         # Testing load
         p2 = getattr(rescollection, self.urielementname())
         profile2 = p2.load(partition=self.partition, name=self.test_name)
         assert profile1.selfLink == profile2.selfLink
 
-    def test_CURDL_Adapt(self, request, bigip):
+    def test_MCURDL_Adapt(self, request, bigip):
 
         # Testing create
         profile1, rescollection = self.setup_test(request, bigip)
@@ -118,14 +147,14 @@ def setup_test_subc(request, bigip):
 
 @pytest.mark.skipif(True, reason='this depends on an optional module')
 class TestAnalytics(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         avr = HelperTest('Analytics_s')
-        avr.test_CURDL(request, bigip)
+        avr.test_MCURDL(request, bigip)
 
 
 @pytest.mark.skipif(True, reason='this depends on an optional module')
 class TestAnalyticsSubCol(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
 
         # Testing create and delete
         alert1, traffic1, avrhc1 = setup_test_subc(request, bigip)
@@ -162,9 +191,9 @@ class TestAnalyticsSubCol(object):
 
 
 class TestCertificateAuthority(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         ca = HelperTest('Certificate_Authoritys')
-        ca.test_CURDL(request, bigip)
+        ca.test_MCURDL(request, bigip)
 
 
 # End Certificate Authority tests
@@ -201,19 +230,19 @@ class TestClientLdap(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_CURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, bigip):
         ldap = HelperTest('Client_Ldaps')
-        ldap.test_CURDL(request, bigip)
+        ldap.test_MCURDL(request, bigip)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_CURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, bigip):
         ldap = HelperTest('Client_Ldaps')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            ldap.test_CURDL(request, bigip)
+            ldap.test_MCURDL(request, bigip)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -223,9 +252,9 @@ class TestClientLdap(object):
 
 
 class TestClientSsl(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         cssl = HelperTest('Client_Ssls')
-        cssl.test_CURDL(request, bigip)
+        cssl.test_MCURDL(request, bigip)
 
 
 # End ClientSSL tests
@@ -239,19 +268,19 @@ class TestDhcpv4(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_CURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, bigip):
         dhcpv4 = HelperTest('Dhcpv4s')
-        dhcpv4.test_CURDL(request, bigip)
+        dhcpv4.test_MCURDL(request, bigip)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_CURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, bigip):
         dhcpv4 = HelperTest('Dhcpv4s')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_CURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, bigip)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -267,19 +296,19 @@ class TestDhcpv6(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_CURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, bigip):
         dhcpv6 = HelperTest('Dhcpv6s')
-        dhcpv6.test_CURDL(request, bigip)
+        dhcpv6.test_MCURDL(request, bigip)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_CURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, bigip):
         dhcpv4 = HelperTest('Dhcpv6s')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_CURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, bigip)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 # End Dhcpv6 tests
@@ -288,9 +317,9 @@ class TestDhcpv6(object):
 
 
 class TestDiameter(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         diameter = HelperTest('Diameters')
-        diameter.test_CURDL(request, bigip)
+        diameter.test_MCURDL(request, bigip)
 
 
 # End Diameter tests
@@ -299,9 +328,9 @@ class TestDiameter(object):
 
 
 class TestDns(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         dns = HelperTest('Dns_s')
-        dns.test_CURDL(request, bigip)
+        dns.test_MCURDL(request, bigip)
 
 
 # End Dns tests
@@ -310,7 +339,7 @@ class TestDns(object):
 
 
 class TestDnsLogging(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         dnslog = HelperTest('Dns_Loggings')
 
         # Testing create
@@ -343,9 +372,9 @@ class TestDnsLogging(object):
 
 
 class TestFastHttp(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         fasthttp = HelperTest('Fasthttps')
-        fasthttp.test_CURDL(request, bigip)
+        fasthttp.test_MCURDL(request, bigip)
 
 
 # End FastHttp tests
@@ -354,9 +383,9 @@ class TestFastHttp(object):
 
 
 class TestFastL4(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         fastl4 = HelperTest('Fastl4s')
-        fastl4.test_CURDL(request, bigip)
+        fastl4.test_MCURDL(request, bigip)
 
 
 # End FastL4 tests
@@ -365,7 +394,7 @@ class TestFastL4(object):
 
 
 class TestFix(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         fix = HelperTest('Fixs')
 
         # Testing create
@@ -397,9 +426,9 @@ class TestFix(object):
 
 
 class TestFtp(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         ftp = HelperTest('Ftps')
-        ftp.test_CURDL(request, bigip)
+        ftp.test_MCURDL(request, bigip)
 
 
 # End FTP tests
@@ -413,19 +442,19 @@ class TestGtp(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_CURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, bigip):
         gtp = HelperTest('Gtps')
-        gtp.test_CURDL(request, bigip)
+        gtp.test_MCURDL(request, bigip)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_CURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, bigip):
         dhcpv4 = HelperTest('Gtps')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_CURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, bigip)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -436,9 +465,9 @@ class TestGtp(object):
 
 
 class TestHtml(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         html = HelperTest('Htmls')
-        html.test_CURDL(request, bigip)
+        html.test_MCURDL(request, bigip)
 
 
 # End HTML tests
@@ -447,9 +476,9 @@ class TestHtml(object):
 
 
 class TestHttp(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         http = HelperTest('Https')
-        http.test_CURDL(request, bigip)
+        http.test_MCURDL(request, bigip)
 
 
 # End HTTP tests
@@ -458,9 +487,9 @@ class TestHttp(object):
 
 
 class TestHttpCompress(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         httpc = HelperTest('Http_Compressions')
-        httpc.test_CURDL(request, bigip)
+        httpc.test_MCURDL(request, bigip)
 
 
 # End HTTP Compression tests
@@ -474,19 +503,19 @@ class TestHttp2(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_CURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, bigip):
         http2 = HelperTest('Http2s')
-        http2.test_CURDL(request, bigip)
+        http2.test_MCURDL(request, bigip)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_CURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, bigip):
         dhcpv4 = HelperTest('Http2s')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_CURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, bigip)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -497,7 +526,7 @@ class TestHttp2(object):
 
 
 class TestIcap(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         icap = HelperTest('Icaps')
 
         # Test Create
@@ -527,9 +556,9 @@ class TestIcap(object):
 @pytest.mark.skipif(pytest.config.getoption('--release') != '12.0.0',
                     reason='Needs v12 TMOS to pass')
 class TestIiop(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         iiop = HelperTest('Iiops')
-        iiop.test_CURDL(request, bigip)
+        iiop.test_MCURDL(request, bigip)
 
 
 # End IIOP tests
@@ -538,9 +567,9 @@ class TestIiop(object):
 
 
 class TestIother(object):
-    def ttest_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         ipoth = HelperTest('Ipothers')
-        ipoth.test_CURDL(request, bigip)
+        ipoth.test_MCURDL(request, bigip)
 
 
 # End Ipother tests
@@ -549,9 +578,9 @@ class TestIother(object):
 
 
 class TestMblb(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         mblb = HelperTest('Mblbs')
-        mblb.test_CURDL(request, bigip)
+        mblb.test_MCURDL(request, bigip)
 
 
 # End Mblb tests
@@ -559,7 +588,7 @@ class TestMblb(object):
 # Begin Mssql tests
 
 class TestMssql(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         mssql = HelperTest('Mssqls')
 
         # Testing create
@@ -591,9 +620,9 @@ class TestMssql(object):
 
 
 class TestNtlm(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         ntlm = HelperTest('Ntlms')
-        ntlm.test_CURDL(request, bigip)
+        ntlm.test_MCURDL(request, bigip)
 
 
 # End Ntlm tests
@@ -615,7 +644,7 @@ class TestOcspStaplingParams(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_CURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, bigip):
 
         # Setup DNS resolver as prerequisite
         dns = setup_dns_resolver(request, bigip, 'test_resolv')
@@ -655,7 +684,7 @@ class TestOcspStaplingParams(object):
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_CURDL_11_6_and_less(self, request, bigip):
+    def test_MCURDL_11_6_and_less(self, request, bigip):
 
         # Setup DNS resolver as prerequisite
         dns = setup_dns_resolver(request, bigip, 'test_resolv')
@@ -679,9 +708,9 @@ class TestOcspStaplingParams(object):
 
 
 class TestOneConnect(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         onec = HelperTest('One_Connects')
-        onec.test_CURDL(request, bigip)
+        onec.test_MCURDL(request, bigip)
 
 
 # End Oneconnect tests
@@ -691,9 +720,9 @@ class TestOneConnect(object):
 
 @pytest.mark.skipif(True, reason='this depends on an optional module')
 class TestPcp(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         pcp = HelperTest('Pcps')
-        pcp.test_CURDL(request, bigip)
+        pcp.test_MCURDL(request, bigip)
 
 
 # End Pcp tests
@@ -702,9 +731,9 @@ class TestPcp(object):
 
 
 class TestPptp(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         pptp = HelperTest('Pptps')
-        pptp.test_CURDL(request, bigip)
+        pptp.test_MCURDL(request, bigip)
 
 
 # End Pptp tests
@@ -713,7 +742,7 @@ class TestPptp(object):
 
 
 class TestQoe(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         qoe = HelperTest('Qoes')
 
         # Testing create
@@ -745,9 +774,9 @@ class TestQoe(object):
 
 
 class TestRadius(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         radius = HelperTest('Radius_s')
-        radius.test_CURDL(request, bigip)
+        radius.test_MCURDL(request, bigip)
 
 
 # End Radius tests
@@ -756,9 +785,9 @@ class TestRadius(object):
 
 
 class TestRequestAdapt(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         rq_adp = HelperTest('Request_Adapts')
-        rq_adp.test_CURDL_Adapt(request, bigip)
+        rq_adp.test_MCURDL_Adapt(request, bigip)
 
 
 # End Request Adapt tests
@@ -767,9 +796,9 @@ class TestRequestAdapt(object):
 
 
 class TestRequestLog(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         rq_log = HelperTest('Request_Logs')
-        rq_log.test_CURDL(request, bigip)
+        rq_log.test_MCURDL(request, bigip)
 
 
 # End Request Log tests
@@ -778,9 +807,9 @@ class TestRequestLog(object):
 
 
 class TestResponseAdapt(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         res_adp = HelperTest('Response_Adapts')
-        res_adp.test_CURDL_Adapt(request, bigip)
+        res_adp.test_MCURDL_Adapt(request, bigip)
 
 
 # End Response Adapt tests
@@ -809,7 +838,7 @@ def setup_test_uri(request, bigip):
 
 
 class TestRewrite(object):
-    def test_CURDL_rewrite(self, request, bigip):
+    def test_MCURDL_rewrite(self, request, bigip):
 
         # Test Create
         rewrite = HelperTest('Rewrites')
@@ -835,7 +864,7 @@ class TestRewrite(object):
 
 
 class TestUriRulesSubCol(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
 
         # Test Create
         uri1, uri_rw = setup_test_uri(request, bigip)
@@ -868,9 +897,9 @@ class TestUriRulesSubCol(object):
 
 
 class TestRstps(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         rstps = HelperTest('Rtsps')
-        rstps.test_CURDL(request, bigip)
+        rstps.test_MCURDL(request, bigip)
 
 
 # End Rstps tests
@@ -879,9 +908,9 @@ class TestRstps(object):
 
 
 class TestSctps(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         sctps = HelperTest('Sctps')
-        sctps.test_CURDL(request, bigip)
+        sctps.test_MCURDL(request, bigip)
 
 
 # End Sctps tests
@@ -895,19 +924,19 @@ class TestServerLdap(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_CURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, bigip):
         sldap = HelperTest('Server_Ldaps')
-        sldap.test_CURDL(request, bigip)
+        sldap.test_MCURDL(request, bigip)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_CURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, bigip):
         dhcpv4 = HelperTest('Server_Ldaps')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_CURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, bigip)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -918,9 +947,9 @@ class TestServerLdap(object):
 
 
 class TestServerSsl(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         sssl = HelperTest('Server_Ssls')
-        sssl.test_CURDL(request, bigip)
+        sssl.test_MCURDL(request, bigip)
 
 
 # End Server Ldap tests
@@ -929,9 +958,9 @@ class TestServerSsl(object):
 
 
 class TestSip(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         sip = HelperTest('Sips')
-        sip.test_CURDL(request, bigip)
+        sip.test_MCURDL(request, bigip)
 
 
 # End Sip tests
@@ -945,19 +974,19 @@ class TestSmtp(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_CURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, bigip):
         smtp = HelperTest('Smtps')
-        smtp.test_CURDL(request, bigip)
+        smtp.test_MCURDL(request, bigip)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_CURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, bigip):
         dhcpv4 = HelperTest('Smtps')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_CURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, bigip)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -968,9 +997,9 @@ class TestSmtp(object):
 
 
 class TestSmtps(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         smtps = HelperTest('Smtps_s')
-        smtps.test_CURDL(request, bigip)
+        smtps.test_MCURDL(request, bigip)
 
 
 # End Smtps tests
@@ -979,13 +1008,13 @@ class TestSmtps(object):
 
 
 class TestSock(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
 
         dns = setup_dns_resolver(request, bigip,
                                  'test_resolv')
         socks = HelperTest('Socks_s')
-        socks.test_CURDL(request, bigip,
-                         dnsResolver=dns.name)
+        socks.test_MCURDL(request, bigip,
+                          dnsResolver=dns.name)
 
 
 # End Sock tests
@@ -994,9 +1023,9 @@ class TestSock(object):
 
 
 class TestSpdy(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         spdy = HelperTest('Spdys')
-        spdy.test_CURDL(request, bigip)
+        spdy.test_MCURDL(request, bigip)
 
 
 # End Spdy tests
@@ -1005,9 +1034,9 @@ class TestSpdy(object):
 
 
 class TestStatistics(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         stat = HelperTest('Statistics_s')
-        stat.test_CURDL(request, bigip)
+        stat.test_MCURDL(request, bigip)
 
 
 # End Statistics tests
@@ -1016,9 +1045,9 @@ class TestStatistics(object):
 
 
 class TestStream(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         stream = HelperTest('Streams')
-        stream.test_CURDL(request, bigip)
+        stream.test_MCURDL(request, bigip)
 
 
 # End Stream tests
@@ -1027,9 +1056,9 @@ class TestStream(object):
 
 
 class TestTcp(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         testcp = HelperTest('Tcps')
-        testcp.test_CURDL(request, bigip)
+        testcp.test_MCURDL(request, bigip)
 
 
 # End Tcp tests
@@ -1039,9 +1068,9 @@ class TestTcp(object):
 @pytest.mark.skipif(pytest.config.getoption('--release') != '12.0.0',
                     reason='Needs v12 TMOS to pass')
 class TestTftp(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         tftp = HelperTest('Tftps')
-        tftp.test_CURDL(request, bigip)
+        tftp.test_MCURDL(request, bigip)
 
 
 # End Tftp tests
@@ -1050,9 +1079,9 @@ class TestTftp(object):
 
 
 class TestUdp(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         tesudp = HelperTest('Udps')
-        tesudp.test_CURDL(request, bigip)
+        tesudp.test_MCURDL(request, bigip)
 
 
 # End Udp tests
@@ -1062,7 +1091,7 @@ class TestUdp(object):
 
 
 class TestWebAcceleration(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         wa = HelperTest('Web_Accelerations')
 
         # Test Create
@@ -1103,9 +1132,9 @@ class iTestWebSecurity(object):
 
 
 class TestXml(object):
-    def test_CURDL(self, request, bigip):
+    def test_MCURDL(self, request, bigip):
         testxml = HelperTest('Xmls')
-        testxml.test_CURDL(request, bigip)
+        testxml.test_MCURDL(request, bigip)
 
 
 # End Xml tests
