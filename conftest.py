@@ -16,18 +16,19 @@
 from f5.bigip import BigIP
 from f5.bigip import ManagementRoot
 from f5.utils.testutils.registrytools import register_device
+from icontrol.session import iControlRESTSession
 import logging
 import mock
+import os
 import pytest
 import requests
+from tempfile import NamedTemporaryFile
 
 
 logger = logging.getLogger()
 logger.setLevel(logging.WARNING)
 
 requests.packages.urllib3.disable_warnings()
-
-from icontrol.session import iControlRESTSession
 
 
 def pytest_addoption(parser):
@@ -219,3 +220,16 @@ def setup_device_snapshot(request, mgmt_root):
             after_snapshot[item].delete()
     request.addfinalizer(teardown)
     return before_snapshot
+
+
+@pytest.fixture
+def IFILE(mgmt_root):
+    ntf = NamedTemporaryFile()
+    ntf_basename = os.path.basename(ntf.name)
+    ntf.write('this is a test file')
+    ntf.seek(0)
+    mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
+    tpath_name = 'file:/var/config/rest/downloads/{0}'.format(ntf_basename)
+    i = mgmt_root.tm.sys.file.ifiles.ifile.create(name=ntf_basename,
+                                                  sourcePath=tpath_name)
+    return i
