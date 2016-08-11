@@ -22,13 +22,13 @@ REST URIs FROM PYTHON EXPRESSIONS, AND VICE VERSA.
 
 Examples:
 
- * Expression:     bigip = BigIP('a', 'b', 'c')
- * URI Returned:   https://a/mgmt/tm/
+ * Expression:     bigip = ManagementRoot('a', 'b', 'c')
+ * URI Returned:   https://a/mgmt/
 
- * Expression:     bigip.ltm
+ * Expression:     bigip.tm.ltm
  * URI Returned:   https://a/mgmt/tm/ltm/
 
- * Expression:     pools1 = bigip.ltm.pools
+ * Expression:     pools1 = bigip.tm.ltm.pools
  * URI Returned:   https://a/mgmt/tm/ltm/pool
 
  * Expression:     pool_a = pools1.create(partition="Common", name="foo")
@@ -40,7 +40,7 @@ they are represented by the classes in this module.
 We refer to a server-provided resource as a "service".  Thus far all URI
 referenced resources are "services" in this sense.
 
-We use methods named Create, Refresh, Update, Load, and Delete to manipulate
+We use methods named Create, Refresh, Update, Load, Modify, and Delete to manipulate
 BIG-IP® device services.
 
 Methods:
@@ -53,16 +53,23 @@ Methods:
      and sets the Resource attrs to the state the device reports
   * load -- uses HTTP GET, obtains the state of an existing resource on the
     device and sets the Resource attrs to that state
+  * modify -- uses HTTP PATCH to selectively modify named resources submitted
+    as keyword arguments
   * delete -- uses HTTP DELETE, removes the resource from the device, and sets
     self.__dict__ to {'deleted': True}
 
 Available Classes:
+    * PathElement -- the most fundamental class it represent URI elements that
+      serve only as place-holders.  All other Resources inherit from
+      PathElement, though the inheritance may be indirect. PathElement provides
+      a constructor to match its call in LazyAttributeMixin.__getattr__. The
+      expected behavior is that all resource subclasses depend on this
+      constructor to correctly set their self._meta_data['uri'].  See
+      _set_meta_data_uri for the logic underlying self._meta_data['uri']
+      construction.
     * ResourceBase -- only `refresh` is generally supported in all resource
       types, this class provides `refresh`. ResourceBase objects are usually
-      instantiated via setting lazy attributes. ResourceBase provides a
-      constructor to match its call in LazyAttributeMixin.__getattr__. The
-      expected behavior is that all resource subclasses depend on this
-      constructor to correctly set their self._meta_data['uri'].
+      instantiated via setting lazy attributes. 
       All ResourceBase objects (except BIG-IPs) have a container (BIG-IPs
       contain themselves).  The container is the object the ResourceBase is an
       attribute of.
