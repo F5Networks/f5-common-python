@@ -213,18 +213,6 @@ class PathElement(LazyAttributeMixin):
             self._meta_data['container']._meta_data['uri'] + endpoint + '/'
         self._meta_data['uri'] = final_uri
 
-    def _check_create_parameters(self, **kwargs):
-        """Params given to create should satisfy required params.
-
-        :params: kwargs
-        :raises: MissingRequiredCreateParameter
-        """
-        rset = self._meta_data['required_creation_parameters']
-        check = self._missing_required_parameters(rset, **kwargs)
-        if check:
-            error_message = 'Missing required params: %s' % check
-            raise MissingRequiredCreationParameter(error_message)
-
     def _check_command_parameters(self, **kwargs):
         """Params given to exec_cmd should satisfy required params.
 
@@ -818,6 +806,18 @@ class Resource(ResourceBase):
                                 'creation_uri_qargs': qargs,
                                 'creation_uri_frag': frag,
                                 'allowed_lazy_attributes': attrs})
+
+    def _check_create_parameters(self, **kwargs):
+        """Params given to create should satisfy required params.
+
+        :params: kwargs
+        :raises: MissingRequiredCreateParameter
+        """
+        rset = self._meta_data['required_creation_parameters']
+        check = self._missing_required_parameters(rset, **kwargs)
+        if check:
+            error_message = 'Missing required params: %s' % check
+            raise MissingRequiredCreationParameter(error_message)
 
     def _create(self, **kwargs):
         """wrapped by `create` override that in subclasses to customize"""

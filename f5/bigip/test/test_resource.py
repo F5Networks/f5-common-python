@@ -691,7 +691,7 @@ class TestPathElement(object):
         assert "['FAKELOAD']" in RLPEIO.value.message
 
     def test_check_create_parameters_fail(self):
-        p = PathElement(mock.MagicMock())
+        p = Resource(mock.MagicMock())
         p._meta_data['required_creation_parameters'] = set(['FAKECREATE'])
         with pytest.raises(MissingRequiredCreationParameter) as RCPEIO:
             p._check_create_parameters(FOOCREATE='FOOVAL')
