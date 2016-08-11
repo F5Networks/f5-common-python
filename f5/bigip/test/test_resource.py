@@ -670,7 +670,6 @@ def test_collection_s():
 class TestPathElement(object):
 
     def test_missing_req_param_true(self):
-        p = PathElement(mock.MagicMock())
         rqset = set(['FOOPAR1', 'FOOPAR2'])
         fakearg = {'FOOPAR1': 'FOOVAL'}
         mrq = _missing_required_parameters(rqset, **fakearg)
@@ -678,7 +677,6 @@ class TestPathElement(object):
         assert mrq == ['FOOPAR2']
 
     def test_missing_req_param_false(self):
-        p = PathElement(mock.MagicMock())
         rqset = set(['FOOPAR1'])
         fakearg = {'FOOPAR1': 'FOOVAL'}
         mrq = _missing_required_parameters(rqset, **fakearg)

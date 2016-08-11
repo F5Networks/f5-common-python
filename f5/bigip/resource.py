@@ -40,8 +40,8 @@ they are represented by the classes in this module.
 We refer to a server-provided resource as a "service".  Thus far all URI
 referenced resources are "services" in this sense.
 
-We use methods named Create, Refresh, Update, Load, Modify, and Delete to manipulate
-BIG-IP® device services.
+We use methods named Create, Refresh, Update, Load, Modify, and Delete to
+manipulate BIG-IP® device services.
 
 Methods:
 
@@ -69,7 +69,7 @@ Available Classes:
       construction.
     * ResourceBase -- only `refresh` is generally supported in all resource
       types, this class provides `refresh`. ResourceBase objects are usually
-      instantiated via setting lazy attributes. 
+      instantiated via setting lazy attributes.
       All ResourceBase objects (except BIG-IPs) have a container (BIG-IPs
       contain themselves).  The container is the object the ResourceBase is an
       attribute of.
@@ -83,6 +83,10 @@ Available Classes:
       post (via _create) they uniquely depend on 2 uri's, a uri that supports
       the creating post, and the returned uri of the newly created resource.
         Example URI_path:  /mgmt/tm/ltm/nat/~Common~testnat1
+    * UnnamedResource -- Some resources correspond to URIs that do not have
+      unique names, therefore the class does _not_ support create-or-delete,
+      and supports a customized 'load' that doesn't require name/partition
+      parameters.
 """
 import keyword
 import re
