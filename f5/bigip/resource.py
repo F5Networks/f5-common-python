@@ -225,19 +225,6 @@ class PathElement(LazyAttributeMixin):
             error_message = 'Missing required params: %s' % check
             raise MissingRequiredCommandParameter(error_message)
 
-    def _local_update(self, rdict):
-        """Call this with a response dictionary to update instance attrs.
-
-        If the response has only valid keys, stash meta_data, replace __dict__,
-        and reassign meta_data.
-
-        :param rdict: response attributes derived from server JSON
-        """
-        sanitized = self._check_keys(rdict)
-        temp_meta = self._meta_data
-        self.__dict__ = sanitized
-        self._meta_data = temp_meta
-
     def _check_keys(self, rdict):
         """Call this from _local_update to validate response keys
 
@@ -457,6 +444,19 @@ class ResourceBase(PathElement, ToDictMixin):
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
         return requests_params, update_uri, session, read_only
+
+    def _local_update(self, rdict):
+        """Call this with a response dictionary to update instance attrs.
+
+        If the response has only valid keys, stash meta_data, replace __dict__,
+        and reassign meta_data.
+
+        :param rdict: response attributes derived from server JSON
+        """
+        sanitized = self._check_keys(rdict)
+        temp_meta = self._meta_data
+        self.__dict__ = sanitized
+        self._meta_data = temp_meta
 
     def _update(self, **kwargs):
         """wrapped with update, override that in a subclass to customize"""
