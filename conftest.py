@@ -62,7 +62,6 @@ def fakeicontrolsession(monkeypatch):
     monkeypatch.setattr('f5.bigip.iControlRESTSession', fakesessionclass)
 
 
-
 @pytest.fixture
 def fakeicontrolsessionfactory(monkeypatch):
     class Response(object):
@@ -86,6 +85,7 @@ def fakeicontrolsessionfactory(monkeypatch):
         monkeypatch.setattr('f5.bigip.iControlRESTSession', fakesessionclass)
 
     return _session_factory
+
 
 @pytest.fixture
 def fakeicontrolsession_v12(monkeypatch):
