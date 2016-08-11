@@ -16,6 +16,7 @@ import mock
 import pytest
 import requests
 
+from f5.bigip.resource import _missing_required_parameters
 from f5.bigip.resource import AttemptedMutationOfReadOnly
 from f5.bigip.resource import BooleansToReduceHaveSameValue
 from f5.bigip.resource import Collection
@@ -669,18 +670,16 @@ def test_collection_s():
 class TestPathElement(object):
 
     def test_missing_req_param_true(self):
-        p = PathElement(mock.MagicMock())
         rqset = set(['FOOPAR1', 'FOOPAR2'])
         fakearg = {'FOOPAR1': 'FOOVAL'}
-        mrq = p._missing_required_parameters(rqset, **fakearg)
+        mrq = _missing_required_parameters(rqset, **fakearg)
         assert mrq
         assert mrq == ['FOOPAR2']
 
     def test_missing_req_param_false(self):
-        p = PathElement(mock.MagicMock())
         rqset = set(['FOOPAR1'])
         fakearg = {'FOOPAR1': 'FOOVAL'}
-        mrq = p._missing_required_parameters(rqset, **fakearg)
+        mrq = _missing_required_parameters(rqset, **fakearg)
         assert not mrq
 
     def test_check_load_parameters_fail(self):
@@ -691,7 +690,7 @@ class TestPathElement(object):
         assert "['FAKELOAD']" in RLPEIO.value.message
 
     def test_check_create_parameters_fail(self):
-        p = PathElement(mock.MagicMock())
+        p = Resource(mock.MagicMock())
         p._meta_data['required_creation_parameters'] = set(['FAKECREATE'])
         with pytest.raises(MissingRequiredCreationParameter) as RCPEIO:
             p._check_create_parameters(FOOCREATE='FOOVAL')

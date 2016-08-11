@@ -22,13 +22,13 @@ REST URIs FROM PYTHON EXPRESSIONS, AND VICE VERSA.
 
 Examples:
 
- * Expression:     bigip = BigIP('a', 'b', 'c')
- * URI Returned:   https://a/mgmt/tm/
+ * Expression:     bigip = ManagementRoot('a', 'b', 'c')
+ * URI Returned:   https://a/mgmt/
 
- * Expression:     bigip.ltm
+ * Expression:     bigip.tm.ltm
  * URI Returned:   https://a/mgmt/tm/ltm/
 
- * Expression:     pools1 = bigip.ltm.pools
+ * Expression:     pools1 = bigip.tm.ltm.pools
  * URI Returned:   https://a/mgmt/tm/ltm/pool
 
  * Expression:     pool_a = pools1.create(partition="Common", name="foo")
@@ -40,8 +40,8 @@ they are represented by the classes in this module.
 We refer to a server-provided resource as a "service".  Thus far all URI
 referenced resources are "services" in this sense.
 
-We use methods named Create, Refresh, Update, Load, and Delete to manipulate
-BIG-IP® device services.
+We use methods named Create, Refresh, Update, Load, Modify, and Delete to
+manipulate BIG-IP® device services.
 
 Methods:
 
@@ -53,16 +53,23 @@ Methods:
      and sets the Resource attrs to the state the device reports
   * load -- uses HTTP GET, obtains the state of an existing resource on the
     device and sets the Resource attrs to that state
+  * modify -- uses HTTP PATCH to selectively modify named resources submitted
+    as keyword arguments
   * delete -- uses HTTP DELETE, removes the resource from the device, and sets
     self.__dict__ to {'deleted': True}
 
 Available Classes:
+    * PathElement -- the most fundamental class it represent URI elements that
+      serve only as place-holders.  All other Resources inherit from
+      PathElement, though the inheritance may be indirect. PathElement provides
+      a constructor to match its call in LazyAttributeMixin.__getattr__. The
+      expected behavior is that all resource subclasses depend on this
+      constructor to correctly set their self._meta_data['uri'].  See
+      _set_meta_data_uri for the logic underlying self._meta_data['uri']
+      construction.
     * ResourceBase -- only `refresh` is generally supported in all resource
       types, this class provides `refresh`. ResourceBase objects are usually
-      instantiated via setting lazy attributes. ResourceBase provides a
-      constructor to match its call in LazyAttributeMixin.__getattr__. The
-      expected behavior is that all resource subclasses depend on this
-      constructor to correctly set their self._meta_data['uri'].
+      instantiated via setting lazy attributes.
       All ResourceBase objects (except BIG-IPs) have a container (BIG-IPs
       contain themselves).  The container is the object the ResourceBase is an
       attribute of.
@@ -76,6 +83,10 @@ Available Classes:
       post (via _create) they uniquely depend on 2 uri's, a uri that supports
       the creating post, and the returned uri of the newly created resource.
         Example URI_path:  /mgmt/tm/ltm/nat/~Common~testnat1
+    * UnnamedResource -- Some resources correspond to URIs that do not have
+      unique names, therefore the class does _not_ support create-or-delete,
+      and supports a customized 'load' that doesn't require name/partition
+      parameters.
 """
 import keyword
 import re
@@ -172,6 +183,21 @@ class AttemptedMutationOfReadOnly(F5SDKError):
     pass
 
 
+def _missing_required_parameters(rqset, **kwargs):
+    """Helper function to do operation on sets.
+
+    Checks for any missing required parameters.
+    Returns non-empty or empty list. With empty
+    list being False.
+
+    ::returns list
+    """
+    key_set = set(kwargs.keys())
+    required_minus_received = rqset - key_set
+    if required_minus_received != set():
+        return list(required_minus_received)
+
+
 class PathElement(LazyAttributeMixin):
     """Base class to represent a URI path element that does not contain data.
 
@@ -213,18 +239,6 @@ class PathElement(LazyAttributeMixin):
             self._meta_data['container']._meta_data['uri'] + endpoint + '/'
         self._meta_data['uri'] = final_uri
 
-    def _check_create_parameters(self, **kwargs):
-        """Params given to create should satisfy required params.
-
-        :params: kwargs
-        :raises: MissingRequiredCreateParameter
-        """
-        rset = self._meta_data['required_creation_parameters']
-        check = self._missing_required_parameters(rset, **kwargs)
-        if check:
-            error_message = 'Missing required params: %s' % check
-            raise MissingRequiredCreationParameter(error_message)
-
     def _check_command_parameters(self, **kwargs):
         """Params given to exec_cmd should satisfy required params.
 
@@ -232,55 +246,10 @@ class PathElement(LazyAttributeMixin):
         :raises: MissingRequiredCommandParameter
         """
         rset = self._meta_data['required_command_parameters']
-        check = self._missing_required_parameters(rset, **kwargs)
+        check = _missing_required_parameters(rset, **kwargs)
         if check:
             error_message = 'Missing required params: %s' % check
             raise MissingRequiredCommandParameter(error_message)
-
-    def _local_update(self, rdict):
-        """Call this with a response dictionary to update instance attrs.
-
-        If the response has only valid keys, stash meta_data, replace __dict__,
-        and reassign meta_data.
-
-        :param rdict: response attributes derived from server JSON
-        """
-        sanitized = self._check_keys(rdict)
-        temp_meta = self._meta_data
-        self.__dict__ = sanitized
-        self._meta_data = temp_meta
-
-    def _check_keys(self, rdict):
-        """Call this from _local_update to validate response keys
-
-        disallowed server-response json keys:
-        1. The string-literal '_meta_data'
-        2. strings that are not valid Python 2.7 identifiers
-        3. strings that are Python keywords
-        4. strings beginning with '__'.
-
-        :param rdict: from response.json()
-        :raises: DeviceProvidesIncompatibleKey
-        :returns: checked response rdict
-        """
-        if '_meta_data' in rdict:
-            error_message = "Response contains key '_meta_data' which is "\
-                "incompatible with this API!!\n Response json: %r" % rdict
-            raise DeviceProvidesIncompatibleKey(error_message)
-        for x in rdict:
-            if not re.match(tokenize.Name, x):
-                error_message = "Device provided %r which is disallowed"\
-                    " because it's not a valid Python 2.7 identifier." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-            elif keyword.iskeyword(x):
-                error_message = "Device provided %r which is disallowed"\
-                    " because it's a Python keyword." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-            elif x.startswith('__'):
-                error_message = "Device provided %r which is disallowed"\
-                    ", it mangles into a Python non-public attribute." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-        return rdict
 
     def _check_force_arg(self, force):
         if not isinstance(force, bool):
@@ -344,21 +313,6 @@ class PathElement(LazyAttributeMixin):
                         'The following arguments cannot be set ' \
                         'together: "%s".' % cset
                 raise ExclusiveAttributesPresent(error)
-
-    @staticmethod
-    def _missing_required_parameters(rqset, **kwargs):
-        """Helper function to do operation on sets.
-
-        Checks for any missing required parameters.
-        Returns non-empty or empty list. With empty
-        list being False.
-
-        ::returns list
-        """
-        key_set = set(kwargs.keys())
-        required_minus_received = rqset - key_set
-        if required_minus_received != set():
-            return list(required_minus_received)
 
     @property
     def raw(self):
@@ -469,6 +423,51 @@ class ResourceBase(PathElement, ToDictMixin):
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
         return requests_params, update_uri, session, read_only
+
+    def _check_keys(self, rdict):
+        """Call this from _local_update to validate response keys
+
+        disallowed server-response json keys:
+        1. The string-literal '_meta_data'
+        2. strings that are not valid Python 2.7 identifiers
+        3. strings that are Python keywords
+        4. strings beginning with '__'.
+
+        :param rdict: from response.json()
+        :raises: DeviceProvidesIncompatibleKey
+        :returns: checked response rdict
+        """
+        if '_meta_data' in rdict:
+            error_message = "Response contains key '_meta_data' which is "\
+                "incompatible with this API!!\n Response json: %r" % rdict
+            raise DeviceProvidesIncompatibleKey(error_message)
+        for x in rdict:
+            if not re.match(tokenize.Name, x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's not a valid Python 2.7 identifier." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif keyword.iskeyword(x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's a Python keyword." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif x.startswith('__'):
+                error_message = "Device provided %r which is disallowed"\
+                    ", it mangles into a Python non-public attribute." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+        return rdict
+
+    def _local_update(self, rdict):
+        """Call this with a response dictionary to update instance attrs.
+
+        If the response has only valid keys, stash meta_data, replace __dict__,
+        and reassign meta_data.
+
+        :param rdict: response attributes derived from server JSON
+        """
+        sanitized = self._check_keys(rdict)
+        temp_meta = self._meta_data
+        self.__dict__ = sanitized
+        self._meta_data = temp_meta
 
     def _update(self, **kwargs):
         """wrapped with update, override that in a subclass to customize"""
@@ -819,6 +818,18 @@ class Resource(ResourceBase):
                                 'creation_uri_frag': frag,
                                 'allowed_lazy_attributes': attrs})
 
+    def _check_create_parameters(self, **kwargs):
+        """Params given to create should satisfy required params.
+
+        :params: kwargs
+        :raises: MissingRequiredCreateParameter
+        """
+        rset = self._meta_data['required_creation_parameters']
+        check = _missing_required_parameters(rset, **kwargs)
+        if check:
+            error_message = 'Missing required params: %s' % check
+            raise MissingRequiredCreationParameter(error_message)
+
     def _create(self, **kwargs):
         """wrapped by `create` override that in subclasses to customize"""
         if 'uri' in self._meta_data:
@@ -881,7 +892,7 @@ class Resource(ResourceBase):
         :raises: MissingRequiredReadParameter
         """
         rset = self._meta_data['required_load_parameters']
-        check = self._missing_required_parameters(rset, **kwargs)
+        check = _missing_required_parameters(rset, **kwargs)
         if check:
             error_message = 'Missing required params: %s' % check
             raise MissingRequiredReadParameter(error_message)
