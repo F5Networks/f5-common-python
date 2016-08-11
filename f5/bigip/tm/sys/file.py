@@ -35,7 +35,11 @@ class File(OrganizingCollection):
         super(File, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [
             Data_Groups,
-            Ifiles
+            Ifiles,
+            Ssl_Certs,
+            Ssl_Csrs,
+            Ssl_Crls,
+            Ssl_Keys
         ]
 
 
@@ -75,6 +79,90 @@ class Ifile(Resource):
         super(Ifile, self).__init__(ifiles)
         self._meta_data['required_json_kind'] =\
             u'tm:sys:file:ifile:ifilestate'
+        self._meta_data['required_creation_parameters'].update(
+            ('name', 'sourcePath')
+        )
+
+
+class Ssl_Certs(Collection):
+    def __init__(self, File):
+        super(Ssl_Certs, self).__init__(File)
+        self._meta_data['allowed_lazy_attributes'] = [Ssl_Cert]
+        self._meta_data['required_json_kind'] = \
+            u'tm:sys:file:ssl-cert:ssl-certcollectionstate'
+        self._meta_data['attribute_registry'] =\
+            {u'tm:sys:file:ssl-cert:ssl-certstate': Ssl_Cert}
+        self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
+
+
+class Ssl_Cert(Resource):
+    def __init__(self, ssl_certs):
+        super(Ssl_Cert, self).__init__(ssl_certs)
+        self._meta_data['required_json_kind'] =\
+            u'tm:sys:file:ssl-cert:ssl-certstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('name', 'sourcePath')
+        )
+
+
+class Ssl_Crls(Collection):
+    def __init__(self, File):
+        super(Ssl_Crls, self).__init__(File)
+        self._meta_data['allowed_lazy_attributes'] = [Ssl_Crl]
+        self._meta_data['required_json_kind'] = \
+            u'tm:sys:file:ssl-crl:ssl-crlcollectionstate'
+        self._meta_data['attribute_registry'] =\
+            {u'tm:sys:file:ssl-crl:ssl-crlstate': Ssl_Crl}
+        self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
+
+
+class Ssl_Crl(Resource):
+    def __init__(self, ssl_crls):
+        super(Ssl_Crl, self).__init__(ssl_crls)
+        self._meta_data['required_json_kind'] =\
+            u'tm:sys:file:ssl-crl:ssl-crlstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('name', 'sourcePath')
+        )
+
+
+class Ssl_Csrs(Collection):
+    def __init__(self, File):
+        super(Ssl_Csrs, self).__init__(File)
+        self._meta_data['allowed_lazy_attributes'] = [Ssl_Csr]
+        self._meta_data['required_json_kind'] = \
+            u'tm:sys:file:ssl-csr:ssl-csrcollectionstate'
+        self._meta_data['attribute_registry'] =\
+            {u'tm:sys:file:ssl-csr:ssl-csrstate': Ssl_Csr}
+        self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
+
+
+class Ssl_Csr(Resource):
+    def __init__(self, ssl_csrs):
+        super(Ssl_Csr, self).__init__(ssl_csrs)
+        self._meta_data['required_json_kind'] =\
+            u'tm:sys:file:ssl-csr:ssl-csrstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('name', 'sourcePath')
+        )
+
+
+class Ssl_Keys(Collection):
+    def __init__(self, File):
+        super(Ssl_Keys, self).__init__(File)
+        self._meta_data['allowed_lazy_attributes'] = [Ssl_Key]
+        self._meta_data['required_json_kind'] = \
+            u'tm:sys:file:ssl-key:ssl-keycollectionstate'
+        self._meta_data['attribute_registry'] =\
+            {u'tm:sys:file:ssl-key:ssl-keystate': Ssl_Key}
+        self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
+
+
+class Ssl_Key(Resource):
+    def __init__(self, ssl_keys):
+        super(Ssl_Key, self).__init__(ssl_keys)
+        self._meta_data['required_json_kind'] =\
+            u'tm:sys:file:ssl-key:ssl-keystate'
         self._meta_data['required_creation_parameters'].update(
             ('name', 'sourcePath')
         )
