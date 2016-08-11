@@ -179,6 +179,21 @@ class AttemptedMutationOfReadOnly(F5SDKError):
     pass
 
 
+def _missing_required_parameters(rqset, **kwargs):
+    """Helper function to do operation on sets.
+
+    Checks for any missing required parameters.
+    Returns non-empty or empty list. With empty
+    list being False.
+
+    ::returns list
+    """
+    key_set = set(kwargs.keys())
+    required_minus_received = rqset - key_set
+    if required_minus_received != set():
+        return list(required_minus_received)
+
+
 class PathElement(LazyAttributeMixin):
     """Base class to represent a URI path element that does not contain data.
 
@@ -227,7 +242,7 @@ class PathElement(LazyAttributeMixin):
         :raises: MissingRequiredCommandParameter
         """
         rset = self._meta_data['required_command_parameters']
-        check = self._missing_required_parameters(rset, **kwargs)
+        check = _missing_required_parameters(rset, **kwargs)
         if check:
             error_message = 'Missing required params: %s' % check
             raise MissingRequiredCommandParameter(error_message)
@@ -294,21 +309,6 @@ class PathElement(LazyAttributeMixin):
                         'The following arguments cannot be set ' \
                         'together: "%s".' % cset
                 raise ExclusiveAttributesPresent(error)
-
-    @staticmethod
-    def _missing_required_parameters(rqset, **kwargs):
-        """Helper function to do operation on sets.
-
-        Checks for any missing required parameters.
-        Returns non-empty or empty list. With empty
-        list being False.
-
-        ::returns list
-        """
-        key_set = set(kwargs.keys())
-        required_minus_received = rqset - key_set
-        if required_minus_received != set():
-            return list(required_minus_received)
 
     @property
     def raw(self):
@@ -821,7 +821,7 @@ class Resource(ResourceBase):
         :raises: MissingRequiredCreateParameter
         """
         rset = self._meta_data['required_creation_parameters']
-        check = self._missing_required_parameters(rset, **kwargs)
+        check = _missing_required_parameters(rset, **kwargs)
         if check:
             error_message = 'Missing required params: %s' % check
             raise MissingRequiredCreationParameter(error_message)
@@ -888,7 +888,7 @@ class Resource(ResourceBase):
         :raises: MissingRequiredReadParameter
         """
         rset = self._meta_data['required_load_parameters']
-        check = self._missing_required_parameters(rset, **kwargs)
+        check = _missing_required_parameters(rset, **kwargs)
         if check:
             error_message = 'Missing required params: %s' % check
             raise MissingRequiredReadParameter(error_message)

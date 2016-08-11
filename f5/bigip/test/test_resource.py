@@ -16,6 +16,7 @@ import mock
 import pytest
 import requests
 
+from f5.bigip.resource import _missing_required_parameters
 from f5.bigip.resource import AttemptedMutationOfReadOnly
 from f5.bigip.resource import BooleansToReduceHaveSameValue
 from f5.bigip.resource import Collection
@@ -672,7 +673,7 @@ class TestPathElement(object):
         p = PathElement(mock.MagicMock())
         rqset = set(['FOOPAR1', 'FOOPAR2'])
         fakearg = {'FOOPAR1': 'FOOVAL'}
-        mrq = p._missing_required_parameters(rqset, **fakearg)
+        mrq = _missing_required_parameters(rqset, **fakearg)
         assert mrq
         assert mrq == ['FOOPAR2']
 
@@ -680,7 +681,7 @@ class TestPathElement(object):
         p = PathElement(mock.MagicMock())
         rqset = set(['FOOPAR1'])
         fakearg = {'FOOPAR1': 'FOOVAL'}
-        mrq = p._missing_required_parameters(rqset, **fakearg)
+        mrq = _missing_required_parameters(rqset, **fakearg)
         assert not mrq
 
     def test_check_load_parameters_fail(self):
