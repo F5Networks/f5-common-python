@@ -575,7 +575,7 @@ class TestIpother(object):
             with pytest.raises(iControlUnexpectedHTTPError) as iCUHEEIO:
                 ipoth.test_MCURDL(request, bigip)
             assert 'Found unexpected json pair at configuration item' in\
-                iCUHEEIO.message.value
+                iCUHEEIO.value.message
         else:
             ipoth.test_MCURDL(request, bigip)
 
