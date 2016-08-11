@@ -49,8 +49,15 @@ def pytest_addoption(parser):
 @pytest.fixture
 def fakeicontrolsession(monkeypatch):
     class Response(object):
+        def __init__(self, **json_keys):
+            if 'selfLink' not in json_keys:
+                json_keys['selfLink'] =\
+                    'https://localhost/mgmt/tm/sys?ver=11.6.0'
+            self.params = json_keys
+
         def json(self):
-            return {'selfLink': 'https://localhost/mgmt/tm/sys?ver=11.6.0'}
+            return self.params
+
     fakesessionclass = mock.create_autospec(iControlRESTSession, spec_set=True)
     fakesessioninstance =\
         mock.create_autospec(iControlRESTSession('A', 'B'), spec_set=True)
@@ -72,7 +79,7 @@ def fakeicontrolsession_v12(monkeypatch):
     monkeypatch.setattr('f5.bigip.iControlRESTSession', fakesessionclass)
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def opt_bigip(request):
     return request.config.getoption("--bigip")
 
