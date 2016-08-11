@@ -225,38 +225,6 @@ class PathElement(LazyAttributeMixin):
             error_message = 'Missing required params: %s' % check
             raise MissingRequiredCommandParameter(error_message)
 
-    def _check_keys(self, rdict):
-        """Call this from _local_update to validate response keys
-
-        disallowed server-response json keys:
-        1. The string-literal '_meta_data'
-        2. strings that are not valid Python 2.7 identifiers
-        3. strings that are Python keywords
-        4. strings beginning with '__'.
-
-        :param rdict: from response.json()
-        :raises: DeviceProvidesIncompatibleKey
-        :returns: checked response rdict
-        """
-        if '_meta_data' in rdict:
-            error_message = "Response contains key '_meta_data' which is "\
-                "incompatible with this API!!\n Response json: %r" % rdict
-            raise DeviceProvidesIncompatibleKey(error_message)
-        for x in rdict:
-            if not re.match(tokenize.Name, x):
-                error_message = "Device provided %r which is disallowed"\
-                    " because it's not a valid Python 2.7 identifier." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-            elif keyword.iskeyword(x):
-                error_message = "Device provided %r which is disallowed"\
-                    " because it's a Python keyword." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-            elif x.startswith('__'):
-                error_message = "Device provided %r which is disallowed"\
-                    ", it mangles into a Python non-public attribute." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-        return rdict
-
     def _check_force_arg(self, force):
         if not isinstance(force, bool):
             raise InvalidForceType("force parameter must be type bool")
@@ -444,6 +412,38 @@ class ResourceBase(PathElement, ToDictMixin):
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
         return requests_params, update_uri, session, read_only
+
+    def _check_keys(self, rdict):
+        """Call this from _local_update to validate response keys
+
+        disallowed server-response json keys:
+        1. The string-literal '_meta_data'
+        2. strings that are not valid Python 2.7 identifiers
+        3. strings that are Python keywords
+        4. strings beginning with '__'.
+
+        :param rdict: from response.json()
+        :raises: DeviceProvidesIncompatibleKey
+        :returns: checked response rdict
+        """
+        if '_meta_data' in rdict:
+            error_message = "Response contains key '_meta_data' which is "\
+                "incompatible with this API!!\n Response json: %r" % rdict
+            raise DeviceProvidesIncompatibleKey(error_message)
+        for x in rdict:
+            if not re.match(tokenize.Name, x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's not a valid Python 2.7 identifier." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif keyword.iskeyword(x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's a Python keyword." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif x.startswith('__'):
+                error_message = "Device provided %r which is disallowed"\
+                    ", it mangles into a Python non-public attribute." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+        return rdict
 
     def _local_update(self, rdict):
         """Call this with a response dictionary to update instance attrs.
