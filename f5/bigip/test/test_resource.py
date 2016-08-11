@@ -684,7 +684,7 @@ class TestPathElement(object):
         assert not mrq
 
     def test_check_load_parameters_fail(self):
-        p = PathElement(mock.MagicMock())
+        p = Resource(mock.MagicMock())
         p._meta_data['required_load_parameters'] = set(['FAKELOAD'])
         with pytest.raises(MissingRequiredReadParameter) as RLPEIO:
             p._check_load_parameters(FOOLOAD='FOOVAL')

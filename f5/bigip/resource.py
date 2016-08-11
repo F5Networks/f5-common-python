@@ -14,6 +14,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+
 """This module provides classes that specify how RESTful resources are handled.
 
 THE MOST IMPORTANT THING TO KNOW ABOUT THIS API IS THAT YOU CAN DIRECTLY INFER
@@ -211,18 +212,6 @@ class PathElement(LazyAttributeMixin):
         final_uri =\
             self._meta_data['container']._meta_data['uri'] + endpoint + '/'
         self._meta_data['uri'] = final_uri
-
-    def _check_load_parameters(self, **kwargs):
-        """Params given to load should at least satisfy required params.
-
-        :params: kwargs
-        :raises: MissingRequiredReadParameter
-        """
-        rset = self._meta_data['required_load_parameters']
-        check = self._missing_required_parameters(rset, **kwargs)
-        if check:
-            error_message = 'Missing required params: %s' % check
-            raise MissingRequiredReadParameter(error_message)
 
     def _check_create_parameters(self, **kwargs):
         """Params given to create should satisfy required params.
@@ -884,6 +873,18 @@ class Resource(ResourceBase):
 
         """
         return self._create(**kwargs)
+
+    def _check_load_parameters(self, **kwargs):
+        """Params given to load should at least satisfy required params.
+
+        :params: kwargs
+        :raises: MissingRequiredReadParameter
+        """
+        rset = self._meta_data['required_load_parameters']
+        check = self._missing_required_parameters(rset, **kwargs)
+        if check:
+            error_message = 'Missing required params: %s' % check
+            raise MissingRequiredReadParameter(error_message)
 
     def _load(self, **kwargs):
         """wrapped with load, override that in a subclass to customize"""
