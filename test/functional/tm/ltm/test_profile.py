@@ -53,13 +53,13 @@ class HelperTest(object):
         return created, resourcecollection
 
     def test_MCURDL(self, request, bigip, **kwargs):
-
         # Testing create
         profile1, rescollection = self.setup_test(request, bigip, **kwargs)
         assert profile1.name == self.test_name
 
         # Testing update
         profile1.description = TESTDESCRIPTION
+        pp(profile1.raw)
         profile1.update()
         if hasattr(profile1, 'description'):
             assert profile1.description == TESTDESCRIPTION
@@ -83,7 +83,6 @@ class HelperTest(object):
                 assert getattr(profile1, k) == start_dict[k]
             elif k == 'description':
                 assert getattr(profile1, 'description') == 'MODIFIED'
-
         if '~Common~test.client_ssl' in profile1.selfLink:
             assert profile1.secureRenegotiation == 'require'
             meta_data = profile1.__dict__.pop('_meta_data')
