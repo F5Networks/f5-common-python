@@ -17,7 +17,6 @@
 import copy
 from distutils.version import LooseVersion
 from f5.bigip.mixins import UnsupportedTmosVersion
-from icontrol.exceptions import iControlUnexpectedHTTPError
 from pprint import pprint as pp
 pp(__file__)
 import pytest
@@ -566,17 +565,13 @@ class TestIiop(object):
 # Begin Ipother tests
 
 
+@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) ==
+                    '11.5.4',
+                    reason='Needs > v11.5.4 TMOS to pass')
 class TestIpother(object):
     def test_MCURDL(self, request, bigip):
         ipoth = HelperTest('Ipothers')
-        if LooseVersion(pytest.config.getoption('--release')) <\
-                LooseVersion('11.6.0'):
-            with pytest.raises(iControlUnexpectedHTTPError) as iCUHEEIO:
-                ipoth.test_MCURDL(request, bigip)
-            assert 'Found unexpected json pair at configuration item' in\
-                iCUHEEIO.value.message
-        else:
-            ipoth.test_MCURDL(request, bigip)
+        ipoth.test_MCURDL(request, bigip)
 
 
 # End Ipother tests
