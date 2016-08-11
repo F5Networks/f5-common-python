@@ -322,6 +322,38 @@ class PathElement(LazyAttributeMixin):
                         'together: "%s".' % cset
                 raise ExclusiveAttributesPresent(error)
 
+    def _check_keys(self, rdict):
+        """Call this from _local_update to validate response keys
+
+        disallowed server-response json keys:
+        1. The string-literal '_meta_data'
+        2. strings that are not valid Python 2.7 identifiers
+        3. strings that are Python keywords
+        4. strings beginning with '__'.
+
+        :param rdict: from response.json()
+        :raises: DeviceProvidesIncompatibleKey
+        :returns: checked response rdict
+        """
+        if '_meta_data' in rdict:
+            error_message = "Response contains key '_meta_data' which is "\
+                "incompatible with this API!!\n Response json: %r" % rdict
+            raise DeviceProvidesIncompatibleKey(error_message)
+        for x in rdict:
+            if not re.match(tokenize.Name, x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's not a valid Python 2.7 identifier." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif keyword.iskeyword(x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's a Python keyword." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif x.startswith('__'):
+                error_message = "Device provided %r which is disallowed"\
+                    ", it mangles into a Python non-public attribute." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+        return rdict
+
     @property
     def raw(self):
         """Display the attributes that the current object has and their values.
@@ -329,48 +361,6 @@ class PathElement(LazyAttributeMixin):
         :returns: A dictionary of attributes and their values
         """
         return self.__dict__
-
-    def _key_dot_replace(self, rdict):
-        """Replace fullstops in returned keynames"""
-        temp_dict = {}
-        for key, value in rdict.items():
-            if isinstance(value, dict):
-                value = self._key_dot_replace(value)
-            temp_dict[key.replace('.', '_')] = value
-        return temp_dict
-
-    def _get_nest_stats(self, rdict):
-        """Helper method to deal with nestedStats
-
-        as json format changed in v12.x
-        """
-        for x in rdict:
-            check = urlparse.urlparse(x)
-            if check.scheme:
-                nested_dict = rdict[x]['nestedStats']
-                tmp_dict = nested_dict['entries']
-                return self._key_dot_replace(tmp_dict)
-
-        return self._key_dot_replace(rdict)
-
-    def _get_stats_raw(self):
-        """Displays JSON object transformed into python dictionary"""
-        read_session = self._meta_data['bigip']._meta_data['icr_session']
-        base_uri = self._meta_data['container']._meta_data['uri'] + 'stats/'
-        response = read_session.get(base_uri)
-        rdict = response.json()
-        return rdict
-
-    def _update_stats(self, rdict):
-        """Attaches stat attribute to stats object"""
-        if 'entries' not in rdict:
-            error = 'Missing "entries" key in returned JSON'
-            raise InvalidStatsJsonReturned(error)
-        sanitized = self._check_keys(rdict)
-        stat_vals = self._get_nest_stats(sanitized['entries'])
-        temp_meta = self._meta_data
-        self.__dict__['stat'] = DottedDict(stat_vals)
-        self._meta_data = temp_meta
 
 
 class ResourceBase(PathElement, ToDictMixin):
@@ -473,38 +463,6 @@ class ResourceBase(PathElement, ToDictMixin):
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
         return requests_params, update_uri, session, read_only
-
-    def _check_keys(self, rdict):
-        """Call this from _local_update to validate response keys
-
-        disallowed server-response json keys:
-        1. The string-literal '_meta_data'
-        2. strings that are not valid Python 2.7 identifiers
-        3. strings that are Python keywords
-        4. strings beginning with '__'.
-
-        :param rdict: from response.json()
-        :raises: DeviceProvidesIncompatibleKey
-        :returns: checked response rdict
-        """
-        if '_meta_data' in rdict:
-            error_message = "Response contains key '_meta_data' which is "\
-                "incompatible with this API!!\n Response json: %r" % rdict
-            raise DeviceProvidesIncompatibleKey(error_message)
-        for x in rdict:
-            if not re.match(tokenize.Name, x):
-                error_message = "Device provided %r which is disallowed"\
-                    " because it's not a valid Python 2.7 identifier." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-            elif keyword.iskeyword(x):
-                error_message = "Device provided %r which is disallowed"\
-                    " because it's a Python keyword." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-            elif x.startswith('__'):
-                error_message = "Device provided %r which is disallowed"\
-                    ", it mangles into a Python non-public attribute." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-        return rdict
 
     def _local_update(self, rdict):
         """Call this with a response dictionary to update instance attrs.
@@ -857,10 +815,7 @@ class Resource(ResourceBase):
         # attrs local alias
         attribute_reg = self._meta_data.get('attribute_registry', {})
         attrs = attribute_reg.values()
-        # if the object has stats, we need to append the meta to include Stats
-        # otherwise it will get overwritten when _activate_URI is called
-        if self._meta_data['object_has_stats']:
-            attrs.append(Stats)
+        attrs.append(Stats)
         (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
         path_uri = urlparse.urlunsplit((scheme, uri.netloc, path, '', ''))
         if not path_uri.endswith('/'):
@@ -1109,6 +1064,48 @@ class Stats(PathElement):
     def stats_raw(self):
         """Provides JSON object converted to a python dictionary"""
         return self._get_stats_raw()
+
+    def _key_dot_replace(self, rdict):
+        """Replace fullstops in returned keynames"""
+        temp_dict = {}
+        for key, value in rdict.items():
+            if isinstance(value, dict):
+                value = self._key_dot_replace(value)
+            temp_dict[key.replace('.', '_')] = value
+        return temp_dict
+
+    def _get_nest_stats(self, rdict):
+        """Helper method to deal with nestedStats
+
+        as json format changed in v12.x
+        """
+        for x in rdict:
+            check = urlparse.urlparse(x)
+            if check.scheme:
+                nested_dict = rdict[x]['nestedStats']
+                tmp_dict = nested_dict['entries']
+                return self._key_dot_replace(tmp_dict)
+
+        return self._key_dot_replace(rdict)
+
+    def _get_stats_raw(self):
+        """Displays JSON object transformed into python dictionary"""
+        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['container']._meta_data['uri'] + 'stats/'
+        response = read_session.get(base_uri)
+        rdict = response.json()
+        return rdict
+
+    def _update_stats(self, rdict):
+        """Attaches stat attribute to stats object"""
+        if 'entries' not in rdict:
+            error = 'Missing "entries" key in returned JSON'
+            raise InvalidStatsJsonReturned(error)
+        sanitized = self._check_keys(rdict)
+        stat_vals = self._get_nest_stats(sanitized['entries'])
+        temp_meta = self._meta_data
+        self.__dict__['stat'] = DottedDict(stat_vals)
+        self._meta_data = temp_meta
 
 
 class DottedDict(dict):

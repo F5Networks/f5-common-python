@@ -77,8 +77,10 @@ class TestVirtual(object):
                 original_dict[k] = virtual1.__dict__[k]
             elif k == desc:
                 virtual1.__dict__[k] == 'Cool mod test'
-    def test_virtual_stats(self, request, bigip):
-        virtual1, vc1 = setup_virtual_test(request, bigip, 'Common', 'vstest1')
+
+    def test_virtual_stats(self, request, mgmt_root):
+        virtual1, vc1 = setup_virtual_test(
+            request, mgmt_root, 'Common', 'vstest1')
         v1_stats = virtual1.stats
         assert hasattr(v1_stats, 'stat')
         assert isinstance(v1_stats.stat.cmpEnableMode, DottedDict)

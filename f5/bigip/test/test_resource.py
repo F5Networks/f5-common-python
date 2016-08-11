@@ -12,6 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+import copy
 import mock
 import pytest
 import requests
@@ -36,6 +37,7 @@ from f5.bigip.resource import PathElement
 from f5.bigip.resource import RequestParamKwargCollision
 from f5.bigip.resource import Resource
 from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import Stats
 from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import UnregisteredKind
 from f5.bigip.resource import URICreationCollision
@@ -293,7 +295,7 @@ def test__activate_URI_no_stats():
     assert r._meta_data['creation_uri_qargs'] ==\
         {'a': ['b'], 'ver': ['11.5']}
     assert r._meta_data['creation_uri_frag'] == 'FOO'
-    assert r._meta_data['allowed_lazy_attributes'] == [u"SPAM"]
+    assert r._meta_data['allowed_lazy_attributes'] == [u"SPAM", Stats]
 
 
 def test__create_with_Collision():
@@ -870,9 +872,26 @@ def MakeFakeResourceContainer(FakePath):
     return FakePath
 
 
+class FakeResponse(object):
+    def json(self):
+        return copy.deepcopy(RAW_DICT)
+
+
 class TestPathElementStatsModuleHelpers(object):
+    mock_session = mock.MagicMock()
+    mock_session.get.return_value = FakeResponse()
+    mock_stats_container = mock.MagicMock()
+    mock_bigip = mock.MagicMock()
+    mock_bigip._meta_data = {'icr_session': mock_session}
+    mock_stats_container._meta_data =\
+        {'bigip': mock_bigip,
+         'icr_session': mock_session,
+         'icontrol_version': '11.6.0',
+         'allowed_lazy_attributes': [Stats],
+         'uri': 'https://testhost/mgmt/tm/ltm/virtual/~Common~test_load/'}
+
     def test_key_dot_replace(self):
-        p = PathElement(mock.MagicMock())
+        p = Stats(self.mock_stats_container)
         fake_dict = {'foo.bar': 'foo', 'baz': 'baz.foo',
                      'fuz.bar': {'baz.foo': {'faz': {'baz.fuz': 1}}}}
         undotted_fake_dict = p._key_dot_replace(fake_dict)
@@ -881,22 +900,22 @@ class TestPathElementStatsModuleHelpers(object):
                                           'baz_fuz': 1}}}}
 
     def test_pop_nest_stats_nested(self):
-        p = PathElement(mock.MagicMock())
+        p = Stats(self.mock_stats_container)
         nest = p._get_nest_stats(NESTED_DICT)
         assert nest == EXPECTED_CONVERTED_DICT
 
     def test_pop_nest_stats_not_nested(self):
-        p = PathElement(mock.MagicMock())
+        p = Stats(self.mock_stats_container)
         not_nest = p._get_nest_stats(NOT_NESTED_DICT)
         assert not_nest == EXPECTED_CONVERTED_DICT
 
     def test_pop_nest_stats_nested_no_uri(self):
-        p = PathElement(mock.MagicMock())
+        p = Stats(self.mock_stats_container)
         nested_nouri = p._get_nest_stats(NESTED_DICT_NO_URI)
         assert nested_nouri == EXPECTED_CONVERTED_DICT_NO_URI
 
-    def test_get_stats_raw(self, FakePath):
-        v = MakeFakeResourceContainer(FakePath)
+    def test_get_stats_raw(self):
+        v = Stats(self.mock_stats_container)
         raw_dict = v._get_stats_raw()
         ret_uri = 'https://testhost/mgmt/tm/ltm/virtual/~Common~test_load/'
         assert v._meta_data['container']._meta_data['uri'] == ret_uri
@@ -905,13 +924,13 @@ class TestPathElementStatsModuleHelpers(object):
     def test_update_stats_invalid_json(self):
         fake_dict = {'foo.bar': 'foo', 'baz': 'baz.foo',
                      'fuz.bar': {'baz.foo': {'faz': {'baz.fuz': 1}}}}
-        p = PathElement(mock.MagicMock())
+        p = Stats(self.mock_stats_container)
         with pytest.raises(InvalidStatsJsonReturned)as err:
             p._update_stats(fake_dict)
         assert err.value.message == 'Missing "entries" key in returned JSON'
 
     def test_update_stats(self):
-        p = PathElement(mock.MagicMock())
+        p = Stats(self.mock_stats_container)
         p._update_stats(RAW_DICT)
         assert 'stat' in p.__dict__
         assert hasattr(p.__dict__['stat'], 'syncookie_accepts')
