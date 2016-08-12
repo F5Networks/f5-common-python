@@ -1013,3 +1013,7 @@ class Stats(UnnamedResource):
         raise UnsupportedMethod(
             "%s does not support the modify method" % self.__class__.__name__
         )
+
+    def load(self, **kwargs):
+        # TODO(pjbreaux) add try-except and custom exception here.
+        return super(Stats, self).load(**kwargs)
