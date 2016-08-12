@@ -92,7 +92,7 @@ class TestVirtual(object):
             stats.modify(description='foo')
         assert USMEIO.value.message ==\
             "Stats does not support the modify method"
-        
+
 
 def test_profiles_CE(
         mgmt_root, opt_release, setup_device_snapshot
