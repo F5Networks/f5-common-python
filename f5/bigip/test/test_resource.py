@@ -781,15 +781,23 @@ class TestStats(object):
     def test_load(self):
         r = Virtual(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
-        mockuri = "https://localhost:443/mgmt/tm/ltm/virtual"
-        attrs = {'get.return_value':
-                 MockResponse(
+        attrs = {'get.side_effect':
+                 [MockResponse(
                      {
                          u"generation": 0,
-                         u"selfLink": mockuri,
+                         u"selfLink": "https://localhost:443"
+                            "/mgmt/tm/ltm/virtual",
                          u"kind": u"tm:ltm:virtual:virtualstate"
-                     }
-                 )}
+                     }),
+                  MockResponse(
+                     {
+                         u"generation": 0,
+                         u"selfLink": u'https://localhost'
+                            '/mgmt/tm/ltm/virtual/'
+                            '~Common~modtest1/stats?ver=11.6.0',
+                         u"kind": u"tm:ltm:virtual:virtualstats"
+                     })
+                  ]}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data =\
             {'icr_session': mock_session,
@@ -801,5 +809,9 @@ class TestStats(object):
         x = r.load(partition='Common', name='test_load')
         assert x.selfLink == 'https://localhost:443/mgmt/tm/ltm/virtual'
         assert x._meta_data['allowed_lazy_attributes'] == [Profiles_s, Stats]
-        pp(x.raw)
-        x.stats
+        statsfactory = x.stats
+        assert 'selfLink' not in statsfactory.__dict__
+        statsobj = statsfactory.load()
+        assert statsobj.selfLink ==\
+            u'https://localhost/mgmt/tm/ltm/virtual/'\
+                '~Common~modtest1/stats?ver=11.6.0'

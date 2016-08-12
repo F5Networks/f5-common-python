@@ -83,6 +83,7 @@ class TestVirtual(object):
             request, mgmt_root, 'Common', 'modtest1'
         )
         stats = virtual1.stats.load()
+        pp(stats.raw)
         assert virtual1.cmpEnabled == u'yes'
         assert stats.entries['cmpEnabled']['description'] == u'enabled'
         virtual1.modify(cmpEnabled=u'no')

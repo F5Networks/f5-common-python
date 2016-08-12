@@ -217,7 +217,6 @@ class PathElement(LazyAttributeMixin):
         self._set_meta_data_uri()
         # Supported versions for each class will be defined here.
         # List can be modified downstream in each sub-class
-        print('about to set the "minimum_version" for %s' % self.__class__.__name__)
         self._meta_data['minimum_version'] = '11.5.0'
         # Commands you can run on a resource or collection, we define it here
         self._meta_data['allowed_commands'] = []
@@ -1014,5 +1013,3 @@ class Stats(UnnamedResource):
         raise UnsupportedMethod(
             "%s does not support the modify method" % self.__class__.__name__
         )
-
-    pass
