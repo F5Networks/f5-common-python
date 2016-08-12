@@ -1039,4 +1039,15 @@ class UnnamedResource(ResourceBase):
 
 
 class Stats(UnnamedResource):
+    '''For stats resources.'''
+
+    def modify(self, **kwargs):
+        '''Modify is not supported for unnamed resources
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
+
     pass
