@@ -364,22 +364,6 @@ class ResourceBase(PathElement, ToDictMixin):
     that represents objects in a hierarchical relationship similar to the
     device's uri path hierarchy.
     """
-    def __init__(self, container):
-        """Call this with containing_object_instance.FOO
-
-        Where FOO is a concrete subclass of this class, ResourceBase.  The '.'
-        operator passes "FOO" to the __getattr__ method of the
-        containing_object_instance which instantiates it as the appropriate
-        sub-type of ResourceBase.
-
-        Since all ResourceBases sub-types must support the `refresh` method, it
-        is defined here, in the base class.
-        NOTE: The BIG-IP® uri 'mgmt/tm/' uniquely passes itself to this
-        constructor as the "container".
-
-        :param container: instance is an attribute of a ResourceBase container
-        """
-        super(ResourceBase, self).__init__(container)
 
     def _modify(self, **patch):
         """Wrapped with modify, override in a subclass to customize."""
@@ -634,12 +618,6 @@ class OrganizingCollection(ResourceBase):
     * provide a list of dictionaries that contain uri's to other
       resources on the device.
     """
-    def __init__(self, container):
-        """Call this to construct an OC. It should be an attribute of BIG-IP®.
-
-        :param bigip: all OCs are attributes of a BIG-IP® instance
-        """
-        super(OrganizingCollection, self).__init__(container)
 
     def get_collection(self, **kwargs):
         """Call to obtain a list of the reference dicts in the instance `items`
@@ -665,20 +643,6 @@ class Collection(ResourceBase):
         unless it ends in ``s`` then it must have ``_s``.
 
     """
-    def __init__(self, container):
-        """Call this with the __get_attr__ of a Resource or OC.
-
-        The contained-by-an-OC-or-Resource pattern is observed, and not a
-        strictly enforced part of the model.
-
-        URIs are constructed _from_ Collection subclass names.  All Collection
-        subclass names MUST end in 's' or '_s', to distinguish them from their
-        associated Resource (which is always accessible as an attribute of the
-        subclass instance.
-
-        :param container: instances of Collection are attributes of container
-        """
-        super(Collection, self).__init__(container)
 
     def get_collection(self, **kwargs):
         """Get an iterator of Python ``Resource`` objects that represent URIs.
@@ -807,6 +771,7 @@ class Resource(ResourceBase):
         # attrs local alias
         attribute_reg = self._meta_data.get('attribute_registry', {})
         attrs = attribute_reg.values()
+        attrs.append(Stats)
 
         (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
         path_uri = urlparse.urlunsplit((scheme, uri.netloc, path, '', ''))
@@ -1035,3 +1000,20 @@ class UnnamedResource(ResourceBase):
         newinst = self._stamp_out_core()
         newinst._refresh(**kwargs)
         return newinst
+
+
+class Stats(UnnamedResource):
+    '''For stats resources.'''
+
+    def modify(self, **kwargs):
+        '''Modify is not supported for unnamed resources
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
+
+    def load(self, **kwargs):
+        # TODO(pjbreaux) add try-except and custom exception here.
+        return super(Stats, self).load(**kwargs)

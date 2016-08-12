@@ -34,10 +34,12 @@ from f5.bigip.resource import PathElement
 from f5.bigip.resource import RequestParamKwargCollision
 from f5.bigip.resource import Resource
 from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import Stats
 from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import UnregisteredKind
 from f5.bigip.resource import URICreationCollision
 from f5.bigip.tm.cm.sync_status import Sync_Status
+from f5.bigip.tm.ltm.virtual import Profiles_s
 from f5.bigip.tm.ltm.virtual import Virtual
 from f5.sdk_exception import UnsupportedMethod
 
@@ -99,8 +101,8 @@ def test_Resource__local_update_IncompatibleKeys():
         " it's not a valid Python 2.7 identifier."
 
 
-def test_Resource__local_update():
-    r = Resource(mock.MagicMock())
+def test_Resource__local_update(fake_vs):
+    r = fake_vs
     stash = r._meta_data.copy()
     r._local_update({'test': 1})
     assert stash == r._meta_data
@@ -207,7 +209,7 @@ def test__activate_URI():
     assert r._meta_data['creation_uri_qargs'] ==\
         {'a': ['b'], 'ver': ['11.5']}
     assert r._meta_data['creation_uri_frag'] == 'FOO'
-    assert r._meta_data['allowed_lazy_attributes'] == [u"SPAM"]
+    assert r._meta_data['allowed_lazy_attributes'] == [u"SPAM", Stats]
 
 
 def test__create_with_Collision():
@@ -757,3 +759,57 @@ class TestUnnamedResource(object):
         r.generation = 0
         x = r.load(partition='Common', name='test_load')
         assert x.selfLink == 'https://localhost:443/mgmt/tm/cm/sync-status'
+
+
+class TestStats(object):
+    def test_create_raises(self):
+        stats_resource = Stats(mock.MagicMock())
+        with pytest.raises(UnsupportedMethod):
+            stats_resource.create()
+
+    def test_delete_raises(self):
+        stats_resource = Stats(mock.MagicMock())
+        with pytest.raises(UnsupportedMethod):
+            stats_resource.delete()
+
+    def test_modify_raises(self):
+        stats_resource = Stats(mock.MagicMock())
+        with pytest.raises(UnsupportedMethod):
+            stats_resource.modify()
+
+    def test_load(self):
+        r = Virtual(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        attrs = {'get.side_effect':
+                 [MockResponse(
+                     {
+                         u"generation": 0,
+                         u"selfLink": "https://localhost:443/mgmt/tm/ltm/"
+                         "virtual",
+                         u"kind": u"tm:ltm:virtual:virtualstate"
+                     }),
+                  MockResponse(
+                     {
+                         u"generation": 0,
+                         u"selfLink": u'https://localhost/mgmt/tm/ltm/virtual/'
+                         '~Common~modtest1/stats?ver=11.6.0',
+                         u"kind": u"tm:ltm:virtual:virtualstats"
+                     })
+                  ]}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data =\
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/',
+             'tmos_version': '11.5.0',
+             'minimum_version': '11.5.0'}
+        r.generation = 0
+        x = r.load(partition='Common', name='test_load')
+        assert x.selfLink == 'https://localhost:443/mgmt/tm/ltm/virtual'
+        assert x._meta_data['allowed_lazy_attributes'] == [Profiles_s, Stats]
+        statsfactory = x.stats
+        assert 'selfLink' not in statsfactory.__dict__
+        statsobj = statsfactory.load()
+        assert statsobj.selfLink ==\
+            u'https://localhost/mgmt/tm/ltm/virtual/'\
+            '~Common~modtest1/stats?ver=11.6.0'

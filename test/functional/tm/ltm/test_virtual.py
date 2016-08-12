@@ -17,6 +17,7 @@ from distutils.version import LooseVersion
 
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
+from f5.sdk_exception import UnsupportedMethod
 
 import copy
 from pprint import pprint as pp
@@ -76,6 +77,22 @@ class TestVirtual(object):
                 original_dict[k] = virtual1.__dict__[k]
             elif k == desc:
                 virtual1.__dict__[k] == 'Cool mod test'
+
+    def test_stats(self, request, mgmt_root, setup_device_snapshot):
+        virtual1, vc1 = setup_virtual_test(
+            request, mgmt_root, 'Common', 'modtest1'
+        )
+        stats = virtual1.stats.load()
+        pp(stats.raw)
+        assert virtual1.cmpEnabled == u'yes'
+        assert stats.entries['cmpEnabled']['description'] == u'enabled'
+        virtual1.modify(cmpEnabled=u'no')
+        stats.refresh()
+        assert stats.entries['cmpEnabled']['description'] == u'disabled'
+        with pytest.raises(UnsupportedMethod) as USMEIO:
+            stats.modify(description='foo')
+        assert USMEIO.value.message ==\
+            "Stats does not support the modify method"
 
 
 def test_profiles_CE(
