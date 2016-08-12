@@ -276,7 +276,7 @@ def test_CURDL_sslcertfile(request, mgmt_root):
 
     # Finally, Let's test something!
     cert1 = setup_sslcrt_test(request, mgmt_root, ntf_cert_basename,
-                             ntf_cert_sourcepath)
+                              ntf_cert_sourcepath)
     assert cert1.name == ntf_cert_basename
 
     cert2 = mgmt_root.tm.sys.file.ssl_certs.ssl_cert.load(
