@@ -13,7 +13,6 @@
 #   limitations under the License.
 #
 import mock
-from pprint import pprint as pp
 import pytest
 import requests
 
@@ -785,16 +784,15 @@ class TestStats(object):
                  [MockResponse(
                      {
                          u"generation": 0,
-                         u"selfLink": "https://localhost:443"
-                            "/mgmt/tm/ltm/virtual",
+                         u"selfLink": "https://localhost:443/mgmt/tm/ltm/"
+                         "virtual",
                          u"kind": u"tm:ltm:virtual:virtualstate"
                      }),
                   MockResponse(
                      {
                          u"generation": 0,
-                         u"selfLink": u'https://localhost'
-                            '/mgmt/tm/ltm/virtual/'
-                            '~Common~modtest1/stats?ver=11.6.0',
+                         u"selfLink": u'https://localhost/mgmt/tm/ltm/virtual/'
+                         '~Common~modtest1/stats?ver=11.6.0',
                          u"kind": u"tm:ltm:virtual:virtualstats"
                      })
                   ]}
@@ -814,4 +812,4 @@ class TestStats(object):
         statsobj = statsfactory.load()
         assert statsobj.selfLink ==\
             u'https://localhost/mgmt/tm/ltm/virtual/'\
-                '~Common~modtest1/stats?ver=11.6.0'
+            '~Common~modtest1/stats?ver=11.6.0'
