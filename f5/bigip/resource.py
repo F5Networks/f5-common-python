@@ -198,6 +198,11 @@ def _missing_required_parameters(rqset, **kwargs):
         return list(required_minus_received)
 
 
+class InvalidStatsJsonReturned(KeyError):
+    """Returned stats JSON should always contain 'entries' key"""
+    pass
+
+
 class PathElement(LazyAttributeMixin):
     """Base class to represent a URI path element that does not contain data.
 
@@ -224,6 +229,9 @@ class PathElement(LazyAttributeMixin):
         self._meta_data['required_command_parameters'] = set()
         # You can't have more than one of the attributes in any of these sets.
         self._meta_data['exclusive_attributes'] = []
+        # We assume that resource does not have stats,
+        # to be overridden in subclasses
+        self._meta_data['object_has_stats'] = False
 
     def _set_meta_data_uri(self):
         base_uri = self.__class__.__name__.lower()
@@ -313,6 +321,38 @@ class PathElement(LazyAttributeMixin):
                         'The following arguments cannot be set ' \
                         'together: "%s".' % cset
                 raise ExclusiveAttributesPresent(error)
+
+    def _check_keys(self, rdict):
+        """Call this from _local_update to validate response keys
+
+        disallowed server-response json keys:
+        1. The string-literal '_meta_data'
+        2. strings that are not valid Python 2.7 identifiers
+        3. strings that are Python keywords
+        4. strings beginning with '__'.
+
+        :param rdict: from response.json()
+        :raises: DeviceProvidesIncompatibleKey
+        :returns: checked response rdict
+        """
+        if '_meta_data' in rdict:
+            error_message = "Response contains key '_meta_data' which is "\
+                "incompatible with this API!!\n Response json: %r" % rdict
+            raise DeviceProvidesIncompatibleKey(error_message)
+        for x in rdict:
+            if not re.match(tokenize.Name, x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's not a valid Python 2.7 identifier." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif keyword.iskeyword(x):
+                error_message = "Device provided %r which is disallowed"\
+                    " because it's a Python keyword." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+            elif x.startswith('__'):
+                error_message = "Device provided %r which is disallowed"\
+                    ", it mangles into a Python non-public attribute." % x
+                raise DeviceProvidesIncompatibleKey(error_message)
+        return rdict
 
     @property
     def raw(self):
@@ -423,38 +463,6 @@ class ResourceBase(PathElement, ToDictMixin):
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
         return requests_params, update_uri, session, read_only
-
-    def _check_keys(self, rdict):
-        """Call this from _local_update to validate response keys
-
-        disallowed server-response json keys:
-        1. The string-literal '_meta_data'
-        2. strings that are not valid Python 2.7 identifiers
-        3. strings that are Python keywords
-        4. strings beginning with '__'.
-
-        :param rdict: from response.json()
-        :raises: DeviceProvidesIncompatibleKey
-        :returns: checked response rdict
-        """
-        if '_meta_data' in rdict:
-            error_message = "Response contains key '_meta_data' which is "\
-                "incompatible with this API!!\n Response json: %r" % rdict
-            raise DeviceProvidesIncompatibleKey(error_message)
-        for x in rdict:
-            if not re.match(tokenize.Name, x):
-                error_message = "Device provided %r which is disallowed"\
-                    " because it's not a valid Python 2.7 identifier." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-            elif keyword.iskeyword(x):
-                error_message = "Device provided %r which is disallowed"\
-                    " because it's a Python keyword." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-            elif x.startswith('__'):
-                error_message = "Device provided %r which is disallowed"\
-                    ", it mangles into a Python non-public attribute." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
-        return rdict
 
     def _local_update(self, rdict):
         """Call this with a response dictionary to update instance attrs.
@@ -807,7 +815,7 @@ class Resource(ResourceBase):
         # attrs local alias
         attribute_reg = self._meta_data.get('attribute_registry', {})
         attrs = attribute_reg.values()
-
+        attrs.append(Stats)
         (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
         path_uri = urlparse.urlunsplit((scheme, uri.netloc, path, '', ''))
         if not path_uri.endswith('/'):
@@ -1035,3 +1043,84 @@ class UnnamedResource(ResourceBase):
         newinst = self._stamp_out_core()
         newinst._refresh(**kwargs)
         return newinst
+
+
+class Stats(PathElement):
+    """This class allows attaching 'stats' object as an
+
+        attribute to a resource.
+
+        Stats are available on some objects, and require
+        the target object to be loaded or created first.
+
+        It also allows the caller to retrieve the converted json
+        response in unprocessed state.
+    """
+    def __init__(self, container):
+        super(Stats, self).__init__(container)
+        self._update_stats(self._get_stats_raw())
+
+    @property
+    def stats_raw(self):
+        """Provides JSON object converted to a python dictionary"""
+        return self._get_stats_raw()
+
+    def _key_dot_replace(self, rdict):
+        """Replace fullstops in returned keynames"""
+        temp_dict = {}
+        for key, value in rdict.items():
+            if isinstance(value, dict):
+                value = self._key_dot_replace(value)
+            temp_dict[key.replace('.', '_')] = value
+        return temp_dict
+
+    def _get_nest_stats(self, rdict):
+        """Helper method to deal with nestedStats
+
+        as json format changed in v12.x
+        """
+        for x in rdict:
+            check = urlparse.urlparse(x)
+            if check.scheme:
+                nested_dict = rdict[x]['nestedStats']
+                tmp_dict = nested_dict['entries']
+                return self._key_dot_replace(tmp_dict)
+
+        return self._key_dot_replace(rdict)
+
+    def _get_stats_raw(self):
+        """Displays JSON object transformed into python dictionary"""
+        read_session = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['container']._meta_data['uri'] + 'stats/'
+        response = read_session.get(base_uri)
+        rdict = response.json()
+        return rdict
+
+    def _update_stats(self, rdict):
+        """Attaches stat attribute to stats object"""
+        if 'entries' not in rdict:
+            error = 'Missing "entries" key in returned JSON'
+            raise InvalidStatsJsonReturned(error)
+        sanitized = self._check_keys(rdict)
+        stat_vals = self._get_nest_stats(sanitized['entries'])
+        temp_meta = self._meta_data
+        self.__dict__['stat'] = DottedDict(stat_vals)
+        self._meta_data = temp_meta
+
+
+class DottedDict(dict):
+    """Helper class
+
+    Allows accessing contents of a given dictionary
+    by using object like 'dot' notation.
+
+    @param :rdict Dictionary
+    """
+    def __init__(self, rdict):
+        super(DottedDict, self).__init__()
+        self.update(rdict)
+
+    def __getattr__(self, k):
+        if isinstance(self[k], dict) and not isinstance(self[k], DottedDict):
+            self[k] = DottedDict(self[k])
+        return self[k]
