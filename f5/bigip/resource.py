@@ -807,6 +807,7 @@ class Resource(ResourceBase):
         # attrs local alias
         attribute_reg = self._meta_data.get('attribute_registry', {})
         attrs = attribute_reg.values()
+        attrs.append(Stats)
 
         (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
         path_uri = urlparse.urlunsplit((scheme, uri.netloc, path, '', ''))
@@ -1035,3 +1036,7 @@ class UnnamedResource(ResourceBase):
         newinst = self._stamp_out_core()
         newinst._refresh(**kwargs)
         return newinst
+
+
+class Stats(UnnamedResource):
+    pass

@@ -77,6 +77,11 @@ class TestVirtual(object):
             elif k == desc:
                 virtual1.__dict__[k] == 'Cool mod test'
 
+    def test_stats(self, request, mgmt_root, setup_device_snapshot):
+        virtual1, vc1 = setup_virtual_test(
+            request, mgmt_root, 'Common', 'modtest1'
+        )
+
 
 def test_profiles_CE(
         mgmt_root, opt_release, setup_device_snapshot

@@ -34,6 +34,7 @@ from f5.bigip.resource import PathElement
 from f5.bigip.resource import RequestParamKwargCollision
 from f5.bigip.resource import Resource
 from f5.bigip.resource import ResourceBase
+from f5.bigip.resource import Stats
 from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import UnregisteredKind
 from f5.bigip.resource import URICreationCollision
@@ -207,7 +208,7 @@ def test__activate_URI():
     assert r._meta_data['creation_uri_qargs'] ==\
         {'a': ['b'], 'ver': ['11.5']}
     assert r._meta_data['creation_uri_frag'] == 'FOO'
-    assert r._meta_data['allowed_lazy_attributes'] == [u"SPAM"]
+    assert r._meta_data['allowed_lazy_attributes'] == [u"SPAM", Stats]
 
 
 def test__create_with_Collision():
