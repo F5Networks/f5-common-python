@@ -55,6 +55,16 @@ def test___get__attr(FakeBigIP):
     assert FakeBigIP.hostname == 'FakeHostName'
 
 
+def test_invalid_args():
+    with pytest.raises(TypeError) as err:
+        BigIP('FakeHostName', 'admin', 'admin', badArgs='foobar')
+    assert 'Unexpected **kwargs' in err.value.message
+
+
+def test_icontrol_version(FakeBigIPWithPort):
+    assert hasattr(FakeBigIPWithPort, 'icontrol_version')
+
+
 def test_non_default_port_number(FakeBigIPWithPort):
     uri = urlparse.urlsplit(FakeBigIPWithPort._meta_data['uri'])
     assert uri.port == 10443
