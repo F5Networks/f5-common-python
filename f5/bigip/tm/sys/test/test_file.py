@@ -17,21 +17,22 @@ import mock
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.tm.sys.file import Ifiles
+from f5.bigip.tm.sys.file import Ifile
 
 
 @pytest.fixture
-def FakeIfiles():
-    fake_sys = mock.MagicMock()
-    ifiles = Ifiles(fake_sys)
-    ifiles._meta_data['bigip'].tmos_version = '11.6.0'
-    return ifiles
+def FakeSysIfile():
+    fake_ifile_s = mock.MagicMock()
+    fake_ifile = Ifile(fake_ifile_s)
+    return fake_ifile
 
 
-class TestIfile(object):
-    def test_missing_create_args(self):
-        ifiles = FakeIfiles()
-        ifile = ifiles.ifile
-        with pytest.raises(MissingRequiredCreationParameter) as ex:
-            ifile.create(name='test_ifile')
-            assert 'sourcePath' in ex.value.message
+def test_create_no_args(FakeSysIfile):
+    with pytest.raises(MissingRequiredCreationParameter):
+        FakeSysIfile.create()
+
+
+def test_create_missing_arg(FakeSysIfile):
+    with pytest.raises(MissingRequiredCreationParameter) as ex:
+        FakeSysIfile.create(name='test_ifile')
+        assert 'sourcePath' in ex.value.message

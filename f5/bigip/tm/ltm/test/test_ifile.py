@@ -16,25 +16,23 @@
 import mock
 import pytest
 
-from f5.bigip import ManagementRoot
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.ltm.ifile import Ifile
 
 
 @pytest.fixture
-def FakeIfile():
+def FakeLtmIfile():
     fake_ifile_s = mock.MagicMock()
     fake_ifile = Ifile(fake_ifile_s)
     return fake_ifile
 
 
-class TestCreate(object):
-    def test_create_two(self, fakeicontrolsession):
-        mgmt = ManagementRoot('172.16.44.15', 'admin', 'admin')
-        r1 = mgmt.tm.ltm.ifiles.ifile
-        r2 = mgmt.tm.ltm.ifiles.ifile
-        assert r1 is not r2
+def test_create_no_args(FakeLtmIfile):
+    with pytest.raises(MissingRequiredCreationParameter):
+        FakeLtmIfile.create()
 
-    def test_create_no_args(self, FakeIfile):
-        with pytest.raises(MissingRequiredCreationParameter):
-            FakeIfile.create()
+
+def test_create_missing_arg(FakeLtmIfile):
+    with pytest.raises(MissingRequiredCreationParameter) as ex:
+        FakeLtmIfile.create(name='test_ifile')
+        assert 'fileName' in ex.value.message
