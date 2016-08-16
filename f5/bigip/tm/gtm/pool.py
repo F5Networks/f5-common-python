@@ -158,7 +158,7 @@ class Pool(Resource):
     """v11.x BIG-IP® GTM pool resource"""
     def __init__(self, pool_s):
         super(Pool, self).__init__(pool_s)
-        self._meta_data['required_json_kind'] = 'tm:ltm:pool:poolstate'
+        self._meta_data['required_json_kind'] = 'tm:gtm:pool:poolstate'
         self._meta_data['attribute_registry'] = {
             'tm:gtm:pool:memberscollectionstate': Members_s
         }
