@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+from distutils.version import LooseVersion
+import pytest
+
+
 from OpenSSL import crypto
 import os
 from requests import HTTPError
@@ -209,6 +213,12 @@ def test_CURDL_sslkeyfile(request, mgmt_root):
     assert key2.revision == key1.revision
 
 
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) < LooseVersion('12.0.0'),
+    reason='csr management is only supported in 12.0.0 or greater.'
+)
 def test_CURDL_sslcsrfile(request, mgmt_root):
     # Create temporary CSR File.
     # Use extensions so tmui doesn't break in managing them.
@@ -302,4 +312,3 @@ def test_CURDL_sslcertfile(request, mgmt_root):
     # Refresh Key
     cert1.refresh()
     assert cert2.revision == cert1.revision
-

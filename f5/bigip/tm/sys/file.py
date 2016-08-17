@@ -25,6 +25,7 @@ GUI Path
 REST Kind
     ``tm:sys:file:*``
 """
+
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
@@ -39,8 +40,7 @@ class File(OrganizingCollection):
             Ssl_Certs,
             Ssl_Csrs,
             Ssl_Crls,
-            Ssl_Keys
-        ]
+            Ssl_Keys]
 
 
 class Data_Groups(Collection):
@@ -60,8 +60,7 @@ class Data_Group(Resource):
         self._meta_data['required_json_kind'] =\
             u'tm:sys:file:data-group:data-groupstate'
         self._meta_data['required_creation_parameters'].update(
-            ('name', 'sourcePath', 'type')
-        )
+            ('name', 'sourcePath', 'type'))
 
 
 class Ifiles(Collection):
@@ -80,8 +79,7 @@ class Ifile(Resource):
         self._meta_data['required_json_kind'] =\
             u'tm:sys:file:ifile:ifilestate'
         self._meta_data['required_creation_parameters'].update(
-            ('name', 'sourcePath')
-        )
+            ('name', 'sourcePath'))
 
 
 class Ssl_Certs(Collection):
@@ -101,8 +99,7 @@ class Ssl_Cert(Resource):
         self._meta_data['required_json_kind'] =\
             u'tm:sys:file:ssl-cert:ssl-certstate'
         self._meta_data['required_creation_parameters'].update(
-            ('name', 'sourcePath')
-        )
+            ('name', 'sourcePath'))
 
 
 class Ssl_Crls(Collection):
@@ -122,8 +119,7 @@ class Ssl_Crl(Resource):
         self._meta_data['required_json_kind'] =\
             u'tm:sys:file:ssl-crl:ssl-crlstate'
         self._meta_data['required_creation_parameters'].update(
-            ('name', 'sourcePath')
-        )
+            ('name', 'sourcePath'))
 
 
 class Ssl_Csrs(Collection):
@@ -135,6 +131,7 @@ class Ssl_Csrs(Collection):
         self._meta_data['attribute_registry'] =\
             {u'tm:sys:file:ssl-csr:ssl-csrstate': Ssl_Csr}
         self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
+        self._meta_data['minimum_version'] = '12.0.0'
 
 
 class Ssl_Csr(Resource):
@@ -143,8 +140,7 @@ class Ssl_Csr(Resource):
         self._meta_data['required_json_kind'] =\
             u'tm:sys:file:ssl-csr:ssl-csrstate'
         self._meta_data['required_creation_parameters'].update(
-            ('name', 'sourcePath')
-        )
+            ('name', 'sourcePath'))
 
 
 class Ssl_Keys(Collection):
@@ -164,6 +160,4 @@ class Ssl_Key(Resource):
         self._meta_data['required_json_kind'] =\
             u'tm:sys:file:ssl-key:ssl-keystate'
         self._meta_data['required_creation_parameters'].update(
-            ('name', 'sourcePath')
-        )
-
+            ('name', 'sourcePath'))

@@ -13,98 +13,115 @@
 # limitations under the License.
 #
 
+from distutils.version import LooseVersion
 import mock
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.tm.sys.file import Ifiles
-from f5.bigip.tm.sys.file import Ssl_Certs
-from f5.bigip.tm.sys.file import Ssl_Crls
-from f5.bigip.tm.sys.file import Ssl_Csrs
-from f5.bigip.tm.sys.file import Ssl_Keys
+from f5.bigip.tm.sys.file import Ifile
+from f5.bigip.tm.sys.file import Ssl_Cert
+from f5.bigip.tm.sys.file import Ssl_Crl
+from f5.bigip.tm.sys.file import Ssl_Csr
+from f5.bigip.tm.sys.file import Ssl_Key
 
 
 @pytest.fixture
-def FakeIfiles():
-    fake_sys = mock.MagicMock()
-    ifiles = Ifiles(fake_sys)
-    ifiles._meta_data['bigip'].tmos_version = '11.6.0'
-    return ifiles
+def FakeSysIfile():
+    fake_ifile_s = mock.MagicMock()
+    fake_ifile = Ifile(fake_ifile_s)
+    return fake_ifile
 
 
-class TestIfile(object):
-    def test_missing_create_args(self):
-        ifiles = FakeIfiles()
-        ifile = ifiles.ifile
-        with pytest.raises(MissingRequiredCreationParameter) as ex:
-            ifile.create(name='test_ifile')
-            assert 'sourcePath' in ex.value.message
+def test_ifile_create_no_args(FakeSysIfile):
+    with pytest.raises(MissingRequiredCreationParameter):
+        FakeSysIfile.create()
 
 
-@pytest.fixture
-def FakeSsl_Certs():
-    fake_sys = mock.MagicMock()
-    certs = Ssl_Certs(fake_sys)
-    certs._meta_data['bigip'].tmos_version = '11.6.0'
-    return certs
-
-
-class TestSsl_Certs(object):
-    def test_missing_create_args(self):
-        certs = FakeSsl_Certs()
-        cert = certs.ssl_cert
-        with pytest.raises(MissingRequiredCreationParameter) as ex:
-            cert.create(name='test_cert')
-            assert 'sourcePath' in ex.value.message
+def test_ifile_create_missing_arg(FakeSysIfile):
+    with pytest.raises(MissingRequiredCreationParameter) as ex:
+        FakeSysIfile.create(name='test_ifile')
+        assert 'sourcePath' in ex.value.message
 
 
 @pytest.fixture
-def FakeSsl_Crls():
-    fake_sys = mock.MagicMock()
-    crls = Ssl_Crls(fake_sys)
-    crls._meta_data['bigip'].tmos_version = '11.6.0'
-    return crls
+def FakeSysCert():
+    fake_cert_s = mock.MagicMock()
+    fake_cert = Ssl_Cert(fake_cert_s)
+    return fake_cert
 
 
-class TestSsl_Crls(object):
-    def test_missing_create_args(self):
-        crls = FakeSsl_Crls()
-        crl = crls.ssl_crl
-        with pytest.raises(MissingRequiredCreationParameter) as ex:
-            crl.create(name='test_cert')
-            assert 'sourcePath' in ex.value.message
+def test_cert_create_no_args(FakeSysCert):
+    with pytest.raises(MissingRequiredCreationParameter):
+        FakeSysCert.create()
 
 
-@pytest.fixture
-def FakeSsl_Csrs():
-    fake_sys = mock.MagicMock()
-    csrs = Ssl_Csrs(fake_sys)
-    csrs._meta_data['bigip'].tmos_version = '11.6.0'
-    return csrs
-
-
-class TestSsl_Csrs(object):
-    def test_missing_create_args(self):
-        csrs = FakeSsl_Csrs()
-        csr = csrs.ssl_csr
-        with pytest.raises(MissingRequiredCreationParameter) as ex:
-            csr.create(name='test_cert')
-            assert 'sourcePath' in ex.value.message
+def test_cert_create_missing_arg(FakeSysCert):
+    with pytest.raises(MissingRequiredCreationParameter) as ex:
+        FakeSysCert.create(name='test_cert')
+        assert 'sourcePath' in ex.value.message
 
 
 @pytest.fixture
-def FakeSsl_Keys():
-    fake_sys = mock.MagicMock()
-    keys = Ssl_Keys(fake_sys)
-    keys._meta_data['bigip'].tmos_version = '11.6.0'
-    return keys
+def FakeSysCrl():
+    fake_crl_s = mock.MagicMock()
+    fake_crl = Ssl_Crl(fake_crl_s)
+    return fake_crl
 
 
-class TestSsl_Keys(object):
-    def test_missing_create_args(self):
-        keys = FakeSsl_Keys()
-        key = keys.ssl_key
-        with pytest.raises(MissingRequiredCreationParameter) as ex:
-            key.create(name='test_key')
-            assert 'sourcePath' in ex.value.message
+def test_crl_create_no_args(FakeSysCrl):
+    with pytest.raises(MissingRequiredCreationParameter):
+        FakeSysCrl.create()
 
+
+def test_crl_create_missing_arg(FakeSysCrl):
+    with pytest.raises(MissingRequiredCreationParameter) as ex:
+        FakeSysCrl.create(name='test_crl')
+        assert 'sourcePath' in ex.value.message
+
+
+@pytest.fixture
+def FakeSysCsr():
+    fake_csr_s = mock.MagicMock()
+    fake_csr = Ssl_Csr(fake_csr_s)
+    return fake_csr
+
+
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) < LooseVersion('12.0.0'),
+    reason='csr management is only supported in 12.0.0 or greater.'
+)
+def test_csr_create_no_args(FakeSysCsr):
+    with pytest.raises(MissingRequiredCreationParameter):
+        FakeSysCsr.create()
+
+
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) < LooseVersion('12.0.0'),
+    reason='csr management is only supported in 12.0.0 or greater.'
+)
+def test_csr_create_missing_arg(FakeSysCsr):
+    with pytest.raises(MissingRequiredCreationParameter) as ex:
+        FakeSysCsr.create(name='test_csr')
+        assert 'sourcePath' in ex.value.message
+
+
+@pytest.fixture
+def FakeSysKey():
+    fake_key_s = mock.MagicMock()
+    fake_key = Ssl_Key(fake_key_s)
+    return fake_key
+
+
+def test_key_create_no_args(FakeSysKey):
+    with pytest.raises(MissingRequiredCreationParameter):
+        FakeSysKey.create()
+
+
+def test_key_create_missing_arg(FakeSysKey):
+    with pytest.raises(MissingRequiredCreationParameter) as ex:
+        FakeSysKey.create(name='test_key')
+        assert 'sourcePath' in ex.value.message
