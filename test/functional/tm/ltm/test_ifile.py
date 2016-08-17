@@ -45,12 +45,12 @@ def setup_create_test(request, mgmt_root, name, partition, IFILE):
     request.addfinalizer(teardown)
 
 
-def setup_basic_test(request, mgmt_root, name, partition, IFILE):
+def setup_basic_test(request, mgmt_root, name, partition, IFILE, **kwargs):
     def teardown():
         delete_ifile(mgmt_root, name, partition, IFILE)
 
     ifile1 = mgmt_root.tm.ltm.ifiles.ifile.create(
-        name='ifile1', partition='Common', fileName=IFILE.name)
+        name='ifile1', partition='Common', fileName=IFILE.name, **kwargs)
 
     request.addfinalizer(teardown)
     return ifile1
@@ -93,21 +93,22 @@ class TestiFile(object):
 
     def test_modify(self, request, mgmt_root, IFILE):
         ifile1 = setup_basic_test(
-            request, mgmt_root, 'ifile1', 'Common', IFILE)
-        assert ifile1.description == ''
+            request, mgmt_root, 'ifile1', 'Common', IFILE,
+            description='fist_fake')
+        assert ifile1.description == 'first_fake'
         original_dict = copy.copy(ifile1.__dict__)
-        desc = ''
+        desc = 'description'
         ifile1.modify(description='CustomFake')
         for k, v in original_dict.items():
             if k != desc:
                 original_dict[k] = ifile1.__dict__[k]
             elif k == desc:
-                ifile1.__dict__[k] == 'CustomFake'
+                assert ifile1.__dict__[k] == 'CustomFake'
 
     def test_update(self, request, mgmt_root, IFILE):
         ifile1 = setup_basic_test(request, mgmt_root, 'ifile1', 'Common',
-                                  IFILE)
-        assert ifile1.description == ''
+                                  IFILE, description='fist_fake')
+        assert ifile1.description == 'first_fake'
         ifile1.description = 'CustomFake'
         ifile1.update()
         assert ifile1.description == 'CustomFake'
