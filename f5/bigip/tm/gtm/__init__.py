@@ -32,6 +32,8 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.gtm.datacenter import Datacenters
 from f5.bigip.tm.gtm.pool import Pools
 from f5.bigip.tm.gtm.rule import Rules
+from f5.bigip.tm.gtm.server import Servers
+from f5.bigip.tm.gtm.wideip import Wideips
 
 
 class Gtm(OrganizingCollection):
@@ -41,5 +43,7 @@ class Gtm(OrganizingCollection):
         self._meta_data['allowed_lazy_attributes'] = [
             Datacenters,
             Pools,
-            Rules
+            Rules,
+            Servers,
+            Wideips,
         ]

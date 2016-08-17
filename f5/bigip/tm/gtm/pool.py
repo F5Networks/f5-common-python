@@ -61,6 +61,9 @@ class Members_s(Collection):
         'pool' object and update relevant meta_data,
         as we are using members sub-collection in both
         v11 and v12 classes for GTM pools.
+
+        It will also add pool type meta_data to utilize in
+        Member resource.
     """
 
     def __init__(self, pool):
