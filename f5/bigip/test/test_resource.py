@@ -797,6 +797,8 @@ class TestStats(object):
                      })
                   ]}
         mock_session = mock.MagicMock(**attrs)
+        ver_mock = mock.PropertyMock(return_value='11.5.0')
+        type(r._meta_data['bigip']).tmos_version = ver_mock
         r._meta_data['bigip']._meta_data =\
             {'icr_session': mock_session,
              'hostname': 'TESTDOMAINNAME',

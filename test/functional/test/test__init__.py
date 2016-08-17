@@ -27,3 +27,10 @@ def test_invalid_args(opt_bigip, opt_username, opt_password, opt_port):
 def test_icontrol_version(opt_bigip, opt_username, opt_password, opt_port):
     m = ManagementRoot(opt_bigip, opt_username, opt_password, port=opt_port)
     assert hasattr(m, 'icontrol_version')
+
+
+def test_tmos_version(mgmt_root):
+    assert mgmt_root.tmos_version == \
+        mgmt_root._meta_data['bigip']._meta_data['tmos_version']
+    assert mgmt_root.tmos_version is not None
+    assert mgmt_root._meta_data['bigip']._meta_data['tmos_version'] != ''

@@ -25,7 +25,7 @@ from f5.bigip.tm.sys.performance import Performances
 def FakePerformance():
     fake_sys = mock.MagicMock()
     performances = Performances(fake_sys)
-    performances._meta_data['bigip']._meta_data = {'tmos_version': '11.6.0'}
+    performances._meta_data['bigip'].tmos_version = '11.6.0'
     return performances
 
 
