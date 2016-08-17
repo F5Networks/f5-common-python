@@ -159,22 +159,22 @@ class TestResourcecreate(object):
                 ('vlansEnabled', 'vlansDisabled')
             ]
         fake_vs.create(partition="Common", name="test_create", enabled=False)
-        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].post.\
-            call_args
+        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].\
+            post.call_args
         assert kwargs['json']['disabled'] is True
         assert 'enabled' not in kwargs['json']
 
     def test_reduce_boolean_removes_disabled(self, fake_vs):
         fake_vs.create(partition='Common', name='test_create', disabled=False)
-        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].post.\
-            call_args
+        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].\
+            post.call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
 
     def test_reduce_boolean_removes_nothing(self, fake_vs):
         fake_vs.create(partition='Common', name='test_create', enabled=True)
-        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].post.\
-            call_args
+        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].\
+            post.call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
 

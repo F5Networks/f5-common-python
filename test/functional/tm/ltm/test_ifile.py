@@ -94,7 +94,7 @@ class TestiFile(object):
     def test_modify(self, request, mgmt_root, IFILE):
         ifile1 = setup_basic_test(
             request, mgmt_root, 'ifile1', 'Common', IFILE,
-            description='fist_fake')
+            description='first_fake')
         assert ifile1.description == 'first_fake'
         original_dict = copy.copy(ifile1.__dict__)
         desc = 'description'
@@ -107,7 +107,7 @@ class TestiFile(object):
 
     def test_update(self, request, mgmt_root, IFILE):
         ifile1 = setup_basic_test(request, mgmt_root, 'ifile1', 'Common',
-                                  IFILE, description='fist_fake')
+                                  IFILE, description='first_fake')
         assert ifile1.description == 'first_fake'
         ifile1.description = 'CustomFake'
         ifile1.update()

@@ -25,10 +25,10 @@ GUI Path
 REST Kind
     ``tm:sys:file:*``
 """
-
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import UnsupportedMethod
 
 
 class File(OrganizingCollection):
@@ -76,6 +76,15 @@ class Ifile(Resource):
         self._meta_data['required_creation_parameters'].update(
             ('name', 'sourcePath'))
 
+    def modify(self, **kwargs):
+        '''Modify is not supported for iFiles
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
 
 class Ssl_Certs(Collection):
     def __init__(self, File):
@@ -93,6 +102,15 @@ class Ssl_Cert(Resource):
         self._meta_data['required_creation_parameters'].update(
             ('name', 'sourcePath'))
 
+    def modify(self, **kwargs):
+        '''Modify is not supported for iFiles
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
 
 class Ssl_Crls(Collection):
     def __init__(self, File):
@@ -109,6 +127,15 @@ class Ssl_Crl(Resource):
             u'tm:sys:file:ssl-crl:ssl-crlstate'
         self._meta_data['required_creation_parameters'].update(
             ('name', 'sourcePath'))
+
+    def modify(self, **kwargs):
+        '''Modify is not supported for iFiles
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__
+        )
 
 
 class Ssl_Csrs(Collection):
@@ -128,6 +155,15 @@ class Ssl_Csr(Resource):
         self._meta_data['required_creation_parameters'].update(
             ('name', 'sourcePath'))
 
+    def modify(self, **kwargs):
+        '''Modify is not supported for iFiles
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
 
 class Ssl_Keys(Collection):
     def __init__(self, File):
@@ -144,3 +180,12 @@ class Ssl_Key(Resource):
             u'tm:sys:file:ssl-key:ssl-keystate'
         self._meta_data['required_creation_parameters'].update(
             ('name', 'sourcePath'))
+
+    def modify(self, **kwargs):
+        '''Modify is not supported for iFiles
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__
+        )

@@ -15,11 +15,12 @@
 
 
 import copy
+import pytest
 from distutils.version import LooseVersion
 from f5.bigip.mixins import UnsupportedTmosVersion
 from pprint import pprint as pp
 pp(__file__)
-import pytest
+
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
 

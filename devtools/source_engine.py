@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import ast
+import io
+import os
+from urlparse import urlparse
 
 '''Source engine container, combines code on filesystem with other sources.'''
 
@@ -30,10 +34,6 @@ LICENSE_AND_MODULE_DOCSTRING = """# Copyright 2016 F5 Networks Inc.
 # limitations under the License.
 #
 """
-import ast
-import io
-import os
-from urlparse import urlparse
 
 
 class UnexpectedNodeInFromImports(Exception):

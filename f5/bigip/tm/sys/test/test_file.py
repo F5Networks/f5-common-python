@@ -13,11 +13,11 @@
 # limitations under the License.
 #
 
-from distutils.version import LooseVersion
 import mock
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.sdk_exception import UnsupportedMethod
 from f5.bigip.tm.sys.file import Ifile
 from f5.bigip.tm.sys.file import Ssl_Cert
 from f5.bigip.tm.sys.file import Ssl_Crl
@@ -43,6 +43,11 @@ def test_ifile_create_missing_arg(FakeSysIfile):
         assert 'sourcePath' in ex.value.message
 
 
+def test_ifile_modify(FakeSysIfile):
+    with pytest.raises(UnsupportedMethod):
+        FakeSysIfile.modify(value='Fake')
+
+
 @pytest.fixture
 def FakeSysCert():
     fake_cert_s = mock.MagicMock()
@@ -59,6 +64,11 @@ def test_cert_create_missing_arg(FakeSysCert):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysCert.create(name='test_cert')
         assert 'sourcePath' in ex.value.message
+
+
+def test_cert_modify(FakeSysCert):
+    with pytest.raises(UnsupportedMethod):
+        FakeSysCert.modify(value='Fake')
 
 
 @pytest.fixture
@@ -79,6 +89,11 @@ def test_crl_create_missing_arg(FakeSysCrl):
         assert 'sourcePath' in ex.value.message
 
 
+def test_crl_modify(FakeSysCrl):
+    with pytest.raises(UnsupportedMethod):
+        FakeSysCrl.modify(value='Fake')
+
+
 @pytest.fixture
 def FakeSysCsr():
     fake_csr_s = mock.MagicMock()
@@ -86,23 +101,16 @@ def FakeSysCsr():
     return fake_csr
 
 
-@pytest.mark.skipif(
-    LooseVersion(
-        pytest.config.getoption('--release')
-    ) < LooseVersion('12.0.0'),
-    reason='csr management is only supported in 12.0.0 or greater.'
-)
 def test_csr_create_no_args(FakeSysCsr):
     with pytest.raises(MissingRequiredCreationParameter):
         FakeSysCsr.create()
 
 
-@pytest.mark.skipif(
-    LooseVersion(
-        pytest.config.getoption('--release')
-    ) < LooseVersion('12.0.0'),
-    reason='csr management is only supported in 12.0.0 or greater.'
-)
+def test_csr_modify(FakeSysCsr):
+    with pytest.raises(UnsupportedMethod):
+        FakeSysCsr.modify(value='Fake')
+
+
 def test_csr_create_missing_arg(FakeSysCsr):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysCsr.create(name='test_csr')
@@ -125,3 +133,8 @@ def test_key_create_missing_arg(FakeSysKey):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysKey.create(name='test_key')
         assert 'sourcePath' in ex.value.message
+
+
+def test_key_modify(FakeSysKey):
+    with pytest.raises(UnsupportedMethod):
+        FakeSysKey.modify(value='Fake')
