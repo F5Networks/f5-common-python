@@ -114,7 +114,7 @@ class LazyAttributeMixin(object):
                 return attribute
 
     def _check_supported_versions(self, container, attribute):
-        tmos_v = container._meta_data['bigip']._meta_data['tmos_version']
+        tmos_v = container._meta_data['bigip'].tmos_version
         minimum = attribute._meta_data['minimum_version']
         if LooseVersion(tmos_v) < LooseVersion(minimum):
             error = "There was an attempt to access resource: \n{}\n which " \

@@ -9,3 +9,4 @@ pytest==2.9.1
 pytest-cov>=2.2.1
 git+https://github.com/F5Networks/pytest-symbols.git
 python-coveralls
+pyopenssl
