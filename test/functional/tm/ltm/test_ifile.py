@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+import copy
 from f5.bigip.resource import MissingRequiredCreationParameter
 import pytest
 from requests.exceptions import HTTPError
@@ -55,37 +56,58 @@ def setup_basic_test(request, mgmt_root, name, partition, IFILE):
     return ifile1
 
 
-def test_create_no_args(mgmt_root):
-    with pytest.raises(MissingRequiredCreationParameter):
-        mgmt_root.tm.ltm.ifiles.ifile.create()
+class TestiFile(object):
+    def test_create_no_args(self, mgmt_root):
+        with pytest.raises(MissingRequiredCreationParameter):
+            mgmt_root.tm.ltm.ifiles.ifile.create()
 
+    def test_create_no_filename(self, mgmt_root):
+        with pytest.raises(MissingRequiredCreationParameter):
+            mgmt_root.tm.ltm.ifiles.ifile.create(
+                name='ifile1', partition='Common')
 
-def test_create_no_filename(mgmt_root):
-    with pytest.raises(MissingRequiredCreationParameter):
-        mgmt_root.tm.ltm.ifiles.ifile.create(name='ifile1', partition='Common')
+    def test_create(self, request, mgmt_root, IFILE):
+        setup_create_test(request, mgmt_root, 'ifile1', 'Common', IFILE)
+        ifile1 = mgmt_root.tm.ltm.ifiles.ifile.create(
+            name='ifile1', partition='Common', fileName=IFILE.name)
 
+        assert ifile1.name == 'ifile1'
+        assert ifile1.partition == 'Common'
 
-def test_create(request, mgmt_root, IFILE):
-    setup_create_test(request, mgmt_root, 'ifile1', 'Common', IFILE)
-    ifile1 = mgmt_root.tm.ltm.ifiles.ifile.create(
-        name='ifile1', partition='Common', fileName=IFILE.name)
+    def test_delete(self, request, mgmt_root, IFILE):
+        ifile1 = setup_basic_test(
+            request, mgmt_root, 'ifile1', 'Common', IFILE)
+        ifile1.delete()
+        with pytest.raises(HTTPError) as err:
+            mgmt_root.tm.ltm.ifiles.ifile.load(
+                name='ifile1', partition='Common')
+            assert err.response.status_code == 404
 
-    assert ifile1.name == 'ifile1'
-    assert ifile1.partition == 'Common'
+        # not testing this function here; but need to clean it up
+        try:
+            IFILE.delete()
+        except HTTPError as err:
+            if err.response.status_code != 404:
+                raise
+            return
 
+    def test_modify(self, request, mgmt_root, IFILE):
+        ifile1 = setup_basic_test(
+            request, mgmt_root, 'ifile1', 'Common', IFILE)
+        assert ifile1.description == ''
+        original_dict = copy.copy(ifile1.__dict__)
+        desc = ''
+        ifile1.modify(description='CustomFake')
+        for k, v in original_dict.items():
+            if k != desc:
+                original_dict[k] = ifile1.__dict__[k]
+            elif k == desc:
+                ifile1.__dict__[k] == 'CustomFake'
 
-def test_delete(request, mgmt_root, IFILE):
-    ifile1 = setup_basic_test(request, mgmt_root, 'ifile1', 'Common', IFILE)
-    ifile1.delete()
-    with pytest.raises(HTTPError) as err:
-        mgmt_root.tm.ltm.ifiles.ifile.load(
-            name='ifile1', partition='Common')
-        assert err.response.status_code == 404
-
-    # not testing this function here; but need to clean it up
-    try:
-        IFILE.delete()
-    except HTTPError as err:
-        if err.response.status_code != 404:
-            raise
-        return
+    def test_update(self, request, mgmt_root, IFILE):
+        ifile1 = setup_basic_test(request, mgmt_root, 'ifile1', 'Common',
+                                  IFILE)
+        assert ifile1.description == ''
+        ifile1.description = 'CustomFake'
+        ifile1.update()
+        assert ifile1.description == 'CustomFake'
