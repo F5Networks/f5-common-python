@@ -47,11 +47,8 @@ class Data_Groups(Collection):
     def __init__(self, File):
         super(Data_Groups, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Data_Group]
-        self._meta_data['required_json_kind'] = \
-            u'tm:sys:file:data-group:data-groupcollectionstate'
         self._meta_data['attribute_registry'] =\
             {u'tm:sys:file:data-group:data-groupstate': Data_Group}
-        self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
 
 
 class Data_Group(Resource):
@@ -67,8 +64,6 @@ class Ifiles(Collection):
     def __init__(self, File):
         super(Ifiles, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Ifile]
-        self._meta_data['required_json_kind'] = \
-            u'tm:sys:file:ifile:ifilecollectionstate'
         self._meta_data['attribute_registry'] = \
             {u'tm:sys:file:ifile:ifilestate': Ifile}
 
@@ -86,11 +81,8 @@ class Ssl_Certs(Collection):
     def __init__(self, File):
         super(Ssl_Certs, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Ssl_Cert]
-        self._meta_data['required_json_kind'] = \
-            u'tm:sys:file:ssl-cert:ssl-certcollectionstate'
         self._meta_data['attribute_registry'] =\
             {u'tm:sys:file:ssl-cert:ssl-certstate': Ssl_Cert}
-        self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
 
 
 class Ssl_Cert(Resource):
@@ -106,11 +98,8 @@ class Ssl_Crls(Collection):
     def __init__(self, File):
         super(Ssl_Crls, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Ssl_Crl]
-        self._meta_data['required_json_kind'] = \
-            u'tm:sys:file:ssl-crl:ssl-crlcollectionstate'
         self._meta_data['attribute_registry'] =\
             {u'tm:sys:file:ssl-crl:ssl-crlstate': Ssl_Crl}
-        self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
 
 
 class Ssl_Crl(Resource):
@@ -126,11 +115,8 @@ class Ssl_Csrs(Collection):
     def __init__(self, File):
         super(Ssl_Csrs, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Ssl_Csr]
-        self._meta_data['required_json_kind'] = \
-            u'tm:sys:file:ssl-csr:ssl-csrcollectionstate'
         self._meta_data['attribute_registry'] =\
             {u'tm:sys:file:ssl-csr:ssl-csrstate': Ssl_Csr}
-        self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
         self._meta_data['minimum_version'] = '12.0.0'
 
 
@@ -147,11 +133,8 @@ class Ssl_Keys(Collection):
     def __init__(self, File):
         super(Ssl_Keys, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Ssl_Key]
-        self._meta_data['required_json_kind'] = \
-            u'tm:sys:file:ssl-key:ssl-keycollectionstate'
         self._meta_data['attribute_registry'] =\
             {u'tm:sys:file:ssl-key:ssl-keystate': Ssl_Key}
-        self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
 
 
 class Ssl_Key(Resource):
