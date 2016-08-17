@@ -24,6 +24,7 @@ from f5.bigip.tm.sys.file import Ssl_Csr
 from f5.bigip.tm.sys.file import Ssl_Key
 from f5.sdk_exception import UnsupportedMethod
 
+
 @pytest.fixture
 def FakeSysIfile():
     fake_ifile_s = mock.MagicMock()
