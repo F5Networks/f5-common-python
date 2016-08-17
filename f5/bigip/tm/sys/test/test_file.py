@@ -17,13 +17,12 @@ import mock
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.sdk_exception import UnsupportedMethod
 from f5.bigip.tm.sys.file import Ifile
 from f5.bigip.tm.sys.file import Ssl_Cert
 from f5.bigip.tm.sys.file import Ssl_Crl
 from f5.bigip.tm.sys.file import Ssl_Csr
 from f5.bigip.tm.sys.file import Ssl_Key
-
+from f5.sdk_exception import UnsupportedMethod
 
 @pytest.fixture
 def FakeSysIfile():

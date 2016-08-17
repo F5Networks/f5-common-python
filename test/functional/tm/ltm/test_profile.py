@@ -13,12 +13,12 @@
 # limitations under the License.
 #
 
-
 import copy
-import pytest
 from distutils.version import LooseVersion
 from f5.bigip.mixins import UnsupportedTmosVersion
 from pprint import pprint as pp
+import pytest
+
 pp(__file__)
 
 
