@@ -24,7 +24,7 @@ from f5.bigip.tm.sys.folder import Folders
 def FakeFolders():
     fake_sys = mock.MagicMock()
     folders = Folders(fake_sys)
-    folders._meta_data['bigip']._meta_data = {'tmos_version': '11.6.0'}
+    folders._meta_data['bigip'].tmos_version = '11.6.0'
     return folders
 
 

@@ -71,6 +71,10 @@ class ManagementRoot(PathElement):
     def icontrol_version(self):
         return self._meta_data['icontrol_version']
 
+    @property
+    def tmos_version(self):
+        return self._meta_data['tmos_version']
+
     def _get_tmos_version(self):
         connect = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['uri'] + 'tm/sys/'

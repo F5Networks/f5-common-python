@@ -23,7 +23,7 @@ import pytest
 def fake_dbs():
     fake_sys = mock.MagicMock()
     dbs = Dbs(fake_sys)
-    dbs._meta_data['bigip']._meta_data = {'tmos_version': '11.6.0'}
+    dbs._meta_data['bigip'].tmos_version = '11.6.0'
     return dbs
 
 
