@@ -73,7 +73,7 @@ class TestCreate(object):
             contact="admin@root.local",
             description="A datacenter is fine too",
             location="Between the earth and the moon")
-        assert False == dc1.enabled
+        assert False is dc1.enabled
         assert "admin@root.local" == dc1.contact
         assert "A datacenter is fine too" == dc1.description
         assert "Between the earth and the moon" == dc1.location
@@ -93,15 +93,15 @@ class TestRefresh(object):
             name='dc1', partition='Common')
         d2 = mgmt_root.tm.gtm.datacenters.datacenter.load(
             name='dc1', partition='Common')
-        assert True == d1.enabled
-        assert True == d2.enabled
+        assert True is d1.enabled
+        assert True is d2.enabled
 
         d2.update(enabled=False)
-        assert False == d2.enabled
-        assert True == d1.enabled
+        assert False is d2.enabled
+        assert True is d1.enabled
 
         d1.refresh()
-        assert False == d1.enabled
+        assert False is d1.enabled
 
 
 class TestLoad(object):
@@ -115,27 +115,27 @@ class TestLoad(object):
         setup_basic_test(request, mgmt_root, 'dc1', 'Common')
         dc1 = mgmt_root.tm.gtm.datacenters.datacenter.load(
             name='dc1', partition='Common')
-        assert True == dc1.enabled
+        assert True is dc1.enabled
         dc1.update(enabled=False)
         dc2 = mgmt_root.tm.gtm.datacenters.datacenter.load(
             name='dc1', partition='Common')
-        assert False == dc1.enabled
-        assert False == dc2.enabled
+        assert False is dc1.enabled
+        assert False is dc2.enabled
 
 
 class TestUpdate(object):
     def test_update(self, request, mgmt_root):
         dc1 = setup_basic_test(request, mgmt_root, 'dc1', 'Common')
-        assert True == dc1.enabled
-        assert False == dc1.disabled
+        assert True is dc1.enabled
+        assert False is dc1.disabled
         dc1.update(enabled=False)
-        assert False == dc1.enabled
-        assert True == dc1.disabled
+        assert False is dc1.enabled
+        assert True is dc1.disabled
 
     def test_update_samevalue(self, request, mgmt_root):
         dc1 = setup_basic_test(request, mgmt_root, 'dc1', 'Common')
         dc1.update(enabled=True)
-        assert False != dc1.enabled
+        assert False is not dc1.enabled
 
 
 class TestDelete(object):

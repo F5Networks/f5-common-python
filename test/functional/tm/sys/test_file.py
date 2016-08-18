@@ -69,9 +69,10 @@ def create_sslfiles():
     return key, csr, cert
 
 
-def setup_ifile_test(request, mgmt_root, name, sourcepath):
+def setup_ifile_test(request, mgmt_root, name, sourcepath, **kwargs):
     if1 = mgmt_root.tm.sys.file.ifiles.ifile.create(name=name,
-                                                    sourcePath=sourcepath)
+                                                    sourcePath=sourcepath,
+                                                    **kwargs)
 
     def teardown():
         # Remove the ifile.
@@ -87,7 +88,7 @@ def setup_ifile_test(request, mgmt_root, name, sourcepath):
 
 def test_CURDL_ifile(request, mgmt_root):
     # Create
-    ntf = NamedTemporaryFile()
+    ntf = NamedTemporaryFile(delete=False)
     ntf_basename = os.path.basename(ntf.name)
     ntf.write('this is a test file')
     ntf.seek(0)
@@ -95,7 +96,8 @@ def test_CURDL_ifile(request, mgmt_root):
     mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
 
     tpath_name = 'file:/var/config/rest/downloads/{0}'.format(ntf_basename)
-    if1 = setup_ifile_test(request, mgmt_root, ntf_basename, tpath_name)
+    if1 = setup_ifile_test(request, mgmt_root, ntf_basename, tpath_name,
+                           )
     assert if1.name == ntf_basename
 
     # Load Object
@@ -169,7 +171,7 @@ def setup_sslcrt_test(request, mgmt_root, name, sourcepath):
 def test_CURDL_sslkeyfile(request, mgmt_root):
     # Create temporary Key File.
     # Use extensions so tmui doesn't break in managing them.
-    ntf_key = NamedTemporaryFile(suffix='.key')
+    ntf_key = NamedTemporaryFile(suffix='.key', delete=False)
     ntf_key_basename = os.path.basename(ntf_key.name)
     ntf_key_sourcepath = 'file:/var/config/rest/downloads/{0}'.format(
         ntf_key_basename)
@@ -222,7 +224,7 @@ def test_CURDL_sslkeyfile(request, mgmt_root):
 def test_CURDL_sslcsrfile(request, mgmt_root):
     # Create temporary CSR File.
     # Use extensions so tmui doesn't break in managing them.
-    ntf_csr = NamedTemporaryFile(suffix='.csr')
+    ntf_csr = NamedTemporaryFile(suffix='.csr', delete=False)
     ntf_csr_basename = os.path.basename(ntf_csr.name)
     ntf_csr_sourcepath = 'file:/var/config/rest/downloads/{0}'.format(
         ntf_csr_basename)
@@ -266,10 +268,10 @@ def test_CURDL_sslcsrfile(request, mgmt_root):
     assert csr2.revision == csr1.revision
 
 
-def test_CURDL_sslcertfile(request, mgmt_root):
+def test_CURDLM_sslcertfile(request, mgmt_root):
     # Create temporary CSR File.
     # Use extensions so tmui doesn't break in managing them.
-    ntf_cert = NamedTemporaryFile(suffix='.crt')
+    ntf_cert = NamedTemporaryFile(suffix='.crt', delete=False)
     ntf_cert_basename = os.path.basename(ntf_cert.name)
     ntf_cert_sourcepath = 'file:/var/config/rest/downloads/{0}'.format(
         ntf_cert_basename)

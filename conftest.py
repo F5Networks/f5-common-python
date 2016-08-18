@@ -224,7 +224,7 @@ def setup_device_snapshot(request, mgmt_root):
 
 @pytest.fixture
 def IFILE(mgmt_root):
-    ntf = NamedTemporaryFile()
+    ntf = NamedTemporaryFile(delete=False)
     ntf_basename = os.path.basename(ntf.name)
     ntf.write('this is a test file')
     ntf.seek(0)

@@ -13,13 +13,14 @@
 # limitations under the License.
 #
 
-
 import copy
 from distutils.version import LooseVersion
 from f5.bigip.mixins import UnsupportedTmosVersion
 from pprint import pprint as pp
-pp(__file__)
 import pytest
+
+pp(__file__)
+
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
