@@ -16,12 +16,6 @@ Module contents
         datacenter
         rule
 
-Subpackages
------------
-
-.. automodule:: bigip.tm.gtm.test
-    :members:
-
 Submodules
 ----------
 

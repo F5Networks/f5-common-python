@@ -16,12 +16,6 @@ Module Contents
         password_policy
         user
 
-Subpackages
------------
-
-.. automodule:: bigip.tm.auth.test
-    :members:
-
 Submodules
 ----------
 

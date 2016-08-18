@@ -29,11 +29,6 @@ Module contents
         virtual
         virtual_address
 
-Subpackages
------------
-
-.. automodule:: bigip.tm.ltm.test
-    :members:
 
 Submodules
 ----------

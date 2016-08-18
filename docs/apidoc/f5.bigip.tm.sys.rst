@@ -34,8 +34,6 @@ Subpackages
 .. automodule:: f5.bigip.tm.sys.software
     :members:
 
-.. automodule:: f5.bigip.tm.sys.test
-    :members:
 
 Submodules
 ----------

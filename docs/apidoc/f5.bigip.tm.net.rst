@@ -24,12 +24,6 @@ Module contents
         vlan
 
 
-Subpackages
------------
-
-.. automodule:: bigip.tm.net.test
-    :members:
-
 Submodules
 ----------
 
