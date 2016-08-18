@@ -8,3 +8,4 @@ omit =
     devtools/*
     # omit the conftest?
     conftest.py
+    setup.py
