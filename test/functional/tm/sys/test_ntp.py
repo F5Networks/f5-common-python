@@ -13,6 +13,8 @@
 #   limitations under the License.
 #
 
+from requests.exceptions import HTTPError
+
 
 def setup_ntp_test(request, mgmt_root):
     def teardown():
@@ -21,6 +23,25 @@ def setup_ntp_test(request, mgmt_root):
     request.addfinalizer(teardown)
     n = mgmt_root.tm.sys.ntp.load()
     return n
+
+
+def delete_resource(mgmt_root, name, partition):
+    try:
+        s = mgmt_root.tm.sys.ntp.restricts.restrict.load(
+            name=name, partition=partition
+        )
+    except HTTPError as err:
+        if err.response.status_code != 404:
+            raise
+        return
+    s.delete()
+
+
+def setup_restrict_test(request, mgmt_root, name, partition, **kwargs):
+    def teardown():
+        delete_resource(mgmt_root, name, partition)
+    request.addfinalizer(teardown)
+    return mgmt_root.tm.sys.ntp.restricts
 
 
 class TestGlobal_Setting(object):
@@ -40,3 +61,77 @@ class TestGlobal_Setting(object):
         # Refresh
         ntp2.refresh()
         assert ip in ntp2.servers
+
+
+class TestNtpRestrictions(object):
+    def test_create_base(self, request, mgmt_root):
+        ntp = setup_restrict_test(request, mgmt_root,
+                                  name="r1", partition="Common")
+
+        ntp1 = ntp.restrict.create(name='r1', partition='Common')
+
+        assert ntp1.name == 'r1'
+        assert ntp1.partition == 'Common'
+        assert ntp1.defaultEntry == "disabled"
+        assert ntp1.ignore == "disabled"
+        assert ntp1.kod == "disabled"
+        assert ntp1.limited == "disabled"
+        assert ntp1.lowPriorityTrap == "disabled"
+        assert ntp1.noModify == "disabled"
+        assert ntp1.noPeer == "disabled"
+        assert ntp1.noQuery == "disabled"
+        assert ntp1.noServePackets == "disabled"
+        assert ntp1.noTrap == "disabled"
+        assert ntp1.noTrust == "disabled"
+        assert ntp1.nonNtpPort == "disabled"
+        assert ntp1.ntpPort == "disabled"
+        assert ntp1.version == "disabled"
+        assert ntp1.kind == 'tm:sys:ntp:restrict:restrictstate'
+        assert ntp1.selfLink.startswith(
+            'https://localhost/mgmt/tm/sys/ntp/restrict/~Common~r1')
+
+    def test_create_full(self, request, mgmt_root):
+        ntp = setup_restrict_test(request, mgmt_root,
+                                  name="r2", partition="Common")
+
+        params = dict(
+            address="192.168.1.0",
+            defaultEntry="enabled",
+            ignore="enabled",
+            kod="enabled",
+            limited="enabled",
+            lowPriorityTrap="enabled",
+            mask="255.255.255.0",
+            noModify="enabled",
+            noPeer="enabled",
+            noQuery="enabled",
+            noServePackets="enabled",
+            noTrap="disabled",
+            noTrust="enabled",
+            nonNtpPort="enabled",
+            ntpPort="enabled",
+            version="enabled"
+        )
+        ntp1 = ntp.restrict.create(name='r2', partition='Common', **params)
+
+        assert ntp1.name == 'r2'
+        assert ntp1.partition == 'Common'
+        assert ntp1.address == "192.168.1.0"
+        assert ntp1.defaultEntry == "enabled"
+        assert ntp1.ignore == "enabled"
+        assert ntp1.kod == "enabled"
+        assert ntp1.limited == "enabled"
+        assert ntp1.lowPriorityTrap == "enabled"
+        assert ntp1.mask == "255.255.255.0"
+        assert ntp1.noModify == "enabled"
+        assert ntp1.noPeer == "enabled"
+        assert ntp1.noQuery == "enabled"
+        assert ntp1.noServePackets == "enabled"
+        assert ntp1.noTrap == "disabled"
+        assert ntp1.noTrust == "enabled"
+        assert ntp1.nonNtpPort == "enabled"
+        assert ntp1.ntpPort == "enabled"
+        assert ntp1.version == "enabled"
+        assert ntp1.kind == 'tm:sys:ntp:restrict:restrictstate'
+        assert ntp1.selfLink.startswith(
+            'https://localhost/mgmt/tm/sys/ntp/restrict/~Common~r2')
