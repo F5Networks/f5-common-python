@@ -14,6 +14,7 @@
 #
 
 '''Source engine container, combines code on filesystem with other sources.'''
+from __future__ import print_function
 
 LICENSE_AND_MODULE_DOCSTRING = """# Copyright 2016 F5 Networks Inc.
 #

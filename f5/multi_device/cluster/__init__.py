@@ -70,6 +70,7 @@ There are two major use-cases here:
                 )
         assert cluster_mgr.cluster.devices == list_of_bigips
 '''
+from __future__ import print_function
 
 from f5.multi_device.device_group import DeviceGroup
 from f5.multi_device.trust_domain import TrustDomain

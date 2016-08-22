@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +16,10 @@
 
 import mock
 import pytest
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from f5.bigip import ManagementRoot
 from f5.bigip.shared.file_transfer import\

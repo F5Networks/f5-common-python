@@ -43,6 +43,7 @@ Methods:
                   itself.
 
 '''
+from __future__ import print_function
 
 from f5.multi_device.exceptions import DeviceAlreadyInTrustDomain
 from f5.multi_device.exceptions import DeviceNotTrusted

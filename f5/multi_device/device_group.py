@@ -58,6 +58,7 @@ Methods:
     * manage_extant -- manage an existing device group
 
 '''
+from __future__ import print_function
 
 from f5.multi_device.exceptions import DeviceGroupNotSupported
 from f5.multi_device.exceptions import MissingRequiredDeviceGroupParameter

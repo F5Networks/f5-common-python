@@ -14,7 +14,10 @@
 
 import mock
 import pytest
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    from urllib import parse as urlparse
 
 from f5.bigip import BigIP
 
