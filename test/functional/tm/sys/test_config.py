@@ -13,8 +13,17 @@
 # limitations under the License.
 #
 
+from f5.sdk_exception import UnsupportedMethod
+
+import pytest
+
 
 class TestConfig(object):
     def test_save(self, bigip):
         c = bigip.sys.config
         c.exec_cmd('save')
+
+    def test_update(selfself, mgmt_root):
+        with pytest.raises(UnsupportedMethod) as ex:
+            mgmt_root.tm.sys.config.update(foo="bar")
+        assert 'does not support the update method' in ex.value.message
