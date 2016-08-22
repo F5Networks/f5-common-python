@@ -27,6 +27,7 @@ REST Kind
 """
 from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import UnnamedResource
+from f5.sdk_exception import UnsupportedMethod
 
 
 class Config(UnnamedResource,
@@ -43,6 +44,6 @@ class Config(UnnamedResource,
 
         :raises: UnsupportedOperation
         '''
-        raise self.UnsupportedMethod(
+        raise UnsupportedMethod(
             "%s does not support the update method" % self.__class__.__name__
         )
