@@ -50,7 +50,7 @@ class TransactionContextManager(object):
         self.transaction = self.transaction.create()
 
         self.icr.session.headers.update({
-            'X-F5-REST-Coordination-Id': self.transaction.transId
+            'X-F5-REST-Coordination-Id': str(self.transaction.transId)
         })
         return self.bigip
 
