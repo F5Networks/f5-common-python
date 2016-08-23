@@ -76,6 +76,13 @@ class TestFailover(object):
         pp(f.raw)
         assert 'Failover active' in f.apiRawValues['apiAnonymous']
 
+    def test_toggle_bad_kwargs_standby(self, mgmt_root):
+        with pytest.raises(TypeError) as ex:
+            f = mgmt_root.tm.sys.failover
+            f.toggle_standby(trafficgroup="traffic-group-1",
+                             state=None, foo="bar")
+        assert "Unexpected **kwargs" in ex.value.message
+
     def test_attribute_values(self, bigip):
         fl = bigip.sys.failover
         # Testing both conditions
