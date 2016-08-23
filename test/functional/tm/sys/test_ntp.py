@@ -13,6 +13,9 @@
 #   limitations under the License.
 #
 
+import pytest
+
+from distutils.version import LooseVersion
 from requests.exceptions import HTTPError
 
 
@@ -70,8 +73,13 @@ class TestNtpRestrictions(object):
 
         ntp1 = ntp.restrict.create(name='r1', partition='Common')
 
-        assert ntp1.name == 'r1'
-        assert ntp1.partition == 'Common'
+        if pytest.config.getoption('--release') < LooseVersion('11.6.1'):
+            assert ntp1.name == 'r1'
+            assert ntp1.partition == 'Common'
+        else:
+            assert ntp1.name == '/Common/r1'
+            # The 'partition' attribute was removed in 11.6.1?
+
         assert ntp1.defaultEntry == "disabled"
         assert ntp1.ignore == "disabled"
         assert ntp1.kod == "disabled"
@@ -114,8 +122,18 @@ class TestNtpRestrictions(object):
         )
         ntp1 = ntp.restrict.create(name='r2', partition='Common', **params)
 
-        assert ntp1.name == 'r2'
-        assert ntp1.partition == 'Common'
+        # In 11.6.1 and later they started prepending the partition name
+        # to the name attribute here. So we handle this case for our tests.
+        #
+        # According to Narendra, they should always have behaved this way
+        # so this must have been a bugfix
+        if pytest.config.getoption('--release') < LooseVersion('11.6.1'):
+            assert ntp1.name == 'r2'
+            assert ntp1.partition == 'Common'
+        else:
+            assert ntp1.name == '/Common/r2'
+            # The 'partition' attribute was removed in 11.6.1?
+
         assert ntp1.address == "192.168.1.0"
         assert ntp1.defaultEntry == "enabled"
         assert ntp1.ignore == "enabled"

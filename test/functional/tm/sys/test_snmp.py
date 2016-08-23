@@ -338,7 +338,17 @@ class TestCommunity(object):
         )
 
         assert comm1.communityName == 'commtest1'
-        assert comm1.name == 'commtest1'
+
+        # In 11.6.1 and later they started prepending the partition name
+        # to the name attribute here. So we handle this case for our tests.
+        #
+        # According to Narendra, they should always have behaved this way
+        # so this must have been a bugfix
+        if pytest.config.getoption('--release') < LooseVersion('11.6.1'):
+            assert comm1.name == 'commtest1'
+        else:
+            assert comm1.name == '/Common/commtest1'
+
         assert comm1.access == 'ro'
         assert comm1.ipv6 == 'disabled'
 
