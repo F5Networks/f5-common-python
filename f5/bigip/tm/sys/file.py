@@ -29,6 +29,7 @@ REST Kind
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import UnsupportedMethod
 
 
 class File(OrganizingCollection):
@@ -75,6 +76,15 @@ class Ifile(Resource):
             u'tm:sys:file:ifile:ifilestate'
         self._meta_data['required_creation_parameters'].update(
             ('name', 'sourcePath'))
+
+    def modify(self, **kwargs):
+        '''Modify is not supported for iFiles
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__
+        )
 
 
 class Ssl_Certs(Collection):

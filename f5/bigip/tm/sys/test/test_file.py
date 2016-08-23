@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-from distutils.version import LooseVersion
 import mock
 import pytest
 
@@ -23,6 +22,7 @@ from f5.bigip.tm.sys.file import Ssl_Cert
 from f5.bigip.tm.sys.file import Ssl_Crl
 from f5.bigip.tm.sys.file import Ssl_Csr
 from f5.bigip.tm.sys.file import Ssl_Key
+from f5.sdk_exception import UnsupportedMethod
 
 
 @pytest.fixture
@@ -41,6 +41,11 @@ def test_ifile_create_missing_arg(FakeSysIfile):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysIfile.create(name='test_ifile')
         assert 'sourcePath' in ex.value.message
+
+
+def test_ifile_modify(FakeSysIfile):
+    with pytest.raises(UnsupportedMethod):
+        FakeSysIfile.modify(value='Fake')
 
 
 @pytest.fixture
@@ -86,23 +91,11 @@ def FakeSysCsr():
     return fake_csr
 
 
-@pytest.mark.skipif(
-    LooseVersion(
-        pytest.config.getoption('--release')
-    ) < LooseVersion('12.0.0'),
-    reason='csr management is only supported in 12.0.0 or greater.'
-)
 def test_csr_create_no_args(FakeSysCsr):
     with pytest.raises(MissingRequiredCreationParameter):
         FakeSysCsr.create()
 
 
-@pytest.mark.skipif(
-    LooseVersion(
-        pytest.config.getoption('--release')
-    ) < LooseVersion('12.0.0'),
-    reason='csr management is only supported in 12.0.0 or greater.'
-)
 def test_csr_create_missing_arg(FakeSysCsr):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysCsr.create(name='test_csr')

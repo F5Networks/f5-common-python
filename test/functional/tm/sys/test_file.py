@@ -70,9 +70,10 @@ def create_sslfiles():
     return key, csr, cert
 
 
-def setup_ifile_test(request, mgmt_root, name, sourcepath):
+def setup_ifile_test(request, mgmt_root, name, sourcepath, **kwargs):
     if1 = mgmt_root.tm.sys.file.ifiles.ifile.create(name=name,
-                                                    sourcePath=sourcepath)
+                                                    sourcePath=sourcepath,
+                                                    **kwargs)
 
     def teardown():
         # Remove the ifile.
@@ -88,7 +89,7 @@ def setup_ifile_test(request, mgmt_root, name, sourcepath):
 
 def test_CURDL_ifile(request, mgmt_root):
     # Create
-    ntf = NamedTemporaryFile()
+    ntf = NamedTemporaryFile(delete=False)
     ntf_basename = os.path.basename(ntf.name)
     ntf.write('this is a test file')
     ntf.seek(0)
@@ -96,7 +97,8 @@ def test_CURDL_ifile(request, mgmt_root):
     mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
 
     tpath_name = 'file:/var/config/rest/downloads/{0}'.format(ntf_basename)
-    if1 = setup_ifile_test(request, mgmt_root, ntf_basename, tpath_name)
+    if1 = setup_ifile_test(request, mgmt_root, ntf_basename, tpath_name,
+                           )
     assert if1.name == ntf_basename
 
     # Load Object
