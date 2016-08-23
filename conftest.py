@@ -15,6 +15,7 @@
 
 from f5.bigip import BigIP
 from f5.bigip import ManagementRoot
+from f5.bigip.resource import UnsupportedOperation
 from f5.utils.testutils.registrytools import register_device
 from icontrol.session import iControlRESTSession
 import logging
@@ -217,7 +218,10 @@ def setup_device_snapshot(request, mgmt_root):
         after_snapshot = register_device(mgmt_root)
         diff = set(after_snapshot) - set(before_snapshot)
         for item in diff:
-            after_snapshot[item].delete()
+            try:
+                after_snapshot[item].delete()
+            except UnsupportedOperation:
+                pass
     request.addfinalizer(teardown)
     return before_snapshot
 
