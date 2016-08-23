@@ -1,0 +1,9 @@
+---
+
+bigip_netloc: "localhost"
+bigip_port: 10445
+bigip_username: "admin"
+bigip_password: "admin"
+modules:
+    gtm: false
+    ltm: true
