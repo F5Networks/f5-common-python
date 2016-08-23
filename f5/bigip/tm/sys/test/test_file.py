@@ -66,6 +66,11 @@ def test_cert_create_missing_arg(FakeSysCert):
         assert 'sourcePath' in ex.value.message
 
 
+def test_cert_modify(FakeSysCert):
+    with pytest.raises(UnsupportedMethod):
+        FakeSysCert.modify(value='Fake')
+
+
 @pytest.fixture
 def FakeSysCrl():
     fake_crl_s = mock.MagicMock()
@@ -84,6 +89,11 @@ def test_crl_create_missing_arg(FakeSysCrl):
         assert 'sourcePath' in ex.value.message
 
 
+def test_crl_modify(FakeSysCrl):
+    with pytest.raises(UnsupportedMethod):
+        FakeSysCrl.modify(value='Fake')
+
+
 @pytest.fixture
 def FakeSysCsr():
     fake_csr_s = mock.MagicMock()
@@ -94,6 +104,11 @@ def FakeSysCsr():
 def test_csr_create_no_args(FakeSysCsr):
     with pytest.raises(MissingRequiredCreationParameter):
         FakeSysCsr.create()
+
+
+def test_csr_modify(FakeSysCsr):
+    with pytest.raises(UnsupportedMethod):
+        FakeSysCsr.modify(value='Fake')
 
 
 def test_csr_create_missing_arg(FakeSysCsr):
@@ -118,3 +133,8 @@ def test_key_create_missing_arg(FakeSysKey):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysKey.create(name='test_key')
         assert 'sourcePath' in ex.value.message
+
+
+def test_key_modify(FakeSysKey):
+    with pytest.raises(UnsupportedMethod):
+        FakeSysKey.modify(value='Fake')
