@@ -42,9 +42,9 @@ def gen_csr(key, **name):
     return req
 
 
-def gen_cert(req, xxx_todo_changeme, serial):
+def gen_cert(req, ca_files, serial):
     # returns the signed certificate in an X509 object
-    (ca_cert, ca_key) = xxx_todo_changeme
+    ca_cert, ca_key = ca_files
     cert = crypto.X509()
     cert.set_serial_number(serial)
     cert.gmtime_adj_notBefore(0)
@@ -172,7 +172,7 @@ def setup_sslcrt_test(request, mgmt_root, name, sourcepath):
 def test_CURDL_sslkeyfile(request, mgmt_root):
     # Create temporary Key File.
     # Use extensions so tmui doesn't break in managing them.
-    ntf_key = NamedTemporaryFile(suffix='.key')
+    ntf_key = NamedTemporaryFile(suffix='.key', delete=False)
     ntf_key_basename = os.path.basename(ntf_key.name)
     ntf_key_sourcepath = 'file:/var/config/rest/downloads/{0}'.format(
         ntf_key_basename)
@@ -225,7 +225,7 @@ def test_CURDL_sslkeyfile(request, mgmt_root):
 def test_CURDL_sslcsrfile(request, mgmt_root):
     # Create temporary CSR File.
     # Use extensions so tmui doesn't break in managing them.
-    ntf_csr = NamedTemporaryFile(suffix='.csr')
+    ntf_csr = NamedTemporaryFile(suffix='.csr', delete=False)
     ntf_csr_basename = os.path.basename(ntf_csr.name)
     ntf_csr_sourcepath = 'file:/var/config/rest/downloads/{0}'.format(
         ntf_csr_basename)
@@ -272,7 +272,7 @@ def test_CURDL_sslcsrfile(request, mgmt_root):
 def test_CURDL_sslcertfile(request, mgmt_root):
     # Create temporary CSR File.
     # Use extensions so tmui doesn't break in managing them.
-    ntf_cert = NamedTemporaryFile(suffix='.crt')
+    ntf_cert = NamedTemporaryFile(suffix='.crt', delete=False)
     ntf_cert_basename = os.path.basename(ntf_cert.name)
     ntf_cert_sourcepath = 'file:/var/config/rest/downloads/{0}'.format(
         ntf_cert_basename)
