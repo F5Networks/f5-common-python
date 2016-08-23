@@ -17,7 +17,15 @@ import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.gtm.rule import Rule
+from pytest import symbols
 from requests.exceptions import HTTPError
+
+pytestmark = pytest.mark.skipif(
+    symbols
+    and hasattr(symbols, 'modules')
+    and not symbols.modules['gtm'],
+    reason='The modules symbol for GTM is set to False.'
+)
 
 
 RULE = '''when LB_SELECTED {
