@@ -42,8 +42,9 @@ def gen_csr(key, **name):
     return req
 
 
-def gen_cert(req, (ca_cert, ca_key), serial):
+def gen_cert(req, xxx_todo_changeme, serial):
     # returns the signed certificate in an X509 object
+    (ca_cert, ca_key) = xxx_todo_changeme
     cert = crypto.X509()
     cert.set_serial_number(serial)
     cert.gmtime_adj_notBefore(0)

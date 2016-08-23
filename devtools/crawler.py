@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,7 @@
 # limitations under the License.
 #
 
-from code_generator import DEVICECONFDIR
+from f5.devtools.code_generator import DEVICECONFDIR
 
 import json
 import os

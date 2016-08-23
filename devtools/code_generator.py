@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +14,8 @@
 # limitations under the License.
 #
 
-from source_engine import SourceEngine
-from template_engine import TemplateEngine
+from f5.devtools.source_engine import SourceEngine
+from f5.devtools.template_engine import TemplateEngine
 
 import os
 

@@ -91,7 +91,10 @@ Available Classes:
 import keyword
 import re
 import tokenize
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    from urllib import parse as urlparse
 
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
