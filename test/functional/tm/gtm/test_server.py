@@ -17,6 +17,7 @@ import copy
 import pytest
 
 from f5.bigip.tm.gtm.server import Server
+from f5.bigip.tm.gtm.server import Virtual_Servers
 from requests.exceptions import HTTPError
 
 
@@ -76,10 +77,9 @@ def setup_basic_test(request, mgmt_root, name, partition):
 
 def delete_vs(mgmt_root, name):
     try:
-
-        s1 = mgmt_root.tm.gtm.servers.server.load(
-            name='fake_serv1')
-        foo = s1.virtual_servers_s.virtual_servers.load(name=name)
+        foo = mgmt_root.tm.gtm.servers.server.load(
+            name='fake_serv1').virtual_servers_s.virtual_servers.load(
+            name=name)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -106,7 +106,6 @@ def setup_create_vs_test(request, mgmt_root, name):
 
 
 class TestCreate(object):
-
     def test_create_req_arg(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, 'fake_serv1', 'Common')
         dc = create_dc(request, mgmt_root, 'dc1', 'Common')
@@ -220,7 +219,7 @@ class TestServerCollection(object):
         assert isinstance(sc[0], Server)
 
 
-class TestVirtualServerSubcollection(object):
+class TestVirtualServerSubCollection(object):
     def test_create_req_arg(self, request, mgmt_root):
         setup_create_vs_test(request, mgmt_root, 'vs1')
         s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
@@ -231,3 +230,101 @@ class TestVirtualServerSubcollection(object):
         assert vs1.kind == 'tm:gtm:server:virtual-servers:virtual-serversstate'
         assert vs1.selfLink.startswith('https://localhost/mgmt/tm/gtm/server/'
                                        'fake_serv1/virtual-servers/vs1')
+
+    def test_create_optional_args(self, request, mgmt_root):
+        setup_create_vs_test(request, mgmt_root, 'vs1')
+        s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
+        vs = s1.virtual_servers_s
+        vs1 = vs.virtual_servers.create(name='vs1',
+                                        destination='5.5.5.5:80',
+                                        description='FancyFakeVS',
+                                        limitMaxBpsStatus='enabled',
+                                        limitMaxBps=1337)
+        assert vs1.name == 'vs1'
+        assert vs1.description == 'FancyFakeVS'
+        assert vs1.limitMaxBps == 1337
+
+    def test_create_duplicate(self, request, mgmt_root):
+        setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
+        s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
+        try:
+            s1.virtual_servers_s.virtual_servers.create(
+                name='vs1', destination='5.5.5.5:80')
+        except HTTPError as err:
+            assert err.response.status_code == 409
+
+    def test_refresh(self, request, mgmt_root):
+        setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
+        s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
+        vs1 = s1.virtual_servers_s.virtual_servers.load(name='vs1')
+        vs2 = s1.virtual_servers_s.virtual_servers.load(name='vs1')
+
+        assert vs1.limitMaxBpsStatus == 'disabled'
+        assert vs2.limitMaxBpsStatus == 'disabled'
+
+        vs2.update(limitMaxBpsStatus='enabled')
+        assert vs1.limitMaxBpsStatus == 'disabled'
+        assert vs2.limitMaxBpsStatus == 'enabled'
+
+        vs1.refresh()
+        assert vs2.limitMaxBpsStatus == 'enabled'
+
+    def test_load_no_object(self, request, mgmt_root):
+        s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
+        try:
+            s1.virtual_servers_s.virtual_servers.load(name='vs1')
+        except HTTPError as err:
+            assert err.response.status_code == 404
+
+    def test_load(self, request, mgmt_root):
+        setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
+        s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
+        vs1 = s1.virtual_servers_s.virtual_servers.load(name='vs1')
+        assert vs1.name == 'vs1'
+        assert vs1.limitMaxBpsStatus == 'disabled'
+
+        vs1.limitMaxBpsStatus = 'enabled'
+        vs1.update()
+        vs2 = s1.virtual_servers_s.virtual_servers.load(name='vs1')
+        assert vs2.name == 'vs1'
+        assert vs2.limitMaxBpsStatus == 'enabled'
+
+    def test_update(self, request, mgmt_root):
+        vs1 = setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
+        assert vs1.limitMaxBpsStatus == 'disabled'
+        vs1.update(limitMaxBpsStatus='enabled')
+        assert vs1.limitMaxBpsStatus == 'enabled'
+
+    def test_modify(self, request, mgmt_root):
+        vs1 = setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
+        original_dict = copy.copy(vs1.__dict__)
+        limit = 'limitMaxBpsStatus'
+        vs1.modify(limitMaxBpsStatus='enabled')
+        for k, v in original_dict.items():
+            if k != limit:
+                original_dict[k] = vs1.__dict__[k]
+            elif k == limit:
+                assert vs1.__dict__[k] == 'enabled'
+
+    def test_delete(self, request, mgmt_root):
+        vs1 = setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
+        vs1.delete()
+        s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
+        try:
+            s1.virtual_servers_s.virtual_servers.load(name='vs1')
+        except HTTPError as err:
+                assert err.response.status_code == 404
+
+    def test_virtual_server_collection(self, request, mgmt_root):
+        vs1 = setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
+        assert vs1.name == 'vs1'
+        assert vs1.generation and isinstance(vs1.generation, int)
+        assert vs1.kind == 'tm:gtm:server:virtual-servers:virtual-serversstate'
+        assert vs1.selfLink.startswith('https://localhost/mgmt/tm/gtm/server/'
+                                       'fake_serv1/virtual-servers/vs1')
+
+        s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
+        vsc = s1.virtual_servers_s.get_collection()
+        assert isinstance(vsc, list)
+        assert len(vsc)
+        assert isinstance(vsc[0], Virtual_Servers)
