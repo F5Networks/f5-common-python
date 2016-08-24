@@ -33,6 +33,7 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 
+
 class Wideips(object):
     def __new__(cls, container):
         tmos_v = container._meta_data['bigip']._meta_data['tmos_version']
@@ -176,9 +177,9 @@ class Wideipc(Collection):
         self._meta_data['attribute_registry'] = \
             {'tm:gtm:wideip:wideipstate': Wideip}
 
+
 class Wideip(Resource):
     """v11.x BIG-IP® GTM pool resource"""
     def __init__(self, wideips):
         super(Wideip, self).__init__(wideips)
         self._meta_data['required_json_kind'] = 'tm:gtm:wideip:wideipstate'
-

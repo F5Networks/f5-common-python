@@ -72,13 +72,13 @@ class Members_s(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Members]
         if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
             self._meta_data['required_json_kind'] = \
-            'tm:gtm:pool:members:memberscollectionstate'
+                'tm:gtm:pool:members:memberscollectionstate'
             self._meta_data['attribute_registry'] = \
                 {'tm:gtm:pool:members:membersstate': Members}
         else:
             if isinstance(pool, A):
                 self._meta_data['required_json_kind'] = \
-                'tm:gtm:pool:a:members:memberscollectionstate'
+                    'tm:gtm:pool:a:members:memberscollectionstate'
                 self._meta_data['attribute_registry'] = \
                     {'tm:gtm:pool:a:members:membersstate': Members}
                 self._meta_data['v12_gtm_pool_type'] = 'A'
@@ -112,6 +112,7 @@ class Members_s(Collection):
                 self._meta_data['attribute_registry'] = \
                     {'tm:gtm:pool:srv:members:membersstate': Members}
                 self._meta_data['v12_gtm_pool_type'] = 'SRV'
+
 
 class Members(Resource):
     """BIG-IP® GTM pool members sub-collection resource"""
@@ -207,6 +208,7 @@ class A(Resource):
             'tm:gtm:pool:a:members:memberscollectionstate': Members_s
         }
 
+
 class Aaaas(Collection):
     """v12.x BIG-IP® AAAA pool collection"""
     def __init__(self, pool):
@@ -226,6 +228,7 @@ class Aaaa(Resource):
             'tm:gtm:pool:aaaa:members:memberscollectionstate': Members_s
         }
 
+
 class Cnames(Collection):
     """v12.x BIG-IP® CNAME pool collection"""
     def __init__(self, pool):
@@ -233,6 +236,7 @@ class Cnames(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Cname]
         self._meta_data['attribute_registry'] = \
             {'tm:gtm:pool:cname:cnamestate': Cname}
+
 
 class Cname(Resource):
     """v12.x BIG-IP® CNAME pool resource"""
@@ -244,6 +248,7 @@ class Cname(Resource):
             'tm:gtm:pool:cname:members:memberscollectionstate': Members_s
         }
 
+
 class Mxs(Collection):
     """v12.x BIG-IP® MX pool collection."""
     def __init__(self, pool):
@@ -251,6 +256,7 @@ class Mxs(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Mx]
         self._meta_data['attribute_registry'] = \
             {'tm:gtm:pool:mx:mxstate': Mx}
+
 
 class Mx(Resource):
     """v12.x BIG-IP® MX pool resource"""
@@ -262,6 +268,7 @@ class Mx(Resource):
             'tm:gtm:pool:mx:members:memberscollectionstate': Members_s
         }
 
+
 class Naptrs(Collection):
     """v12.x BIG-IP® NAPTR pool collection"""
     def __init__(self, pool):
@@ -269,6 +276,7 @@ class Naptrs(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Naptr]
         self._meta_data['attribute_registry'] = \
             {'tm:gtm:pool:naptr:naptrstate': Naptr}
+
 
 class Naptr(Resource):
     """v12.x BIG-IP® NAPTR pool resource"""
@@ -280,6 +288,7 @@ class Naptr(Resource):
             'tm:gtm:pool:naptr:members:memberscollectionstate': Members_s
         }
 
+
 class Srvs(Collection):
     """v12.x BIG-IP® SRV pool collection"""
     def __init__(self, pool):
@@ -287,6 +296,7 @@ class Srvs(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Srv]
         self._meta_data['attribute_registry'] = \
             {'tm:gtm:pool:srv:srvstate': Srv}
+
 
 class Srv(Resource):
     """v12.x BIG-IP® SRV pool resource"""
