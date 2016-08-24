@@ -17,7 +17,6 @@ import copy
 import pytest
 
 from f5.bigip.tm.gtm.server import Server
-from f5.bigip.tm.gtm.server import Virtual_Servers
 from requests.exceptions import HTTPError
 
 
@@ -109,7 +108,7 @@ def setup_create_vs_test(request, mgmt_root, name):
 class TestCreate(object):
 
     def test_create_req_arg(self, request, mgmt_root):
-        setup_create_test(request, mgmt_root, 'fake_serv1','Common')
+        setup_create_test(request, mgmt_root, 'fake_serv1', 'Common')
         dc = create_dc(request, mgmt_root, 'dc1', 'Common')
         serv1 = mgmt_root.tm.gtm.servers.server.create(
             name='fake_serv1', datacenter=dc.name,
