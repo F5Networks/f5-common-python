@@ -70,6 +70,6 @@ class Virtual_Servers(Resource):
     def __init__(self, virtual_servers_s):
         super(Virtual_Servers, self).__init__(virtual_servers_s)
         self._meta_data['required_creation_parameters'].update((
-            'destination',))
+            'destination',p))
         self._meta_data['required_json_kind'] = \
             'tm:gtm:server:virtual-servers:virtual-serversstate'
