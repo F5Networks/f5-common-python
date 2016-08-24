@@ -70,6 +70,53 @@ def create_sslfiles():
     return key, csr, cert
 
 
+def setup_datagroup_test(request, mgmt_root, name, sourcepath, **kwargs):
+    dg1 = mgmt_root.tm.sys.file.data_groups.data_group.create(
+        name=name, type='string', sourcePath=sourcepath, **kwargs)
+
+    def teardown():
+        # Remove the external dg.
+        try:
+            dg1.delete()
+        except HTTPError as err:
+            if err.response.status_code != 404:
+                raise
+    request.addfinalizer(teardown)
+
+    return dg1
+
+
+def test_CURDL_datagroup(request, mgmt_root):
+    # Create
+    ntf = NamedTemporaryFile(delete=False)
+    ntf_basename = os.path.basename(ntf.name)
+    ntf.write('"name1" := "value1",')
+    ntf.seek(0)
+    # Upload the file
+    mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
+    tpath_name = 'file:/var/config/rest/downloads/{0}'.format(ntf_basename)
+    dg1 = setup_datagroup_test(request, mgmt_root, ntf_basename, tpath_name,
+                               )
+    assert dg1.name == ntf_basename
+
+    # Load Object
+    dg2 = mgmt_root.tm.sys.file.data_groups.data_group.load(name=ntf_basename)
+    assert dg1.name == dg2.name
+
+    # Rewrite the contents and update the object
+    ntf.write('"name2" := "value2",')
+    ntf.seek(0)
+    mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
+
+    dg3 = mgmt_root.tm.sys.file.data_groups.data_group.load(name=ntf_basename)
+    dg3.update(sourcePath=tpath_name)
+    assert dg1.revision != dg3.revision
+
+    # Refresh dg2 and make sure revision matches dg3
+    dg2.refresh()
+    assert dg2.revision == dg3.revision
+
+
 def setup_ifile_test(request, mgmt_root, name, sourcepath, **kwargs):
     if1 = mgmt_root.tm.sys.file.ifiles.ifile.create(name=name,
                                                     sourcePath=sourcepath,

@@ -17,12 +17,37 @@ import mock
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.bigip.tm.sys.file import Data_Group
 from f5.bigip.tm.sys.file import Ifile
 from f5.bigip.tm.sys.file import Ssl_Cert
 from f5.bigip.tm.sys.file import Ssl_Crl
 from f5.bigip.tm.sys.file import Ssl_Csr
 from f5.bigip.tm.sys.file import Ssl_Key
 from f5.sdk_exception import UnsupportedMethod
+
+
+@pytest.fixture
+def FakeSysDatagroup():
+    fake_dg_s = mock.MagicMock()
+    fake_dg = Data_Group(fake_dg_s)
+    return fake_dg
+
+
+def test_dg_create_no_args(FakeSysDatagroup):
+    with pytest.raises(MissingRequiredCreationParameter):
+        FakeSysDatagroup.create()
+
+
+def test_dg_create_missing_arg(FakeSysDatagroup):
+    with pytest.raises(MissingRequiredCreationParameter) as ex:
+        FakeSysDatagroup.create(name='test_dg')
+        assert 'sourcePath' in ex.value.message
+        assert 'type' in ex.value.message
+
+
+def test_dg_modify(FakeSysDatagroup):
+    with pytest.raises(UnsupportedMethod):
+        FakeSysDatagroup.modify(value='Fake')
 
 
 @pytest.fixture

@@ -60,6 +60,14 @@ class Data_Group(Resource):
         self._meta_data['required_creation_parameters'].update(
             ('name', 'sourcePath', 'type'))
 
+    def modify(self, **kwargs):
+        '''Modify is not supported for iFiles
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__)
+
 
 class Ifiles(Collection):
     def __init__(self, File):

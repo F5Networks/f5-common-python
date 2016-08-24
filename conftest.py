@@ -237,3 +237,17 @@ def IFILE(mgmt_root):
     i = mgmt_root.tm.sys.file.ifiles.ifile.create(name=ntf_basename,
                                                   sourcePath=tpath_name)
     return i
+
+
+@pytest.fixture
+def DATAGROUP(mgmt_root):
+    ntf = NamedTemporaryFile(delete=False)
+    ntf_basename = os.path.basename(ntf.name)
+    ntf.write('"name1" := "value1",')
+    ntf.seek(0)
+    mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
+    tpath_name = 'file:/var/config/rest/downloads/{0}'.format(ntf_basename)
+    dg = mgmt_root.tm.sys.file.data_groups.data_group.create(
+        name=ntf_basename, type='string', sourcePath=tpath_name)
+
+    return dg
