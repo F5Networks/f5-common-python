@@ -26,6 +26,7 @@ REST Kind
     ``tm:ltm:data-group*``
 """
 
+from distutils.version import LooseVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
@@ -87,3 +88,10 @@ class External(Resource):
         self._meta_data['required_creation_parameters'].update(
             ('name', 'externalFileName')
         )
+
+    def update(self, **kwargs):
+        if LooseVersion(self._meta_data['bigip']._meta_data['tmos_version']) \
+                < LooseVersion('11.6.0'):
+            if 'externalFileName' in self.__dict__:
+                del self.__dict__['externalFileName']
+        return self._update(**kwargs)

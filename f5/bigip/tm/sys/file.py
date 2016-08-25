@@ -26,6 +26,7 @@ REST Kind
     ``tm:sys:file:*``
 """
 
+from distutils.version import LooseVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
@@ -67,6 +68,13 @@ class Data_Group(Resource):
         '''
         raise UnsupportedMethod(
             "%s does not support the update method" % self.__class__.__name__)
+
+    def update(self, **kwargs):
+        if LooseVersion(self._meta_data['bigip']._meta_data['tmos_version']) \
+                < LooseVersion('11.6.0'):
+            if 'type' in self.__dict__:
+                del self.__dict__['type']
+        return self._update(**kwargs)
 
 
 class Ifiles(Collection):
