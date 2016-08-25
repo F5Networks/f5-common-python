@@ -94,4 +94,6 @@ class External(Resource):
                 < LooseVersion('11.6.0'):
             if 'externalFileName' in self.__dict__:
                 del self.__dict__['externalFileName']
+            if 'type' in self.__dict__:
+                del self.__dict__['type']
         return self._update(**kwargs)
