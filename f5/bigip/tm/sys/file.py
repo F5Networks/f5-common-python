@@ -71,7 +71,7 @@ class Data_Group(Resource):
 
     def update(self, **kwargs):
         if LooseVersion(self._meta_data['bigip']._meta_data['tmos_version']) \
-                < LooseVersion('11.6.0'):
+                < LooseVersion('12.0.0'):
             if 'type' in self.__dict__:
                 del self.__dict__['type']
         return self._update(**kwargs)
