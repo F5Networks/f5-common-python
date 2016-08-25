@@ -16,6 +16,7 @@
 import copy
 import pytest
 
+from distutils.version import LooseVersion
 from f5.bigip.tm.gtm.server import Server
 from f5.bigip.tm.gtm.server import Virtual_Servers
 from requests.exceptions import HTTPError
@@ -49,7 +50,10 @@ def create_dc(request, mgmt_root, name, partition):
     def teardown():
         delete_dc(mgmt_root, name, partition)
 
+    # this line is to clean up any object that might have been left by
+    # previous test
     delete_dc(mgmt_root, name, partition)
+
     dc = mgmt_root.tm.gtm.datacenters.datacenter.create(
         name=name, partition=partition)
     request.addfinalizer(teardown)
@@ -66,7 +70,10 @@ def setup_basic_test(request, mgmt_root, name, partition):
     def teardown():
         delete_server(mgmt_root, name)
 
+    # this line is to clean up any object that might have been left by
+    # previous test
     delete_dc(mgmt_root, 'dc1', partition)
+
     dc = create_dc(request, mgmt_root, 'dc1', partition)
     serv1 = mgmt_root.tm.gtm.servers.server.create(
         name=name, datacenter=dc.name,
@@ -76,9 +83,9 @@ def setup_basic_test(request, mgmt_root, name, partition):
 
 
 def delete_vs(mgmt_root, name):
+    s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
     try:
-        foo = mgmt_root.tm.gtm.servers.server.load(
-            name='fake_serv1').virtual_servers_s.virtual_servers.load(
+        foo = s1.virtual_servers_s.virtual_servers.load(
             name=name)
     except HTTPError as err:
         if err.response.status_code != 404:
@@ -100,7 +107,7 @@ def setup_vs_basic_test(request, mgmt_root, name, destination):
 
 def setup_create_vs_test(request, mgmt_root, name):
     def teardown():
-        delete_vs(mgmt_root, name)
+        delete_server(mgmt_root, name)
 
     request.addfinalizer(teardown)
 
@@ -162,6 +169,9 @@ class TestLoad(object):
                 name='fake_serv1')
             assert err.response.status_code == 404
 
+    @pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) ==
+                        '11.5.4',
+                        reason='Needs > v11.5.4 TMOS to pass')
     def test_load(self, request, mgmt_root):
         setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
         s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
@@ -174,8 +184,22 @@ class TestLoad(object):
         assert hasattr(s2, 'disabled')
         assert s2.disabled is True
 
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) >= LooseVersion(
+            '11.6.0'),
+        reason='This test is for 11.5.4 or less.')
+    def test_load_11_5_4_and_less(self, request, mgmt_root):
+        setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
+        s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
+        assert s1.enabled is True
+        s1.enabled = False
+        s1.update()
+        s2 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
+        assert hasattr(s2, 'enabled')
+        assert s2.enabled is True
 
-class Test_Update_Modify(object):
+
+class TestUpdateModify(object):
     def test_update(self, request, mgmt_root):
         s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
         assert s1.iqAllowPath == 'yes'
@@ -306,14 +330,17 @@ class TestVirtualServerSubCollection(object):
             elif k == limit:
                 assert vs1.__dict__[k] == 'enabled'
 
+    @pytest.mark.skipif(pytest.config.getoption('--release') == '11.6.0',
+                        reason='Due to a bug in 11.6.0 Final this test '
+                               'fails')
     def test_delete(self, request, mgmt_root):
-        vs1 = setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
+        vs1 = setup_vs_basic_test(request, mgmt_root, 'vs2', '5.5.5.5:80')
         vs1.delete()
         s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
         try:
-            s1.virtual_servers_s.virtual_servers.load(name='vs1')
+            s1.virtual_servers_s.virtual_servers.load(name='vs2')
         except HTTPError as err:
-                assert err.response.status_code == 404
+            assert err.response.status_code == 404
 
     def test_virtual_server_collection(self, request, mgmt_root):
         vs1 = setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
