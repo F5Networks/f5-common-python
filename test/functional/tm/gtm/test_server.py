@@ -114,7 +114,7 @@ def setup_create_vs_test(request, mgmt_root, name):
 
 class TestCreate(object):
     def test_create_req_arg(self, request, mgmt_root):
-        setup_create_test(request, mgmt_root, 'fake_serv1', 'Common')
+        setup_create_test(request, mgmt_root, 'fake_serv1')
         dc = create_dc(request, mgmt_root, 'dc1', 'Common')
         serv1 = mgmt_root.tm.gtm.servers.server.create(
             name='fake_serv1', datacenter=dc.name,
@@ -126,7 +126,7 @@ class TestCreate(object):
             'https://localhost/mgmt/tm/gtm/server/fake_serv1')
 
     def test_create_optional_args(self, request, mgmt_root):
-        setup_create_test(request, mgmt_root, 'fake_serv1', 'Common')
+        setup_create_test(request, mgmt_root, 'fake_serv1')
         dc = create_dc(request, mgmt_root, 'dc1', 'Common')
         serv1 = mgmt_root.tm.gtm.servers.server.create(
             name='fake_serv1', datacenter=dc.name,
