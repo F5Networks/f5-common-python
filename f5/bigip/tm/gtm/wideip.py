@@ -35,23 +35,50 @@ from f5.bigip.resource import Resource
 
 
 class Wideips(object):
+    """BIG-IP® GTM WideIP factory
+
+       The GTM WideIP factory object is used to provide a consistent user
+       experience across the SDK, while supporting the breaking changes in
+       the BIG-IP APIs.
+
+       Between the 11.x and 12.x releases of BIG-IP, the REST endpoint for
+       WideIP changed from a Collection to an OrganizingCollection. The result
+       is that breaking changes occurred in the API.
+
+       This breakage led to a discussion on naming conventions because there
+       appeared to be a conflict now. For example, depending on your version,
+       only one of the following would work.
+
+       For 11.x,
+
+           tm.gtm.wideips.wideip.load(name='foo')
+
+       For 12.x,
+
+           tm.gtm.wideips.as.a.load(name='foo')
+
+       but not both. To stick with a consistent user experience, we decided
+       to override the __new__ method to support both examples above. The SDK
+       automatically detects which one to use based on the BIG-IP you are
+       communicating with.
+       """
     def __new__(cls, container):
         tmos_v = container._meta_data['bigip']._meta_data['tmos_version']
         if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
-            obj = super(Wideips, cls).__new__(Wideipc)
+            obj = super(Wideips, cls).__new__(WideipCollection)
             obj.__init__(container)
             return obj
         else:
-            obj = super(Wideips, cls).__new__(Wideipoc)
+            obj = super(Wideips, cls).__new__(WideipOrganizingCollection)
             obj.__init__(container)
             return obj
 
 
-class Wideipoc(OrganizingCollection):
+class WideipOrganizingCollection(OrganizingCollection):
     """v12.x GTM WideIP is an OC."""
     def __init__(self, gtm):
         self.__class__.__name__ = 'Wideip'
-        super(Wideipoc, self).__init__(gtm)
+        super(WideipOrganizingCollection, self).__init__(gtm)
         self._meta_data['allowed_lazy_attributes'] = [
             A_s,
             Aaaas,
@@ -157,7 +184,7 @@ class Srvs(Collection):
         super(Srvs, self).__init__(wideip)
         self._meta_data['allowed_lazy_attributes'] = [Srv]
         self._meta_data['attribute_registry'] = \
-            {'tm:gtm:naptr:srv:srvstate': Srv}
+            {'tm:gtm:wideip:srv:srvstate': Srv}
 
 
 class Srv(Resource):
@@ -165,14 +192,14 @@ class Srv(Resource):
     def __init__(self, naptrs):
         super(Srv, self).__init__(naptrs)
         self._meta_data['required_json_kind'] = \
-            'tm:gtm:naptr:srv:srvstate'
+            'tm:gtm:wideip:srv:srvstate'
 
 
-class Wideipc(Collection):
+class WideipCollection(Collection):
     """v11.x BIG-IP® GTM wideip collection"""
     def __init__(self, gtm):
         self.__class__.__name__ = 'Wideips'
-        super(Wideipc, self).__init__(gtm)
+        super(WideipCollection, self).__init__(gtm)
         self._meta_data['allowed_lazy_attributes'] = [Wideip]
         self._meta_data['attribute_registry'] = \
             {'tm:gtm:wideip:wideipstate': Wideip}

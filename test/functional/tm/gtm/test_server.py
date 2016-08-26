@@ -60,7 +60,7 @@ def create_dc(request, mgmt_root, name, partition):
     return dc
 
 
-def setup_create_test(request, mgmt_root, name, partition):
+def setup_create_test(request, mgmt_root, name):
     def teardown():
         delete_server(mgmt_root, name)
     request.addfinalizer(teardown)
