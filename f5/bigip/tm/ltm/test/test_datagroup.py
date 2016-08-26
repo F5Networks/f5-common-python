@@ -39,13 +39,13 @@ def FakeData_Group_External():
 
 class TestCreate(object):
     def test_create_internal_two(self, fakeicontrolsession):
-        mgmt = ManagementRoot('172.16.44.15', 'admin', 'admin')
+        mgmt = ManagementRoot('localhost', 'admin', 'admin')
         dg1 = mgmt.tm.ltm.data_group.internals.internal
         dg2 = mgmt.tm.ltm.data_group.internals.internal
         assert dg1 is not dg2
 
     def test_create_external_two(self, fakeicontrolsession):
-        mgmt = ManagementRoot('172.16.44.15', 'admin', 'admin')
+        mgmt = ManagementRoot('localhost', 'admin', 'admin')
         dg1 = mgmt.tm.ltm.data_group.externals.external
         dg2 = mgmt.tm.ltm.data_group.externals.external
         assert dg1 is not dg2

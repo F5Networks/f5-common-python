@@ -26,6 +26,7 @@ REST Kind
     ``tm:sys:file:*``
 """
 
+from distutils.version import LooseVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
@@ -59,6 +60,21 @@ class Data_Group(Resource):
             u'tm:sys:file:data-group:data-groupstate'
         self._meta_data['required_creation_parameters'].update(
             ('name', 'sourcePath', 'type'))
+
+    def modify(self, **kwargs):
+        '''Modify is not supported for iFiles
+
+        :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__)
+
+    def update(self, **kwargs):
+        if LooseVersion(self._meta_data['bigip']._meta_data['tmos_version']) \
+                < LooseVersion('12.0.0'):
+            if 'type' in self.__dict__:
+                del self.__dict__['type']
+        return self._update(**kwargs)
 
 
 class Ifiles(Collection):
