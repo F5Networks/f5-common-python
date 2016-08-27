@@ -43,11 +43,11 @@ class Pools(object):
     def __new__(cls, container):
         tmos_v = container._meta_data['bigip']._meta_data['tmos_version']
         if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
-            obj = super(Pools, cls).__new__(Poolc)
+            obj = super(Pools, cls).__new__(PoolCollection)
             obj.__init__(container)
             return obj
         else:
-            obj = super(Pools, cls).__new__(Pooloc)
+            obj = super(Pools, cls).__new__(PoolOrganizingCollection)
             obj.__init__(container)
             return obj
 
@@ -119,18 +119,23 @@ class Members(Resource):
     def __init__(self, members_s):
         super(Members, self).__init__(members_s)
         tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
-        self._meta_data['required_creation_parameters'].update(('partition',))
         self._meta_data['v12_gtm_pool_type'] = ''
         if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
+            self._meta_data['required_creation_parameters'].update(
+                ('partition',))
             self._meta_data['required_json_kind'] = \
                 'tm:gtm:pool:members:membersstate'
         else:
             if members_s._meta_data['v12_gtm_pool_type'] == 'A':
                 self._meta_data['required_json_kind'] = \
                     'tm:gtm:pool:a:members:membersstate'
+                self._meta_data['required_creation_parameters'].update(
+                    ('partition',))
             if members_s._meta_data['v12_gtm_pool_type'] == 'AAAA':
                 self._meta_data['required_json_kind'] = \
                     'tm:gtm:pool:aaaa:members:membersstate'
+                self._meta_data['required_creation_parameters'].update(
+                    ('partition',))
             if members_s._meta_data['v12_gtm_pool_type'] == 'CNAME':
                 self._meta_data['required_json_kind'] = \
                     'tm:gtm:pool:cname:members:membersstate'
@@ -140,19 +145,23 @@ class Members(Resource):
             if members_s._meta_data['v12_gtm_pool_type'] == 'NAPTR':
                 self._meta_data['required_json_kind'] = \
                     'tm:gtm:pool:naptr:members:membersstate'
+                self._meta_data['required_creation_parameters'].update(
+                    ('flags', 'service'))
             if members_s._meta_data['v12_gtm_pool_type'] == 'SRV':
                 self._meta_data['required_json_kind'] = \
                     'tm:gtm:pool:srv:members:membersstate'
+                self._meta_data['required_creation_parameters'].update(
+                    ('port',))
 
 
 # v11.x specific classes
 
 
-class Poolc(Collection):
+class PoolCollection(Collection):
     """v11.x BIG-IP® GTM pool collection"""
     def __init__(self, gtm):
         self.__class__.__name__ = 'Pools'
-        super(Poolc, self).__init__(gtm)
+        super(PoolCollection, self).__init__(gtm)
         self._meta_data['allowed_lazy_attributes'] = [Pool]
         self._meta_data['attribute_registry'] = \
             {'tm:gtm:pool:poolstate': Pool}
@@ -170,11 +179,11 @@ class Pool(Resource):
 # v12.x specific classes
 
 
-class Pooloc(OrganizingCollection):
+class PoolOrganizingCollection(OrganizingCollection):
     """v12.x GTM pool is an OC."""
     def __init__(self, gtm):
         self.__class__.__name__ = 'Pool'
-        super(Pooloc, self).__init__(gtm)
+        super(PoolOrganizingCollection, self).__init__(gtm)
         self._meta_data['allowed_lazy_attributes'] = [
             A_s,
             Aaaas,

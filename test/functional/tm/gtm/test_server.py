@@ -266,6 +266,7 @@ class TestVirtualServerSubCollection(object):
                                         limitMaxBps=1337)
         assert vs1.name == 'vs1'
         assert vs1.description == 'FancyFakeVS'
+        assert vs1.limitMaxBpsStatus == 'enabled'
         assert vs1.limitMaxBps == 1337
 
     def test_create_duplicate(self, request, mgmt_root):
