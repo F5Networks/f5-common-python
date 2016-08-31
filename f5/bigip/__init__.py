@@ -35,7 +35,6 @@ from f5.bigip.tm.shared import Shared as TmShared
 from f5.bigip.tm.sys import Sys
 from f5.bigip.tm import Tm
 from f5.bigip.tm.transaction import Transactions
-from f5.bigip.tm.vcmp import Vcmp
 
 
 class ManagementRoot(PathElement):
@@ -90,10 +89,15 @@ class ManagementRoot(PathElement):
 class BigIP(ManagementRoot):
     """A shim class used to access the default config resources in 'mgmt/tm.'
 
+    PLEASE DO NOT ADD ATTRIBUTES TO THIS CLASS.
+
+    This class is depcrated in favor of MangementRoot above. Do not add any
+    more objects to the allowed_lazy_attributes list here!
+
     This class is solely implemented for backwards compatibility.
     """
     def __init__(self, hostname, username, password, **kwargs):
         super(BigIP, self).__init__(hostname, username, password, **kwargs)
         self._meta_data['uri'] = self._meta_data['uri'] + 'tm/'
         self._meta_data['allowed_lazy_attributes'] =\
-            [TmAuth, TmCm, Ltm, Gtm, Net, TmShared, Sys, Transactions, Vcmp]
+            [TmAuth, TmCm, Ltm, Gtm, Net, TmShared, Sys, Transactions]

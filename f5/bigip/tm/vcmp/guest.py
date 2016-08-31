@@ -29,6 +29,17 @@ REST Kind
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import F5SDKError
+
+
+class DisallowedCreationParameter(F5SDKError):
+    """Exception when partition is passed to create for guest resource."""
+    pass
+
+
+class DisallowedReadParameter(F5SDKError):
+    """Exception when partition is passed to load for guest resource."""
+    pass
 
 
 class Guests(Collection):
@@ -48,3 +59,33 @@ class Guest(Resource):
         super(Guest, self).__init__(guests)
         self._meta_data['required_json_kind'] =\
             'tm:vcmp:guest:gueststate'
+
+    def _check_load_parameters(self, **kwargs):
+        """Override method for one in resource.py to check partition
+
+        The partition cannot be included as a parameter to load a guest.
+        Raise an exception if a consumer gives the partition.
+
+        :raises: DisallowedReadParameter
+        """
+
+        if 'partition' in kwargs:
+            msg = "'partition' is not allowed as a load parameter. Vcmp " \
+                "guests are accessed by name."
+            raise DisallowedReadParameter(msg)
+        super(Guest, self)._check_load_parameters(**kwargs)
+
+    def _check_create_parameters(self, **kwargs):
+        """Override method for one in resource.py to check partition
+
+        The partition cannot be included as a parameter to create a guest.
+        Raise an exception if a consumer gives the partition.
+
+        :raises: DisallowedCreationParameter
+        """
+
+        if 'partition' in kwargs:
+            msg = "'partition' is not allowed as a create parameter. Vcmp " \
+                "guests are created with the 'name' at least."
+            raise DisallowedCreationParameter(msg)
+        super(Guest, self)._check_create_parameters(**kwargs)

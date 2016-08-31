@@ -15,6 +15,8 @@
 
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
+from f5.bigip.tm.vcmp.guest import DisallowedCreationParameter
+from f5.bigip.tm.vcmp.guest import DisallowedReadParameter
 from icontrol.session import iControlUnexpectedHTTPError
 
 import copy
@@ -55,11 +57,12 @@ class TestGuest(object):
         guest1.update()
         assert guest1.managementGw == '10.190.0.1'
         old_sslmode = guest1.sslMode
-        guest1.sslMode = 'dedicated'
+        guest1.sslMode = 'testing ssl mode'
         guest1.refresh()
         assert guest1.sslMode == old_sslmode
         guest2 = guests.guest.load(name='test')
         assert guest1.selfLink == guest2.selfLink
+        assert guest1.sslMode != 'dedicated'
         guest2.modify(sslMode='dedicated')
         guest1.refresh()
         assert guest2.sslMode == guest1.sslMode
@@ -67,6 +70,7 @@ class TestGuest(object):
     def test_guest_modify(self, setup_guest_test):
         guests, guest1 = setup_guest_test
         original_dict = copy.copy(guest1.__dict__)
+        assert guest1.managementGw != '10.190.0.1'
         gw = 'managementGw'
         guest1.modify(managementGw='10.190.0.1')
         for k, v in original_dict.items():
@@ -81,10 +85,11 @@ class TestGuest(object):
         assert 'name' in ex.value.message
 
     def test_guest_bad_creation_args(self, vcmp_host):
-        with pytest.raises(iControlUnexpectedHTTPError) as ex:
+        with pytest.raises(DisallowedCreationParameter) as ex:
             vcmp_host.tm.vcmp.guests.guest.create(
                 name='test', partition='Common')
-        assert '(/Common/test) is invalid' in ex.value.message
+        assert "'partition' is not allowed as a create parameter" in \
+            ex.value.message
 
     def test_guest_no_load_args(self, vcmp_host):
         with pytest.raises(MissingRequiredReadParameter) as ex:
@@ -92,10 +97,10 @@ class TestGuest(object):
         assert 'name' in ex.value.message
 
     def test_guest_bad_load_args(self, vcmp_host):
-        with pytest.raises(iControlUnexpectedHTTPError) as ex:
+        with pytest.raises(DisallowedReadParameter) as ex:
             vcmp_host.tm.vcmp.guests.guest.load(
                 name='test', partition='test-bad-arg')
-        assert 'The requested VCMP (/test-bad-arg/test) was not found' in \
+        assert "'partition' is not allowed as a load parameter" in \
             ex.value.message
 
     def test_guest_bad_modify(self, setup_guest_test):

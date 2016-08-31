@@ -17,6 +17,8 @@ import mock
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.bigip.tm.vcmp.guest import DisallowedCreationParameter
+from f5.bigip.tm.vcmp.guest import DisallowedReadParameter
 from f5.bigip.tm.vcmp.guest import Guest
 
 
@@ -30,3 +32,17 @@ def test_create_no_args(FakeGuest):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeGuest.create()
     assert "Missing required params: ['name']" in ex.value.message
+
+
+def test_create_with_parition(FakeGuest):
+    with pytest.raises(DisallowedCreationParameter) as ex:
+        FakeGuest.create(name='test', partition='Common')
+    assert "'partition' is not allowed as a create parameter" in \
+        ex.value.message
+
+
+def test_load_with_partition(FakeGuest):
+    with pytest.raises(DisallowedReadParameter) as ex:
+        FakeGuest.load(name='test', partition='Common')
+    assert "'partition' is not allowed as a load parameter" in \
+        ex.value.message
