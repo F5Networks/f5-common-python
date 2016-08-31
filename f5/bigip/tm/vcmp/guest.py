@@ -64,7 +64,7 @@ class Guest(Resource):
         """Override method for one in resource.py to check partition
 
         The partition cannot be included as a parameter to load a guest.
-        Raise an exception if a consumer gives the partition.
+        Raise an exception if a consumer gives the partition parameter.
 
         :raises: DisallowedReadParameter
         """
@@ -79,7 +79,7 @@ class Guest(Resource):
         """Override method for one in resource.py to check partition
 
         The partition cannot be included as a parameter to create a guest.
-        Raise an exception if a consumer gives the partition.
+        Raise an exception if a consumer gives the partition parameter.
 
         :raises: DisallowedCreationParameter
         """
