@@ -46,6 +46,8 @@ def pytest_addoption(parser):
     parser.addoption("--release", action="store",
                      help="TMOS version, in dotted format, eg. 12.0.0",
                      default='11.6.0')
+    parser.addoption("--vcmp-host", action="store",
+                     help="IP address of VCMP enabled host.")
 
 
 @pytest.fixture
@@ -123,6 +125,11 @@ def opt_port(request):
 
 
 @pytest.fixture(scope='session')
+def opt_vcmp_host(request):
+    return request.config.getoption("--vcmp-host")
+
+
+@pytest.fixture(scope='session')
 def bigip(opt_bigip, opt_username, opt_password, opt_port, scope="module"):
     '''bigip fixture'''
     b = BigIP(opt_bigip, opt_username, opt_password, port=opt_port)
@@ -133,6 +140,14 @@ def bigip(opt_bigip, opt_username, opt_password, opt_port, scope="module"):
 def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, scope="module"):
     '''bigip fixture'''
     m = ManagementRoot(opt_bigip, opt_username, opt_password, port=opt_port)
+    return m
+
+
+@pytest.fixture(scope='module')
+def vcmp_host(opt_vcmp_host, opt_username, opt_password, opt_port):
+    '''vcmp fixture'''
+    m = ManagementRoot(
+        opt_vcmp_host, opt_username, opt_password, port=opt_port)
     return m
 
 

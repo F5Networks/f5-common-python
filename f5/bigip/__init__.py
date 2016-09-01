@@ -89,6 +89,11 @@ class ManagementRoot(PathElement):
 class BigIP(ManagementRoot):
     """A shim class used to access the default config resources in 'mgmt/tm.'
 
+    PLEASE DO NOT ADD ATTRIBUTES TO THIS CLASS.
+
+    This class is depcrated in favor of MangementRoot above. Do not add any
+    more objects to the allowed_lazy_attributes list here!
+
     This class is solely implemented for backwards compatibility.
     """
     def __init__(self, hostname, username, password, **kwargs):
