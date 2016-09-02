@@ -14,10 +14,9 @@ f5.bigip module
     .. autosummary::
 
         cm
-        ltm
-        net
+        tm
         shared
-        sys
+
 
     Resource Base Classes
     ~~~~~~~~~~~~~~~~~~~~~
@@ -64,16 +63,6 @@ f5.bigip module
         mixins.LazyAttributesRequired
 
 
-.. toctree::
-    :maxdepth: 3
-    :hidden:
-
-    f5.bigip.cm
-    f5.bigip.ltm
-    f5.bigip.net
-    f5.bigip.shared
-    f5.bigip.sys
-
 resource module
 ---------------
 
@@ -85,4 +74,12 @@ mixins module
 
 .. automodule:: f5.bigip.mixins
     :members:
+
+.. toctree::
+    :hidden:
+
+    f5.bigip.cm
+    f5.bigip.tm
+    f5.bigip.shared
+
 

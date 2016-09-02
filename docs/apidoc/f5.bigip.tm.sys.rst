@@ -1,0 +1,122 @@
+f5.bigip.tm.sys
+===============
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip.tm.sys
+    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. py:currentmodule:: f5.bigip.tm.sys
+
+    .. autosummary::
+
+        application
+        config
+        crypto
+        db
+        dns
+        failover
+        file
+        folder
+        global_settings
+        httpd
+        ntp
+        performance
+        sshd
+
+
+Subpackages
+-----------
+
+.. automodule:: f5.bigip.tm.sys.software
+    :members:
+
+
+Submodules
+----------
+
+application
+~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.application
+    :members:
+
+config
+~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.config
+    :members:
+
+crypto
+~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.crypto
+    :members:
+
+db
+~~
+
+.. automodule:: f5.bigip.tm.sys.db
+    :members:
+
+dns
+~~~
+
+.. automodule:: f5.bigip.tm.sys.dns
+    :members:
+
+failover
+~~~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.failover
+    :members:
+
+file
+~~~~
+
+.. automodule:: f5.bigip.tm.sys.file
+    :members:
+
+folder
+~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.folder
+    :members:
+
+global_settings
+~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.global_settings
+    :members:
+
+httpd
+~~~~~
+
+.. automodule:: f5.bigip.tm.sys.httpd
+    :members:
+
+ntp
+~~~
+
+.. automodule:: f5.bigip.tm.sys.ntp
+    :members:
+
+performance
+~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.performance
+    :members:
+
+sshd
+~~~~
+
+.. automodule:: f5.bigip.tm.sys.sshd
+    :members:
+
+
+
+
+

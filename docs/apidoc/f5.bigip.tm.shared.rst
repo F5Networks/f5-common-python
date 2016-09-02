@@ -1,0 +1,39 @@
+f5.bigip.tm.shared
+==================
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip.tm.shared
+    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. py:currentmodule:: f5.bigip.tm.shared
+
+    .. autosummary::
+
+        bigip_failover_state
+        licensing
+
+
+Submodules
+----------
+
+bigip_failover_state
+~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.shared.bigip_failover_state
+    :members:
+
+licensing
+~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.shared.licensing
+    :members:
+
+.. toctree::
+    :hidden:
+    :glob:
+
+    f5.bigip.shared.*

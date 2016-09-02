@@ -1,0 +1,34 @@
+f5.bigip.tm.auth
+================
+
+Module Contents
+---------------
+
+.. automodule:: f5.bigip.tm.auth
+    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. currentmodule:: f5.bigip.tm.auth
+
+    .. autosummary::
+
+        password_policy
+        user
+
+Submodules
+----------
+
+password_policy
+~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.auth.password_policy
+    :members:
+
+user
+~~~~
+
+.. automodule:: f5.bigip.tm.auth.user
+    :members:
+
+

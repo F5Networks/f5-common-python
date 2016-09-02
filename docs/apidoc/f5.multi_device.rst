@@ -1,0 +1,60 @@
+f5.multi_device
+===============
+
+Module contents
+---------------
+
+.. automodule:: f5.multi_device
+    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~~
+    .. py:currentmodule:: f5.multi_device
+    .. autosummary::
+
+        device_group
+        exceptions
+        trust_domain
+        utils
+
+
+Submodules
+----------
+
+device_group
+~~~~~~~~~~~~
+
+.. automodule:: f5.multi_device.device_group
+    :members:
+
+
+exceptions
+~~~~~~~~~~
+
+.. automodule:: f5.multi_device.exceptions
+    :members:
+
+
+trust_domain
+~~~~~~~~~~~~
+
+.. automodule:: f5.multi_device.trust_domain
+    :members:
+
+
+utils
+~~~~~
+
+.. automodule:: f5.multi_device.utils
+    :members:
+
+
+.. toctree::
+    :hidden:
+    :glob:
+
+    f5.multi_device.*
+
+
+
+

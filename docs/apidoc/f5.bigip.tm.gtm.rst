@@ -1,0 +1,39 @@
+f5.bigip.tm.gtm
+===============
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip.tm.gtm
+    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. py:currentmodule:: f5.bigip.tm.gtm.
+
+    .. autosummary::
+
+        datacenter
+        rule
+
+Submodules
+----------
+
+datacenter
+~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.gtm.datacenter
+    :members:
+
+rule
+~~~~
+
+.. automodule:: f5.bigip.tm.gtm.rule
+    :members:
+
+
+
+
+
+
+

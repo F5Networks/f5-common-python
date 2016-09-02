@@ -1,0 +1,67 @@
+f5.bigip.tm.cm
+==============
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip.tm.cm
+    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. currentmodule:: f5.bigip.tm.cm
+
+    .. autosummary::
+
+        device
+        device_group
+        sync_status
+        traffic_group
+        trust
+        trust_domain
+
+
+Submodules
+----------
+
+device
+~~~~~~
+
+.. automodule:: f5.bigip.tm.cm.device
+    :members:
+
+device_group
+~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.cm.device_group
+    :members:
+
+sync_status
+~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.cm.sync_status
+    :members:
+
+traffic_group
+~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.cm.traffic_group
+    :members:
+
+trust
+~~~~~
+
+.. automodule:: f5.bigip.tm.cm.trust
+    :members:
+
+trust_domain
+~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.cm.trust_domain
+    :members:
+
+
+
+
+
+

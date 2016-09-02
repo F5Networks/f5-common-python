@@ -2,10 +2,13 @@ f5 package
 ==========
 
 .. toctree::
-    :maxdepth: 3
+    :glob:
 
     f5.bigip
-    f5.common
+    f5.bigip.cm
+    f5.bigip.tm
+    f5.bigip.shared
+    f5.multi_device
 
 .. automodule:: f5
     :members:
