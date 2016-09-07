@@ -65,13 +65,9 @@ class Wideips(object):
     def __new__(cls, container):
         tmos_v = container._meta_data['bigip']._meta_data['tmos_version']
         if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
-            obj = super(Wideips, cls).__new__(WideipCollection)
-            obj.__init__(container)
-            return obj
+            return WideipCollection(container)
         else:
-            obj = super(Wideips, cls).__new__(WideipOrganizingCollection)
-            obj.__init__(container)
-            return obj
+            return WideipOrganizingCollection(container)
 
 
 class WideipOrganizingCollection(OrganizingCollection):

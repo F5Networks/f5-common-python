@@ -17,7 +17,13 @@ from distutils.version import LooseVersion
 from f5.bigip.tm.gtm.pool import A
 from f5.bigip.tm.gtm.pool import Aaaa
 from f5.bigip.tm.gtm.pool import Cname
-from f5.bigip.tm.gtm.pool import Members
+from f5.bigip.tm.gtm.pool import MembersResource_v11
+from f5.bigip.tm.gtm.pool import MembersResourceA
+from f5.bigip.tm.gtm.pool import MembersResourceAAAA
+from f5.bigip.tm.gtm.pool import MembersResourceCname
+from f5.bigip.tm.gtm.pool import MembersResourceMx
+from f5.bigip.tm.gtm.pool import MembersResourceNaptr
+from f5.bigip.tm.gtm.pool import MembersResourceSrv
 from f5.bigip.tm.gtm.pool import Mx
 from f5.bigip.tm.gtm.pool import Naptr
 from f5.bigip.tm.gtm.pool import Pool
@@ -316,29 +322,28 @@ class HelperTest(object):
         coll = rescollection.get_collection()
         assert isinstance(coll, list)
         assert len(coll)
-        assert isinstance(coll[0], Members)
         if self.lowered == 'a_s':
-            assert rescollection._meta_data['v12_gtm_pool_type'] == 'A'
+            assert isinstance(coll[0], MembersResourceA)
             assert rescollection.kind == \
                 'tm:gtm:pool:a:members:memberscollectionstate'
         elif self.lowered == 'aaaas':
-            assert rescollection._meta_data['v12_gtm_pool_type'] == 'AAAA'
+            assert isinstance(coll[0], MembersResourceAAAA)
             assert rescollection.kind == \
                 'tm:gtm:pool:aaaa:members:memberscollectionstate'
         elif self.lowered == 'cnames':
-            assert rescollection._meta_data['v12_gtm_pool_type'] == 'CNAME'
+            assert isinstance(coll[0], MembersResourceCname)
             assert rescollection.kind == \
                 'tm:gtm:pool:cname:members:memberscollectionstate'
         elif self.lowered == 'mxs':
-            assert rescollection._meta_data['v12_gtm_pool_type'] == 'MX'
+            assert isinstance(coll[0], MembersResourceMx)
             assert rescollection.kind == \
                 'tm:gtm:pool:mx:members:memberscollectionstate'
         elif self.lowered == 'naptrs':
-            assert rescollection._meta_data['v12_gtm_pool_type'] == 'NAPTR'
+            assert isinstance(coll[0], MembersResourceNaptr)
             assert rescollection.kind == \
                 'tm:gtm:pool:naptr:members:memberscollectionstate'
         elif self.lowered == 'srvs':
-            assert rescollection._meta_data['v12_gtm_pool_type'] == 'SRV'
+            assert isinstance(coll[0], MembersResourceSrv)
             assert rescollection.kind == \
                 'tm:gtm:pool:srv:members:memberscollectionstate'
 
@@ -523,7 +528,7 @@ class TestPoolSrvTypeSubcollMembers(object):
         pool.test_members_sucollection(request, mgmt_root)
 
 # End of v12.x Tests
-# Start of v12.x Tests
+# Start of v11.x Tests
 
 
 def delete_pool(mgmt_root, name):
@@ -806,4 +811,4 @@ class TestMembersSubCollection_v11(object):
         msc = mc.get_collection()
         assert isinstance(msc, list)
         assert len(msc)
-        assert isinstance(msc[0], Members)
+        assert isinstance(msc[0], MembersResource_v11)

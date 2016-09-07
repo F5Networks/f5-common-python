@@ -65,118 +65,223 @@ class Pools(object):
     def __new__(cls, container):
         tmos_v = container._meta_data['bigip']._meta_data['tmos_version']
         if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
-            obj = super(Pools, cls).__new__(PoolCollection)
-            obj.__init__(container)
-            return obj
+            return PoolCollection(container)
         else:
-            obj = super(Pools, cls).__new__(PoolOrganizingCollection)
-            obj.__init__(container)
-            return obj
-
-# Member sub-collections shared between v11.x and v12.x
+            return PoolOrganizingCollection(container)
 
 
-class Members_s(Collection):
-    """BIG-IP® GTM pool members sub-collection
+class Members_s(object):
+    """BIG-IP® GTM Members_s factory
 
-        This class needs to check the instance of
-        'pool' object and update relevant meta_data,
-        as we are using members sub-collection in both
-        v11 and v12 classes for GTM pools.
+        The GTM Members_s factory is used here for code readability
+        and maintenance purposes, to allow us to stay in conventions already
+        set in this SDK, and at the same time accommodate changes between v11
+        and v12 versions of Members_s sub-collection
+        """
+    def __new__(cls, container):
+        tmos_v = container._meta_data['bigip']._meta_data['tmos_version']
+        if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
+            return MembersCollection_v11(container)
+        else:
+            if isinstance(container, A):
+                return MembersCollectionA(container)
+            if isinstance(container, Aaaa):
+                return MembersCollectionAAAA(container)
+            if isinstance(container, Cname):
+                return MembersCollectionCname
+            if isinstance(container, Mx):
+                return MembersCollectionMx(container)
+            if isinstance(container, Naptr):
+                return MembersCollectionNaptr(container)
+            if isinstance(container, Srv):
+                return MembersCollectionSrv(container)
 
-        It will also add pool type meta_data to utilize in
-        Member resource.
-    """
 
+class MembersCollection_v11(Collection):
+    """v11.x BIG-IP® GTM pool members sub-collection"""
     def __init__(self, pool):
-        super(Members_s, self).__init__(pool)
-        tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
+        self.__class__.__name__ = 'Members_s'
+        super(MembersCollection_v11, self).__init__(pool)
         self._meta_data['allowed_lazy_attributes'] = [Members]
-        if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
-            self._meta_data['required_json_kind'] = \
-                'tm:gtm:pool:members:memberscollectionstate'
-            self._meta_data['attribute_registry'] = \
-                {'tm:gtm:pool:members:membersstate': Members}
-        else:
-            if isinstance(pool, A):
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:a:members:memberscollectionstate'
-                self._meta_data['attribute_registry'] = \
-                    {'tm:gtm:pool:a:members:membersstate': Members}
-                self._meta_data['v12_gtm_pool_type'] = 'A'
-            if isinstance(pool, Aaaa):
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:aaaa:members:memberscollectionstate'
-                self._meta_data['attribute_registry'] = \
-                    {'tm:gtm:pool:aaaa:members:membersstate': Members}
-                self._meta_data['v12_gtm_pool_type'] = 'AAAA'
-            if isinstance(pool, Cname):
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:cname:members:memberscollectionstate'
-                self._meta_data['attribute_registry'] = \
-                    {'tm:gtm:pool:cname:members:membersstate': Members}
-                self._meta_data['v12_gtm_pool_type'] = 'CNAME'
-            if isinstance(pool, Mx):
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:mx:members:memberscollectionstate'
-                self._meta_data['attribute_registry'] = \
-                    {'tm:gtm:pool:mx:members:membersstate': Members}
-                self._meta_data['v12_gtm_pool_type'] = 'MX'
-            if isinstance(pool, Naptr):
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:naptr:members:memberscollectionstate'
-                self._meta_data['attribute_registry'] = \
-                    {'tm:gtm:pool:naptr:members:membersstate': Members}
-                self._meta_data['v12_gtm_pool_type'] = 'NAPTR'
-            if isinstance(pool, Srv):
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:srv:members:memberscollectionstate'
-                self._meta_data['attribute_registry'] = \
-                    {'tm:gtm:pool:srv:members:membersstate': Members}
-                self._meta_data['v12_gtm_pool_type'] = 'SRV'
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:members:memberscollectionstate'
+        self._meta_data['attribute_registry'] = \
+            {'tm:gtm:pool:members:membersstate': Members}
 
 
-class Members(Resource):
-    """BIG-IP® GTM pool members sub-collection resource"""
+class MembersCollectionA(Collection):
+    """v12.x BIG-IP® GTM A pool members sub-collection"""
+    def __init__(self, pool):
+        self.__class__.__name__ = 'Members_s'
+        super(MembersCollectionA, self).__init__(pool)
+        self._meta_data['allowed_lazy_attributes'] = [Members]
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:a:members:memberscollectionstate'
+        self._meta_data['attribute_registry'] = \
+            {'tm:gtm:pool:a:members:membersstate': Members}
+
+
+class MembersCollectionAAAA(Collection):
+    """v12.x BIG-IP® GTM AAAA pool members sub-collection"""
+    def __init__(self, pool):
+        self.__class__.__name__ = 'Members_s'
+        super(MembersCollectionAAAA, self).__init__(pool)
+        self._meta_data['allowed_lazy_attributes'] = [Members]
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:aaaa:members:memberscollectionstate'
+        self._meta_data['attribute_registry'] = \
+            {'tm:gtm:pool:aaaa:members:membersstate': Members}
+
+
+class MembersCollectionCname(Collection):
+    """v12.x BIG-IP® GTM CNAME pool members sub-collection"""
+    def __init__(self, pool):
+        self.__class__.__name__ = 'Members_s'
+        super(MembersCollectionCname, self).__init__(pool)
+        self._meta_data['allowed_lazy_attributes'] = [Members]
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:cname:members:memberscollectionstate'
+        self._meta_data['attribute_registry'] = \
+            {'tm:gtm:pool:cname:members:membersstate': Members}
+
+
+class MembersCollectionMx(Collection):
+    """v12.x BIG-IP® GTM MX pool members sub-collection"""
+    def __init__(self, pool):
+        self.__class__.__name__ = 'Members_s'
+        super(MembersCollectionMx, self).__init__(pool)
+        self._meta_data['allowed_lazy_attributes'] = [Members]
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:mx:members:memberscollectionstate'
+        self._meta_data['attribute_registry'] = \
+            {'tm:gtm:pool:mx:members:membersstate': Members}
+
+
+class MembersCollectionNaptr(Collection):
+    """v12.x BIG-IP® GTM NAPTR pool members sub-collection"""
+    def __init__(self, pool):
+        self.__class__.__name__ = 'Members_s'
+        super(MembersCollectionNaptr, self).__init__(pool)
+        self._meta_data['allowed_lazy_attributes'] = [Members]
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:naptr:members:memberscollectionstate'
+        self._meta_data['attribute_registry'] = \
+            {'tm:gtm:pool:naptr:members:membersstate': Members}
+
+
+class MembersCollectionSrv(Collection):
+    """v12.x BIG-IP® GTM SRV pool members sub-collection"""
+    def __init__(self, pool):
+        self.__class__.__name__ = 'Members_s'
+        super(MembersCollectionSrv, self).__init__(pool)
+        self._meta_data['allowed_lazy_attributes'] = [Members]
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:srv:members:memberscollectionstate'
+        self._meta_data['attribute_registry'] = \
+            {'tm:gtm:pool:srv:members:membersstate': Members}
+
+
+class Members(object):
+    """BIG-IP® GTM Members factory
+
+        The GTM Members factory is used here for code readability
+        and maintenance purposes, to allow us to stay in conventions already
+        set in this SDK, and at the same time accommodate changes between v11
+        and v12 versions of Members resource
+        """
+
+    def __new__(cls, container):
+        if container._meta_data['required_json_kind'] == \
+                'tm:gtm:pool:members:memberscollectionstate':
+            return MembersResource_v11(container)
+        if container._meta_data['required_json_kind'] == \
+                'tm:gtm:pool:a:members:memberscollectionstate':
+            return MembersResourceA(container)
+        if container._meta_data['required_json_kind'] ==  \
+                'tm:gtm:pool:aaaa:members:memberscollectionstate':
+            return MembersResourceAAAA(container)
+        if container._meta_data['required_json_kind'] == \
+                'tm:gtm:pool:cname:members:memberscollectionstate':
+            return MembersResourceCname(container)
+        if container._meta_data['required_json_kind'] == \
+                'tm:gtm:pool:mx:members:memberscollectionstate':
+            return MembersResourceMx(container)
+        if container._meta_data['required_json_kind'] == \
+                'tm:gtm:pool:naptr:members:memberscollectionstate':
+            return MembersResourceNaptr(container)
+        if container._meta_data['required_json_kind'] == \
+                'tm:gtm:pool:srv:members:memberscollectionstate':
+            return MembersResourceSrv(container)
+
+
+class MembersResource_v11(Resource):
+    """v11.x BIG-IP® GTM members resource"""
     def __init__(self, members_s):
-        super(Members, self).__init__(members_s)
-        tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
-        self._meta_data['v12_gtm_pool_type'] = ''
-        if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
-            self._meta_data['required_creation_parameters'].update(
-                ('partition',))
-            self._meta_data['required_json_kind'] = \
-                'tm:gtm:pool:members:membersstate'
-        else:
-            if members_s._meta_data['v12_gtm_pool_type'] == 'A':
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:a:members:membersstate'
-                self._meta_data['required_creation_parameters'].update(
-                    ('partition',))
-            if members_s._meta_data['v12_gtm_pool_type'] == 'AAAA':
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:aaaa:members:membersstate'
-                self._meta_data['required_creation_parameters'].update(
-                    ('partition',))
-            if members_s._meta_data['v12_gtm_pool_type'] == 'CNAME':
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:cname:members:membersstate'
-            if members_s._meta_data['v12_gtm_pool_type'] == 'MX':
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:mx:members:membersstate'
-            if members_s._meta_data['v12_gtm_pool_type'] == 'NAPTR':
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:naptr:members:membersstate'
-                self._meta_data['required_creation_parameters'].update(
-                    ('flags', 'service'))
-            if members_s._meta_data['v12_gtm_pool_type'] == 'SRV':
-                self._meta_data['required_json_kind'] = \
-                    'tm:gtm:pool:srv:members:membersstate'
-                self._meta_data['required_creation_parameters'].update(
-                    ('port',))
+        self.__class__.__name__ = 'Members'
+        super(MembersResource_v11, self).__init__(members_s)
+        self._meta_data['required_creation_parameters'].update(('partition',))
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:members:membersstate'
 
 
-# v11.x specific classes
+class MembersResourceA(Resource):
+    """v12.x BIG-IP® GTM A pool members resource"""
+    def __init__(self, members_s):
+        self.__class__.__name__ = 'Members'
+        super(MembersResourceA, self).__init__(members_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:a:members:membersstate'
+        self._meta_data['required_creation_parameters'].update(('partition',))
+
+
+class MembersResourceAAAA(Resource):
+    """v12.x BIG-IP® GTM AAAA pool members resource"""
+    def __init__(self, members_s):
+        self.__class__.__name__ = 'Members'
+        super(MembersResourceAAAA, self).__init__(members_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:aaaa:members:membersstate'
+        self._meta_data['required_creation_parameters'].update(('partition',))
+
+
+class MembersResourceCname(Resource):
+    """v12.x BIG-IP® GTM CNAME pool members resource"""
+    def __init__(self, members_s):
+        self.__class__.__name__ = 'Members'
+        super(MembersResourceCname, self).__init__(members_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:cname:members:membersstate'
+
+
+class MembersResourceMx(Resource):
+    """v12.x BIG-IP® GTM MX pool members resource"""
+    def __init__(self, members_s):
+        self.__class__.__name__ = 'Members'
+        super(MembersResourceMx, self).__init__(members_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:mx:members:membersstate'
+
+
+class MembersResourceNaptr(Resource):
+    """v12.x BIG-IP® GTM NAPTR pool members resource"""
+    def __init__(self, members_s):
+        self.__class__.__name__ = 'Members'
+        super(MembersResourceNaptr, self).__init__(members_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:naptr:members:membersstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('flags', 'service'))
+
+
+class MembersResourceSrv(Resource):
+    """v12.x BIG-IP® GTM SRV pool members resource"""
+    def __init__(self, members_s):
+        self.__class__.__name__ = 'Members'
+        super(MembersResourceSrv, self).__init__(members_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:gtm:pool:srv:members:membersstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('port',))
 
 
 class PoolCollection(Collection):
@@ -197,8 +302,6 @@ class Pool(Resource):
         self._meta_data['attribute_registry'] = {
             'tm:gtm:pool:memberscollectionstate': Members_s
         }
-
-# v12.x specific classes
 
 
 class PoolOrganizingCollection(OrganizingCollection):
