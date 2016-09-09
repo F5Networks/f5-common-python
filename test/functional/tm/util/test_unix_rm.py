@@ -31,7 +31,4 @@ def test_E_unix_rm(mgmt_root):
     assert fr1.utilCmdArgs == '/var/config/rest/downloads/{0}'.format(
         ntf_basename)
 
-    try:
-        fr1.__dict__['commandResult']
-    except KeyError:
-        pass
+    assert 'commandResult' not in fr1.__dict__
