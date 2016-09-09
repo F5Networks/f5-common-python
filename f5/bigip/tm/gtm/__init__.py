@@ -31,6 +31,7 @@ REST Kind
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.gtm.datacenter import Datacenters
 from f5.bigip.tm.gtm.rule import Rules
+from f5.bigip.tm.gtm.server import Servers
 
 
 class Gtm(OrganizingCollection):
@@ -39,5 +40,6 @@ class Gtm(OrganizingCollection):
         super(Gtm, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
             Datacenters,
-            Rules
+            Rules,
+            Servers,
         ]
