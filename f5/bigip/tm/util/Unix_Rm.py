@@ -52,7 +52,5 @@ class Unix_Rm(UnnamedResource, CommandExecutionMixin):
         if 'commandResult' in self.__dict__:
             if self.commandResult.startswith('/bin/rm'):
                 raise UtilError('%s' % self.commandResult.split(' ', 1)[1])
-            else:
-                return self
         else:
             return self

@@ -14,6 +14,9 @@
 # limitations under the License.
 #
 
+import pytest
+
+from f5.utils.util_exceptions import UtilError
 import os
 from tempfile import NamedTemporaryFile
 
@@ -28,7 +31,13 @@ def test_E_unix_rm(mgmt_root):
 
     fr1 = mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs=tpath_name)
 
+    # validate object was created
     assert fr1.utilCmdArgs == '/var/config/rest/downloads/{0}'.format(
         ntf_basename)
 
+    # if command was successful, commandResult should not be present
     assert 'commandResult' not in fr1.__dict__
+
+    # UtilError should be raised when non-existent file is mentioned
+    with pytest.raises(UtilError):
+        mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs='testfile.txt')
