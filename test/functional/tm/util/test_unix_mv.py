@@ -29,10 +29,10 @@ def test_E_unix_mv(mgmt_root):
     mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
     tpath_name = '/var/config/rest/downloads'
 
-    fm1 = mgmt_root.tm.util.unix_mv.exec_cmd('run',
-                                             utilCmdArgs='{0}/{1} {0}\
-                                             /testmove.txt'.format(
-                                                 tpath_name, ntf_basename))
+    fm1 = mgmt_root.tm.util.unix_mv.exec_cmd(
+        'run',
+        utilCmdArgs='{0}/{1} {0}/testmove.txt'.format(
+            tpath_name, ntf_basename))
 
     # validate object was created
     assert fm1.utilCmdArgs == '{0}/{1} {0}/testmove.txt'.format(tpath_name,
@@ -43,6 +43,5 @@ def test_E_unix_mv(mgmt_root):
 
     # UtilError should be raised when non-existent file is mentioned
     with pytest.raises(UtilError):
-        mgmt_root.tm.util.unix_mv.exec_cmd('run',
-                                           utilCmdArgs='/var/config/rest\
-                                           /downloads/missingtestfile.txt')
+        mgmt_root.tm.util.unix_mv.exec_cmd(
+            'run', utilCmdArgs='{0}/mf.txt'.format(tpath_name))
