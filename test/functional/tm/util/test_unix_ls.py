@@ -17,8 +17,8 @@
 import pytest
 
 from f5.utils.util_exceptions import UtilError
+from icontrol.session import iControlUnexpectedHTTPError
 import os
-from requests import HTTPError
 from tempfile import NamedTemporaryFile
 
 
@@ -43,13 +43,16 @@ def test_E_unix_ls(mgmt_root):
     assert '{0}\n'.format(fls1.utilCmdArgs) == fls1.commandResult
 
     # UtilError should be raised when non-existent file is mentioned
-    with pytest.raises(UtilError):
+    with pytest.raises(UtilError) as err:
         mgmt_root.tm.util.unix_ls.exec_cmd('run',
                                            utilCmdArgs='/configs/testfile.txt')
+        assert 'No such file or directory' in err.response.text
 
     # clean up created file
     mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs=tpath_name)
 
     # test that a bad command option errors out
-    with pytest.raises(HTTPError):
+    with pytest.raises(iControlUnexpectedHTTPError) as err:
         mgmt_root.tm.util.unix_ls.exec_cmd('run', utilCmdArgs='-9 /configs/')
+        assert err.response.status_code == 400
+        assert 'unix-ls does not support' in err.response.text
