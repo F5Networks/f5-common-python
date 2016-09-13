@@ -15,6 +15,7 @@
 
 import copy
 from pprint import pprint as pp
+from six import iteritems
 
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
@@ -57,7 +58,7 @@ class TestTrafficClass(object):
         original_dict = copy.copy(traffic1.__dict__)
         desc = 'description'
         traffic1.modify(description='Cool mod test')
-        for k, v in original_dict.items():
+        for k, v in iteritems(traffic1.__dict__):
             if k != desc:
                 original_dict[k] = traffic1.__dict__[k]
             elif k == desc:
