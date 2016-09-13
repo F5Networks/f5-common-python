@@ -17,13 +17,13 @@
 """BIG-IP® utility module
 
 REST URI
-    ``http://localhost/mgmt/tm/util/unix-rm``
+    ``http://localhost/mgmt/tm/util/unix-ls``
 
 GUI Path
     N/A
 
 REST Kind
-    ``tm:util:unix-rm:*``
+    ``tm:util:unix-ls:*``
 """
 
 from f5.bigip.mixins import CommandExecutionMixin
