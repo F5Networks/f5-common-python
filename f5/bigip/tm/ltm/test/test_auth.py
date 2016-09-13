@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-
 from f5.bigip import ManagementRoot
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import UnsupportedMethod
@@ -32,6 +31,7 @@ from f5.bigip.tm.ltm.auth import Ssl_Ocsp
 from f5.bigip.tm.ltm.auth import Tacacs
 import mock
 import pytest
+from six import iterkeys
 
 
 class HelperTest(object):
@@ -82,7 +82,7 @@ class HelperTest(object):
         test_meta = rc._meta_data['attribute_registry']
         test_meta2 = rc._meta_data['allowed_lazy_attributes']
         kind = self.authkinds[self.urielementname()]
-        assert kind in test_meta.keys()
+        assert kind in list(iterkeys(test_meta))
         assert klass in test_meta2
 
     def test_create_two(self, fakeicontrolsession_v12):
