@@ -15,6 +15,7 @@
 
 import pytest
 
+from distutils.version import LooseVersion
 from f5.bigip.contexts import TransactionContextManager
 from f5.bigip.contexts import TransactionSubmitException
 
@@ -34,4 +35,42 @@ class TestTransaction(object):
             with TransactionContextManager(tx) as api:  # NOQA
                 pass
         assert "there is no command to commit in the transaction" \
-               in str(ex.value.message)
+               in str(ex.value)
+
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        < LooseVersion('12.0.0'),
+        reason='Needs v12.0.0 TMOS or greater to pass.'
+    )
+    def test_validate_only_true(self, mgmt_root):
+        s1 = mgmt_root.tm.sys.dbs.db.load(name='setup.run')
+        s1.update(value=False)
+
+        tx = mgmt_root.tm.transactions.transaction
+        with TransactionContextManager(tx, validate_only=True) as api:  # NOQA
+            s2 = api.tm.sys.dbs.db.load(name='setup.run')
+            s2.update(value=True)
+
+        s3 = mgmt_root.tm.sys.dbs.db.load(name='setup.run')
+        result = s3.value
+
+        assert result == 'false'
+
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release'))
+        < LooseVersion('12.0.0'),
+        reason='Needs v12.0.0 TMOS or greater to pass.'
+    )
+    def test_validate_only_false(self, mgmt_root):
+        s1 = mgmt_root.tm.sys.dbs.db.load(name='setup.run')
+        s1.update(value=False)
+
+        tx = mgmt_root.tm.transactions.transaction
+        with TransactionContextManager(tx, validate_only=False) as api:  # NOQA
+            s2 = api.tm.sys.dbs.db.load(name='setup.run')
+            s2.update(value=True)
+
+        s3 = mgmt_root.tm.sys.dbs.db.load(name='setup.run')
+        result = s3.value
+
+        assert result == 'true'
