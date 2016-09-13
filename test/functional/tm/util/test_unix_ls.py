@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+from distutils.version import LooseVersion
 import pytest
 
 from f5.utils.util_exceptions import UtilError
@@ -32,6 +33,8 @@ def test_E_unix_ls(mgmt_root):
 
     # create
     fls1 = mgmt_root.tm.util.unix_ls.exec_cmd('run', utilCmdArgs=tpath_name)
+    # grab tmos version for later use in version discrepancy
+    tmos_ver = fls1._meta_data['bigip']._meta_data['tmos_version']
 
     # validate object was created
     assert fls1.utilCmdArgs == tpath_name
@@ -52,7 +55,15 @@ def test_E_unix_ls(mgmt_root):
     mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs=tpath_name)
 
     # test that a bad command option errors out
-    with pytest.raises(iControlUnexpectedHTTPError) as err:
-        mgmt_root.tm.util.unix_ls.exec_cmd('run', utilCmdArgs='-9 /configs/')
-        assert err.response.status_code == 400
-        assert 'unix-ls does not support' in err.response.text
+    if LooseVersion(tmos_ver) < LooseVersion('12.0.0'):
+        with pytest.raises(UtilError) as err:
+            mgmt_root.tm.util.unix_ls.exec_cmd('run',
+                                               utilCmdArgs='-9')
+            assert 'invalid option -- 9' in err.response.text
+
+    else:
+        with pytest.raises(iControlUnexpectedHTTPError) as err:
+            mgmt_root.tm.util.unix_ls.exec_cmd('run',
+                                               utilCmdArgs='-9')
+            assert err.response.status_code == 400
+            assert 'unix-ls does not support' in err.response.text
