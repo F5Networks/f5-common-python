@@ -31,6 +31,7 @@ from f5.bigip.tm.ltm.auth import Tacacs
 from pprint import pprint as pp
 import pytest
 from requests.exceptions import HTTPError
+from six import iteritems
 TESTDESCRIPTION = "TESTDESCRIPTION"
 pp(__file__)
 
@@ -134,7 +135,7 @@ class HelperTest(object):
         authres.__dict__['_meta_data'] = meta_data
         authres.modify(description='MODIFIED')
         desc = 'description'
-        for k, v in authres.__dict__.items():
+        for k, v in iteritems(authres.__dict__):
             if k != desc:
                 start_dict[k] = authres.__dict__[k]
                 assert getattr(authres, k) == start_dict[k]
@@ -201,7 +202,7 @@ class HelperTest(object):
         authres.__dict__['_meta_data'] = meta_data
         authres.modify(idleTimeout=100)
         desc = 'idleTimeout'
-        for k, v in authres.__dict__.items():
+        for k, v in iteritems(authres.__dict__):
             if k != desc:
                 start_dict[k] = authres.__dict__[k]
                 assert getattr(authres, k) == start_dict[k]
