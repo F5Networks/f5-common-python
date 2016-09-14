@@ -27,8 +27,33 @@ class TransactionSubmitException(F5SDKError):
 
 
 class TransactionContextManager(object):
-    def __init__(self, transaction):
+    def __init__(self, transaction, validate_only=False):
+        """Initialize a new Transaction context
+
+        Args:
+            validate_only (bool): Will not commit the transaction, but only
+                validate that it will succeed or not.
+
+        Attributes:
+            transaction (Transaction): The transaction object that was sent
+                to the context manager
+            validate_only (bool): Specifies whether the transaction should
+                commit itself upon `__exit__` or whether the commands in the
+                transaction should just be checked to make sure they don't
+                raise an error.
+            bigip (dict): A reference to the dictionary containing the BIG-IP
+                mgmt_root
+            icr (iControlRESTSession): A reference to the dictionary
+                containing the iControl REST session
+            original_headers (dict): A deep copy of all the headers that were
+                originally part of the iControl REST session. A copy is needed
+                so that we can revert back to them after the transaction has
+                been committed, since the only way to commit the transaction
+                is to set the X-F5-REST-Coordination-Id to the value of the
+                transaction ID of the transaction.
+        """
         self.transaction = transaction
+        self.validate_only = validate_only
         self.bigip = transaction._meta_data['bigip']
         self.icr = self.bigip._meta_data['icr_session']
         self.original_headers = copy.deepcopy(self.icr.session.headers)
@@ -68,10 +93,12 @@ class TransactionContextManager(object):
         parameters will be None
         :returns: void
         """
+
         self.icr.session.headers = dict()
         if exc_tb is None:
             try:
-                self.transaction.update(state="VALIDATING")
+                self.transaction.modify(state="VALIDATING",
+                                        validateOnly=self.validate_only)
             except Exception as e:
                 logging.debug(e)
                 raise TransactionSubmitException(e)
