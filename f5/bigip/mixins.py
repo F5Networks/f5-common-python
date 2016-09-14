@@ -17,7 +17,14 @@
 # NOTE:  Code taken from Effective Python Item 26
 
 
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
+
 from distutils.version import LooseVersion
+from six import iteritems
+
 import logging
 
 from f5.sdk_exception import F5SDKError
@@ -57,7 +64,11 @@ class ToDictMixin(object):
 
     def _traverse_dict(self, instance_dict):
         output = {}
-        for key, value in instance_dict.items():
+
+        # This iteration breaks if the second value comes before
+        # the first. We must use ordered dicts here
+        tmp = OrderedDict(sorted(iteritems(instance_dict), key=lambda t: t[0]))
+        for key, value in iteritems(tmp):
             output[key] = self._traverse(key, value)
         return output
 
@@ -68,6 +79,7 @@ class ToDictMixin(object):
                 return ToDictMixin.traversed[id(value)]
             else:
                 ToDictMixin.traversed[id(value)] = ['TraversalRecord', key]
+
         if isinstance(value, ToDictMixin):
             return value._to_dict()
         elif isinstance(value, dict):
