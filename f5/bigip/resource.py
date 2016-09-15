@@ -101,6 +101,9 @@ from f5.bigip.mixins import ToDictMixin
 from f5.sdk_exception import F5SDKError
 from f5.sdk_exception import UnsupportedMethod
 from requests.exceptions import HTTPError
+from six import iteritems
+from six import iterkeys
+from six import itervalues
 
 
 class MissingRequiredCommandParameter(F5SDKError):
@@ -195,7 +198,7 @@ def _missing_required_parameters(rqset, **kwargs):
 
     ::returns list
     """
-    key_set = set(kwargs.keys())
+    key_set = set(list(iterkeys(kwargs)))
     required_minus_received = rqset - key_set
     if required_minus_received != set():
         return list(required_minus_received)
@@ -307,7 +310,7 @@ class PathElement(LazyAttributeMixin):
         :raises ExclusiveAttributesPresent
         """
         if len(self._meta_data['exclusive_attributes']) > 0:
-            attr_set = set(kwargs.keys())
+            attr_set = set(list(iterkeys(kwargs)))
             ex_set = set(self._meta_data['exclusive_attributes'][0])
             common_set = attr_set.intersection(ex_set)
             if len(common_set) > 1:
@@ -479,9 +482,17 @@ class ResourceBase(PathElement, ToDictMixin):
         # because these are subCollections and _meta_data and
         # other non-BIG-IP® attrs are not removed from the subCollections
         # See issue #146 for details
-        for key, value in self.__dict__.items():
+        tmp = dict()
+        for key, value in iteritems(self.__dict__):
+            # In Python2 versions we were changing a dictionary in place,
+            # but this cannot be done with an iterator as an error is raised.
+            # So instead we create a temporary holder for the modified dict
+            # and then re-assign it afterwards.
             if isinstance(value, Collection):
-                self.__dict__.pop(key, '')
+                pass
+            else:
+                tmp[key] = value
+        self.__dict__ = tmp
         data_dict = self.to_dict()
 
         # Remove any read-only attributes from our data_dict before we update
@@ -773,7 +784,7 @@ class Resource(ResourceBase):
 
         # attrs local alias
         attribute_reg = self._meta_data.get('attribute_registry', {})
-        attrs = attribute_reg.values()
+        attrs = list(itervalues(attribute_reg))
         attrs.append(Stats)
 
         (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)

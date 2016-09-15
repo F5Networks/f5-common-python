@@ -81,22 +81,22 @@ def test_Resource__local_update_IncompatibleKeys():
     r = Resource(mock.MagicMock())
     with pytest.raises(DeviceProvidesIncompatibleKey) as DPIKIO:
         r._local_update({"_meta_data": "foo"})
-    assert DPIKIO.value.message ==\
+    assert str(DPIKIO.value) ==\
         "Response contains key '_meta_data' which is incompatible"\
         " with this API!!\n Response json: {'_meta_data': 'foo'}"
     with pytest.raises(DeviceProvidesIncompatibleKey) as DPIKIO:
         r._local_update({"__MANGLENAME": "foo"})
-    assert DPIKIO.value.message ==\
+    assert str(DPIKIO.value) ==\
         "Device provided '__MANGLENAME' which is disallowed,"\
         " it mangles into a Python non-public attribute."
     with pytest.raises(DeviceProvidesIncompatibleKey) as DPIKIO:
         r._local_update({"for": "foo"})
-    assert DPIKIO.value.message ==\
+    assert str(DPIKIO.value) ==\
         "Device provided 'for' which is disallowed because"\
         " it's a Python keyword."
     with pytest.raises(DeviceProvidesIncompatibleKey) as DPIKIO:
         r._local_update({"%abcd": "foo"})
-    assert DPIKIO.value.message ==\
+    assert str(DPIKIO.value) ==\
         "Device provided '%abcd' which is disallowed because"\
         " it's not a valid Python 2.7 identifier."
 
@@ -132,19 +132,26 @@ class TestResourcecreate(object):
         r._meta_data['required_creation_parameters'] = set(['NONEMPTY'])
         with pytest.raises(MissingRequiredCreationParameter) as MRCPEIO:
             r.create(partition="Common", name='CreateTest')
-        assert MRCPEIO.value.message ==\
+        assert str(MRCPEIO.value) ==\
             "Missing required params: ['NONEMPTY']"
 
     def test_KindTypeMismatch(self):
+        expected_result = (
+            "For instances of type ''Virtual'' the "
+            "corresponding kind must be ''tm:ltm:virtual:virtualstate'' "
+            "but creation returned "
+            "JSON with kind: 'tm:'"
+        )
         r = Virtual(mock.MagicMock())
+
         r._meta_data['bigip']._meta_data['icr_session'].post.return_value =\
-            MockResponse({u"kind": u"tm:"})
-        with pytest.raises(KindTypeMismatch) as KTMmEIO:
+            MockResponse({"kind": "tm:"})
+
+        with pytest.raises(KindTypeMismatch) as error:
             r.create(partition="Common", name="test_create")
-        assert KTMmEIO.value.message ==\
-            "For instances of type ''Virtual'' the corresponding kind must "\
-            "be ''tm:ltm:virtual:virtualstate'' but creation returned "\
-            "JSON with kind: u'tm:'"
+
+        result = error.value.args[0]
+        assert result == expected_result
 
     def test_success(self, fake_vs):
         x = fake_vs.create(partition="Common", name="test_create")
@@ -217,7 +224,7 @@ def test__create_with_Collision():
     r._meta_data['uri'] = 'URI'
     with pytest.raises(URICreationCollision) as UCCEIO:
         r.create(uri='URI')
-    assert UCCEIO.value.message ==\
+    assert str(UCCEIO.value) ==\
         "There was an attempt to assign a new uri to this resource,"\
         " the _meta_data['uri'] is URI and it should not be changed."
 
@@ -235,7 +242,7 @@ class TestResource_update(object):
         r.generation = 1
         with pytest.raises(GenerationMismatch) as GMEIO:
             r.update(a=u"b", force=False)
-        assert GMEIO.value.message ==\
+        assert str(GMEIO.value) ==\
             'The generation of the object on the BigIP (0)'\
             ' does not match the current object(1)'
 
@@ -267,7 +274,6 @@ class TestResource_update(object):
         r.update(a=u"b")
         submitted = r._meta_data['bigip']. \
             _meta_data['icr_session'].put.call_args[1]['json']
-
         assert 'contained' not in submitted
 
     def test_read_only_removal(self):
@@ -366,7 +372,7 @@ class TestResource_modify(object):
         r.generation = 0
         with pytest.raises(AttemptedMutationOfReadOnly) as AMOROEIO:
             r.modify(READONLY=True)
-        assert "READONLY" in AMOROEIO.value.message
+        assert "READONLY" in str(AMOROEIO.value)
 
     def test_reduce_boolean_removes_enabled(self, fake_rsrc):
         fake_rsrc.modify(enabled=False)
@@ -425,7 +431,7 @@ class TestResource_delete(object):
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
         with pytest.raises(InvalidForceType) as IFTEIO:
             r.delete(force='true')
-        assert IFTEIO.value.message == 'force parameter must be type bool'
+        assert str(IFTEIO.value) == 'force parameter must be type bool'
 
 
 class Element(Resource):
@@ -469,7 +475,7 @@ class TestCollection_get_collection(object):
         c.generation = 0
         with pytest.raises(UnregisteredKind) as UKEIO:
             c.get_collection()
-        assert UKEIO.value.message ==\
+        assert str(UKEIO.value) ==\
             "'tm:' is not registered!"
 
 
@@ -479,7 +485,7 @@ class TestResource_load(object):
         r._meta_data['required_load_parameters'] = set(['IMPOSSIBLE'])
         with pytest.raises(MissingRequiredReadParameter) as MRREIO:
             r.load(partition='Common', name='test_load')
-        assert MRREIO.value.message ==\
+        assert str(MRREIO.value) ==\
             "Missing required params: ['IMPOSSIBLE']"
 
     def test_requests_params_collision(self):
@@ -487,7 +493,7 @@ class TestResource_load(object):
         with pytest.raises(RequestParamKwargCollision) as RPKCEIO:
             r.load(partition='Common', name='test_load',
                    requests_params={'partition': 'ERROR'})
-        assert RPKCEIO.value.message ==\
+        assert str(RPKCEIO.value) ==\
             "Requests Parameter 'partition' collides with a load parameter"\
             " of the same name."
 
