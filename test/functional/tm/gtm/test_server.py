@@ -19,7 +19,9 @@ import pytest
 from distutils.version import LooseVersion
 from f5.bigip.tm.gtm.server import Server
 from f5.bigip.tm.gtm.server import Virtual_Servers
+
 from requests.exceptions import HTTPError
+from six import iteritems
 
 
 def delete_server(mgmt_root, name):
@@ -211,7 +213,7 @@ class TestUpdateModify(object):
         original_dict = copy.copy(s1.__dict__)
         iqpath = 'iqAllowPath'
         s1.modify(iqAllowPath='no')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != iqpath:
                 original_dict[k] = s1.__dict__[k]
             elif k == iqpath:
@@ -325,7 +327,7 @@ class TestVirtualServerSubCollection(object):
         original_dict = copy.copy(vs1.__dict__)
         limit = 'limitMaxBpsStatus'
         vs1.modify(limitMaxBpsStatus='enabled')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != limit:
                 original_dict[k] = vs1.__dict__[k]
             elif k == limit:

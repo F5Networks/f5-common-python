@@ -1,4 +1,3 @@
-from __future__ import print_function
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +12,16 @@ from __future__ import print_function
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import print_function
 
 import io
 import jinja2
 import json
 import os
-from pprint import pprint as pp
 import re
+
+from pprint import pprint as pp
+from six import iterkeys
 
 
 class UnexpectedOCItem(Exception):
@@ -68,10 +70,10 @@ class TemplateEngine(object):
         os.path.walk(dirname, consumer, self)
 
     def list_templates(self):
-        pp(self.templates.keys())
+        pp(list(iterkeys(self.templates)))
 
     def list_raw_configs(self):
-        pp(self.raw_configs.keys())
+        pp(list(iterkeys(self.raw_configs)))
 
     def process_config_from_fname(self, fname):
         if not fname.endswith('.json'):

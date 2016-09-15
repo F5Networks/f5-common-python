@@ -32,6 +32,8 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import Resource
 
+from six import iterkeys
+
 
 class Routes(Collection):
     """BIG-IP® network route collection"""
@@ -71,7 +73,8 @@ class Route(Resource, ExclusiveAttributesMixin):
         # required_creation_parameters because it needs to be one of the
         # gateways in the list.
         gateways = ['blackhole', 'gw', 'tmInterface', 'pool']
-        if not [k for k in kwargs.keys() if k in gateways]:
+        kwkeys = list(iterkeys(kwargs))
+        if not [k for k in kwkeys if k in gateways]:
             raise MissingRequiredCreationParameter(
                 "One of %s gateways is required." % gateways
             )

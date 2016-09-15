@@ -21,6 +21,8 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.gtm.server import Server
 from f5.bigip.tm.gtm.server import Virtual_Servers
 
+from six import iterkeys
+
 
 @pytest.fixture
 def FakeServer():
@@ -63,7 +65,7 @@ class Test_VS_Subcoll(object):
         s = b.tm.gtm.servers.server
         test_meta = s._meta_data['attribute_registry']
         kind = 'tm:gtm:server:virtual-servers:virtual-serverscollectionstate'
-        assert kind in test_meta.keys()
+        assert kind in list(iterkeys(test_meta))
 
     def test_create_no_args(self, FakeVS):
         with pytest.raises(MissingRequiredCreationParameter):

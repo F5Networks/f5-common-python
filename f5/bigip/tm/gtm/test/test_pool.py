@@ -29,6 +29,8 @@ from f5.bigip.tm.gtm.pool import Pool
 from f5.bigip.tm.gtm.pool import PoolCollection
 from f5.bigip.tm.gtm.pool import Srv
 
+from six import iterkeys
+
 
 @pytest.fixture
 def FakePoolv11():
@@ -83,7 +85,7 @@ class TestCollectionv11(object):
         test_meta = p._meta_data['attribute_registry']
         test_meta2 = p._meta_data['allowed_lazy_attributes']
         kind = 'tm:gtm:pool:poolstate'
-        assert kind in test_meta.keys()
+        assert kind in list(iterkeys(test_meta))
         assert Pool in test_meta2
 
 
@@ -129,7 +131,7 @@ class HelperTest(object):
         test_meta = rc._meta_data['attribute_registry']
         test_meta2 = rc._meta_data['allowed_lazy_attributes']
         kind = self.poolkinds[self.urielementname()]
-        assert kind in test_meta.keys()
+        assert kind in list(iterkeys(test_meta))
         assert klass in test_meta2
 
     def test_create_two_v12(self, fakeicontrolsession_v12):

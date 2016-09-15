@@ -14,13 +14,13 @@
 #
 
 from distutils.version import LooseVersion
-
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
 from f5.sdk_exception import UnsupportedMethod
+from pprint import pprint as pp
+from six import iteritems
 
 import copy
-from pprint import pprint as pp
 import pytest
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
@@ -72,7 +72,7 @@ class TestVirtual(object):
         original_dict = copy.copy(virtual1.__dict__)
         desc = 'description'
         virtual1.modify(description='Cool mod test')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != desc:
                 original_dict[k] = virtual1.__dict__[k]
             elif k == desc:

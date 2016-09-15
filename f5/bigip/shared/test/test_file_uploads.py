@@ -36,7 +36,7 @@ def test_file_upload_80a(tmpdir, fakeicontrolsession):
     session_mock = mr._meta_data['icr_session']
     for i in range(4):
         d = session_mock.post.call_args_list[i][1]['data']
-        assert d == 'aaaaaaaaaaaaaaaaaaaa'
+        assert d == b'aaaaaaaaaaaaaaaaaaaa'
 
 
 def test_file_upload_70a(tmpdir, fakeicontrolsession):
@@ -50,9 +50,9 @@ def test_file_upload_70a(tmpdir, fakeicontrolsession):
     for i in range(3):
         print(i)
         d = session_mock.post.call_args_list[i][1]['data']
-        assert d == 'aaaaaaaaaaaaaaaaaaaa'
+        assert d == b'aaaaaaaaaaaaaaaaaaaa'
     lchunk = session_mock.post.call_args_list[3][1]['data']
-    assert 10*'a' == lchunk
+    assert b'a'*10 == lchunk
 
 
 def test_ISO_extension(tmpdir, fakeicontrolsession):
@@ -62,7 +62,7 @@ def test_ISO_extension(tmpdir, fakeicontrolsession):
     ftu = mr.shared.file_transfer.uploads
     with pytest.raises(FileMustNotHaveDotISOExtension) as EIO:
         ftu.upload_file(filepath.__str__(), chunk_size=21)
-    assert EIO.value.message == 'wrongname.iso'
+    assert str(EIO.value) == 'wrongname.iso'
 
 
 def test_stringio_upload_80a(tmpdir, fakeicontrolsession):

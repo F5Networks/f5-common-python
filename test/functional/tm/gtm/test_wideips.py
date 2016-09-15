@@ -14,6 +14,8 @@
 #
 
 import copy
+import pytest
+
 from distutils.version import LooseVersion
 from f5.bigip.tm.gtm.wideip import A
 from f5.bigip.tm.gtm.wideip import Aaaa
@@ -23,9 +25,8 @@ from f5.bigip.tm.gtm.wideip import Naptr
 from f5.bigip.tm.gtm.wideip import Srv
 from f5.bigip.tm.gtm.wideip import Wideip
 from pprint import pprint as pp
-pp(__file__)
-import pytest
 from requests.exceptions import HTTPError
+from six import iteritems
 
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
@@ -104,7 +105,7 @@ class HelperTest(object):
         wideip.__dict__['_meta_data'] = meta_data
         wideip.modify(description='MODIFIED')
         desc = 'description'
-        for k, v in wideip.__dict__.items():
+        for k, v in iteritems(wideip.__dict__):
             if k != desc:
                 start_dict[k] = wideip.__dict__[k]
                 assert getattr(wideip, k) == start_dict[k]
@@ -315,7 +316,7 @@ class TestWideips_v11(object):
         original_dict = copy.copy(s1.__dict__)
         ipv6 = 'ipv6NoErrorResponse'
         s1.modify(ipv6NoErrorResponse='enabled')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != ipv6:
                 original_dict[k] = s1.__dict__[k]
             elif k == ipv6:

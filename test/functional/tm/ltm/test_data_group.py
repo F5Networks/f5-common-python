@@ -16,7 +16,9 @@
 import copy
 from f5.bigip.resource import MissingRequiredCreationParameter
 import pytest
+
 from requests.exceptions import HTTPError
+from six import iteritems
 
 
 def delete_external_datagroup(mgmt_root, name, partition, DATAGROUP):
@@ -137,7 +139,7 @@ class TestExternalDatagroup(object):
         original_dict = copy.copy(dg1.__dict__)
         desc = 'description'
         dg1.modify(description='CustomFake')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != desc:
                 original_dict[k] = dg1.__dict__[k]
             elif k == desc:
@@ -193,7 +195,7 @@ class TestInternalDatagroup(object):
         original_dict = copy.copy(dg1.__dict__)
         desc = 'description'
         dg1.modify(description='CustomFake')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != desc:
                 original_dict[k] = dg1.__dict__[k]
             elif k == desc:

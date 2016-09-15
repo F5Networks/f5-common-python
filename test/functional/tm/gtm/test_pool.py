@@ -30,7 +30,10 @@ from f5.bigip.tm.gtm.pool import Pool
 from f5.bigip.tm.gtm.pool import Srv
 from pprint import pprint as pp
 import pytest
+
 from requests.exceptions import HTTPError
+from six import iteritems
+
 pp(__file__)
 
 
@@ -213,7 +216,7 @@ class HelperTest(object):
         pool.__dict__['_meta_data'] = meta_data
         pool.modify(description='MODIFIED')
         desc = 'description'
-        for k, v in pool.__dict__.items():
+        for k, v in iteritems(pool.__dict__):
             if k != desc:
                 start_dict[k] = pool.__dict__[k]
                 assert getattr(pool, k) == start_dict[k]
@@ -305,7 +308,7 @@ class HelperTest(object):
         member.__dict__['_meta_data'] = meta_data
         member.modify(description='MODIFIED')
         desc = 'description'
-        for k, v in member.__dict__.items():
+        for k, v in iteritems(member.__dict__):
             if k != desc:
                 start_dict[k] = member.__dict__[k]
                 assert getattr(member, k) == start_dict[k]
@@ -654,7 +657,7 @@ class TestPools_v11(object):
         original_dict = copy.copy(p1.__dict__)
         limit = 'limitMaxBpsStatus'
         p1.modify(limitMaxBpsStatus='enabled')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != limit:
                 original_dict[k] = p1.__dict__[k]
             elif k == limit:
@@ -779,7 +782,7 @@ class TestMembersSubCollection_v11(object):
         original_dict = copy.copy(m1.__dict__)
         limit = 'limitMaxBpsStatus'
         m1.modify(limitMaxBpsStatus='enabled')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != limit:
                 original_dict[k] = m1.__dict__[k]
             elif k == limit:

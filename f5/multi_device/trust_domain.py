@@ -44,6 +44,7 @@ Methods:
 
 '''
 from __future__ import print_function
+from six import iteritems
 
 from f5.multi_device.exceptions import DeviceAlreadyInTrustDomain
 from f5.multi_device.exceptions import DeviceNotTrusted
@@ -94,7 +95,7 @@ class TrustDomain(object):
         self._populate_domain()
         missing = []
         for domain_device in self.domain:
-            for truster, trustees in self.domain.iteritems():
+            for truster, trustees in iteritems(self.domain):
                 if domain_device not in trustees:
                     missing.append((domain_device, truster, trustees))
 

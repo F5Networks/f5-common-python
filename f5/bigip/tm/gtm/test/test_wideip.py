@@ -29,6 +29,8 @@ from f5.bigip.tm.gtm.wideip import Srv
 from f5.bigip.tm.gtm.wideip import Wideip
 from f5.bigip.tm.gtm.wideip import WideipCollection
 
+from six import iterkeys
+
 
 @pytest.fixture
 def FakeWideipv11():
@@ -83,7 +85,7 @@ class TestCollectionv11(object):
         test_meta = w._meta_data['attribute_registry']
         test_meta2 = w._meta_data['allowed_lazy_attributes']
         kind = 'tm:gtm:wideip:wideipstate'
-        assert kind in test_meta.keys()
+        assert kind in list(iterkeys(test_meta))
         assert Wideip in test_meta2
 
 
@@ -129,7 +131,7 @@ class HelperTest(object):
         test_meta = rc._meta_data['attribute_registry']
         test_meta2 = rc._meta_data['allowed_lazy_attributes']
         kind = self.kinds[self.urielementname()]
-        assert kind in test_meta.keys()
+        assert kind in list(iterkeys(test_meta))
         assert klass in test_meta2
 
     def test_create_two_v12(self, fakeicontrolsession_v12):

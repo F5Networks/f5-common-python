@@ -61,7 +61,7 @@ def test___get__attr(FakeBigIP):
 def test_invalid_args():
     with pytest.raises(TypeError) as err:
         BigIP('FakeHostName', 'admin', 'admin', badArgs='foobar')
-    assert 'Unexpected **kwargs' in err.value.message
+    assert 'Unexpected **kwargs' in str(err.value)
 
 
 def test_icontrol_version(FakeBigIPWithPort):

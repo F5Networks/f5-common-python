@@ -23,6 +23,8 @@ import mock
 import os
 import pytest
 import requests
+
+from six import itervalues
 from tempfile import NamedTemporaryFile
 
 
@@ -210,9 +212,9 @@ def pool_factory():
                                 name=memconf.memname)
 
         def deleter():
-            for member_instance in members_registry.values():
+            for member_instance in list(itervalues(members_registry)):
                 member_instance.delete()
-            for pool_instance in pool_registry.values():
+            for pool_instance in list(itervalues(pool_registry)):
                 pool_instance.delete()
         request.addfinalizer(deleter)
         return pool_registry, members_registry

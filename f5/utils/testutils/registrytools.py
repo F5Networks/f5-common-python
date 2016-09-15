@@ -15,6 +15,7 @@
 
 import logging
 from pprint import pprint as pp
+from six import itervalues
 
 from f5.bigip.mixins import UnsupportedTmosVersion
 from f5.bigip.resource import Collection
@@ -81,7 +82,7 @@ def register_loadbalancer_elements(mgmt_rt):
     virtual_address_s_registry =\
         register_collection_atoms(mgmt_rt.tm.ltm.virtual_address_s)
     member_registry = {}
-    for pool in pool_registry.values():
+    for pool in list(itervalues(pool_registry)):
         mc = pool.members_s
         member_registry.update(register_collection_atoms(mc))
     folder_registry = register_collection_atoms(mgmt_rt.tm.sys.folders)

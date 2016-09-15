@@ -15,13 +15,13 @@
 #
 
 from distutils.version import LooseVersion
-import pytest
-
-
 from OpenSSL import crypto
-import os
 from requests import HTTPError
+from six import iteritems
 from tempfile import NamedTemporaryFile
+
+import os
+import pytest
 
 
 def gen_key():
@@ -35,7 +35,7 @@ def gen_csr(key, **name):
     # returns the certificate request in an X509Req object
     req = crypto.X509Req()
     subj = req.get_subject()
-    for (k, v) in name.items():
+    for (k, v) in iteritems(name):
         setattr(subj, k, v)
     req.set_pubkey(key)
     req.sign(key, 'sha1')
