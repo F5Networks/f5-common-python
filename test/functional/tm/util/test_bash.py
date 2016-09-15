@@ -33,14 +33,14 @@ def test_E_bash(mgmt_root):
     # UtilError should be raised if -c is not specified
     with pytest.raises(UtilError) as err:
         mgmt_root.tm.util.bash.exec_cmd('run',
-                                           utilCmdArgs='-9 hello')
+                                        utilCmdArgs='-9 hello')
         assert 'Required format is "-c <bash command and arguments>"'\
                in err.response.text
 
     # UtilError should be raised if command isn't found
     with pytest.raises(UtilError) as err:
         mgmt_root.tm.util.bash.exec_cmd('run',
-                                           utilCmdArgs='-c hello')
+                                        utilCmdArgs='-c hello')
         assert 'command not found' in err.response.text
 
     # clean up test file
@@ -49,6 +49,6 @@ def test_E_bash(mgmt_root):
     # iControlUnexpectedHTTPError should be raised if quotes don't match
     with pytest.raises(iControlUnexpectedHTTPError) as err:
         mgmt_root.tm.util.bash.exec_cmd('run',
-                                           utilCmdArgs='-c "df -k')
+                                        utilCmdArgs='-c "df -k')
         assert err.response.status_code == 400
         assert 'quotes are not balanced' in err.response.text
