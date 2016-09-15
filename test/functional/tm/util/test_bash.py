@@ -16,11 +16,16 @@
 
 import pytest
 
+from f5.bigip.resource import MissingRequiredCommandParameter
 from f5.utils.util_exceptions import UtilError
 from icontrol.session import iControlUnexpectedHTTPError
 
 
 def test_E_bash(mgmt_root):
+
+    with pytest.raises(MissingRequiredCommandParameter) as err:
+        mgmt_root.tm.util.bash.exec_cmd('run')
+        assert "Missing required params: ['utilCmdArgs']" in err.response.text
 
     # use bash to create a test file
     bash1 = mgmt_root.tm.util.bash.exec_cmd(
@@ -29,6 +34,13 @@ def test_E_bash(mgmt_root):
 
     # commandResult should not be present if this was successful
     assert 'commandResult' not in bash1.__dict__
+
+    bash2 = mgmt_root.tm.util.bash.exec_cmd(
+        'run',
+        utilCmdArgs='-c df -k')
+
+    # commandResult should b present with data from 'df -k'
+    assert 'commandResult' in bash2.__dict__
 
     # UtilError should be raised if -c is not specified
     with pytest.raises(UtilError) as err:
