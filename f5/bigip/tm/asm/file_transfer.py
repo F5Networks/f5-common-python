@@ -15,25 +15,53 @@
 # limitations under the License.
 #
 
-from f5.bigip.resource import UnnamedResource
+import os
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
+from f5.bigip.mixins import FileDownloadMixin
+from f5.bigip.mixins import FileUploadMixin
+from f5.bigip.resource import PathElement
 from f5.bigip.resource import OrganizingCollection
+from f5.sdk_exception import F5SDKError
+
+
+class FileMustNotHaveDotISOExtension(F5SDKError):
+    def __init__(self, filename):
+        super(FileMustNotHaveDotISOExtension, self).__init__(filename)
 
 
 class File_Transfer(OrganizingCollection):
     """BIG-IP® ASM Tasks organizing collection."""
-
     def __init__(self, tm):
         super(File_Transfer, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Upload,
-            Download,
+            Uploads,
+            Downloads,
             ]
 
-#those will probably be similiar to autodeploy classes, need to think on it
 
-class Upload(UnnamedResource):
-    pass
+class Uploads(PathElement, FileUploadMixin):
+    """A file upload resource."""
+    def __init__(self, file_transfer):
+        super(Uploads, self).__init__(file_transfer)
+
+    def upload_file(self, filepathname, **kwargs):
+        filename = os.path.basename(filepathname)
+        if os.path.splitext(filename)[-1] == '.iso':
+            raise FileMustNotHaveDotISOExtension(filename)
+        self.file_bound_uri = self._meta_data['uri'] + filename
+        self._upload_file(filepathname, **kwargs)
 
 
-class Download(UnnamedResource):
-   pass
+class Downloads(PathElement, FileDownloadMixin):
+    """A file download resource."""
+    def __init__(self, file_transfer):
+        super(Downloads, self).__init__(file_transfer)
+
+    def download_file(self, filepathname, **kwargs):
+        filename = os.path.basename(filepathname)
+        self.file_bound_uri = self._meta_data['uri'] + filename
+        self._download_file(filepathname, **kwargs)

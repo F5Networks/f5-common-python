@@ -227,6 +227,10 @@ class PathElement(LazyAttributeMixin):
         self._meta_data['required_command_parameters'] = set()
         # You can't have more than one of the attributes in any of these sets.
         self._meta_data['exclusive_attributes'] = []
+        # ASM objects behave differently and do not have stats, we need this
+        # to identify them. By default this is false.
+        self._meta_data['is_asm_object'] = False
+
 
     def _set_meta_data_uri(self):
         base_uri = self.__class__.__name__.lower()
@@ -774,7 +778,8 @@ class Resource(ResourceBase):
         # attrs local alias
         attribute_reg = self._meta_data.get('attribute_registry', {})
         attrs = attribute_reg.values()
-        attrs.append(Stats)
+        if not self._meta_data['is_asm_object']:
+            attrs.append(Stats)
 
         (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
         path_uri = urlparse.urlunsplit((scheme, uri.netloc, path, '', ''))
@@ -876,7 +881,18 @@ class Resource(ResourceBase):
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
         refresh_session = self._meta_data['bigip']._meta_data['icr_session']
-        base_uri = self._meta_data['container']._meta_data['uri']
+
+        # Adding this to accommodate some differences in how we retrieve ASM
+        # resources. Will require some testing with sub-collections.
+        if self._meta_data['is_asm_object']:
+            uri = self._meta_data['container']._meta_data['uri']
+            endpoint = kwargs.pop('id', '')
+            # Popping name kwarg as it will cause the uri to be invalid
+            kwargs.pop('name', '')
+            base_uri = uri + endpoint + '/'
+        else:
+            base_uri = self._meta_data['container']._meta_data['uri']
+
         kwargs.update(requests_params)
         for key1, key2 in self._meta_data['reduction_forcing_pairs']:
             kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
@@ -916,8 +932,13 @@ class Resource(ResourceBase):
             self._check_generation()
 
         response = session.delete(delete_uri, **requests_params)
-        if response.status_code == 200:
-            self.__dict__ = {'deleted': True}
+        # ASM resource deletion returns 201 on some resources
+        if self._meta_data['is_asm_object']:
+            if response.status_code == 200 or 201:
+                self.__dict__ = {'deleted': True}
+        else:
+            if response.status_code == 200:
+                self.__dict__ = {'deleted': True}
 
     def delete(self, **kwargs):
         """Delete the resource on the BIG-IP®.
@@ -959,7 +980,16 @@ class Resource(ResourceBase):
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
         session = self._meta_data['bigip']._meta_data['icr_session']
-        base_uri = self._meta_data['container']._meta_data['uri']
+        # Adding this to accommodate some differences in how we retrieve ASM
+        # resources. Will require some testing with sub-collections.
+        if self._meta_data['is_asm_object']:
+            uri = self._meta_data['container']._meta_data['uri']
+            endpoint = kwargs.pop('id', '')
+            # Popping name kwarg as it will cause the uri to be invalid
+            kwargs.pop('name', '')
+            base_uri = uri + endpoint + '/'
+        else:
+            base_uri = self._meta_data['container']._meta_data['uri']
         kwargs.update(requests_params)
         try:
             session.get(base_uri, **kwargs)
@@ -1020,3 +1050,9 @@ class Stats(UnnamedResource):
     def load(self, **kwargs):
         # TODO(pjbreaux) add try-except and custom exception here.
         return super(Stats, self).load(**kwargs)
+
+
+
+class AsmResource(ResourceBase):
+    """placeholder for class, will move stuff from Resource here"""
+    pass
