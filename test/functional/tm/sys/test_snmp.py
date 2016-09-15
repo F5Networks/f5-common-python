@@ -14,9 +14,11 @@
 #
 
 import copy
+import pytest
+
 from distutils.version import LooseVersion
 from icontrol.session import iControlUnexpectedHTTPError
-import pytest
+from six import iteritems
 
 VERSIONS = [1, '1', '2c']
 VERSIONS_AUTH = [3, '3']
@@ -384,7 +386,7 @@ class TestCommunity(object):
         original_dict = copy.copy(comm1.__dict__)
         commName = 'communityName'
         comm1.modify(communityName='footest1')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != commName:
                 original_dict[k] = comm1.__dict__[k]
             elif k == commName:
@@ -453,7 +455,7 @@ class TestUser(object):
         original_dict = copy.copy(user1.__dict__)
         accessName = 'access'
         user1.modify(access='rw')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != accessName:
                 original_dict[k] = user1.__dict__[k]
             elif k == accessName:
@@ -519,7 +521,7 @@ class TestTrap(object):
                     port=1234,
                     version=badVal
                 )
-            assert 'expected one of the following' in err.value.message
+            assert 'expected one of the following' in str(err.value)
 
     def test_trap_create_bad_port(
             self, request, mgmt_root, setup_device_snapshot
@@ -547,7 +549,7 @@ class TestTrap(object):
                         port=badVal,
                         version=version
                     )
-                assert 'invalid or ambiguous service' in err.value.message
+                assert 'invalid or ambiguous service' in str(err.value)
 
     def test_trap_create_named_port(
             self, request, mgmt_root, setup_device_snapshot
@@ -617,7 +619,7 @@ class TestTrap(object):
         original_dict = copy.copy(trap1.__dict__)
         host = 'host'
         trap1.modify(host='20.20.20.20')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != host:
                 original_dict[k] = trap1.__dict__[k]
             elif k == host:
