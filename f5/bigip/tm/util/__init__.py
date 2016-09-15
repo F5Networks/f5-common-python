@@ -28,6 +28,7 @@ REST Kind
 """
 
 from f5.bigip.resource import PathElement
+from f5.bigip.tm.util.Bash import Bash
 from f5.bigip.tm.util.Unix_Ls import Unix_Ls
 from f5.bigip.tm.util.Unix_Mv import Unix_Mv
 from f5.bigip.tm.util.Unix_Rm import Unix_Rm
@@ -37,6 +38,7 @@ class Util(PathElement):
     def __init__(self, bigip):
         super(Util, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
+            Bash,
             Unix_Ls,
             Unix_Mv,
             Unix_Rm
