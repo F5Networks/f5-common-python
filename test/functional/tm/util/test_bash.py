@@ -30,30 +30,25 @@ def test_E_bash(mgmt_root):
     # commandResult should not be present if this was successful
     assert 'commandResult' not in bash1.__dict__
 
-    # UtilError should be raised with bad bash command option
+    # UtilError should be raised if -c is not specified
     with pytest.raises(UtilError) as err:
-        mgmt_root.tm.util.unix_ls.exec_cmd('run',
+        mgmt_root.tm.util.bash.exec_cmd('run',
                                            utilCmdArgs='-9 hello')
-        assert 'invalid option' in err.response.text
+        assert 'Required format is "-c <bash command and arguments>"'\
+               in err.response.text
 
     # UtilError should be raised if command isn't found
     with pytest.raises(UtilError) as err:
-        mgmt_root.tm.util.unix_ls.exec_cmd('run',
+        mgmt_root.tm.util.bash.exec_cmd('run',
                                            utilCmdArgs='-c hello')
         assert 'command not found' in err.response.text
-
-    # UtilError should be raised if no command option and a string
-    with pytest.raises(UtilError) as err:
-        mgmt_root.tm.util.unix_ls.exec_cmd('run',
-                                           utilCmdArgs='hello')
-        assert 'No such file or directory' in err.response.text
 
     # clean up test file
     mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs='/var/tmp/test.txt')
 
-    # test that unmatched quotes errors out
+    # iControlUnexpectedHTTPError should be raised if quotes don't match
     with pytest.raises(iControlUnexpectedHTTPError) as err:
-        mgmt_root.tm.util.unix_ls.exec_cmd('run',
+        mgmt_root.tm.util.bash.exec_cmd('run',
                                            utilCmdArgs='-c "df -k')
         assert err.response.status_code == 400
         assert 'quotes are not balanced' in err.response.text

@@ -51,6 +51,11 @@ class Bash(UnnamedResource, CommandExecutionMixin):
         self._check_exclusive_parameters(**kwargs)
         requests_params = self._handle_requests_params(kwargs)
         self._check_command_parameters(**kwargs)
+
+        if not kwargs['utilCmdArgs'].startswith("-c"):
+            raise UtilError(
+                'Required format is "-c <bash command and arguments>"')
+
         session = self._meta_data['bigip']._meta_data['icr_session']
         response = session.post(
             self._meta_data['uri'], json=kwargs, **requests_params)
