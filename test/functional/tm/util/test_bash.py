@@ -39,7 +39,7 @@ def test_E_bash(mgmt_root):
         'run',
         utilCmdArgs='-c df -k')
 
-    # commandResult should b present with data from 'df -k'
+    # commandResult should be present with data from 'df -k'
     assert 'commandResult' in bash2.__dict__
 
     # UtilError should be raised if -c is not specified
