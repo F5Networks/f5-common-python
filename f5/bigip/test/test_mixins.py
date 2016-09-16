@@ -44,7 +44,8 @@ def test_list_and_int():
     MTCobj.x = [1, 'a']
     MTCobj.y = 1
     mtc_as_dict = MTCobj.to_dict()
-    assert json.dumps(mtc_as_dict) == '{"y": 1, "x": [1, "a"]}'
+    assert json.dumps(mtc_as_dict, sort_keys=True) == \
+        '{"x": [1, "a"], "y": 1}'
 
 
 def test_list_and_int_and_list2():
@@ -53,7 +54,8 @@ def test_list_and_int_and_list2():
     MTCobj.y = 1
     MTCobj.z = [1, 'a']
     mtc_as_dict = MTCobj.to_dict()
-    assert json.dumps(mtc_as_dict) == '{"y": 1, "x": [1, "a"], "z": [1, "a"]}'
+    assert json.dumps(mtc_as_dict, sort_keys=True) == \
+        '{"x": [1, "a"], "y": 1, "z": [1, "a"]}'
 
 
 def test_two_refs():
@@ -61,7 +63,8 @@ def test_two_refs():
     MTCobj.x = [1, 'a']
     MTCobj.z = MTCobj.x
     mtc_as_dict = MTCobj.to_dict()
-    assert json.dumps(mtc_as_dict) ==\
+    dict1 = json.dumps(mtc_as_dict, sort_keys=True)
+    assert dict1 ==\
         '{"x": [1, "a"], "z": ["TraversalRecord", "x"]}'
 
 

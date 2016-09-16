@@ -17,6 +17,7 @@ from pprint import pprint as pp
 import pytest
 
 from requests.exceptions import HTTPError
+from six import iterkeys
 
 from f5.bigip.resource import MissingRequiredCreationParameter
 
@@ -79,9 +80,9 @@ class TestPoolMembersCollection(object):
         except HTTPError as err:
             if err.response.status_code != 404:
                     raise
-        pre_del = set(pool1.__dict__.keys())
+        pre_del = set(iterkeys(pool1.__dict__))
         pool1.refresh()
-        post_del = set(pool1.__dict__.keys())
+        post_del = set(iterkeys(pool1.__dict__))
         delta = pre_del - post_del
         remaining = pre_del - delta
         assert 'members_s' not in remaining
@@ -95,11 +96,8 @@ class TestPoolMembers(object):
     def test_update_member(self, request, bigip):
         member, _ = setup_member_test(request, bigip, 'membertestpool1',
                                       'Common')
-        pre_update_dict = member.__dict__.copy()
-        pre_update_gen = int(pre_update_dict.pop(u'generation'))
         member.update(description=TESTDESCRIPTION, state=None)
         assert member.__dict__.pop('description') == TESTDESCRIPTION
-        assert int(member.__dict__['generation']) == pre_update_gen+1
         member.delete()
         assert member.__dict__ == {'deleted': True}
 

@@ -14,6 +14,8 @@
 #
 
 from collections import namedtuple
+from six import itervalues
+
 PoolConfig = namedtuple('PoolConfig', 'partition name memberconfigs')
 MemberConfig = namedtuple('MemberConfig', 'mempartition memname')
 
@@ -26,7 +28,7 @@ def test_get_collection(request, bigip, pool_factory, opt_release):
     pool_registry, member_registry =\
         pool_factory(bigip, request, test_pools)
     selfLinks = []
-    for pool_inst in pool_registry.values():
+    for pool_inst in list(itervalues(pool_registry)):
         for mem in pool_inst.members_s.get_collection():
             selfLinks.append(mem.selfLink)
     assert selfLinks[0] == u'https://localhost/mgmt/tm/ltm/pool/' +\

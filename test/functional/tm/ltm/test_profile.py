@@ -15,11 +15,15 @@
 
 
 import copy
+import pytest
+
 from distutils.version import LooseVersion
 from f5.bigip.mixins import UnsupportedTmosVersion
 from pprint import pprint as pp
+from six import iteritems
+
 pp(__file__)
-import pytest
+
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
@@ -74,7 +78,7 @@ class HelperTest(object):
         start_dict = copy.deepcopy(profile1.__dict__)
         profile1.__dict__['_meta_data'] = meta_data
         profile1.modify(description='MODIFIED')
-        for k, v in profile1.__dict__.items():
+        for k, v in iteritems(profile1.__dict__):
             if k != 'description' and\
                k != 'generation' and\
                k != '_meta_data' and\
@@ -88,7 +92,7 @@ class HelperTest(object):
             start_dict = copy.deepcopy(profile1.__dict__)
             profile1.__dict__['_meta_data'] = meta_data
             profile1.modify(secureRenegotiation='require-strict')
-            for k, v in profile1.__dict__.items():
+            for k, v in iteritems(profile1.__dict__):
                 if k != 'secureRenegotiation'\
                         and k != 'generation'\
                         and k != '_meta_data':

@@ -14,9 +14,11 @@
 #
 
 import copy
-from f5.bigip.resource import MissingRequiredCreationParameter
 import pytest
+
+from f5.bigip.resource import MissingRequiredCreationParameter
 from requests.exceptions import HTTPError
+from six import iteritems
 
 
 def delete_ifile(mgmt_root, name, partition, IFILE):
@@ -99,7 +101,7 @@ class TestiFile(object):
         original_dict = copy.copy(ifile1.__dict__)
         desc = 'description'
         ifile1.modify(description='CustomFake')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != desc:
                 original_dict[k] = ifile1.__dict__[k]
             elif k == desc:

@@ -36,7 +36,7 @@ def test_software_image_uploads_80a(tmpdir, fakeicontrolsessionfactory):
     session_mock = mr._meta_data['icr_session']
     for i in range(4):
         d = session_mock.post.call_args_list[i][1]['data']
-        assert d == 'a'*CHUNKSIZE
+        assert d == b'a'*CHUNKSIZE
 
 
 def test_software_image_uploads_70a(tmpdir, fakeicontrolsessionfactory):
@@ -49,11 +49,10 @@ def test_software_image_uploads_70a(tmpdir, fakeicontrolsessionfactory):
     session_mock = mr._meta_data['icr_session']
     sius.upload_image(str(filepath), chunk_size=CHUNKSIZE)
     for i in range(3):
-        print(i)
         d = session_mock.post.call_args_list[i][1]['data']
-        assert d == 'a'*CHUNKSIZE
+        assert d == b'a'*CHUNKSIZE
     lchunk = session_mock.post.call_args_list[3][1]['data']
-    assert 10*'a' == lchunk
+    assert b'a'*10 == lchunk
 
 
 def test_non_ISO_extension(tmpdir, fakeicontrolsessionfactory):
@@ -63,4 +62,4 @@ def test_non_ISO_extension(tmpdir, fakeicontrolsessionfactory):
     sius = mr.cm.autodeploy.software_image_uploads
     with pytest.raises(ImageFilesMustHaveDotISOExtension) as EIO:
         sius.upload_image(str(filepath), chunk_size=CHUNKSIZE)
-    assert EIO.value.message == 'wrong.name'
+    assert str(EIO.value) == 'wrong.name'

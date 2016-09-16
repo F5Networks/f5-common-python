@@ -18,6 +18,7 @@ from f5.bigip.resource import MissingRequiredReadParameter
 from f5.bigip.tm.vcmp.guest import DisallowedCreationParameter
 from f5.bigip.tm.vcmp.guest import DisallowedReadParameter
 from icontrol.session import iControlUnexpectedHTTPError
+from six import iteritems
 
 import copy
 import pytest
@@ -73,7 +74,7 @@ class TestGuest(object):
         assert guest1.managementGw != '10.190.0.1'
         gw = 'managementGw'
         guest1.modify(managementGw='10.190.0.1')
-        for k, v in original_dict.items():
+        for k, v in iteritems(original_dict):
             if k != gw:
                 original_dict[k] = guest1.__dict__[k]
             elif k == gw:

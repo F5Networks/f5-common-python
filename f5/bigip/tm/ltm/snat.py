@@ -31,6 +31,8 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import Resource
 
+from six import iterkeys
+
 
 class RequireOneOf(MissingRequiredCreationParameter):
     pass
@@ -84,8 +86,8 @@ class Snat(Resource):
         """
         rcp = self._meta_data['required_creation_parameters']
         required_singles = set(('automap', 'snatpool', 'translation'))
-        pre_req_len = len(kwargs.keys())
-        if len(rcp - required_singles) != (pre_req_len-1):
+        pre_req_len = len(list(iterkeys(kwargs)))
+        if len(rcp - required_singles) != (pre_req_len - 1):
             error_message = 'Creation requires one of the provided k,v:\n'
             for req_sing in required_singles:
                 try:
