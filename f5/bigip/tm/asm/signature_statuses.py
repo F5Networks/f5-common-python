@@ -15,23 +15,35 @@
 # limitations under the License.
 #
 
+from f5.bigip.resource import AsmFixedResource
+from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
-from f5.bigip.resource import Resource
-
+from f5.bigip.resource import UnsupportedMethod
 
 
 class Signature_Statuses_s(Collection):
     """BIG-IP® ASM Signature Statuses collection."""
     def __init__(self, asm):
         super(Signature_Statuses_s, self).__init__(asm)
-        self._meta_data['allowed_lazy_attributes'] = [Client_Ssl]
-        self._meta_data['attribute_registry'] = \
-        {'tm:ltm:profile:client-ssl:client-sslstate': Client_Ssl}
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['allowed_lazy_attributes'] = [Signature_Status]
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:signature-statuses:signature-statusstate':
+                Signature_Status}
 
-class Signature_Status(Resource):
+
+class Signature_Status(AsmFixedResource, AsmResource):
     """BIG-IP® ASM Signature Statuses resource"""
-
     def __init__(self, signature_statuses_s):
         super(Signature_Status, self).__init__(signature_statuses_s)
         self._meta_data['required_json_kind'] =\
-            'tm:ltm:profile:client-ssl:client-sslstate'
+            'tm:asm:signature-statuses:signature-statusstate'
+
+    def modify(self, **kwargs):
+        ''' Create is not supported for Signature Status
+
+                :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the modify method" % self.__class__.__name__
+        )

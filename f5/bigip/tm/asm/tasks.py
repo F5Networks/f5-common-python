@@ -79,7 +79,6 @@ class Check_Signature(AsmResource):
     """
     def __init__(self, check_signatures_s):
         super(Check_Signature, self).__init__(check_signatures_s)
-        self._meta_data['object_has_stats'] = False
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:check-signatures:check-signatures-taskstate'
 
@@ -129,7 +128,6 @@ class Export_Signature(AsmResource):
     """BIG-IP® ASM Tasks Export Signature Resource"""
     def __init__(self, export_signatures_s):
         super(Export_Signature, self).__init__(export_signatures_s)
-        self._meta_data['object_has_stats'] = False
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:export-signatures:export-signatures-taskstate'
         self._meta_data['required_load_parameters'] = set(('id',))
@@ -178,7 +176,6 @@ class Update_Signature(AsmResource):
     """
     def __init__(self, update_signatures_s):
         super(Update_Signature, self).__init__(update_signatures_s)
-        self._meta_data['object_has_stats'] = False
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:update-signatures:update-signatures-taskstate'
 

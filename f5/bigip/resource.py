@@ -1028,10 +1028,10 @@ class Stats(UnnamedResource):
 
 
 class AsmResource(Resource):
-    """ASM Resource Base class to represent a Configurable ASM resource on the
-       device. Differs from Normal Resource class in few ways.
+    """ASM Resource class to represent a configurable ASM resource on the
+       device.
 
-       Insert further docs here
+       Insert further docstring later here
 .
     """
     def __init__(self, container):
@@ -1184,7 +1184,95 @@ class AsmResource(Resource):
     def update(self, **kwargs):
         """ Update is not supported for ASM Resources
 
+                :raises: UnsupportedMethod
+        """
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+
+class AsmFixedResource(UnnamedResource):
+    """Fixed Resource class to represent a modifiable ASM resource on the
+       device.
+
+    By "modifiable" we mean that the resources can have its settings
+    changed using modify() method only. The resource will support refresh()
+    and load() methods as well. All other methods are unsupported.
+
+        :raises: UnsupportedMethod
+.
+    """
+
+    def _load(self, **kwargs):
+        """wrapped with load, override that in a subclass to customize"""
+        requests_params = self._handle_requests_params(kwargs)
+        self._check_load_parameters(**kwargs)
+        kwargs['uri_as_parts'] = True
+        refresh_session = self._meta_data['bigip']._meta_data['icr_session']
+        uri = self._meta_data['container']._meta_data['uri']
+        endpoint = kwargs.pop('id', '')
+        # Popping name kwarg as it will cause the uri to be invalid. We only
+        # require id parameter
+        kwargs.pop('name', '')
+        base_uri = uri + endpoint + '/'
+        kwargs.update(requests_params)
+        for key1, key2 in self._meta_data['reduction_forcing_pairs']:
+            kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
+        response = refresh_session.get(base_uri, **kwargs)
+        # Make new instance of self
+        return self._produce_instance(response)
+
+    def load(self, **kwargs):
+        """Load an already configured service into this instance.
+
+        This method uses HTTP GET to obtain a resource from the BIG-IP®.
+
+        ..
+            The URI of the target service is constructed from the instance's
+            container and **kwargs.
+            kwargs typically for ASM requires "id" in majority of cases,
+            as object links in ASM are using hash(id) instead of names,
+            this may, or may not, be true for a specific service.
+
+        :param kwargs: typically contains "id"
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.get method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
+        :returns: a Resource Instance (with a populated _meta_data['uri'])
+        """
+        return self._load(**kwargs)
+
+    def create(self, **kwargs):
+        ''' Create is not supported for ASM Fixed Resources
+
                 :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+    def fetch(self, **kwargs):
+        ''' Create is not supported for ASM Fixed Resources
+
+                :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the fetch method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        ''' Create is not supported for ASM Fixed Resources
+
+                :raises: UnsupportedOperation
+        '''
+        raise UnsupportedMethod(
+            "%s does not support the delete method" % self.__class__.__name__
+        )
+
+    def update(self, **kwargs):
+        """ Update is not supported for ASM Fixed Resources
+
+                :raises: UnsupportedMethod
         """
         raise UnsupportedMethod(
             "%s does not support the update method" % self.__class__.__name__

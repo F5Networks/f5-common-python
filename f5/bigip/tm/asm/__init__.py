@@ -27,10 +27,14 @@ REST Kind
     ``tm:asm:*``
 """
 
-from f5.bigip.tm.asm.file_transfer import File_Transfer
-from f5.bigip.tm.asm.tasks import Tasks
 from f5.bigip.resource import OrganizingCollection
-
+from f5.bigip.tm.asm.file_transfer import File_Transfer
+from f5.bigip.tm.asm.signatures import Signatures_s
+from f5.bigip.tm.asm.signature_sets import Signature_Sets_s
+from f5.bigip.tm.asm.signature_statuses import Signature_Statuses_s
+from f5.bigip.tm.asm.signature_systems import Signature_Systems_s
+from f5.bigip.tm.asm.signature_update import Signature_Update
+from f5.bigip.tm.asm.tasks import Tasks
 
 
 class Asm(OrganizingCollection):
@@ -42,6 +46,11 @@ class Asm(OrganizingCollection):
     def __init__(self, tm):
         super(Asm, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Tasks,
             File_Transfer,
+            Signatures_s,
+            Signature_Statuses_s,
+            Signature_Systems_s,
+            Signature_Update,
+            Signature_Sets_s,
+            Tasks
         ]
