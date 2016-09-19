@@ -44,6 +44,16 @@ class UnsupportedTmosVersion(F5SDKError):
     pass
 
 
+class EmptyContent(F5SDKError):
+    """Raise an error if the returned content size is 0"""
+    pass
+
+
+class MissingHttpHeader(F5SDKError):
+    """We raise this when the expected http header in response is missing"""
+    pass
+
+
 class LazyAttributesRequired(F5SDKError):
     """Raised when a object accesses a lazy attribute that is not listed"""
     pass
@@ -246,6 +256,72 @@ class CommandExecutionMixin(object):
 
 
 class FileUploadMixin(object):
+    def _upload_file(self, filepathname, **kwargs):
+        with open(filepathname, 'rb') as fileobj:
+            self._upload(fileobj, **kwargs)
+
+    def _upload(self, fileinterface, **kwargs):
+        size = len(fileinterface.read())
+        fileinterface.seek(0)
+        requests_params = self._handle_requests_params(kwargs)
+        session = self._meta_data['icr_session']
+        chunk_size = kwargs.pop('chunk_size', 512 * 1024)
+        start = 0
+        while True:
+            file_slice = fileinterface.read(chunk_size)
+            if not file_slice:
+                break
+
+            current_bytes = len(file_slice)
+            if current_bytes < chunk_size:
+                end = size
+            else:
+                end = start + current_bytes
+            headers = {
+                'Content-Range': '%s-%s/%s' % (start,
+                                               end - 1,
+                                               size),
+                'Content-Type': 'application/octet-stream'}
+            data = {'data': file_slice,
+                    'headers': headers,
+                    'verify': False}
+            logging.debug(data)
+            requests_params.update(data)
+            session.post(self.file_bound_uri,
+                         **requests_params)
+            start += current_bytes
+
+
+class AsmFileMixin(object):
+    """Mixin for manipulating files for ASM file-transfer endpoints.
+
+
+    For ease of code maintenance this is separate from FileUploadMixin
+    on purpose.
+
+    """
+    def _download_file(self, filepathname):
+            self._download(filepathname)
+
+    def _download(self, filepathname):
+        session = self._meta_data['icr_session']
+        with open(filepathname, 'wb') as writefh:
+            headers = {
+                'Content-Type': 'application/json'
+            }
+            req_params = {'headers': headers,
+                          'verify': False}
+            response = session.get(self.file_bound_uri, **req_params)
+            if response.status_code == 200:
+                if not response.headers['Content-Length']:
+                    error_message = "The Content-Length header is not present."
+                    raise MissingHttpHeader(error_message)
+            if int(response.headers['Content-Length']) > 0:
+                writefh.write(response.content)
+            else:
+                error = 'Server Returned invalid Content-Length value'
+                raise EmptyContent(error)
+
     def _upload_file(self, filepathname, **kwargs):
         with open(filepathname, 'rb') as fileobj:
             self._upload(fileobj, **kwargs)
