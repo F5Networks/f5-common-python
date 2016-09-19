@@ -279,7 +279,7 @@ class FileUploadMixin(object):
 
 
 class AsmFileMixin(object):
-    """As ASM files do not seem huge we will use this logic instead."""
+    """Mixin for manipulating files for ASM file-transfer endpoints."""
     def _download_file(self, filepathname):
             self._download(filepathname)
 
@@ -304,8 +304,39 @@ class AsmFileMixin(object):
                 raise EmptyContent(error)
 
     def _upload_file(self, filepathname, **kwargs):
-        """Needs testing to verify if FileUploadMixin is an overkill"""
-        pass
+        with open(filepathname, 'rb') as fileobj:
+            self._upload(fileobj, **kwargs)
+
+    def _upload(self, fileinterface, **kwargs):
+        size = len(fileinterface.read())
+        fileinterface.seek(0)
+        requests_params = self._handle_requests_params(kwargs)
+        session = self._meta_data['icr_session']
+        chunk_size = kwargs.pop('chunk_size', 512 * 1024)
+        start = 0
+        while True:
+            file_slice = fileinterface.read(chunk_size)
+            if not file_slice:
+                break
+
+            current_bytes = len(file_slice)
+            if current_bytes < chunk_size:
+                end = size
+            else:
+                end = start + current_bytes
+            headers = {
+                'Content-Range': '%s-%s/%s' % (start,
+                                               end - 1,
+                                               size),
+                'Content-Type': 'application/octet-stream'}
+            data = {'data': file_slice,
+                    'headers': headers,
+                    'verify': False}
+            logging.debug(data)
+            requests_params.update(data)
+            session.post(self.file_bound_uri,
+                         **requests_params)
+            start += current_bytes
 
 
 class DeviceMixin(object):

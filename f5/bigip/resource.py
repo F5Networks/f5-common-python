@@ -227,10 +227,10 @@ class PathElement(LazyAttributeMixin):
         self._meta_data['required_command_parameters'] = set()
         # You can't have more than one of the attributes in any of these sets.
         self._meta_data['exclusive_attributes'] = []
-        # ASM objects behave differently and do not have stats, we need this
-        # to identify them. By default this is false.
-        self._meta_data['is_asm_object'] = False
-
+        # As some objects do not support Stats we need this setting,
+        # by default Stats are enabled on all endpoints. Override in
+        # sub-clases as required
+        self._meta_data['object_has_stats'] = True
 
     def _set_meta_data_uri(self):
         base_uri = self.__class__.__name__.lower()
@@ -778,9 +778,8 @@ class Resource(ResourceBase):
         # attrs local alias
         attribute_reg = self._meta_data.get('attribute_registry', {})
         attrs = attribute_reg.values()
-        if not self._meta_data['is_asm_object']:
+        if self._meta_data['object_has_stats']:
             attrs.append(Stats)
-
         (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
         path_uri = urlparse.urlunsplit((scheme, uri.netloc, path, '', ''))
         if not path_uri.endswith('/'):
@@ -881,18 +880,7 @@ class Resource(ResourceBase):
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
         refresh_session = self._meta_data['bigip']._meta_data['icr_session']
-
-        # Adding this to accommodate some differences in how we retrieve ASM
-        # resources. Will require some testing with sub-collections.
-        if self._meta_data['is_asm_object']:
-            uri = self._meta_data['container']._meta_data['uri']
-            endpoint = kwargs.pop('id', '')
-            # Popping name kwarg as it will cause the uri to be invalid
-            kwargs.pop('name', '')
-            base_uri = uri + endpoint + '/'
-        else:
-            base_uri = self._meta_data['container']._meta_data['uri']
-
+        base_uri = self._meta_data['container']._meta_data['uri']
         kwargs.update(requests_params)
         for key1, key2 in self._meta_data['reduction_forcing_pairs']:
             kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
@@ -932,13 +920,8 @@ class Resource(ResourceBase):
             self._check_generation()
 
         response = session.delete(delete_uri, **requests_params)
-        # ASM resource deletion returns 201 on some resources
-        if self._meta_data['is_asm_object']:
-            if response.status_code == 200 or 201:
-                self.__dict__ = {'deleted': True}
-        else:
-            if response.status_code == 200:
-                self.__dict__ = {'deleted': True}
+        if response.status_code == 200:
+            self.__dict__ = {'deleted': True}
 
     def delete(self, **kwargs):
         """Delete the resource on the BIG-IP®.
@@ -980,16 +963,7 @@ class Resource(ResourceBase):
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
         session = self._meta_data['bigip']._meta_data['icr_session']
-        # Adding this to accommodate some differences in how we retrieve ASM
-        # resources. Will require some testing with sub-collections.
-        if self._meta_data['is_asm_object']:
-            uri = self._meta_data['container']._meta_data['uri']
-            endpoint = kwargs.pop('id', '')
-            # Popping name kwarg as it will cause the uri to be invalid
-            kwargs.pop('name', '')
-            base_uri = uri + endpoint + '/'
-        else:
-            base_uri = self._meta_data['container']._meta_data['uri']
+        base_uri = self._meta_data['container']._meta_data['uri']
         kwargs.update(requests_params)
         try:
             session.get(base_uri, **kwargs)
@@ -1053,6 +1027,165 @@ class Stats(UnnamedResource):
 
 
 
-class AsmResource(ResourceBase):
-    """placeholder for class, will move stuff from Resource here"""
-    pass
+class AsmResource(Resource):
+    """ASM Resource Base class to represent a Configurable ASM resource on the
+       device. Differs from Normal Resource class in few ways.
+
+       Insert further docs here
+.
+    """
+    def __init__(self, container):
+        """Call to create a client side object to represent a service URI.
+
+        Call _create or _load for a Resource resource to have a
+        self._meta_data['uri']!
+        """
+        super(AsmResource, self).__init__(container)
+        # Asm endpoints require object 'id' which is a hash created by BIGIP
+        # when object is created.
+        self._meta_data['required_load_parameters'] = set(('id',))
+        # No ASM endpoint supports Stats
+        self._meta_data['object_has_stats'] = False
+
+    def _fetch(self):
+        """wrapped by `fetch` override that in subclasses to customize"""
+        if 'uri' in self._meta_data:
+            error = "There was an attempt to assign a new uri to this "\
+                    "resource, the _meta_data['uri'] is %s and it should"\
+                    " not be changed." % (self._meta_data['uri'])
+            raise URICreationCollision(error)
+        # Make convenience variable with short names for this method.
+        _create_uri = self._meta_data['container']._meta_data['uri']
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        # Invoke the REST operation on the device.
+        response = session.post(_create_uri, json={})
+        # Make new instance of self
+        return self._produce_instance(response)
+
+    def fetch(self):
+        """Fetch the ASM resource on the BIG-IP®.
+
+        This is a heavily modified version of create, that does not allow
+        any arguments when executing. It uses an emtpy json{} HTTP POST to
+        prompt the BIG-IP® to create the object, mainly used by 'Tasks'
+        endpoint.
+        """
+        return self._fetch()
+
+    def _load(self, **kwargs):
+        """wrapped with load, override that in a subclass to customize"""
+        if 'uri' in self._meta_data:
+            error = "There was an attempt to assign a new uri to this "\
+                    "resource, the _meta_data['uri'] is %s and it should"\
+                    " not be changed." % (self._meta_data['uri'])
+            raise URICreationCollision(error)
+        requests_params = self._handle_requests_params(kwargs)
+        self._check_load_parameters(**kwargs)
+        kwargs['uri_as_parts'] = True
+        refresh_session = self._meta_data['bigip']._meta_data['icr_session']
+        uri = self._meta_data['container']._meta_data['uri']
+        endpoint = kwargs.pop('id', '')
+        # Popping name kwarg as it will cause the uri to be invalid. We only
+        # require id parameter
+        kwargs.pop('name', '')
+        base_uri = uri + endpoint + '/'
+        kwargs.update(requests_params)
+        for key1, key2 in self._meta_data['reduction_forcing_pairs']:
+            kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
+        response = refresh_session.get(base_uri, **kwargs)
+        # Make new instance of self
+        return self._produce_instance(response)
+
+    def load(self, **kwargs):
+        """Load an already configured service into this instance.
+
+        This method uses HTTP GET to obtain a resource from the BIG-IP®.
+
+        ..
+            The URI of the target service is constructed from the instance's
+            container and **kwargs.
+            kwargs typically for ASM requires "id" in majority of cases,
+            as object links in ASM are using hash(id) instead of names,
+            this may, or may not, be true for a specific service.
+
+        :param kwargs: typically contains "id"
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.get method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
+        :returns: a Resource Instance (with a populated _meta_data['uri'])
+        """
+        return self._load(**kwargs)
+
+    def _delete(self, **kwargs):
+        """wrapped with delete, override that in a subclass to customize """
+        requests_params = self._handle_requests_params(kwargs)
+
+        delete_uri = self._meta_data['uri']
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        response = session.delete(delete_uri, **requests_params)
+        if response.status_code == 200 or 201:
+            self.__dict__ = {'deleted': True}
+
+    def delete(self, **kwargs):
+        """Delete the ASM resource on the BIG-IP®.
+
+        Uses HTTP DELETE to delete the ASM resource on the BIG-IP®.
+
+        After this method is called, and status_code 200 or 201 response is
+        received ``instance.__dict__`` is replace with ``{'deleted': True}``
+
+        :param kwargs: The only current use is to pass kwargs to the requests
+        API. If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.delete method where it
+        will be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
+        """
+        # Need to implement checking for ? here.
+        self._delete(**kwargs)
+        # Need to implement correct teardown here.
+
+    def exists(self, **kwargs):
+        """Check for the existence of the ASM object on the BIG-IP
+
+        Sends an HTTP GET to the URI of the ASM object and if it fails with
+        a :exc:~requests.HTTPError` exception it checks the exception for
+        status code of 404 and returns :obj:`False` in that case.
+
+        If the GET is successful it returns :obj:`True`.
+
+        For any other errors are raised as-is.
+
+        :param kwargs: Keyword arguments required to get objects
+        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
+        be passed to the underlying requests.session.get method where it will
+        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
+        :returns: bool -- The objects exists on BIG-IP® or not.
+        :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
+                 code 404.
+        """
+        requests_params = self._handle_requests_params(kwargs)
+        self._check_load_parameters(**kwargs)
+        kwargs['uri_as_parts'] = True
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        uri = self._meta_data['container']._meta_data['uri']
+        endpoint = kwargs.pop('id', '')
+        # Popping name kwarg as it will cause the uri to be invalid
+        kwargs.pop('name', '')
+        base_uri = uri + endpoint + '/'
+        kwargs.update(requests_params)
+        try:
+            session.get(base_uri, **kwargs)
+        except HTTPError as err:
+            if err.response.status_code == 404:
+                return False
+            else:
+                raise
+        return True
+
+    def update(self, **kwargs):
+        """ Update is not supported for ASM Resources
+
+                :raises: UnsupportedOperation
+        """
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__
+        )
