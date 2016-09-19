@@ -21,8 +21,7 @@ try:
 except ImportError:
     from io import StringIO
 
-from f5.bigip.mixins import FileDownloadMixin
-from f5.bigip.mixins import FileUploadMixin
+from f5.bigip.mixins import AsmFileMixin
 from f5.bigip.resource import PathElement
 from f5.bigip.resource import OrganizingCollection
 from f5.sdk_exception import F5SDKError
@@ -43,7 +42,7 @@ class File_Transfer(OrganizingCollection):
             ]
 
 
-class Uploads(PathElement, FileUploadMixin):
+class Uploads(PathElement, AsmFileMixin):
     """A file upload resource."""
     def __init__(self, file_transfer):
         super(Uploads, self).__init__(file_transfer)
@@ -56,12 +55,12 @@ class Uploads(PathElement, FileUploadMixin):
         self._upload_file(filepathname, **kwargs)
 
 
-class Downloads(PathElement, FileDownloadMixin):
+class Downloads(PathElement, AsmFileMixin):
     """A file download resource."""
     def __init__(self, file_transfer):
         super(Downloads, self).__init__(file_transfer)
 
-    def download_file(self, filepathname, **kwargs):
+    def download_file(self, filepathname):
         filename = os.path.basename(filepathname)
         self.file_bound_uri = self._meta_data['uri'] + filename
-        self._download_file(filepathname, **kwargs)
+        self._download_file(filepathname)

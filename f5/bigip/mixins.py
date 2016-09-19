@@ -36,6 +36,14 @@ class UnsupportedTmosVersion(F5SDKError):
     """
     pass
 
+class EmptyContent(F5SDKError):
+    """Raise an error if the returned content size is 0"""
+    pass
+
+class MissingHttpHeader(F5SDKError):
+    """We raise this when the expected http header in response is missing"""
+    pass
+
 
 class LazyAttributesRequired(F5SDKError):
     """Raised when a object accesses a lazy attribute that is not listed"""
@@ -270,68 +278,34 @@ class FileUploadMixin(object):
             start += current_bytes
 
 
-class FileDownloadMixin(object):
-    def _download_file(self, filepathname, **kwargs):
-            self._download(filepathname, **kwargs)
+class AsmFileMixin(object):
+    """As ASM files do not seem huge we will use this logic instead."""
+    def _download_file(self, filepathname):
+            self._download(filepathname)
 
-    def _download(self, filepathname, **kwargs):
+    def _download(self, filepathname):
         session = self._meta_data['icr_session']
-        chunk_size = kwargs.pop('chunk_size', 512 * 1024)
-        headers = {
-            'Content-Type': 'application/octet-stream'
-        }
         with open(filepathname, 'wb') as writefh:
-            start = 0
-            end = chunk_size - 1
-            size = 0
-            current_bytes = 0
+            headers = {
+                'Content-Type': 'application/json'
+            }
+            req_params = {'headers': headers,
+                          'verify': False}
+            response = session.get(self.file_bound_uri, **req_params)
+            if response.status_code == 200:
+                if not response.headers['Content-Length']:
+                    error_message = "The Content-Length header is not " \
+                                        "present."
+                    raise MissingHttpHeader(error_message)
+            if int(response.headers['Content-Length']) > 0:
+                writefh.write(response.content)
+            else:
+                error = 'Server Returned invalid Content-Length value'
+                raise EmptyContent(error)
 
-            while True:
-                content_range = "%s-%s/%s" % (start, end, size)
-                headers['Content-Range'] = content_range
-                req_params = {'headers': headers,
-                              'verify': False,
-                              'stream': True}
-                response = session.get(self.file_bound_uri,
-                                       **req_params)
-                if response.status_code == 200:
-                    # If the size is zero, then this is the first time through
-                    # the loop and we don't want to write data because we
-                    # haven't yet figured out the total size of the file.
-                    if size > 0:
-                        current_bytes += chunk_size
-                        for chunk in response.iter_content(chunk_size):
-                            writefh.write(chunk)
-
-                # Once we've downloaded the entire file, we can break out of
-                # the loop
-                if end == size:
-                    break
-
-                if response.headers['Content-Length']:
-                    crange = response.headers['Content-Length']
-                else:
-                    crange = response.headers['Content-Range']
-
-                # Determine the total number of bytes to read.
-                if size == 0:
-                    size = int(crange.split('/')[-1]) - 1
-
-                    # If the file is smaller than the chunk_size, the BigIP
-                    # will return an HTTP 400. Adjust the chunk_size down to
-                    # the total file size...
-                    if chunk_size > size:
-                        end = size
-
-                    # ...and pass on the rest of the code.
-                    continue
-
-                start += chunk_size
-
-                if (current_bytes + chunk_size) > size:
-                    end = size
-                else:
-                    end = start + chunk_size - 1
+    def _upload_file(self, filepathname, **kwargs):
+        """Needs testing to verify if FileUploadMixin is an overkill"""
+        pass
 
 
 class DeviceMixin(object):
