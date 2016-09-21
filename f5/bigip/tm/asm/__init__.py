@@ -29,7 +29,7 @@ REST Kind
 
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.asm.signature_sets import Signature_Sets_s
-from f5.bigip.tm.asm.tasks import Check_Signatures_s
+from f5.bigip.tm.asm.tasks import Tasks
 
 
 class Asm(OrganizingCollection):
@@ -42,5 +42,5 @@ class Asm(OrganizingCollection):
         super(Asm, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
             Signature_Sets_s,
-            Check_Signatures_s
+            Tasks,
         ]

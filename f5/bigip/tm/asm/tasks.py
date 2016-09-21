@@ -40,7 +40,9 @@ class Tasks(OrganizingCollection):
         super(Tasks, self).__init__(asm)
         self._meta_data['object_has_stats'] = False
         self._meta_data['allowed_lazy_attributes'] = [
-            Check_Signatures_s
+            Check_Signatures_s,
+            Export_Signatures_s,
+            Update_Signatures_s,
             ]
 
 
@@ -91,6 +93,113 @@ class Check_Signature(AsmResource):
 
     def modify(self, **kwargs):
         """Modify is not supported for Check Signature
+
+                :raises: UnsupportedOperation
+        """
+        raise UnsupportedMethod(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
+
+
+class Export_Signatures_s(Collection):
+    """BIG-IP® ASM Tasks Export Signatures Collection.
+
+    This object is not a collection strictly speaking, although in version
+    11.x, the object has collection kind:
+
+    tm:asm:tasks:export-signatures:export-signatures-taskcollectionstate
+
+    In version 12.x however this kind is set to:
+    tm:asm:tasks:export-signatures:export-signatures-taskstate
+
+    This should not affect in the way this object works, so we will make it
+    a collection arbitrarily.
+    """
+
+    def __init__(self, tasks):
+        super(Export_Signatures_s, self).__init__(tasks)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['allowed_lazy_attributes'] = [Export_Signature]
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:tasks:export-signatures:export-signatures-taskstate':
+                Export_Signature}
+
+
+class Export_Signature(AsmResource):
+    """BIG-IP® ASM Tasks Export Signature Resource"""
+    def __init__(self, export_signatures_s):
+        super(Export_Signature, self).__init__(export_signatures_s)
+        self._meta_data['required_json_kind'] =\
+            'tm:asm:tasks:export-signatures:export-signatures-taskstate'
+        self._meta_data['required_load_parameters'] = set(('id',))
+        self._meta_data['required_creation_parameters'] = set(('filename',))
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Export Signature
+
+                :raises: UnsupportedOperation
+        """
+        raise UnsupportedMethod(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
+
+    def fetch(self):
+        """Fetch is not supported for Export Signature
+
+                :raises: UnsupportedOperation
+        """
+        raise UnsupportedMethod(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+
+class Update_Signatures_s(Collection):
+    """BIG-IP® ASM Tasks Update Signatures Collection
+
+    This object is not a collection strictly speaking, although in version
+    11.x, the object has collection kind:
+
+    tm:asm:tasks:update-signatures:update-signatures-taskcollectionstate
+
+    In version 12.x however this kind is set to:
+    tm:asm:tasks:update-signatures:update-signatures-taskstate
+
+    This should not affect in the way this object works, so we will make it
+    a collection arbitrarily.
+    """
+
+    def __init__(self, tasks):
+        super(Update_Signatures_s, self).__init__(tasks)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['allowed_lazy_attributes'] = [Update_Signature]
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:tasks:update-signatures:update-signatures-taskstate':
+                Update_Signature}
+
+
+class Update_Signature(AsmResource):
+    """BIG-IP® ASM Tasks Update Signature Resource
+
+
+        To create this resource on the ASM, one must utilize fetch() method
+        from AsmResource class, create() is not supported.
+    """
+    def __init__(self, update_signatures_s):
+        super(Update_Signature, self).__init__(update_signatures_s)
+        self._meta_data['required_json_kind'] =\
+            'tm:asm:tasks:update-signatures:update-signatures-taskstate'
+
+    def create(self, **kwargs):
+        """Create is not supported for Update Signature
+
+                :raises: UnsupportedOperation
+        """
+        raise UnsupportedMethod(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Update Signature
 
                 :raises: UnsupportedOperation
         """
