@@ -77,6 +77,7 @@ class TestCheckSignature(object):
         kind = 'tm:asm:tasks:check-signatures:check-signatures-taskstate'
         assert kind in list(iterkeys(test_meta))
         assert Check_Signature in test_meta2
+        assert t._meta_data['object_has_stats'] is False
 
 
 class TestExportSignature(object):
@@ -106,6 +107,7 @@ class TestExportSignature(object):
         kind = 'tm:asm:tasks:export-signatures:export-signatures-taskstate'
         assert kind in list(iterkeys(test_meta))
         assert Export_Signature in test_meta2
+        assert t._meta_data['object_has_stats'] is False
 
 
 class TestUpdateSignature(object):
@@ -125,3 +127,4 @@ class TestUpdateSignature(object):
         kind = 'tm:asm:tasks:update-signatures:update-signatures-taskstate'
         assert kind in list(iterkeys(test_meta))
         assert Update_Signature in test_meta2
+        assert t._meta_data['object_has_stats'] is False

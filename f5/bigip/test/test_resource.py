@@ -926,6 +926,7 @@ class TestAsmResource(object):
         r.isUserDefined = True
         x = r.load(id='T84Lsg_fb11W-QDXeCpdkA')
         assert x.selfLink == mockuri
+        assert x._meta_data['object_has_stats'] is False
 
     def test_load_uri_creation_collision(self):
         r = Signature_Set(mock.MagicMock())
@@ -1049,6 +1050,7 @@ class TestAsmResource(object):
         assert 'name' not in kwargs
         assert 'description' in kwargs
         assert kwargs['description'] == 'fake_desc'
+        assert r._meta_data['object_has_stats'] is False
 
     def test_fetch(self, fake_asmchksig):
         r = fake_asmchksig.fetch()
@@ -1107,6 +1109,7 @@ class TestAsmFixedResource(object):
         r.isUserDefined = True
         x = r.load(id='T84Lsg_fb11W-QDXeCpdkA')
         assert x.selfLink == mockuri
+        assert x._meta_data['object_has_stats'] is False
 
     def test_load_uri_creation_collision(self):
         r = Signature_Set(mock.MagicMock())
