@@ -96,10 +96,6 @@ class Interfaces(Resource, ExclusiveAttributesMixin):
         """
 
         self._check_tagmode_and_tmos_version(**kwargs)
-        if 'tagged' in kwargs and kwargs['tagged'] is True:
-            tup_par = ('tagMode', 'tagged')
-            self._meta_data['required_creation_parameters'].update(tup_par)
-
         return self._create(**kwargs)
 
     def _check_tagmode_and_tmos_version(self, **kwargs):
