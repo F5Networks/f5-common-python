@@ -97,6 +97,7 @@ class TestVLANInterfaces(object):
         ifc.update()
         assert ifc.untagged is True
         ifc.tagged = True
+        # Having tagmode in the update request will not raise an exception here
         ifc.tagMode = 'service'
         assert not hasattr(ifc, 'untagged')
         ifc.update()
@@ -123,6 +124,8 @@ class TestVLANInterfaces(object):
         ifc.tagged = True
         ifc.tagMode = 'service'
         assert not hasattr(ifc, 'untagged')
+        # tagmode in this request will fail because the test ensures we are
+        # making a request to 11.5.4
         with pytest.raises(TagModeDisallowedForTMOSVersion) as ex:
             ifc.update()
         assert "'tagMode', is not allowed against the following version of " \
