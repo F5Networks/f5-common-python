@@ -18,8 +18,8 @@ from requests import HTTPError
 TEST_DESCR = "TEST DESCRIPTION"
 
 
-def setup_device_test(request, bigip, name, partition, **kwargs):
-    d = bigip.cm.devices.device.create(
+def setup_device_test(request, mgmt_root, name, partition, **kwargs):
+    d = mgmt_root.tm.cm.devices.device.create(
         name=name, partition=partition, **kwargs)
 
     def teardown():
@@ -33,24 +33,24 @@ def setup_device_test(request, bigip, name, partition, **kwargs):
 
 
 class TestDevices(object):
-    def test_device_list(self, bigip):
-        devices = bigip.cm.devices.get_collection()
+    def test_device_list(self, mgmt_root):
+        devices = mgmt_root.tm.cm.devices.get_collection()
         assert len(devices)
         assert devices[0].generation > 0
         assert hasattr(devices[0], 'hostname')
 
 
 class TestDevice(object):
-    def test_device_CURDL(self, request, bigip):
+    def test_device_CURDL(self, request, mgmt_root):
         # Create and Delete are done by setup/teardown
         d1 = setup_device_test(
-            request, bigip, 'test-device', 'Common', hostname='test')
+            request, mgmt_root, 'test-device-1', 'Common')
         assert d1.generation > 0
 
         # Load
-        d2 = bigip.cm.devices.device.load(
+        d2 = mgmt_root.tm.cm.devices.device.load(
             name=d1.name, partition=d1.partition)
-        assert d1.hostname == d2.hostname
+        assert d1.name == d2.name
         assert d1.generation == d2.generation
 
         # Update
