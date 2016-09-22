@@ -20,8 +20,8 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 from requests.exceptions import HTTPError
 
 
-def delete_user(bigip, name):
-    user = bigip.auth.users.user
+def delete_user(mgmt_root, name):
+    user = mgmt_root.tm.auth.users.user
     try:
         user1 = user.load(name=name)
     except HTTPError as err:
@@ -31,9 +31,9 @@ def delete_user(bigip, name):
     user1.delete()
 
 
-def setup_loadable_user_test(request, bigip, user):
+def setup_loadable_user_test(request, mgmt_root, user):
     def teardown():
-        delete_user(bigip, 'user1')
+        delete_user(mgmt_root, 'user1')
 
     request.addfinalizer(teardown)
 
@@ -41,32 +41,32 @@ def setup_loadable_user_test(request, bigip, user):
     assert user1.name == 'user1'
 
 
-def setup_create_test(request, bigip):
+def setup_create_test(request, mgmt_root):
     def teardown():
-        delete_user(bigip, 'user1')
+        delete_user(mgmt_root, 'user1')
     request.addfinalizer(teardown)
 
 
-def setup_create_two(request, bigip):
+def setup_create_two(request, mgmt_root):
     def teardown():
         for name in ['user1', 'user2']:
-            delete_user(bigip, name)
+            delete_user(mgmt_root, name)
     request.addfinalizer(teardown)
 
 
 class TestCreate(object):
-    def test_create_two(self, request, bigip):
-        setup_create_two(request, bigip)
+    def test_create_two(self, request, mgmt_root):
+        setup_create_two(request, mgmt_root)
 
-        n1 = bigip.auth.users.user.create(name='user1')
-        n2 = bigip.auth.users.user.create(name='user2')
+        n1 = mgmt_root.tm.auth.users.user.create(name='user1')
+        n2 = mgmt_root.tm.auth.users.user.create(name='user2')
 
         assert n1 is not n2
         assert n2.name != n1.name
 
-    def test_create_no_args(self, bigip):
+    def test_create_no_args(self, mgmt_root):
         '''Test that user.create() with no options throws a ValueError '''
-        user1 = bigip.auth.users.user
+        user1 = mgmt_root.tm.auth.users.user
         with pytest.raises(MissingRequiredCreationParameter):
             user1.create()
 
@@ -77,15 +77,15 @@ class TestCreate(object):
         reason='Skip test if on a version below 11.6.0. The '
         'next test will implement the same logic for 11.5.4 '
         'and below.')
-    def test_create_min_args_11_6_greater(self, request, bigip):
+    def test_create_min_args_11_6_greater(self, request, mgmt_root):
         '''Test that user.create() with only required arguments work.
 
         This will also test that the default values are set correctly and are
         part of the user object after creating the instance on the BigIP
         '''
-        setup_create_test(request, bigip)
+        setup_create_test(request, mgmt_root)
 
-        user1 = bigip.auth.users.user.create(name='user1')
+        user1 = mgmt_root.tm.auth.users.user.create(name='user1')
 
         assert user1.name == 'user1'
         assert user1.generation is not None \
@@ -97,25 +97,23 @@ class TestCreate(object):
         # Default Values
         assert user1.description == 'user1'
         assert user1.encryptedPassword == '!!'
-        assert user1.partitionAccess == [dict(
-            name='all-partitions',
-            role='no-access'
-        )]
+        assert user1.partitionAccess[0]['role'] == 'no-access'
+        assert user1.partitionAccess[0]['name'] == 'all-partitions'
 
     @pytest.mark.skipif(
         LooseVersion(
             pytest.config.getoption('--release')
         ) >= LooseVersion('11.6.0'),
         reason='Skip test if on a version greater than or equal to 11.6.0')
-    def test_create_min_args_11_5_4_and_lower(self, request, bigip):
+    def test_create_min_args_11_5_4_and_lower(self, request, mgmt_root):
         '''Test that user.create() with only required arguments work.
 
         This will also test that the default values are set correctly and are
         part of the user object after creating the instance on the BigIP
         '''
-        setup_create_test(request, bigip)
+        setup_create_test(request, mgmt_root)
 
-        user1 = bigip.auth.users.user.create(name='user1')
+        user1 = mgmt_root.tm.auth.users.user.create(name='user1')
 
         assert user1.name == 'user1'
         assert user1.generation is not None \
@@ -129,8 +127,8 @@ class TestCreate(object):
         assert user1.encryptedPassword == '!!'
         assert user1.partitionAccess == 'Common'
 
-    def test_create_description(self, request, bigip, USER):
-        setup_create_test(request, bigip)
+    def test_create_description(self, request, mgmt_root, USER):
+        setup_create_test(request, mgmt_root)
         USER1 = USER.create(name='user1', description='foo')
         assert USER1.description == 'foo'
 
@@ -141,20 +139,20 @@ class TestLoad(object):
             USER.load(name='user10')
             assert err.response.status == 404
 
-    def test_load(self, request, bigip, USER):
-        setup_loadable_user_test(request, bigip, USER)
-        n1 = bigip.auth.users.user.load(name='user1')
+    def test_load(self, request, mgmt_root, USER):
+        setup_loadable_user_test(request, mgmt_root, USER)
+        n1 = mgmt_root.tm.auth.users.user.load(name='user1')
         assert n1.name == 'user1'
         assert n1.description == 'user1'
         assert isinstance(n1.generation, int)
 
 
 class TestRefresh(object):
-    def test_refresh(self, request, bigip, USER):
-        setup_loadable_user_test(request, bigip, USER)
+    def test_refresh(self, request, mgmt_root, USER):
+        setup_loadable_user_test(request, mgmt_root, USER)
 
-        n1 = bigip.auth.users.user.load(name='user1')
-        n2 = bigip.auth.users.user.load(name='user1')
+        n1 = mgmt_root.tm.auth.users.user.load(name='user1')
+        n2 = mgmt_root.tm.auth.users.user.load(name='user1')
         assert n1.description == 'user1'
         assert n2.description == 'user1'
 
@@ -167,27 +165,27 @@ class TestRefresh(object):
 
 
 class TestDelete(object):
-    def test_delete(self, request, bigip, USER):
-        setup_loadable_user_test(request, bigip, USER)
-        n1 = bigip.auth.users.user.load(name='user1')
+    def test_delete(self, request, mgmt_root, USER):
+        setup_loadable_user_test(request, mgmt_root, USER)
+        n1 = mgmt_root.tm.auth.users.user.load(name='user1')
         n1.delete()
         del(n1)
         with pytest.raises(HTTPError) as err:
-            bigip.auth.users.user.load(name='user1')
+            mgmt_root.tm.auth.users.user.load(name='user1')
             assert err.response.status_code == 404
 
 
 class TestUpdate(object):
-    def test_update_with_args(self, request, bigip, USER):
-        setup_loadable_user_test(request, bigip, USER)
-        n1 = bigip.auth.users.user.load(name='user1')
+    def test_update_with_args(self, request, mgmt_root, USER):
+        setup_loadable_user_test(request, mgmt_root, USER)
+        n1 = mgmt_root.tm.auth.users.user.load(name='user1')
         assert n1.description == 'user1'
         n1.update(description='foobar')
         assert n1.description == 'foobar'
 
-    def test_update_parameters(self, request, bigip, USER):
-        setup_loadable_user_test(request, bigip, USER)
-        n1 = bigip.auth.users.user.load(name='user1')
+    def test_update_parameters(self, request, mgmt_root, USER):
+        setup_loadable_user_test(request, mgmt_root, USER)
+        n1 = mgmt_root.tm.auth.users.user.load(name='user1')
         assert n1.description == 'user1'
         n1.description = 'foobar'
         n1.update()
