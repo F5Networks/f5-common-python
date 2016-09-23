@@ -12,52 +12,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import pytest
 
-from requests import HTTPError
-
-
-def setup_trust_domain_test(request, bigip, name, partition, **kwargs):
-    def teardown():
-        try:
-            td.delete()
-        except HTTPError as err:
-            if err.response.status_code is not 404:
-                raise
-    request.addfinalizer(teardown)
-    td = bigip.cm.trust_domains.trust_domain.create(
-        name=name, partition=partition, **kwargs)
-    return td
+from f5.bigip.resource import UnsupportedOperation
 
 
 # Obtaining device name for tests to work
-def check_device(request, bigip):
-    dvcs = bigip.cm.devices.get_collection()
+def check_device(request, mgmt_root):
+    dvcs = mgmt_root.tm.cm.devices.get_collection()
     devname = str(dvcs[0].fullPath)
     return devname
 
 
 class TestTrustDomain(object):
-    def test_curdl(self, request, bigip):
+    def test_curld(self, request, mgmt_root):
 
-        # Create and delete are done with teardown
-        td1 = setup_trust_domain_test(request, bigip,
-                                      'test_trust', 'Common')
-        assert td1.name == 'test_trust'
+        # Load the Root trust domain into two variables for testing
+        td1 = mgmt_root.tm.cm.trust_domains.trust_domain.load(
+            name='Root', partition='Common')
+        td2 = mgmt_root.tm.cm.trust_domains.trust_domain.load(
+            name='Root', partition='Common')
 
-        # Load
-        td2 = bigip.cm.trust_domains.trust_domain.load(name=td1.name,
-                                                       partition=td1.partition)
-        assert td1.generation == td2.generation
-
-        # Update
-        devname = check_device(request, bigip)
-        td1.caDevices = [devname, ]
-        td1.update()
+        devname = check_device(request, mgmt_root)
         assert td1.caDevices == [devname, ]
+
+        # Update - Add self device
+        td2.caDevices = []
+        td2.update()
         assert not hasattr(td2, 'caDevices')
-        assert td1.generation > td2.generation
+        assert td2.generation > td1.generation
 
         # Refresh
-        td2.refresh()
-        assert td2.caDevices == [devname, ]
+        td1.refresh()
+        assert not hasattr(td1, 'caDevices')
         assert td1.generation == td2.generation
+
+        # Add self back to trust domain
+        td2.caDevices = [devname, ]
+        td2.update()
+
+        # Create
+        with pytest.raises(UnsupportedOperation) as err:
+            mgmt_root.tm.cm.trust_domains.trust_domain.create(
+                name='test_trust_domain',
+                partition='Common'
+            )
+            assert 'BIG-IP trust domains cannot be created by users'\
+                   in err.value.text
+
+        # Delete
+        with pytest.raises(UnsupportedOperation) as err:
+            td2.delete()
+            assert 'BIG-IP trust domains cannot be deleted by users'\
+                   in err.value.text

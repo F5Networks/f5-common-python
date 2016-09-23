@@ -29,6 +29,7 @@ REST Kind
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.bigip.resource import UnsupportedOperation
 
 
 class Trust_Domains(Collection):
@@ -48,3 +49,19 @@ class Trust_Domain(Resource):
         self._meta_data['required_json_kind'] =\
             'tm:cm:trust-domain:trust-domainstate'
         self._meta_data['required_creation_parameters'].update(('partition',))
+
+    def create(self, **kwargs):
+        """Create is not supported for trust domains.
+
+        :raises: :exc:`~f5.BIG-IP.resource.UnsupportedOperation`
+        """
+        raise UnsupportedOperation(
+            "BIG-IP trust domains cannot be created by users")
+
+    def delete(self):
+        """Delete is not supported for trust domains.
+
+        :raises: :exc:`~f5.BIG-IP.resource.UnsupportedOperation`
+        """
+        raise UnsupportedOperation(
+            "BIG-IP trust domains cannot be deleted by users")
