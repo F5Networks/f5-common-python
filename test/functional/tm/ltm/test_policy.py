@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+from distutils.version import LooseVersion
 from pprint import pprint as pp
 import pytest
 
@@ -25,17 +26,25 @@ def setup(request, setup_device_snapshot):
     return setup_device_snapshot
 
 
-def setup_policy_test(request, bigip, partition, name, strategy="first-match"):
-    pc1 = bigip.ltm.policys
+def setup_policy_test(request, mgmt_root, partition, name,
+                      strategy="first-match", **kwargs):
+    pc1 = mgmt_root.tm.ltm.policys
     policy1 = pc1.policy.create(
-        name=name, partition=partition, strategy=strategy)
+        name=name, partition=partition, strategy=strategy, **kwargs)
     return policy1, pc1
 
 
-class TestPolicy(object):
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) > LooseVersion('12.0.0'),
+    reason='Policies Changed in 12.1 to require workflows.'
+)
+class TestPolicy_legacy(object):
     def test_policy_create_refresh_update_delete_load(self, setup, request,
-                                                      bigip):
-        policy1, pc1 = setup_policy_test(request, bigip, 'Common', 'poltest1')
+                                                      mgmt_root):
+        policy1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
+                                         'poltest1')
         assert policy1.name == 'poltest1'
         policy1.strategy = '/Common/all-match'
         policy1.update()
@@ -50,10 +59,9 @@ class TestPolicy(object):
         assert p2rc._meta_data['required_json_kind'] == p2rc.kind
         assert p2rc.get_collection() == []
 
-
-class TestRulesAndActions(object):
-    def test_rules_refresh_update_load(self, setup, request, bigip):
-        rulespc = bigip.ltm.policys
+    def test_rules_actions_refresh_update_load(self,
+                                               setup, request, mgmt_root):
+        rulespc = mgmt_root.tm.ltm.policys
         test_pol1 = rulespc.policy.load(partition='Common',
                                         name='_sys_CEC_video_policy')
         rules_s1 = test_pol1.rules_s
@@ -61,14 +69,39 @@ class TestRulesAndActions(object):
         r1actions = rules1.actions_s.actions.load(name="1")
         assert r1actions.kind == r1actions._meta_data['required_json_kind']
 
-
-class TestRulesAndConditions(object):
-    def test_rules_refresh_update_load(self, setup, request, bigip):
-        rulespc = bigip.ltm.policys
+    def test_rules_conditions_refresh_update_load(self,
+                                                  setup, request, mgmt_root):
+        rulespc = mgmt_root.tm.ltm.policys
         test_pol1 = rulespc.policy.load(partition='Common',
                                         name='_sys_CEC_video_policy')
         rules_s1 = test_pol1.rules_s
         rules1 = rules_s1.rules.load(name='cnn_web_1')
         r1conditions = rules1.conditions_s.conditions.load(name="1")
-        assert r1conditions.kind ==\
-            r1conditions._meta_data['required_json_kind']
+        assert r1conditions.kind == r1conditions._meta_data[
+            'required_json_kind']
+
+
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) < LooseVersion('12.1.0'),
+    reason='Policies Changed in 12.1 to require workflows.'
+)
+class TestPolicy(object):
+    def test_policy_create_refresh_update_delete_load(self, setup, request,
+                                                      mgmt_root):
+        policy1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
+                                         'poltest1', legacy=True)
+        assert policy1.name == 'poltest1'
+        policy1.strategy = '/Common/all-match'
+        policy1.update(legacy=True)
+        assert policy1.strategy == '/Common/all-match'
+        policy1.strategy = '/Common/first-match'
+        policy1.refresh()
+        assert policy1.strategy == '/Common/all-match'
+        policy2 = pc1.policy.load(partition='Common', name='poltest1')
+        assert policy2.selfLink == policy1.selfLink
+        p2rc = policy2.rules_s
+        p2rc.refresh()
+        assert p2rc._meta_data['required_json_kind'] == p2rc.kind
+        assert p2rc.get_collection() == []
