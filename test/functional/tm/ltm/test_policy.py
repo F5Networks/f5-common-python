@@ -77,8 +77,8 @@ class TestPolicy_legacy(object):
         rules_s1 = test_pol1.rules_s
         rules1 = rules_s1.rules.load(name='cnn_web_1')
         r1conditions = rules1.conditions_s.conditions.load(name="1")
-        assert r1conditions.kind == \
-               r1conditions._meta_data['required_json_kind']
+        assert r1conditions.kind == r1conditions._meta_data[
+            'required_json_kind']
 
 
 @pytest.mark.skipif(
