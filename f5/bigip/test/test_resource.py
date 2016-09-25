@@ -17,6 +17,8 @@ import pytest
 import requests
 
 from f5.bigip.resource import _missing_required_parameters
+from f5.bigip.resource import AsmFixedResource
+from f5.bigip.resource import AsmResource
 from f5.bigip.resource import AttemptedMutationOfReadOnly
 from f5.bigip.resource import BooleansToReduceHaveSameValue
 from f5.bigip.resource import Collection
@@ -38,6 +40,8 @@ from f5.bigip.resource import Stats
 from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import UnregisteredKind
 from f5.bigip.resource import URICreationCollision
+from f5.bigip.tm.asm.signature_sets import Signature_Set
+from f5.bigip.tm.asm.tasks import Check_Signature
 from f5.bigip.tm.cm.sync_status import Sync_Status
 from f5.bigip.tm.ltm.virtual import Profiles_s
 from f5.bigip.tm.ltm.virtual import Virtual
@@ -66,6 +70,49 @@ def fake_rsrc():
              'patch.return_value': MockResponse({u"generation": 0})}
     mock_session = mock.MagicMock(**attrs)
     r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
+    return r
+
+
+@pytest.fixture
+def fake_asmsig():
+    r = Signature_Set(mock.MagicMock())
+    r._meta_data['allowed_lazy_attributes'] = []
+    response = {u"type": u"filter-based", u"id": u"SqKxkr8hvYEJeGmk6cAjHg",
+                u"isUserDefined": u"true", u"selfLink":
+                    u"https://localhost/mgmt/tm/asm/signature-sets"
+                    u"/SqKxkr8hvYEJeGmk6cAjHg", u"kind":
+                    u"tm:asm:signature-sets:signature-setstate"}
+    attrs = {'get.return_value': MockResponse(response)}
+    mock_session = mock.MagicMock(**attrs)
+    r._meta_data['bigip']._meta_data = {'icr_session': mock_session,
+                                        'hostname': 'TESTDOMAINNAME',
+                                        'uri':
+                                            'https://TESTDOMAIN:443/mgmt/tm/'}
+    r._meta_data['required_json_kind'] = \
+        'tm:asm:signature-sets:signature-setstate'
+    return r
+
+
+@pytest.fixture
+def fake_asmchksig():
+    r = Check_Signature(mock.MagicMock())
+    r._meta_data['allowed_lazy_attributes'] = []
+    r._meta_data['required_json_kind'] = \
+        'tm:asm:tasks:check-signatures:check-signatures-taskstate'
+    mockuri = 'https://localhost/mgmt/tm/asm/tasks/check-signatures' \
+              '/BaAI0BPPpaV4vMaJvneBjQ'
+    resp = {
+        u"selfLink": mockuri, u"kind":
+            u"tm:asm:tasks:check-signatures:check-signatures-taskstate",
+        u"status": u"NEW", u"lastUpdateMicros": 1.474367299e+15,
+        u"startTime": u"2016-09-20T10:28:19Z", u"id":
+            u"BaAI0BPPpaV4vMaJvneBjQ"}
+    attrs = {'post.return_value': MockResponse(resp)}
+    mock_session = mock.MagicMock(**attrs)
+    r._meta_data['bigip']._meta_data = {'icr_session': mock_session,
+                                        'hostname': 'TESTDOMAINNAME',
+                                        'uri':
+                                            'https://TESTDOMAIN:443/mgmt/tm/'}
     return r
 
 
@@ -126,7 +173,7 @@ def test_Resource_refresh():
     assert r.a == 1
 
 
-class TestResourcecreate(object):
+class TestResourceCreate(object):
     def test_missing_required_creation_parameter(self):
         r = Resource(mock.MagicMock())
         r._meta_data['required_creation_parameters'] = set(['NONEMPTY'])
@@ -201,6 +248,7 @@ class TestResourcecreate(object):
 
 def test__activate_URI():
     r = Resource(mock.MagicMock())
+    r._meta_data['object_has_stats'] = True
     r._meta_data['allowed_lazy_attributes'] = []
     r._meta_data['attribute_registry'] = {u"tm:": u"SPAM"}
     r._meta_data['bigip']._meta_data = {
@@ -217,6 +265,27 @@ def test__activate_URI():
         {'a': ['b'], 'ver': ['11.5']}
     assert r._meta_data['creation_uri_frag'] == 'FOO'
     assert r._meta_data['allowed_lazy_attributes'] == [u"SPAM", Stats]
+
+
+def test__activate_URI_no_stats():
+    r = Resource(mock.MagicMock())
+    r._meta_data['object_has_stats'] = False
+    r._meta_data['allowed_lazy_attributes'] = []
+    r._meta_data['attribute_registry'] = {u"tm:": u"SPAM"}
+    r._meta_data['bigip']._meta_data = {
+        'hostname': 'TESTDOMAIN',
+        'uri': 'https://TESTDOMAIN:443/mgmt/tm/'
+    }
+    TURI = 'https://localhost:443/mgmt/tm/'\
+           'asm/signatures/T84Lsg_fb11W-QDXeCpdkA?ver=12.0&a=b#FOO'
+    assert r._meta_data['allowed_lazy_attributes'] == []
+    r._activate_URI(TURI)
+    assert r._meta_data['uri'] ==\
+        'https://TESTDOMAIN:443/mgmt/tm/asm/signatures/T84Lsg_fb11W-QDXeCpdkA/'
+    assert r._meta_data['creation_uri_qargs'] ==\
+        {'a': ['b'], 'ver': ['12.0']}
+    assert r._meta_data['creation_uri_frag'] == 'FOO'
+    assert r._meta_data['allowed_lazy_attributes'] == [u"SPAM"]
 
 
 def test__create_with_Collision():
@@ -821,3 +890,265 @@ class TestStats(object):
         assert statsobj.selfLink ==\
             u'https://localhost/mgmt/tm/ltm/virtual/'\
             '~Common~modtest1/stats?ver=11.6.0'
+
+
+class TestAsmResource(object):
+    def test_update_raises(self):
+        asm_resource = AsmResource(mock.MagicMock())
+        with pytest.raises(UnsupportedMethod):
+            asm_resource.update()
+
+    def test_load_missing_required_params(self):
+        r = AsmResource(mock.MagicMock())
+        r._meta_data['required_load_parameters'] = set(['IMPOSSIBLE'])
+        with pytest.raises(MissingRequiredReadParameter) as MRREIO:
+            r.load(id='T84Lsg_fb11W-QDXeCpdkA')
+        assert str(MRREIO.value) == "Missing required params: ['IMPOSSIBLE']"
+
+    def test_load_success(self):
+        r = Signature_Set(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        mockuri = "https://localhost/mgmt/tm/asm/signature-sets/T84Lsg_fb11W" \
+                  "-QDXeCpdkA"
+        attrs = {'get.return_value': MockResponse(
+                {
+                    u"isUserDefined": u"true",
+                    u"selfLink": mockuri,
+                    u"kind": u"tm:asm:signature-sets:signature-setstate",
+                    u"id": u"T84Lsg_fb11W-QDXeCpdkA"
+                }
+            )}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = \
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
+        r.isUserDefined = True
+        x = r.load(id='T84Lsg_fb11W-QDXeCpdkA')
+        assert x.selfLink == mockuri
+        assert x._meta_data['object_has_stats'] is False
+
+    def test_load_uri_creation_collision(self):
+        r = Signature_Set(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        mockuri = "https://localhost/mgmt/tm/asm/signature-sets/T84Lsg_fb11W" \
+                  "-QDXeCpdkA"
+        attrs = {'get.return_value': MockResponse(
+            {
+                u"isUserDefined": u"true",
+                u"selfLink": mockuri,
+                u"kind": u"tm:asm:signature-sets:signature-setstate",
+                u"id": u"T84Lsg_fb11W-QDXeCpdkA"
+            }
+        )}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = \
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
+        r.isUserDefined = True
+        x = r.load(id='T84Lsg_fb11W-QDXeCpdkA')
+        assert x.selfLink == mockuri
+        with pytest.raises(URICreationCollision) as UCCEIO:
+            x.load(uri='URI')
+        msg = "There was an attempt to assign a new uri to this resource, " \
+              "the _meta_data['uri'] is https://TESTDOMAIN:443/mgmt/tm/asm/" \
+              "signature-sets/T84Lsg_fb11W-QDXeCpdkA/ " \
+              "and it should not be changed."
+        assert UCCEIO.value.message == msg
+
+    def test_load_pop_name_id_uri(self, fake_asmsig):
+        x = fake_asmsig.load(name='test_fake', id='SqKxkr8hvYEJeGmk6cAjHg',
+                             description='fake_desc')
+        mockuri = 'https://localhost/mgmt/tm/asm/signature-sets' \
+                  '/SqKxkr8hvYEJeGmk6cAjHg'
+        pos, kwargs = fake_asmsig._meta_data['bigip']._meta_data[
+            'icr_session'].get.call_args
+        assert 'id' not in kwargs
+        assert 'name' not in kwargs
+        assert 'description' in kwargs
+        assert kwargs['description'] == 'fake_desc'
+        assert x.selfLink == mockuri
+
+    def test_delete_success(self):
+        r = AsmResource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['uri'] = 'URI'
+        attrs = {'delete.return_value':
+                 MockResponse({u"signatureId": 300000006, u"status_code":
+                               201}),
+                 'get.return_value':
+                 MockResponse({u"signatureId": 300000006, u"status_code":
+                               201})}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
+        r.signatureId = 300000006
+        r.delete()
+        assert r.__dict__ == {'deleted': True}
+
+    def test_exists_loadable(self):
+        r = AsmResource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        mockuri = "https://localhost/mgmt/tm/asm/signatures/T84Lsg_fb11W" \
+                  "-QDXeCpdkA"
+        attrs = {'get.return_value':
+                 MockResponse({u"signatureId": 300000006, u"selfLink":
+                               mockuri})}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = \
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME'}
+        r.signatureId = 300000006
+        assert r.exists(id='T84Lsg_fb11W-QDXeCpdkA')
+
+    def test_exists_not_found(self):
+        r = AsmResource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        response = requests.Response()
+        response.status_code = 404
+        mock_session = mock.MagicMock()
+        mock_session.get.side_effect = requests.HTTPError(response=response)
+        r._meta_data['bigip']._meta_data = {
+            'icr_session': mock_session,
+            'hostname': 'TESTDOMAINNAME'
+        }
+        assert not r.exists(id='T84Lsg_fb11W-QDXeCpdkA')
+
+    def test_exists_error(self):
+        response = requests.Response()
+        response.status_code = 400
+        mock_session = mock.MagicMock()
+        mock_session.get.side_effect = requests.HTTPError(response=response)
+        r = AsmResource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['bigip']._meta_data = {
+            'icr_session': mock_session,
+            'hostname': 'TESTDOMAINNAME'
+        }
+        with pytest.raises(requests.HTTPError) as err:
+            r.exists(id='T84Lsg_fb11W-QDXeCpdkA')
+            assert err.response.status_code == 400
+
+    def test_exists_pop_name_id_uri(self):
+        r = AsmResource(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        mockuri = "https://localhost/mgmt/tm/asm/signatures/" \
+                  "T84Lsg_fb11W-QDXeCpdkA"
+        attrs = {'get.return_value':
+                 MockResponse({u"signatureId": 300000006, u"selfLink":
+                               mockuri})}
+        mock_session = mock.MagicMock(**attrs)
+        r.exists(name='fake_name', id='T84Lsg_fb11W-QDXeCpdkA',
+                 description='fake_desc')
+        pos, kwargs = r._meta_data['bigip']._meta_data['icr_session'].get.\
+            call_args
+        r._meta_data['bigip']._meta_data = \
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME'}
+        r.signatureId = 300000006
+        assert 'id' not in kwargs
+        assert 'name' not in kwargs
+        assert 'description' in kwargs
+        assert kwargs['description'] == 'fake_desc'
+        assert r._meta_data['object_has_stats'] is False
+
+    def test_fetch(self, fake_asmchksig):
+        r = fake_asmchksig.fetch()
+        pos, kwargs = r._meta_data['bigip']. \
+            _meta_data['icr_session'].post.call_args
+        assert kwargs['json'] == {}
+        assert r.id == 'BaAI0BPPpaV4vMaJvneBjQ'
+
+
+class TestAsmFixedResource(object):
+    def test_create_raises(self):
+        fixed_resource = AsmFixedResource(mock.MagicMock())
+        with pytest.raises(UnsupportedMethod):
+            fixed_resource.create()
+
+    def test_fetch_raises(self):
+        fixed_resource = AsmFixedResource(mock.MagicMock())
+        with pytest.raises(UnsupportedMethod):
+            fixed_resource.fetch()
+
+    def test_delete_raises(self):
+        fixed_resource = AsmFixedResource(mock.MagicMock())
+        with pytest.raises(UnsupportedMethod):
+            fixed_resource.delete()
+
+    def test_update_raises(self):
+        fixed_resource = AsmFixedResource(mock.MagicMock())
+        with pytest.raises(UnsupportedMethod):
+            fixed_resource.update()
+
+    def test_load_missing_required_params(self):
+        r = AsmFixedResource(mock.MagicMock())
+        r._meta_data['required_load_parameters'] = set(['IMPOSSIBLE'])
+        with pytest.raises(MissingRequiredReadParameter) as MRREIO:
+            r.load(id='T84Lsg_fb11W-QDXeCpdkA')
+        assert str(MRREIO.value) == "Missing required params: ['IMPOSSIBLE']"
+
+    def test_load_success(self):
+        r = Signature_Set(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        mockuri = "https://localhost/mgmt/tm/asm/signature-sets/T84Lsg_fb11W" \
+                  "-QDXeCpdkA"
+        attrs = {'get.return_value': MockResponse(
+            {
+                u"isUserDefined": u"true",
+                u"selfLink": mockuri,
+                u"kind": u"tm:asm:signature-sets:signature-setstate",
+                u"id": u"T84Lsg_fb11W-QDXeCpdkA"
+            }
+        )}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = \
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
+        r.isUserDefined = True
+        x = r.load(id='T84Lsg_fb11W-QDXeCpdkA')
+        assert x.selfLink == mockuri
+        assert x._meta_data['object_has_stats'] is False
+
+    def test_load_uri_creation_collision(self):
+        r = Signature_Set(mock.MagicMock())
+        r._meta_data['allowed_lazy_attributes'] = []
+        mockuri = "https://localhost/mgmt/tm/asm/signature-sets/T84Lsg_fb11W" \
+                  "-QDXeCpdkA"
+        attrs = {'get.return_value': MockResponse(
+            {
+                u"isUserDefined": u"true",
+                u"selfLink": mockuri,
+                u"kind": u"tm:asm:signature-sets:signature-setstate",
+                u"id": u"T84Lsg_fb11W-QDXeCpdkA"
+            }
+        )}
+        mock_session = mock.MagicMock(**attrs)
+        r._meta_data['bigip']._meta_data = \
+            {'icr_session': mock_session,
+             'hostname': 'TESTDOMAINNAME',
+             'uri': 'https://TESTDOMAIN:443/mgmt/tm/'}
+        r.isUserDefined = True
+        x = r.load(id='T84Lsg_fb11W-QDXeCpdkA')
+        assert x.selfLink == mockuri
+        with pytest.raises(URICreationCollision) as UCCEIO:
+            x.load(uri='URI')
+        msg = "There was an attempt to assign a new uri to this resource, " \
+              "the _meta_data['uri'] is https://TESTDOMAIN:443/mgmt/tm/asm/" \
+              "signature-sets/T84Lsg_fb11W-QDXeCpdkA/ " \
+              "and it should not be changed."
+        assert UCCEIO.value.message == msg
+
+    def test_load_pop_name_id_uri(self, fake_asmsig):
+        x = fake_asmsig.load(name='test_fake', id='SqKxkr8hvYEJeGmk6cAjHg',
+                             description='fake_desc')
+        mockuri = 'https://localhost/mgmt/tm/asm/signature-sets' \
+                  '/SqKxkr8hvYEJeGmk6cAjHg'
+        pos, kwargs = fake_asmsig._meta_data['bigip']._meta_data[
+            'icr_session'].get.call_args
+        assert 'id' not in kwargs
+        assert 'name' not in kwargs
+        assert 'description' in kwargs
+        assert kwargs['description'] == 'fake_desc'
+        assert x.selfLink == mockuri
