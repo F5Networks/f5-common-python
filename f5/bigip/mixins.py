@@ -313,14 +313,18 @@ class AsmFileMixin(object):
                           'verify': False}
             response = session.get(self.file_bound_uri, **req_params)
             if response.status_code == 200:
-                if not response.headers['Content-Length']:
+                if 'Content-Length' not in response.headers:
                     error_message = "The Content-Length header is not present."
                     raise MissingHttpHeader(error_message)
-            if int(response.headers['Content-Length']) > 0:
-                writefh.write(response.content)
-            else:
-                error = 'Server Returned invalid Content-Length value'
-                raise EmptyContent(error)
+
+                length = response.headers['Content-Length']
+
+                if int(length) > 0:
+                    writefh.write(response.content)
+                else:
+                    error = "Invalid Content-Length value returned: %s ," \
+                            "the value should be reater than 0" % length
+                    raise EmptyContent(error)
 
     def _upload_file(self, filepathname, **kwargs):
         with open(filepathname, 'rb') as fileobj:
