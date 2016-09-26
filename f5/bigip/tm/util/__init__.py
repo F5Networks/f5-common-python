@@ -30,6 +30,7 @@ REST Kind
 from f5.bigip.resource import PathElement
 from f5.bigip.tm.util.Bash import Bash
 from f5.bigip.tm.util.Dig import Dig
+from f5.bigip.tm.util.Qkview import Qkview
 from f5.bigip.tm.util.Unix_Ls import Unix_Ls
 from f5.bigip.tm.util.Unix_Mv import Unix_Mv
 from f5.bigip.tm.util.Unix_Rm import Unix_Rm
@@ -41,6 +42,7 @@ class Util(PathElement):
         self._meta_data['allowed_lazy_attributes'] = [
             Bash,
             Dig,
+            Qkview,
             Unix_Ls,
             Unix_Mv,
             Unix_Rm
