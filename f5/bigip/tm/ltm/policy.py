@@ -29,6 +29,13 @@ REST Kind
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import F5SDKError
+
+from distutils.version import LooseVersion
+
+
+class DraftPolicyNotSupportedInTMOSVersion(F5SDKError):
+    '''Raise if legacy mode is set when creating a policy'''
 
 
 class Policys(Collection):
@@ -48,6 +55,21 @@ class Policy(Resource):
         self._meta_data['required_creation_parameters'].update(('strategy',))
         temp = {'tm:ltm:policy:rules:rulescollectionstate': Rules_s}
         self._meta_data['attribute_registry'] = temp
+
+    def _create(self, **kwargs):
+        tmos_version = self._meta_data['bigip']._meta_data['tmos_version']
+        legacy = kwargs.pop('legacy', '')
+        if LooseVersion(tmos_version) < LooseVersion('12.1.0'):
+            if legacy:
+                return super(Policy, self)._create(**kwargs)
+            msg = "The version of TMOS on the device does not support " \
+                "draft policies. The keyword argument 'legacy' was " \
+                "given to this method and it was set to 'False'. This " \
+                "is not allowed on the current device."
+            raise DraftPolicyNotSupportedInTMOSVersion(msg)
+        else:
+            if legacy:
+                return super(Policy, self)._create(**kwargs)
 
 
 class Rules_s(Collection):
