@@ -42,9 +42,10 @@ class HelperTest(object):
             endind = 1
         return self.lowered[:-endind]
 
-    def setup_test(self, request, bigip, **kwargs):
+    def setup_test(self, request, mgmt_root, **kwargs):
         resourcecollection =\
-            getattr(getattr(getattr(bigip, 'ltm'), 'profile'), self.lowered)
+            getattr(getattr(getattr(mgmt_root.tm, 'ltm'), 'profile'),
+                    self.lowered)
         resource = getattr(resourcecollection, self.urielementname())
         if resource.exists(name=self.test_name, partition=self.partition):
             resource.load(
@@ -55,9 +56,9 @@ class HelperTest(object):
         request.addfinalizer(created.delete)
         return created, resourcecollection
 
-    def test_MCURDL(self, request, bigip, **kwargs):
+    def test_MCURDL(self, request, mgmt_root, **kwargs):
         # Testing create
-        profile1, rescollection = self.setup_test(request, bigip, **kwargs)
+        profile1, rescollection = self.setup_test(request, mgmt_root, **kwargs)
         assert profile1.name == self.test_name
 
         # Testing update
@@ -105,10 +106,10 @@ class HelperTest(object):
         profile2 = p2.load(partition=self.partition, name=self.test_name)
         assert profile1.selfLink == profile2.selfLink
 
-    def test_MCURDL_Adapt(self, request, bigip):
+    def test_MCURDL_Adapt(self, request, mgmt_root):
 
         # Testing create
-        profile1, rescollection = self.setup_test(request, bigip)
+        profile1, rescollection = self.setup_test(request, mgmt_root)
         assert profile1.name == self.test_name
 
         # Testing update
@@ -130,7 +131,7 @@ class HelperTest(object):
 # Sub-collection setup function
 
 
-def setup_test_subc(request, bigip):
+def setup_test_subc(request, mgmt_root):
     def teardown():
         if prf_alert.exists(name='test_alert'):
             prf_alert.delete()
@@ -138,7 +139,7 @@ def setup_test_subc(request, bigip):
             prf_traffic.delete()
 
     avr = HelperTest('Analytics_s')
-    avrstr, avrhc1 = avr.setup_test(request, bigip)
+    avrstr, avrhc1 = avr.setup_test(request, mgmt_root)
     del avrstr
     prf_alert = avrhc1.alerts_s.alerts
     prf_alert.create(name='test_alert', threshold=200)
@@ -150,17 +151,17 @@ def setup_test_subc(request, bigip):
 
 @pytest.mark.skipif(True, reason='this depends on an optional module')
 class TestAnalytics(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         avr = HelperTest('Analytics_s')
-        avr.test_MCURDL(request, bigip)
+        avr.test_MCURDL(request, mgmt_root)
 
 
 @pytest.mark.skipif(True, reason='this depends on an optional module')
 class TestAnalyticsSubCol(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
 
         # Testing create and delete
-        alert1, traffic1, avrhc1 = setup_test_subc(request, bigip)
+        alert1, traffic1, avrhc1 = setup_test_subc(request, mgmt_root)
         assert alert1.name == 'test_alert'
         assert traffic1.name == 'test_traf_cap'
 
@@ -194,9 +195,9 @@ class TestAnalyticsSubCol(object):
 
 
 class TestCertificateAuthority(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         ca = HelperTest('Certificate_Authoritys')
-        ca.test_MCURDL(request, bigip)
+        ca.test_MCURDL(request, mgmt_root)
 
 
 # End Certificate Authority tests
@@ -205,10 +206,10 @@ class TestCertificateAuthority(object):
 
 
 class TestClassification(object):
-    def test_RUL(self, request, bigip):
+    def test_RUL(self, request, mgmt_root):
 
         # Load test
-        klass1 = bigip.ltm.profile.classifications.classification.\
+        klass1 = mgmt_root.tm.ltm.profile.classifications.classification.\
             load(name='classification')
 
         # Update test
@@ -233,19 +234,19 @@ class TestClientLdap(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_MCURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, mgmt_root):
         ldap = HelperTest('Client_Ldaps')
-        ldap.test_MCURDL(request, bigip)
+        ldap.test_MCURDL(request, mgmt_root)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_MCURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, mgmt_root):
         ldap = HelperTest('Client_Ldaps')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            ldap.test_MCURDL(request, bigip)
+            ldap.test_MCURDL(request, mgmt_root)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -255,9 +256,9 @@ class TestClientLdap(object):
 
 
 class TestClientSsl(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         cssl = HelperTest('Client_Ssls')
-        cssl.test_MCURDL(request, bigip)
+        cssl.test_MCURDL(request, mgmt_root)
 
 
 # End ClientSSL tests
@@ -271,19 +272,19 @@ class TestDhcpv4(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_MCURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, mgmt_root):
         dhcpv4 = HelperTest('Dhcpv4s')
-        dhcpv4.test_MCURDL(request, bigip)
+        dhcpv4.test_MCURDL(request, mgmt_root)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_MCURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, mgmt_root):
         dhcpv4 = HelperTest('Dhcpv4s')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_MCURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, mgmt_root)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -299,19 +300,19 @@ class TestDhcpv6(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_MCURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, mgmt_root):
         dhcpv6 = HelperTest('Dhcpv6s')
-        dhcpv6.test_MCURDL(request, bigip)
+        dhcpv6.test_MCURDL(request, mgmt_root)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_MCURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, mgmt_root):
         dhcpv4 = HelperTest('Dhcpv6s')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_MCURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, mgmt_root)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 # End Dhcpv6 tests
@@ -320,9 +321,9 @@ class TestDhcpv6(object):
 
 
 class TestDiameter(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         diameter = HelperTest('Diameters')
-        diameter.test_MCURDL(request, bigip)
+        diameter.test_MCURDL(request, mgmt_root)
 
 
 # End Diameter tests
@@ -331,9 +332,9 @@ class TestDiameter(object):
 
 
 class TestDns(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         dns = HelperTest('Dns_s')
-        dns.test_MCURDL(request, bigip)
+        dns.test_MCURDL(request, mgmt_root)
 
 
 # End Dns tests
@@ -342,13 +343,13 @@ class TestDns(object):
 
 
 class TestDnsLogging(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         dnslog = HelperTest('Dns_Loggings')
 
         # Testing create
 
         dns1, dnshc = dnslog.setup_test(
-            request, bigip,
+            request, mgmt_root,
             logPublisher='/Common/local-db-publisher')
         assert dns1.name == 'test.dns_logging'
         del dnshc
@@ -365,7 +366,7 @@ class TestDnsLogging(object):
         assert dns1.enableQueryLogging == 'no'
 
         # Testing load
-        dns2 = bigip.ltm.profile.dns_loggings.dns_logging.load(
+        dns2 = mgmt_root.tm.ltm.profile.dns_loggings.dns_logging.load(
             partition='Common', name='test.dns_logging')
         assert dns1.selfLink == dns2.selfLink
 
@@ -375,9 +376,9 @@ class TestDnsLogging(object):
 
 
 class TestFastHttp(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         fasthttp = HelperTest('Fasthttps')
-        fasthttp.test_MCURDL(request, bigip)
+        fasthttp.test_MCURDL(request, mgmt_root)
 
 
 # End FastHttp tests
@@ -386,9 +387,9 @@ class TestFastHttp(object):
 
 
 class TestFastL4(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         fastl4 = HelperTest('Fastl4s')
-        fastl4.test_MCURDL(request, bigip)
+        fastl4.test_MCURDL(request, mgmt_root)
 
 
 # End FastL4 tests
@@ -397,12 +398,12 @@ class TestFastL4(object):
 
 
 class TestFix(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         fix = HelperTest('Fixs')
 
         # Testing create
 
-        fix1, fixc = fix.setup_test(request, bigip)
+        fix1, fixc = fix.setup_test(request, mgmt_root)
         assert fix1.name == 'test.fix'
         del fixc
 
@@ -418,7 +419,7 @@ class TestFix(object):
         assert fix1.quickParsing == 'true'
 
         # Testing load
-        fix2 = bigip.ltm.profile.fixs.fix.load(
+        fix2 = mgmt_root.tm.ltm.profile.fixs.fix.load(
             partition='Common', name='test.fix')
         assert fix1.selfLink == fix2.selfLink
 
@@ -429,9 +430,9 @@ class TestFix(object):
 
 
 class TestFtp(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         ftp = HelperTest('Ftps')
-        ftp.test_MCURDL(request, bigip)
+        ftp.test_MCURDL(request, mgmt_root)
 
 
 # End FTP tests
@@ -445,19 +446,19 @@ class TestGtp(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_MCURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, mgmt_root):
         gtp = HelperTest('Gtps')
-        gtp.test_MCURDL(request, bigip)
+        gtp.test_MCURDL(request, mgmt_root)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_MCURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, mgmt_root):
         dhcpv4 = HelperTest('Gtps')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_MCURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, mgmt_root)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -468,9 +469,9 @@ class TestGtp(object):
 
 
 class TestHtml(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         html = HelperTest('Htmls')
-        html.test_MCURDL(request, bigip)
+        html.test_MCURDL(request, mgmt_root)
 
 
 # End HTML tests
@@ -479,9 +480,9 @@ class TestHtml(object):
 
 
 class TestHttp(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         http = HelperTest('Https')
-        http.test_MCURDL(request, bigip)
+        http.test_MCURDL(request, mgmt_root)
 
 
 # End HTTP tests
@@ -490,9 +491,9 @@ class TestHttp(object):
 
 
 class TestHttpCompress(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         httpc = HelperTest('Http_Compressions')
-        httpc.test_MCURDL(request, bigip)
+        httpc.test_MCURDL(request, mgmt_root)
 
 
 # End HTTP Compression tests
@@ -506,19 +507,19 @@ class TestHttp2(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_MCURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, mgmt_root):
         http2 = HelperTest('Http2s')
-        http2.test_MCURDL(request, bigip)
+        http2.test_MCURDL(request, mgmt_root)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_MCURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, mgmt_root):
         dhcpv4 = HelperTest('Http2s')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_MCURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, mgmt_root)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -529,11 +530,11 @@ class TestHttp2(object):
 
 
 class TestIcap(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         icap = HelperTest('Icaps')
 
         # Test Create
-        icap1, icapc = icap.setup_test(request, bigip)
+        icap1, icapc = icap.setup_test(request, mgmt_root)
         assert icap1.name == 'test.icap'
 
         # Test Update
@@ -547,7 +548,7 @@ class TestIcap(object):
         assert icap1.previewLength == 100
 
         # Test Load
-        icap2 = bigip.ltm.profile.icaps.icap.load(
+        icap2 = mgmt_root.tm.ltm.profile.icaps.icap.load(
             name='test.icap', partition='Common')
         assert icap1.selfLink == icap2.selfLink
 
@@ -559,24 +560,37 @@ class TestIcap(object):
 @pytest.mark.skipif(pytest.config.getoption('--release') != '12.0.0',
                     reason='Needs v12 TMOS to pass')
 class TestIiop(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         iiop = HelperTest('Iiops')
-        iiop.test_MCURDL(request, bigip)
+        iiop.test_MCURDL(request, mgmt_root)
 
 
 # End IIOP tests
 
 # Begin Ipother tests
-
-
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) ==
-                    '11.5.4',
-                    reason='Needs > v11.5.4 TMOS to pass')
 class TestIpother(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         ipoth = HelperTest('Ipothers')
-        ipoth.test_MCURDL(request, bigip)
 
+        # Testing create
+        ipoth1, ipothc = ipoth.setup_test(request, mgmt_root)
+        del ipothc
+
+        # Testing update
+        assert ipoth1.idleTimeout == '60'
+        ipoth1.idleTimeout = '100'
+        ipoth1.update()
+        assert ipoth1.idleTimeout == '100'
+
+        # Testing refresh
+        ipoth1.idleTimeout = '150'
+        ipoth1.refresh()
+        assert ipoth1.idleTimeout == '100'
+
+        # Testing load
+        ipoth2 = mgmt_root.tm.ltm.profile.ipothers.ipother.load(
+            partition='Common', name='test.ipother')
+        assert ipoth1.selfLink == ipoth2.selfLink
 
 # End Ipother tests
 
@@ -584,9 +598,9 @@ class TestIpother(object):
 
 
 class TestMblb(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         mblb = HelperTest('Mblbs')
-        mblb.test_MCURDL(request, bigip)
+        mblb.test_MCURDL(request, mgmt_root)
 
 
 # End Mblb tests
@@ -594,12 +608,12 @@ class TestMblb(object):
 # Begin Mssql tests
 
 class TestMssql(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         mssql = HelperTest('Mssqls')
 
         # Testing create
 
-        mssql1, mssqlc = mssql.setup_test(request, bigip)
+        mssql1, mssqlc = mssql.setup_test(request, mgmt_root)
         assert mssql1.name == 'test.mssql'
         del mssqlc
 
@@ -615,7 +629,7 @@ class TestMssql(object):
         assert mssql1.userCanWriteByDefault == 'false'
 
         # Testing load
-        mssql2 = bigip.ltm.profile.mssqls.mssql.load(
+        mssql2 = mgmt_root.tm.ltm.profile.mssqls.mssql.load(
             partition='Common', name='test.mssql')
         assert mssql1.selfLink == mssql2.selfLink
 
@@ -626,21 +640,21 @@ class TestMssql(object):
 
 
 class TestNtlm(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         ntlm = HelperTest('Ntlms')
-        ntlm.test_MCURDL(request, bigip)
+        ntlm.test_MCURDL(request, mgmt_root)
 
 
 # End Ntlm tests
 
 # Begin Ocsp Stapling Params tests
 
-def setup_dns_resolver(request, bigip, name):
+def setup_dns_resolver(request, mgmt_root, name):
     def teardown():
         if dns_res.exists(name=name):
             dns_res.delete()
     request.addfinalizer(teardown)
-    dns_res = bigip.net.dns_resolvers.dns_resolver.create(name=name)
+    dns_res = mgmt_root.tm.net.dns_resolvers.dns_resolver.create(name=name)
     return dns_res
 
 
@@ -650,17 +664,17 @@ class TestOcspStaplingParams(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_MCURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, mgmt_root):
 
         # Setup DNS resolver as prerequisite
-        dns = setup_dns_resolver(request, bigip, 'test_resolv')
+        dns = setup_dns_resolver(request, mgmt_root, 'test_resolv')
 
         # Test CURDL
         ocsp = HelperTest('Ocsp_Stapling_Params_s')
 
         # Testing create
         ocsp1, ocsphc = ocsp.setup_test(
-            request, bigip, dnsResolver=dns.name,
+            request, mgmt_root, dnsResolver=dns.name,
             trustedCa='/Common/ca-bundle.crt',
             useProxyServer='disabled')
 
@@ -679,7 +693,7 @@ class TestOcspStaplingParams(object):
         assert ocsp1.cacheErrorTimeout == 3000
 
         # Testing load
-        ocsp_params = bigip.ltm.profile.ocsp_stapling_params_s
+        ocsp_params = mgmt_root.tm.ltm.profile.ocsp_stapling_params_s
         ocsp2 = ocsp_params.ocsp_stapling_params.load(
             partition='Common', name='test.ocsp_stapling_params')
 
@@ -690,10 +704,10 @@ class TestOcspStaplingParams(object):
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_MCURDL_11_6_and_less(self, request, bigip):
+    def test_MCURDL_11_6_and_less(self, request, mgmt_root):
 
         # Setup DNS resolver as prerequisite
-        dns = setup_dns_resolver(request, bigip, 'test_resolv')
+        dns = setup_dns_resolver(request, mgmt_root, 'test_resolv')
 
         # Test CURDL
         ocsp = HelperTest('Ocsp_Stapling_Params_s')
@@ -701,7 +715,7 @@ class TestOcspStaplingParams(object):
         # Testing create
         with pytest.raises(UnsupportedTmosVersion) as ex:
             ocsp.setup_test(
-                request, bigip, dnsResolver=dns.name,
+                request, mgmt_root, dnsResolver=dns.name,
                 trustedCa='/Common/ca-bundle.crt',
                 useProxyServer='disabled'
             )
@@ -714,9 +728,9 @@ class TestOcspStaplingParams(object):
 
 
 class TestOneConnect(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         onec = HelperTest('One_Connects')
-        onec.test_MCURDL(request, bigip)
+        onec.test_MCURDL(request, mgmt_root)
 
 
 # End Oneconnect tests
@@ -726,9 +740,9 @@ class TestOneConnect(object):
 
 @pytest.mark.skipif(True, reason='this depends on an optional module')
 class TestPcp(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         pcp = HelperTest('Pcps')
-        pcp.test_MCURDL(request, bigip)
+        pcp.test_MCURDL(request, mgmt_root)
 
 
 # End Pcp tests
@@ -737,9 +751,9 @@ class TestPcp(object):
 
 
 class TestPptp(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         pptp = HelperTest('Pptps')
-        pptp.test_MCURDL(request, bigip)
+        pptp.test_MCURDL(request, mgmt_root)
 
 
 # End Pptp tests
@@ -748,12 +762,12 @@ class TestPptp(object):
 
 
 class TestQoe(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         qoe = HelperTest('Qoes')
 
         # Testing create
 
-        qoe1, qoec = qoe.setup_test(request, bigip)
+        qoe1, qoec = qoe.setup_test(request, mgmt_root)
         assert qoe1.name == 'test.qoe'
         del qoec
 
@@ -769,7 +783,7 @@ class TestQoe(object):
         assert qoe1.video == 'true'
 
         # Testing load
-        qoe2 = bigip.ltm.profile.qoes.qoe.load(
+        qoe2 = mgmt_root.tm.ltm.profile.qoes.qoe.load(
             partition='Common', name='test.qoe')
         assert qoe1.selfLink == qoe2.selfLink
 
@@ -780,9 +794,9 @@ class TestQoe(object):
 
 
 class TestRadius(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         radius = HelperTest('Radius_s')
-        radius.test_MCURDL(request, bigip)
+        radius.test_MCURDL(request, mgmt_root)
 
 
 # End Radius tests
@@ -791,9 +805,9 @@ class TestRadius(object):
 
 
 class TestRequestAdapt(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         rq_adp = HelperTest('Request_Adapts')
-        rq_adp.test_MCURDL_Adapt(request, bigip)
+        rq_adp.test_MCURDL_Adapt(request, mgmt_root)
 
 
 # End Request Adapt tests
@@ -802,9 +816,9 @@ class TestRequestAdapt(object):
 
 
 class TestRequestLog(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         rq_log = HelperTest('Request_Logs')
-        rq_log.test_MCURDL(request, bigip)
+        rq_log.test_MCURDL(request, mgmt_root)
 
 
 # End Request Log tests
@@ -813,9 +827,9 @@ class TestRequestLog(object):
 
 
 class TestResponseAdapt(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         res_adp = HelperTest('Response_Adapts')
-        res_adp.test_MCURDL_Adapt(request, bigip)
+        res_adp.test_MCURDL_Adapt(request, mgmt_root)
 
 
 # End Response Adapt tests
@@ -824,14 +838,14 @@ class TestResponseAdapt(object):
 # Sub-collection setup function
 
 
-def setup_test_uri(request, bigip):
+def setup_test_uri(request, mgmt_root):
     def teardown():
         if uri1.exists(name='test.uri'):
             uri1.delete()
 
     rewrite = HelperTest('Rewrites')
     url_rw, rewrite_str = rewrite.setup_test(
-        request, bigip, rewriteMode='uri-translation')
+        request, mgmt_root, rewriteMode='uri-translation')
     del rewrite_str
     client = {'host': 'example.com', 'path': '/', 'scheme': 'http'}
     server = {'host': 'instance.com', 'path': '/', 'scheme': 'http'}
@@ -844,12 +858,12 @@ def setup_test_uri(request, bigip):
 
 
 class TestRewrite(object):
-    def test_MCURDL_rewrite(self, request, bigip):
+    def test_MCURDL_rewrite(self, request, mgmt_root):
 
         # Test Create
         rewrite = HelperTest('Rewrites')
         rewrite1, rewrite_str = \
-            rewrite.setup_test(request, bigip)
+            rewrite.setup_test(request, mgmt_root)
         del rewrite_str
         assert rewrite1.name == 'test.rewrite'
 
@@ -864,16 +878,16 @@ class TestRewrite(object):
         assert rewrite1.splitTunneling == 'false'
 
         # Test load
-        rewrite2 = bigip.ltm.profile.rewrites.rewrite.load(name='test.rewrite',
-                                                           partition='Common')
+        rewrite2 = mgmt_root.tm.ltm.profile.rewrites.rewrite.load(
+            name='test.rewrite', partition='Common')
         assert rewrite1.selfLink == rewrite2.selfLink
 
 
 class TestUriRulesSubCol(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
 
         # Test Create
-        uri1, uri_rw = setup_test_uri(request, bigip)
+        uri1, uri_rw = setup_test_uri(request, mgmt_root)
         assert uri1.name == 'test.uri'
 
         # Test Update
@@ -903,9 +917,9 @@ class TestUriRulesSubCol(object):
 
 
 class TestRstps(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         rstps = HelperTest('Rtsps')
-        rstps.test_MCURDL(request, bigip)
+        rstps.test_MCURDL(request, mgmt_root)
 
 
 # End Rstps tests
@@ -914,9 +928,9 @@ class TestRstps(object):
 
 
 class TestSctps(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         sctps = HelperTest('Sctps')
-        sctps.test_MCURDL(request, bigip)
+        sctps.test_MCURDL(request, mgmt_root)
 
 
 # End Sctps tests
@@ -930,19 +944,19 @@ class TestServerLdap(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_MCURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, mgmt_root):
         sldap = HelperTest('Server_Ldaps')
-        sldap.test_MCURDL(request, bigip)
+        sldap.test_MCURDL(request, mgmt_root)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_MCURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, mgmt_root):
         dhcpv4 = HelperTest('Server_Ldaps')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_MCURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, mgmt_root)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -953,9 +967,9 @@ class TestServerLdap(object):
 
 
 class TestServerSsl(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         sssl = HelperTest('Server_Ssls')
-        sssl.test_MCURDL(request, bigip)
+        sssl.test_MCURDL(request, mgmt_root)
 
 
 # End Server Ldap tests
@@ -964,9 +978,9 @@ class TestServerSsl(object):
 
 
 class TestSip(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         sip = HelperTest('Sips')
-        sip.test_MCURDL(request, bigip)
+        sip.test_MCURDL(request, mgmt_root)
 
 
 # End Sip tests
@@ -980,19 +994,19 @@ class TestSmtp(object):
         < LooseVersion('11.6.0'),
         reason='This collection exists on 11.6.0 or greater.'
     )
-    def test_MCURDL_11_6_and_greater(self, request, bigip):
+    def test_MCURDL_11_6_and_greater(self, request, mgmt_root):
         smtp = HelperTest('Smtps')
-        smtp.test_MCURDL(request, bigip)
+        smtp.test_MCURDL(request, mgmt_root)
 
     @pytest.mark.skipif(
         LooseVersion(pytest.config.getoption('--release'))
         >= LooseVersion('11.6.0'),
         reason='This collection does not exist on 11.5.4 or less.'
     )
-    def test_MCURDL_11_5_4_and_less(self, request, bigip):
+    def test_MCURDL_11_5_4_and_less(self, request, mgmt_root):
         dhcpv4 = HelperTest('Smtps')
         with pytest.raises(UnsupportedTmosVersion) as ex:
-            dhcpv4.test_MCURDL(request, bigip)
+            dhcpv4.test_MCURDL(request, mgmt_root)
         assert 'minimum TMOS version in which this resource *is* supported ' \
             'is 11.6.0' in ex.value.message
 
@@ -1003,9 +1017,9 @@ class TestSmtp(object):
 
 
 class TestSmtps(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         smtps = HelperTest('Smtps_s')
-        smtps.test_MCURDL(request, bigip)
+        smtps.test_MCURDL(request, mgmt_root)
 
 
 # End Smtps tests
@@ -1014,13 +1028,11 @@ class TestSmtps(object):
 
 
 class TestSock(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
 
-        dns = setup_dns_resolver(request, bigip,
-                                 'test_resolv')
+        dns = setup_dns_resolver(request, mgmt_root, 'test_resolv')
         socks = HelperTest('Socks_s')
-        socks.test_MCURDL(request, bigip,
-                          dnsResolver=dns.name)
+        socks.test_MCURDL(request, mgmt_root, dnsResolver=dns.name)
 
 
 # End Sock tests
@@ -1029,9 +1041,9 @@ class TestSock(object):
 
 
 class TestSpdy(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         spdy = HelperTest('Spdys')
-        spdy.test_MCURDL(request, bigip)
+        spdy.test_MCURDL(request, mgmt_root)
 
 
 # End Spdy tests
@@ -1040,9 +1052,9 @@ class TestSpdy(object):
 
 
 class TestStatistics(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         stat = HelperTest('Statistics_s')
-        stat.test_MCURDL(request, bigip)
+        stat.test_MCURDL(request, mgmt_root)
 
 
 # End Statistics tests
@@ -1051,9 +1063,9 @@ class TestStatistics(object):
 
 
 class TestStream(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         stream = HelperTest('Streams')
-        stream.test_MCURDL(request, bigip)
+        stream.test_MCURDL(request, mgmt_root)
 
 
 # End Stream tests
@@ -1062,9 +1074,9 @@ class TestStream(object):
 
 
 class TestTcp(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         testcp = HelperTest('Tcps')
-        testcp.test_MCURDL(request, bigip)
+        testcp.test_MCURDL(request, mgmt_root)
 
 
 # End Tcp tests
@@ -1074,9 +1086,9 @@ class TestTcp(object):
 @pytest.mark.skipif(pytest.config.getoption('--release') != '12.0.0',
                     reason='Needs v12 TMOS to pass')
 class TestTftp(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         tftp = HelperTest('Tftps')
-        tftp.test_MCURDL(request, bigip)
+        tftp.test_MCURDL(request, mgmt_root)
 
 
 # End Tftp tests
@@ -1085,9 +1097,9 @@ class TestTftp(object):
 
 
 class TestUdp(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         tesudp = HelperTest('Udps')
-        tesudp.test_MCURDL(request, bigip)
+        tesudp.test_MCURDL(request, mgmt_root)
 
 
 # End Udp tests
@@ -1097,11 +1109,11 @@ class TestUdp(object):
 
 
 class TestWebAcceleration(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         wa = HelperTest('Web_Accelerations')
 
         # Test Create
-        wa1, wapc = wa.setup_test(request, bigip)
+        wa1, wapc = wa.setup_test(request, mgmt_root)
         assert wa1.name == 'test.web_acceleration'
 
         # Test Update
@@ -1115,7 +1127,7 @@ class TestWebAcceleration(object):
         assert wa1.cacheAgingRate == 5
 
         # Test Load
-        wa2 = bigip.ltm.profile.web_accelerations.web_acceleration.load(
+        wa2 = mgmt_root.tm.ltm.profile.web_accelerations.web_acceleration.load(
             name='test.web_acceleration', partition='Common')
         assert wa1.cacheAgingRate == wa2.cacheAgingRate
 
@@ -1125,9 +1137,9 @@ class TestWebAcceleration(object):
 # Begin Web Security tests
 
 
-class iTestWebSecurity(object):
-    def test_load(self, request, bigip):
-        ws1 = bigip.ltm.profile.\
+class TestWebSecurity(object):
+    def test_load(self, request, mgmt_root):
+        ws1 = mgmt_root.tm.ltm.profile.\
             web_securitys.websecurity.load(name='websecurity')
         assert ws1.name == 'websecurity'
 
@@ -1138,9 +1150,9 @@ class iTestWebSecurity(object):
 
 
 class TestXml(object):
-    def test_MCURDL(self, request, bigip):
+    def test_MCURDL(self, request, mgmt_root):
         testxml = HelperTest('Xmls')
-        testxml.test_MCURDL(request, bigip)
+        testxml.test_MCURDL(request, mgmt_root)
 
 
 # End Xml tests
