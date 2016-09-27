@@ -57,18 +57,18 @@ class Virtual_Servers_s(Collection):
     """BIG-IP® GTM virtual server sub-collection"""
     def __init__(self, server):
         super(Virtual_Servers_s, self).__init__(server)
-        self._meta_data['allowed_lazy_attributes'] = [Virtual_Servers]
+        self._meta_data['allowed_lazy_attributes'] = [Virtual_Server]
         self._meta_data['required_json_kind'] = \
             'tm:gtm:server:virtual-servers:virtual-serverscollectionstate'
         self._meta_data['attribute_registry'] = {
             'tm:gtm:server:virtual-servers:virtual-serversstate':
-                Virtual_Servers}
+                Virtual_Server}
 
 
-class Virtual_Servers(Resource):
+class Virtual_Server(Resource):
     """BIG-IP® GTM virtual server resource"""
     def __init__(self, virtual_servers_s):
-        super(Virtual_Servers, self).__init__(virtual_servers_s)
+        super(Virtual_Server, self).__init__(virtual_servers_s)
         self._meta_data['required_creation_parameters'].update((
             'destination',))
         self._meta_data['required_json_kind'] = \
