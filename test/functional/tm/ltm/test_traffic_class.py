@@ -50,7 +50,7 @@ class TestTrafficClass(object):
         traffic1.refresh()
         assert traffic1.description == TESTDESCRIPTION
         traffic2 = tc1.traffic_class.load(name='fake_traffic1')
-        assert traffic2.selfLink == traffic1.selfLink
+        assert traffic1.description == traffic2.description
 
     def test_trafficclass_modify(self, request, mgmt_root):
         traffic1, tc1 = setup_traffic_test(
