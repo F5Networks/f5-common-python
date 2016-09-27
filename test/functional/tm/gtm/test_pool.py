@@ -95,7 +95,7 @@ def setup_gtm_server(request, mgmt_root, name, partition, **kwargs):
 def delete_gtm_vs(mgmt_root, name):
     s1 = mgmt_root.tm.gtm.servers.server.load(name=GTM_SERVER)
     try:
-        foo = s1.virtual_servers_s.virtual_servers.load(
+        foo = s1.virtual_servers_s.virtual_server.load(
             name=name)
     except HTTPError as err:
         if err.response.status_code != 404:
@@ -109,7 +109,7 @@ def setup_gtm_vs(request, mgmt_root, name, destination, **kwargs):
         delete_gtm_vs(mgmt_root, name)
 
     s1 = setup_gtm_server(request, mgmt_root, GTM_SERVER, 'Common', **kwargs)
-    vs = s1.virtual_servers_s.virtual_servers.create(
+    vs = s1.virtual_servers_s.virtual_server.create(
         name=name, destination=destination)
     request.addfinalizer(teardown)
     return vs
@@ -257,27 +257,27 @@ class HelperTest(object):
         if isinstance(pool, A):
             setup_gtm_vs(request, mgmt_root, GTM_VS, '20.20.20.20:80',
                          addresses=[{'name': '1.1.1.1'}])
-            member = mem_coll.members.create(name=RES_NAME,
-                                             partition=self.partition)
+            member = mem_coll.member.create(name=RES_NAME,
+                                            partition=self.partition)
         elif isinstance(pool, Aaaa):
             setup_gtm_vs(request, mgmt_root, GTM_VS,
                          'fd00:7967:71a5::.80',
                          addresses=[{'name': 'fda8:e5d6:5ef6::'}])
-            member = mem_coll.members.create(name=RES_NAME,
-                                             partition=self.partition)
+            member = mem_coll.member.create(name=RES_NAME,
+                                            partition=self.partition)
         elif isinstance(pool, Cname) or isinstance(pool, Mx):
             setup_wideip_v12(request, mgmt_root, WIDEIPNAME,
                              partition=self.partition)
-            member = mem_coll.members.create(name=WIDEIPNAME)
+            member = mem_coll.member.create(name=WIDEIPNAME)
         elif isinstance(pool, Naptr):
             setup_wideip_v12(request, mgmt_root, WIDEIPNAME,
                              partition=self.partition)
-            member = mem_coll.members.create(name=WIDEIPNAME,
-                                             flags='a', service='http')
+            member = mem_coll.member.create(name=WIDEIPNAME,
+                                            flags='a', service='http')
         elif isinstance(pool, Srv):
             setup_wideip_v12(request, mgmt_root, WIDEIPNAME,
                              partition=self.partition)
-            member = mem_coll.members.create(name=WIDEIPNAME, port=80)
+            member = mem_coll.member.create(name=WIDEIPNAME, port=80)
 
         return member, mem_coll, member.name
 
@@ -576,7 +576,7 @@ def setup_member_basic_test(request, mgmt_root, name, partition, poolname):
     pool, poolcoll = setup_pool_basic_test(request, mgmt_root, poolname,
                                            partition)
     memberc = pool.members_s
-    member = memberc.members.create(name=name, partition=partition)
+    member = memberc.member.create(name=name, partition=partition)
     request.addfinalizer(teardown)
     return member, memberc
 
@@ -700,7 +700,7 @@ class TestMembersSubCollection_v11(object):
                      addresses=[{'name': '1.1.1.1'}])
         p1, pc = setup_pool_basic_test(request, mgmt_root, 'fake_pool',
                                        'Common')
-        m1 = p1.members_s.members.create(name=RES_NAME, partition='Common')
+        m1 = p1.members_s.member.create(name=RES_NAME, partition='Common')
         uri = 'https://localhost/mgmt/tm/gtm/pool/~Common~fake_pool/' \
               'members/~Common~fake_serv1:fakeVS'
         assert m1.name == RES_NAME
@@ -714,10 +714,10 @@ class TestMembersSubCollection_v11(object):
                      addresses=[{'name': '1.1.1.1'}])
         p1, pc = setup_pool_basic_test(request, mgmt_root, 'fake_pool',
                                        'Common')
-        m1 = p1.members_s.members.create(name=RES_NAME, partition='Common',
-                                         description='FancyFakeMember',
-                                         limitMaxBpsStatus='enabled',
-                                         limitMaxBps=1337)
+        m1 = p1.members_s.member.create(name=RES_NAME, partition='Common',
+                                        description='FancyFakeMember',
+                                        limitMaxBpsStatus='enabled',
+                                        limitMaxBps=1337)
         assert m1.name == RES_NAME
         assert m1.description == 'FancyFakeMember'
         assert m1.limitMaxBpsStatus == 'enabled'
@@ -728,7 +728,7 @@ class TestMembersSubCollection_v11(object):
                                 'fake_pool')
         p1 = mgmt_root.tm.gtm.pools.pool.load(name='fake_pool')
         try:
-            p1.members_s.members.create(name=RES_NAME, partition='Common')
+            p1.members_s.member.create(name=RES_NAME, partition='Common')
         except HTTPError as err:
             assert err.response.status_code == 409
 
@@ -736,8 +736,8 @@ class TestMembersSubCollection_v11(object):
         setup_member_basic_test(request, mgmt_root, RES_NAME, 'Common',
                                 'fake_pool')
         p1 = mgmt_root.tm.gtm.pools.pool.load(name='fake_pool')
-        m1 = p1.members_s.members.load(name=RES_NAME, partition='Common')
-        m2 = p1.members_s.members.load(name=RES_NAME, partition='Common')
+        m1 = p1.members_s.member.load(name=RES_NAME, partition='Common')
+        m2 = p1.members_s.member.load(name=RES_NAME, partition='Common')
 
         assert m1.limitMaxBpsStatus == 'disabled'
         assert m1.limitMaxBpsStatus == 'disabled'
@@ -753,7 +753,7 @@ class TestMembersSubCollection_v11(object):
         p1, pc = setup_pool_basic_test(request, mgmt_root, 'fake_pool',
                                        'Common')
         try:
-            p1.members_s.members.load(name=RES_NAME)
+            p1.members_s.member.load(name=RES_NAME)
         except HTTPError as err:
             assert err.response.status_code == 404
 
@@ -765,7 +765,7 @@ class TestMembersSubCollection_v11(object):
 
         m1.limitMaxBpsStatus = 'enabled'
         m1.update()
-        m2 = mc.members.load(name=RES_NAME, partition='Common')
+        m2 = mc.member.load(name=RES_NAME, partition='Common')
         assert m2.name == RES_NAME
         assert m2.limitMaxBpsStatus == 'enabled'
 
@@ -797,7 +797,7 @@ class TestMembersSubCollection_v11(object):
         m1.delete()
         p1 = mgmt_root.tm.gtm.pools.pool.load(name='fake_pool')
         try:
-            p1.members_s.members.load(name=RES_NAME)
+            p1.members_s.member.load(name=RES_NAME)
         except HTTPError as err:
             assert err.response.status_code == 404
 

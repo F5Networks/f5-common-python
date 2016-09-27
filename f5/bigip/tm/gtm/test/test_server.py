@@ -19,7 +19,7 @@ import pytest
 from f5.bigip import ManagementRoot
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.gtm.server import Server
-from f5.bigip.tm.gtm.server import Virtual_Servers
+from f5.bigip.tm.gtm.server import Virtual_Server
 
 from six import iterkeys
 
@@ -34,7 +34,7 @@ def FakeServer():
 @pytest.fixture
 def FakeVS():
     fake_server = mock.MagicMock()
-    fake_vs = Virtual_Servers(fake_server)
+    fake_vs = Virtual_Server(fake_server)
     return fake_vs
 
 

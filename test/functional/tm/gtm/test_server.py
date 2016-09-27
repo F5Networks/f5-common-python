@@ -18,7 +18,7 @@ import pytest
 
 from distutils.version import LooseVersion
 from f5.bigip.tm.gtm.server import Server
-from f5.bigip.tm.gtm.server import Virtual_Servers
+from f5.bigip.tm.gtm.server import Virtual_Server
 
 from requests.exceptions import HTTPError
 from six import iteritems
@@ -87,7 +87,7 @@ def setup_basic_test(request, mgmt_root, name, partition):
 def delete_vs(mgmt_root, name):
     s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
     try:
-        foo = s1.virtual_servers_s.virtual_servers.load(
+        foo = s1.virtual_servers_s.virtual_server.load(
             name=name)
     except HTTPError as err:
         if err.response.status_code != 404:
@@ -101,7 +101,7 @@ def setup_vs_basic_test(request, mgmt_root, name, destination):
         delete_vs(mgmt_root, name)
 
     s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
-    vs = s1.virtual_servers_s.virtual_servers.create(
+    vs = s1.virtual_servers_s.virtual_server.create(
         name=name, destination=destination)
     request.addfinalizer(teardown)
     return vs
@@ -121,11 +121,16 @@ class TestCreate(object):
         serv1 = mgmt_root.tm.gtm.servers.server.create(
             name='fake_serv1', datacenter=dc.name,
             addresses=[{'name': '1.1.1.1'}])
+        if LooseVersion(pytest.config.getoption('--release')) >= \
+                LooseVersion('12.1.0'):
+            link = 'https://localhost/mgmt/tm/gtm/server/~Common' \
+                   '~fake_serv1'
+        else:
+            link = 'https://localhost/mgmt/tm/gtm/server/fake_serv1'
         assert serv1.name == 'fake_serv1'
         assert serv1.generation and isinstance(serv1.generation, int)
         assert serv1.kind == 'tm:gtm:server:serverstate'
-        assert serv1.selfLink.startswith(
-            'https://localhost/mgmt/tm/gtm/server/fake_serv1')
+        assert serv1.selfLink.startswith(link)
 
     def test_create_optional_args(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, 'fake_serv1')
@@ -232,12 +237,15 @@ class TestDelete(object):
 class TestServerCollection(object):
     def test_server_collection(self, request, mgmt_root):
         s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
+        if LooseVersion(pytest.config.getoption('--release')) >= \
+                LooseVersion('12.1.0'):
+            link = 'https://localhost/mgmt/tm/gtm/server/~Common~fake_serv1'
+        else:
+            link = 'https://localhost/mgmt/tm/gtm/server/fake_serv1'
         assert s1.name == 'fake_serv1'
         assert s1.generation and isinstance(s1.generation, int)
-        assert s1.fullPath == 'fake_serv1'
         assert s1.kind == 'tm:gtm:server:serverstate'
-        assert s1.selfLink.startswith(
-            'https://localhost/mgmt/tm/gtm/server/fake_serv1')
+        assert s1.selfLink.startswith(link)
 
         sc = mgmt_root.tm.gtm.servers.get_collection()
         assert isinstance(sc, list)
@@ -250,22 +258,28 @@ class TestVirtualServerSubCollection(object):
         setup_create_vs_test(request, mgmt_root, 'vs1')
         s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
         vs = s1.virtual_servers_s
-        vs1 = vs.virtual_servers.create(name='vs1', destination='5.5.5.5:80')
+        vs1 = vs.virtual_server.create(name='vs1', destination='5.5.5.5:80')
+        if LooseVersion(pytest.config.getoption('--release')) >= \
+                LooseVersion('12.1.0'):
+            link = 'https://localhost/mgmt/tm/gtm/server/~Common~fake_serv1' \
+                   '/virtual-servers/vs'
+        else:
+            link = 'https://localhost/mgmt/tm/gtm/server/fake_serv1' \
+                   '/virtual-servers/vs1'
         assert vs1.name == 'vs1'
         assert vs1.generation and isinstance(vs1.generation, int)
         assert vs1.kind == 'tm:gtm:server:virtual-servers:virtual-serversstate'
-        assert vs1.selfLink.startswith('https://localhost/mgmt/tm/gtm/server/'
-                                       'fake_serv1/virtual-servers/vs1')
+        assert vs1.selfLink.startswith(link)
 
     def test_create_optional_args(self, request, mgmt_root):
         setup_create_vs_test(request, mgmt_root, 'vs1')
         s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
         vs = s1.virtual_servers_s
-        vs1 = vs.virtual_servers.create(name='vs1',
-                                        destination='5.5.5.5:80',
-                                        description='FancyFakeVS',
-                                        limitMaxBpsStatus='enabled',
-                                        limitMaxBps=1337)
+        vs1 = vs.virtual_server.create(name='vs1',
+                                       destination='5.5.5.5:80',
+                                       description='FancyFakeVS',
+                                       limitMaxBpsStatus='enabled',
+                                       limitMaxBps=1337)
         assert vs1.name == 'vs1'
         assert vs1.description == 'FancyFakeVS'
         assert vs1.limitMaxBpsStatus == 'enabled'
@@ -275,7 +289,7 @@ class TestVirtualServerSubCollection(object):
         setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
         s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
         try:
-            s1.virtual_servers_s.virtual_servers.create(
+            s1.virtual_servers_s.virtual_server.create(
                 name='vs1', destination='5.5.5.5:80')
         except HTTPError as err:
             assert err.response.status_code == 409
@@ -283,8 +297,8 @@ class TestVirtualServerSubCollection(object):
     def test_refresh(self, request, mgmt_root):
         setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
         s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
-        vs1 = s1.virtual_servers_s.virtual_servers.load(name='vs1')
-        vs2 = s1.virtual_servers_s.virtual_servers.load(name='vs1')
+        vs1 = s1.virtual_servers_s.virtual_server.load(name='vs1')
+        vs2 = s1.virtual_servers_s.virtual_server.load(name='vs1')
 
         assert vs1.limitMaxBpsStatus == 'disabled'
         assert vs2.limitMaxBpsStatus == 'disabled'
@@ -299,20 +313,20 @@ class TestVirtualServerSubCollection(object):
     def test_load_no_object(self, request, mgmt_root):
         s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
         try:
-            s1.virtual_servers_s.virtual_servers.load(name='vs1')
+            s1.virtual_servers_s.virtual_server.load(name='vs1')
         except HTTPError as err:
             assert err.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
         s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
-        vs1 = s1.virtual_servers_s.virtual_servers.load(name='vs1')
+        vs1 = s1.virtual_servers_s.virtual_server.load(name='vs1')
         assert vs1.name == 'vs1'
         assert vs1.limitMaxBpsStatus == 'disabled'
 
         vs1.limitMaxBpsStatus = 'enabled'
         vs1.update()
-        vs2 = s1.virtual_servers_s.virtual_servers.load(name='vs1')
+        vs2 = s1.virtual_servers_s.virtual_server.load(name='vs1')
         assert vs2.name == 'vs1'
         assert vs2.limitMaxBpsStatus == 'enabled'
 
@@ -341,20 +355,25 @@ class TestVirtualServerSubCollection(object):
         vs1.delete()
         s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
         try:
-            s1.virtual_servers_s.virtual_servers.load(name='vs2')
+            s1.virtual_servers_s.virtual_server.load(name='vs2')
         except HTTPError as err:
             assert err.response.status_code == 404
 
     def test_virtual_server_collection(self, request, mgmt_root):
         vs1 = setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
+        if LooseVersion(pytest.config.getoption('--release')) >= \
+                LooseVersion('12.1.0'):
+            link = 'https://localhost/mgmt/tm/gtm/server/~Common~fake_serv1' \
+                   '/virtual-servers/vs'
+        else:
+            link = 'https://localhost/mgmt/tm/gtm/server/fake_serv1/virtual' \
+                   '-servers/vs1'
         assert vs1.name == 'vs1'
         assert vs1.generation and isinstance(vs1.generation, int)
         assert vs1.kind == 'tm:gtm:server:virtual-servers:virtual-serversstate'
-        assert vs1.selfLink.startswith('https://localhost/mgmt/tm/gtm/server/'
-                                       'fake_serv1/virtual-servers/vs1')
-
+        assert vs1.selfLink.startswith(link)
         s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
         vsc = s1.virtual_servers_s.get_collection()
         assert isinstance(vsc, list)
         assert len(vsc)
-        assert isinstance(vsc[0], Virtual_Servers)
+        assert isinstance(vsc[0], Virtual_Server)
