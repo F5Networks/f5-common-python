@@ -78,35 +78,16 @@ class TestVirtual(object):
             elif k == desc:
                 virtual1.__dict__[k] == 'Cool mod test'
 
-    def test_stats(self, request, mgmt_root, setup_device_snapshot):
-        virtual1, vc1 = setup_virtual_test(
-            request, mgmt_root, 'Common', 'modtest1'
-        )
-        stats = virtual1.stats.load()
-        pp(stats.raw)
-        assert virtual1.cmpEnabled == u'yes'
-        assert stats.entries['cmpEnabled']['description'] == u'enabled'
-        virtual1.modify(cmpEnabled=u'no')
-        stats.refresh()
-        assert stats.entries['cmpEnabled']['description'] == u'disabled'
-        with pytest.raises(UnsupportedMethod) as USMEIO:
-            stats.modify(description='foo')
-        assert USMEIO.value.message ==\
-            "Stats does not support the modify method"
 
-
-def test_profiles_CE(
-        mgmt_root, opt_release, setup_device_snapshot
-):
+def test_profiles_CE(mgmt_root, setup_device_snapshot):
     v1 = mgmt_root.tm.ltm.virtuals.virtual.create(
         name="tv1", partition="Common"
     )
     p1 = v1.profiles_s.profiles.create(name="http", partition='Common')
     test_profiles_s = v1.profiles_s
     test_profiles_s.context = 'all'
-    assert p1.selfLink ==\
-        u"https://localhost/mgmt/tm/ltm/virtual/"\
-        "~Common~tv1/profiles/~Common~http?ver="+opt_release
+    assert '~Common~tv1/profiles/' in p1.selfLink
+    assert 'http?ver=' in p1.selfLink
 
     p2 = v1.profiles_s.profiles
     assert p2.exists(name='http', partition='Common')
