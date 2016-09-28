@@ -11,3 +11,4 @@ git+https://github.com/F5Networks/pytest-symbols.git
 python-coveralls
 pyopenssl
 ordereddict
+requests-mock==1.1.0

@@ -34,6 +34,7 @@ RUN pip install hacking==0.10.2 \
     git+https://github.com/F5Networks/pytest-symbols.git \
     f5-icontrol-rest==1.0.7 \
     pyOpenSSL==16.0.0 \
-    python-coveralls==2.7.0
+    python-coveralls==2.7.0 \
+    requests-mock==1.1.0
 
 CMD /bin/bash
