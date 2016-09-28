@@ -76,9 +76,18 @@ class TestNtpRestrictions(object):
         if pytest.config.getoption('--release') < LooseVersion('11.6.1'):
             assert ntp1.name == 'r1'
             assert ntp1.partition == 'Common'
+        elif pytest.config.getoption('--release') >= LooseVersion('12.1.0'):
+            assert ntp1.name == 'r1'
+            assert not hasattr(ntp1, 'partition')
         else:
             assert ntp1.name == '/Common/r1'
             # The 'partition' attribute was removed in 11.6.1?
+            assert not hasattr(ntp1, 'partition')
+
+        if pytest.config.getoption('--release') >= LooseVersion('12.1.0'):
+            link = 'https://localhost/mgmt/tm/sys/ntp/restrict/r1'
+        else:
+            link = 'https://localhost/mgmt/tm/sys/ntp/restrict/~Common~r1'
 
         assert ntp1.defaultEntry == "disabled"
         assert ntp1.ignore == "disabled"
@@ -95,8 +104,7 @@ class TestNtpRestrictions(object):
         assert ntp1.ntpPort == "disabled"
         assert ntp1.version == "disabled"
         assert ntp1.kind == 'tm:sys:ntp:restrict:restrictstate'
-        assert ntp1.selfLink.startswith(
-            'https://localhost/mgmt/tm/sys/ntp/restrict/~Common~r1')
+        assert ntp1.selfLink.startswith(link)
 
     def test_create_full(self, request, mgmt_root):
         ntp = setup_restrict_test(request, mgmt_root,
@@ -130,9 +138,18 @@ class TestNtpRestrictions(object):
         if pytest.config.getoption('--release') < LooseVersion('11.6.1'):
             assert ntp1.name == 'r2'
             assert ntp1.partition == 'Common'
+        elif pytest.config.getoption('--release') >= LooseVersion('12.1.0'):
+            assert ntp1.name == 'r2'
+            assert not hasattr(ntp1, 'partition')
         else:
             assert ntp1.name == '/Common/r2'
+            assert not hasattr(ntp1, 'partition')
             # The 'partition' attribute was removed in 11.6.1?
+
+        if pytest.config.getoption('--release') >= LooseVersion('12.1.0'):
+            link = 'https://localhost/mgmt/tm/sys/ntp/restrict/r2'
+        else:
+            link = 'https://localhost/mgmt/tm/sys/ntp/restrict/~Common~r2'
 
         assert ntp1.address == "192.168.1.0"
         assert ntp1.defaultEntry == "enabled"
@@ -151,5 +168,4 @@ class TestNtpRestrictions(object):
         assert ntp1.ntpPort == "enabled"
         assert ntp1.version == "enabled"
         assert ntp1.kind == 'tm:sys:ntp:restrict:restrictstate'
-        assert ntp1.selfLink.startswith(
-            'https://localhost/mgmt/tm/sys/ntp/restrict/~Common~r2')
+        assert ntp1.selfLink.startswith(link)
