@@ -341,12 +341,21 @@ class TestCommunity(object):
 
         assert comm1.communityName == 'commtest1'
 
+        # In 12.1.0 there seems to be an issue where selfLink and SNMP
+        # Community object names returned when we create them (POST),
+        # is different when we load them (GET) and provide partition as
+        # parameter. Since simply doing refresh() won't cut it as we do not
+        # pass on partition parameter we need to make few conditionals to
+        # the asserts
+
         # In 11.6.1 and later they started prepending the partition name
         # to the name attribute here. So we handle this case for our tests.
         #
         # According to Narendra, they should always have behaved this way
         # so this must have been a bugfix
-        if pytest.config.getoption('--release') < LooseVersion('11.6.1'):
+
+        if pytest.config.getoption('--release') < LooseVersion('11.6.1') or \
+           pytest.config.getoption('--release') == LooseVersion('12.1.0'):
             assert comm1.name == 'commtest1'
         else:
             assert comm1.name == '/Common/commtest1'
@@ -377,7 +386,15 @@ class TestCommunity(object):
         assert comm1.access == 'rw'
 
         comm2 = s1.community.load(partition='Common', name='commtest1')
-        assert comm2.selfLink == comm1.selfLink
+
+        if pytest.config.getoption('--release') == LooseVersion('12.1.0'):
+            link1 = 'https://localhost/mgmt/tm/sys/snmp/communities/commtest1'
+            link2 = 'https://localhost/mgmt/tm/sys/snmp/communities/' \
+                    '~Common~commtest1'
+            assert comm1.selfLink.startswith(link1)
+            assert comm2.selfLink.startswith(link2)
+        else:
+            assert comm2.selfLink == comm1.selfLink
 
     def test_community_modify(self, request, mgmt_root, setup_device_snapshot):
         comm1, s1 = setup_community_test(
@@ -394,6 +411,11 @@ class TestCommunity(object):
 
 
 class TestUser(object):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) >
+        LooseVersion('12.0.0'),
+        reason='Skip this test if v12.1.0 or above is set.'
+    )
     def test_user_create_refresh_update_delete_load(
             self, request, mgmt_root, setup_device_snapshot
     ):
@@ -439,7 +461,50 @@ class TestUser(object):
         assert user1.privacyProtocol == 'des'
 
         user2 = u1.user.load(partition='Common', name='usertest1')
+
         assert user2.selfLink == user1.selfLink
+
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) <
+        LooseVersion('12.1.0'),
+        reason='Skip if the version is NOT 12.1.0 or above'
+    )
+    def test_user_create_refresh_delete_load_12_1_0(
+        self, request, mgmt_root, setup_device_snapshot
+    ):
+        user1, u1 = setup_user_test(
+            request=request,
+            mgmt_root=mgmt_root,
+            partition='Common',
+            name='usertest1',
+            authProtocol='sha',
+            privacyProtocol='aes',
+            authPassword=AUTH_PASSWORD,
+            privacyPassword=AUTH_PASSWORD
+            )
+
+        assert user1.access == 'ro'
+        assert user1.authProtocol == 'sha'
+        assert user1.privacyProtocol == 'aes'
+        assert user1.securityLevel == 'auth-no-privacy'
+        assert user1.username == 'usertest1'
+
+        user1.access = ''
+        user1.authProtocol = ''
+        user1.privacyProtocol = ''
+
+        user1.refresh()
+        assert user1.access == 'ro'
+        assert user1.authProtocol == 'sha'
+        assert user1.privacyProtocol == 'aes'
+
+        user2 = u1.user.load(partition='Common', name='usertest1')
+
+        link1 = 'https://localhost/mgmt/tm/sys/snmp/users/usertest1'
+        link2 = 'https://localhost/mgmt/tm/sys/snmp/users/' \
+                '~Common~usertest1'
+        assert user1.selfLink.startswith(link1)
+        assert user2.selfLink.startswith(link2)
 
     def test_user_modify(self, request, mgmt_root, setup_device_snapshot):
         user1, s1 = setup_user_test(
@@ -463,6 +528,11 @@ class TestUser(object):
 
 
 class TestTrap(object):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) >
+        LooseVersion('12.0.0'),
+        reason='Skip this test if v12.1.0 or above is set.'
+    )
     def test_trap_create_refresh_update_delete_load(
             self, request, mgmt_root, setup_device_snapshot
     ):
@@ -485,7 +555,7 @@ class TestTrap(object):
         trap1.host = '20.20.20.20'
         trap1.port = 4321
         trap1.version = '1'
-
+        trap1.securityLevel = 'no-auth-no-privacy'
         trap1.update()
         assert trap1.community == 'traptest1a'
         assert trap1.host == '20.20.20.20'
@@ -505,6 +575,48 @@ class TestTrap(object):
 
         trap2 = t1.trap.load(partition='Common', name='traptest1')
         assert trap2.selfLink == trap1.selfLink
+
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) <
+        LooseVersion('12.1.0'),
+        reason='Skip if the version is NOT 12.1.0 or above'
+    )
+    def test_trap_create_refresh_delete_load_12_1_0(
+            self, request, mgmt_root, setup_device_snapshot):
+        trap1, t1 = setup_trap_test(
+            request=request,
+            mgmt_root=mgmt_root,
+            partition='Common',
+            community='traptest1',
+            host='10.10.10.10',
+            port=1234
+            )
+
+        assert trap1.community == 'traptest1'
+        assert trap1.host == '10.10.10.10'
+        assert trap1.port == 1234
+        assert trap1.securityLevel == 'no-auth-no-privacy'
+        assert trap1.version == '2c'
+
+        trap1.community = ''
+        trap1.host = ''
+        trap1.port = ''
+        trap1.version = ''
+
+        trap1.refresh()
+        assert trap1.community == 'traptest1'
+        assert trap1.host == '10.10.10.10'
+        assert trap1.port == 1234
+        assert trap1.version == '2c'
+
+        trap2 = t1.trap.load(partition='Common', name='traptest1')
+
+        link1 = 'https://localhost/mgmt/tm/sys/snmp/traps/traptest1'
+
+        link2 = 'https://localhost/mgmt/tm/sys/snmp/traps/~Common~traptest1'
+
+        assert trap1.selfLink.startswith(link1)
+        assert trap2.selfLink.startswith(link2)
 
     def test_trap_create_bad_version(
             self, request, mgmt_root, setup_device_snapshot

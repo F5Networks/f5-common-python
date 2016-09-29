@@ -26,10 +26,11 @@ GUI Path
 REST Kind
     ``tm:snmp:*``
 """
-
+from distutils.version import LooseVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 from f5.bigip.resource import UnnamedResource
+from f5.bigip.resource import UnsupportedOperation
 
 
 class Snmp(UnnamedResource):
@@ -89,6 +90,20 @@ class Trap(Resource):
         self._meta_data['required_json_kind'] = \
             'tm:sys:snmp:traps:trapsstate'
 
+    def update(self, **kwargs):
+        """Due to a password decryption bug
+
+        we will disable update() method for 12.1.0 and up
+
+        """
+        tmos_version = self._meta_data['bigip'].tmos_version
+        if LooseVersion(tmos_version) > LooseVersion('12.0.0'):
+            msg = "Update() is unsupported for Trap on version %s. " \
+                  "Utilize Modify() method instead" % tmos_version
+            raise UnsupportedOperation(msg)
+        else:
+            self._update(**kwargs)
+
 
 class Users_s(Collection):
     """BIG-IP® SNMP Users collection."""
@@ -109,3 +124,17 @@ class User(Resource):
             'tm:sys:snmp:users:usersstate'
         self._meta_data['required_creation_parameters'] \
             .update(('authProtocol',))
+
+    def update(self, **kwargs):
+        """Due to a password decryption bug
+
+        we will disable update() method for 12.1.0 and up
+
+        """
+        tmos_version = self._meta_data['bigip'].tmos_version
+        if LooseVersion(tmos_version) > LooseVersion('12.0.0'):
+            msg = "Update() is unsupported for User on version %s. " \
+                  "Utilize Modify() method instead" % tmos_version
+            raise UnsupportedOperation(msg)
+        else:
+            self._update(**kwargs)
