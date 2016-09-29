@@ -2,13 +2,12 @@
 -e .
 
 # Test Requirements
-git+https://github.com/F5Networks/pytest-symbols.git
 hacking==0.10.2
 mock==1.3.0
 pytest==2.9.1
 pytest-cov>=2.2.1
 git+https://github.com/F5Networks/pytest-symbols.git
-python-coveralls
-pyopenssl
+python-coveralls==2.7.0
+pyOpenSSL==16.0.0
 ordereddict
 requests-mock==1.1.0
