@@ -203,6 +203,7 @@ class TestPolicy(object):
         pol1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
                                       'poltest1', subPath='Drafts',
                                       legacy=False)
+        # Cannot update a published policy
         assert pol1.fullPath == '/Common/Drafts/poltest1'
         assert pol1.status == 'draft'
         pol1.publish()
