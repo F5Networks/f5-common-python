@@ -12,3 +12,4 @@ python-coveralls
 pyopenssl
 ordereddict
 requests-mock==1.1.0
+foo==1.0.0
