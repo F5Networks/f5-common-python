@@ -80,8 +80,7 @@ class Policy(Resource):
                 "to this method and both are set to True. A legacy ltm " \
                 "policy does not have the 'draft' or 'published' status."
             raise DraftPolicyNotSupportedInTMOSVersion(msg)
-
-        if legacy and LooseVersion(tmos_ver) >= LooseVersion('12.1.0'):
+        elif legacy and not publish:
             return super(Policy, self)._create(**kwargs)
         elif not legacy and LooseVersion(tmos_ver) < LooseVersion('12.1.0'):
             msg = "The version of TMOS on the device does not support " \

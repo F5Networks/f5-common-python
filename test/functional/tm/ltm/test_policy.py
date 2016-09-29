@@ -105,8 +105,8 @@ class TestPolicy_legacy(object):
 
     def test_create_policy_legacy_false(self, setup, request, mgmt_root):
         with pytest.raises(DraftPolicyNotSupportedInTMOSVersion) as ex:
-            policy1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
-                                             'poltest1', legacy=False)
+            setup_policy_test(request, mgmt_root, 'Common',
+                              'poltest1', legacy=False)
         msg = "The version of TMOS on the device does not support " \
             "draft policies. The keyword argument 'legacy' was " \
             "given to this method and it was set to 'False'. This " \
