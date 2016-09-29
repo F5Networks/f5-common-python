@@ -36,6 +36,12 @@ from distutils.version import LooseVersion
 
 class DraftPolicyNotSupportedInTMOSVersion(F5SDKError):
     '''Raise if legacy mode is set when creating a policy'''
+    pass
+
+
+class OperationNotSupportedOnPublishedPolicy(F5SDKError):
+    '''Raise if update/modify attempted on published policy'''
+    pass
 
 
 class Policys(Collection):
@@ -57,19 +63,97 @@ class Policy(Resource):
         self._meta_data['attribute_registry'] = temp
 
     def _create(self, **kwargs):
-        tmos_version = self._meta_data['bigip']._meta_data['tmos_version']
-        legacy = kwargs.pop('legacy', '')
-        if LooseVersion(tmos_version) < LooseVersion('12.1.0'):
-            if legacy:
-                return super(Policy, self)._create(**kwargs)
+        '''Allow creation of draft policy and ability to publish a draft
+
+        Draft policies only exist in 12.1.0 and greater versions of TMOS.
+        But there must be a method to create a draft, then publish it.
+
+        :raises: DraftPolicyNotSupportedInTMOSVersion,
+                OperationNotSupportedOnPublishedPolicy
+        '''
+
+        tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
+        legacy = kwargs.pop('legacy', True)
+        publish = kwargs.pop('publish', False)
+        if legacy and publish:
+            msg = "The keyword arguments 'legacy' and 'publish' were given " \
+                "to this method and both are set to True. A legacy ltm " \
+                "policy does not have the 'draft' or 'published' status."
+            raise DraftPolicyNotSupportedInTMOSVersion(msg)
+
+        if legacy and LooseVersion(tmos_ver) >= LooseVersion('12.1.0'):
+            return super(Policy, self)._create(**kwargs)
+        elif not legacy and LooseVersion(tmos_ver) < LooseVersion('12.1.0'):
             msg = "The version of TMOS on the device does not support " \
                 "draft policies. The keyword argument 'legacy' was " \
                 "given to this method and it was set to 'False'. This " \
                 "is not allowed on the current device."
             raise DraftPolicyNotSupportedInTMOSVersion(msg)
-        else:
-            if legacy:
+        elif not legacy and LooseVersion(tmos_ver) >= LooseVersion('12.1.0'):
+            if publish:
+                self = super(Policy, self)._create(**kwargs)
+                self.publish()
+                return self
+            else:
                 return super(Policy, self)._create(**kwargs)
+
+    def _modify(self, **patch):
+        '''Modify only draft or legacy policies
+
+        Published policies cannot be modified
+        :raises: OperationNotSupportedOnPublishedPolicy
+        '''
+
+        tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
+        if 'Drafts' not in self._meta_data['uri'] and \
+                LooseVersion(tmos_ver) >= LooseVersion('12.1.0'):
+            msg = 'Modify operation not allowed on a published policy.'
+            raise OperationNotSupportedOnPublishedPolicy(msg)
+        super(Policy, self)._modify(**patch)
+
+    def _update(self, **kwargs):
+        '''Update only draft or legacy policies
+
+        Published policies cannot be updated
+        :raises: OperationNotSupportedOnPublishedPolicy
+        '''
+
+        tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
+        if 'Drafts' not in self._meta_data['uri'] and \
+                LooseVersion(tmos_ver) >= LooseVersion('12.1.0'):
+            msg = 'Update operation not allowed on a published policy.'
+            raise OperationNotSupportedOnPublishedPolicy(msg)
+        super(Policy, self)._update(**kwargs)
+
+    def publish(self, **kwargs):
+        '''Publishing a draft policy is only applicable in TMOS 12.1 and up.
+
+        This operation updates the meta_data['uri'] of the existing object
+        and effectively moves a draft into a published state on the device.
+        The self object is also updated with the response from a GET to the
+        device.
+
+        :raises: PolicyNotDraft
+        '''
+
+        assert 'Drafts' in self._meta_data['uri']
+        assert self.status.lower() == 'draft'
+        base_uri = self._meta_data['container']._meta_data['uri']
+        requests_params = self._handle_requests_params(kwargs)
+        session = self._meta_data['bigip']._meta_data['icr_session']
+        if 'command' not in kwargs:
+            kwargs['command'] = 'publish'
+        if 'Drafts' not in self.name:
+            kwargs['name'] = self.fullPath
+        session.post(base_uri, json=kwargs, **requests_params)
+        get_kwargs = {
+            'name': self.name, 'partition': self.partition,
+            'uri_as_parts': True
+        }
+        response = session.get(base_uri, **get_kwargs)
+        json_data = response.json()
+        self._local_update(json_data)
+        self._activate_URI(json_data['selfLink'])
 
 
 class Rules_s(Collection):
