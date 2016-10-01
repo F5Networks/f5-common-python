@@ -29,8 +29,10 @@ REST Kind
 
 from f5.bigip.resource import PathElement
 from f5.bigip.tm.util.Bash import Bash
+from f5.bigip.tm.util.Clientssl_Ciphers import Clientssl_Ciphers
 from f5.bigip.tm.util.Dig import Dig
 from f5.bigip.tm.util.Qkview import Qkview
+from f5.bigip.tm.util.Serverssl_Ciphers import Serverssl_Ciphers
 from f5.bigip.tm.util.Unix_Ls import Unix_Ls
 from f5.bigip.tm.util.Unix_Mv import Unix_Mv
 from f5.bigip.tm.util.Unix_Rm import Unix_Rm
@@ -41,8 +43,10 @@ class Util(PathElement):
         super(Util, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
             Bash,
+            Clientssl_Ciphers,
             Dig,
             Qkview,
+            Serverssl_Ciphers,
             Unix_Ls,
             Unix_Mv,
             Unix_Rm
