@@ -16,6 +16,7 @@
 import mock
 import pytest
 
+from distutils.version import LooseVersion
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.util.Serverssl_Ciphers import Serverssl_Ciphers
 
@@ -36,6 +37,12 @@ def FakeiControl(fakeicontrolsession):
     return mr.tm.util.serverssl_ciphers
 
 
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) < LooseVersion('12.1.0'),
+    reason='util/serverssl-ciphers is only supported in 12.1.0 or greater.'
+)
 class TestServersslCiphersCommand(object):
     def test_command_serverssl_ciphers(self, FakeiControl):
         FakeiControl.exec_cmd('run', utilCmdArgs='DEFAULT')
