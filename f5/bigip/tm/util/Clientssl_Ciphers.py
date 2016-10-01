@@ -46,4 +46,3 @@ class Clientssl_Ciphers(UnnamedResource, CommandExecutionMixin):
             'tm:util:clientssl-ciphers:runstate'
         self._meta_data['allowed_commands'].append('run')
         self._meta_data['minimum_version'] = '12.1.0'
-

@@ -20,6 +20,7 @@ from distutils.version import LooseVersion
 from f5.bigip.resource import MissingRequiredCommandParameter
 from icontrol.session import iControlUnexpectedHTTPError
 
+
 @pytest.mark.skipif(
     LooseVersion(
         pytest.config.getoption('--release')
