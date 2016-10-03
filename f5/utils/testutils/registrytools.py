@@ -40,6 +40,9 @@ def register_collection_atoms(collection):
             except KeyError as ex:
                 pp(resource.raw)
                 raise ex
+            except UnsupportedTmosVersion as ex:
+                logging.debug(ex)
+                continue
     return resource_registry
 
 
