@@ -16,8 +16,9 @@
 import mock
 import pytest
 
-from distutils.version import LooseVersion
 from f5.bigip import ManagementRoot
+from f5.bigip.mixins import UnsupportedTmosVersion
+from f5.bigip.resource import MissingRequiredCommandParameter
 from f5.bigip.tm.util.Clientssl_Ciphers import Clientssl_Ciphers
 
 
@@ -25,11 +26,12 @@ from f5.bigip.tm.util.Clientssl_Ciphers import Clientssl_Ciphers
 def FakeClientsslCiphers():
     fake_sys = mock.MagicMock()
     fake_clientssl_ciphers = Clientssl_Ciphers(fake_sys)
+    fake_clientssl_ciphers._meta_data['bigip'].tmos_version = '12.0.0'
     return fake_clientssl_ciphers
 
 
 @pytest.fixture
-def FakeiControl(fakeicontrolsession):
+def FakeiControl(fakeicontrolsession_v12):
     mr = ManagementRoot('host', 'fake_admin', 'fake_admin')
     mock_session = mock.MagicMock()
     mock_session.post.return_value.json.return_value = {}
@@ -37,17 +39,20 @@ def FakeiControl(fakeicontrolsession):
     return mr.tm.util.clientssl_ciphers
 
 
-@pytest.mark.skipif(
-    LooseVersion(
-        pytest.config.getoption('--release')
-    ) < LooseVersion('12.1.0'),
-    reason='util/clientssl-ciphers is only supported in 12.1.0 or greater.'
-)
-class TestClientsslCiphersCommand(object):
-    def test_command_clientssl_ciphers(self, FakeiControl):
-        FakeiControl.exec_cmd('run', utilCmdArgs='DEFAULT')
-        session = FakeiControl._meta_data['bigip']._meta_data['icr_session']
-        assert session.post.call_args == mock.call(
-            'https://host:443/mgmt/tm/util/clientssl-ciphers/',
-            json={'utilCmdArgs': 'DEFAULT', 'command': 'run'}
-        )
+def test_cssl_exec_missing_args(FakeClientsslCiphers):
+    with pytest.raises(MissingRequiredCommandParameter):
+        FakeClientsslCiphers.exec_cmd('run')
+
+
+def test_command_clientssl_ciphers_wrong_ver(FakeClientsslCiphers):
+    with pytest.raises(UnsupportedTmosVersion):
+        FakeClientsslCiphers.exec_cmd('run', utilCmdArgs='')
+
+
+def test_command_clientssl_ciphers(FakeiControl):
+    FakeiControl.exec_cmd('run', utilCmdArgs='DEFAULT')
+    session = FakeiControl._meta_data['bigip']._meta_data['icr_session']
+    assert session.post.call_args == mock.call(
+        'https://host:443/mgmt/tm/util/clientssl-ciphers/',
+        json={'utilCmdArgs': 'DEFAULT', 'command': 'run'}
+    )
