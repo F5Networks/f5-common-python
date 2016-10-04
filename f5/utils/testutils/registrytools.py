@@ -20,6 +20,7 @@ from six import itervalues
 from f5.bigip.mixins import UnsupportedTmosVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.tm.asm import Asm
 
 
 def register_collection_atoms(collection):
@@ -54,6 +55,11 @@ def register_OC_atoms(organizing_collection):
     '''
     OC_atoms_registry = {}
     OC_types = organizing_collection._meta_data['allowed_lazy_attributes']
+    # Removing ASM as this causes some intermittent problems on Jenkins,
+    # whereby device snapshot tries to delete factory signatures, resulting in
+    # REST error and test failures when
+    if Asm in OC_types:
+        OC_types.remove(Asm)
     for OC_type in OC_types:
         try:
             lazy_instance =\

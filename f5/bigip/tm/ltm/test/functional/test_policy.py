@@ -219,7 +219,7 @@ class TestPolicy(object):
         pol1.delete()
 
     def test_policy_publish_draft_modify_exception(
-            self, setup, mgmt_root, request):
+            self, mgmt_root, request):
         pol1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
                                       'poltest1', subPath='Drafts',
                                       legacy=False)
