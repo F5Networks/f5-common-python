@@ -28,6 +28,7 @@ REST Kind
 """
 
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.tm.asm.attack_types import Attack_Types_s
 from f5.bigip.tm.asm.file_transfer import File_Transfer
 from f5.bigip.tm.asm.signature_sets import Signature_Sets_s
 from f5.bigip.tm.asm.tasks import Tasks
@@ -42,6 +43,7 @@ class Asm(OrganizingCollection):
     def __init__(self, tm):
         super(Asm, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
+            Attack_Types_s,
             File_Transfer,
             Signature_Sets_s,
             Tasks,
