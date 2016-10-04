@@ -30,7 +30,7 @@ REST Kind
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
-from f5.sdk_exception import UnsupportedMethod
+from f5.bigip.resource import UnsupportedOperation
 
 
 class Tasks(OrganizingCollection):
@@ -73,7 +73,7 @@ class Check_Signature(AsmResource):
 
                 :raises: UnsupportedOperation
         """
-        raise UnsupportedMethod(
+        raise UnsupportedOperation(
             "%s does not support the create method" % self.__class__.__name__
         )
 
@@ -82,7 +82,7 @@ class Check_Signature(AsmResource):
 
                 :raises: UnsupportedOperation
         """
-        raise UnsupportedMethod(
+        raise UnsupportedOperation(
             "%s does not support the modify method" % self.__class__.__name__
         )
 
@@ -112,7 +112,7 @@ class Export_Signature(AsmResource):
 
                 :raises: UnsupportedOperation
         """
-        raise UnsupportedMethod(
+        raise UnsupportedOperation(
             "%s does not support the modify method" % self.__class__.__name__
         )
 
@@ -121,7 +121,7 @@ class Export_Signature(AsmResource):
 
                 :raises: UnsupportedOperation
         """
-        raise UnsupportedMethod(
+        raise UnsupportedOperation(
             "%s does not support the create method" % self.__class__.__name__
         )
 
@@ -154,7 +154,7 @@ class Update_Signature(AsmResource):
 
                 :raises: UnsupportedOperation
         """
-        raise UnsupportedMethod(
+        raise UnsupportedOperation(
             "%s does not support the create method" % self.__class__.__name__
         )
 
@@ -163,6 +163,6 @@ class Update_Signature(AsmResource):
 
                 :raises: UnsupportedOperation
         """
-        raise UnsupportedMethod(
+        raise UnsupportedOperation(
             "%s does not support the modify method" % self.__class__.__name__
         )

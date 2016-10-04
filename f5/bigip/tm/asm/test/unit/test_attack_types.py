@@ -14,7 +14,7 @@
 #
 
 from f5.bigip import ManagementRoot
-from f5.bigip.resource import UnsupportedMethod
+from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm.attack_types import Attack_Type
 
 import mock
@@ -32,19 +32,19 @@ def FakeAttackTypes():
 
 class TestAttackSignatures(object):
     def test_create_raises(self, FakeAttackTypes):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeAttackTypes.create()
 
     def test_modify_raises(self, FakeAttackTypes):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeAttackTypes.modify()
 
     def test_delete_raises(self, FakeAttackTypes):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeAttackTypes.delete()
 
     def test_fetch_raises(self, FakeAttackTypes):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeAttackTypes.fetch()
 
     def test_collection(self, fakeicontrolsession):

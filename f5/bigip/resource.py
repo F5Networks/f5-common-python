@@ -1204,8 +1204,8 @@ class AsmResource(Resource):
     def update(self, **kwargs):
         """Update is not supported for ASM Resources
 
-                :raises: UnsupportedMethod
+                :raises: UnsupportedOperation
         """
-        raise UnsupportedMethod(
+        raise UnsupportedOperation(
             "%s does not support the update method" % self.__class__.__name__
         )

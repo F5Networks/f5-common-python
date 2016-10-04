@@ -16,7 +16,7 @@
 from f5.bigip import ManagementRoot
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import OrganizingCollection
-from f5.bigip.resource import UnsupportedMethod
+from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm.tasks import Check_Signature
 from f5.bigip.tm.asm.tasks import Export_Signature
 from f5.bigip.tm.asm.tasks import Update_Signature
@@ -62,11 +62,11 @@ class TestTasksOC(object):
 
 class TestCheckSignature(object):
     def test_create_raises(self, FakeCheckSignature):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeCheckSignature.create()
 
     def test_modify_raises(self, FakeCheckSignature):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeCheckSignature.modify()
 
     def test_collection(self, fakeicontrolsession):
@@ -82,11 +82,11 @@ class TestCheckSignature(object):
 
 class TestExportSignature(object):
     def test_fetch_raises(self, FakeExportSignature):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeExportSignature.fetch()
 
     def test_modify_raises(self, FakeExportSignature):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeExportSignature.modify()
 
     def test_create_two(self, fakeicontrolsession):
@@ -112,11 +112,11 @@ class TestExportSignature(object):
 
 class TestUpdateSignature(object):
     def test_create_raises(self, FakeUpdateSignature):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeUpdateSignature.create()
 
     def test_modify_raises(self, FakeUpdateSignature):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeUpdateSignature.modify()
 
     def test_collection(self, fakeicontrolsession):

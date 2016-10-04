@@ -17,7 +17,7 @@
 
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
-from f5.bigip.resource import UnsupportedMethod
+from f5.bigip.resource import UnsupportedOperation
 
 
 class Signature_Statuses_s(Collection):
@@ -43,7 +43,7 @@ class Signature_Status(AsmResource):
 
                 :raises: UnsupportedOperation
         """
-        raise UnsupportedMethod(
+        raise UnsupportedOperation(
             "%s does not support the create method" % self.__class__.__name__
         )
 
@@ -52,7 +52,7 @@ class Signature_Status(AsmResource):
 
                 :raises: UnsupportedOperation
         """
-        raise UnsupportedMethod(
+        raise UnsupportedOperation(
             "%s does not support the fetch method" % self.__class__.__name__
         )
 
@@ -61,7 +61,7 @@ class Signature_Status(AsmResource):
 
                 :raises: UnsupportedOperation
         """
-        raise UnsupportedMethod(
+        raise UnsupportedOperation(
             "%s does not support the delete method" % self.__class__.__name__
         )
 
@@ -70,6 +70,6 @@ class Signature_Status(AsmResource):
 
                 :raises: UnsupportedOperation
         """
-        raise UnsupportedMethod(
+        raise UnsupportedOperation(
             "%s does not support the modify method" % self.__class__.__name__
         )

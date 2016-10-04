@@ -14,7 +14,7 @@
 #
 
 from f5.bigip import ManagementRoot
-from f5.bigip.resource import UnsupportedMethod
+from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm.signature_statuses import Signature_Status
 
 import mock
@@ -32,19 +32,19 @@ def FakeSignatureStatuses():
 
 class TestCheckSignature(object):
     def test_create_raises(self, FakeSignatureStatuses):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeSignatureStatuses.create()
 
     def test_modify_raises(self, FakeSignatureStatuses):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeSignatureStatuses.modify()
 
     def test_delete_raises(self, FakeSignatureStatuses):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeSignatureStatuses.delete()
 
     def test_fetch_raises(self, FakeSignatureStatuses):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeSignatureStatuses.fetch()
 
     def test_collection(self, fakeicontrolsession):
