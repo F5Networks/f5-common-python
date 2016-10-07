@@ -1,11 +1,17 @@
 [run]
 omit =
     # omit all functional tests
-    tests/*
-    # omit anything in a test directory anywhere
-    */test/*
+    */functional/*
+
+    # all unit tests
+    */unit/*
+
     # omit the devtools
     devtools/*
+
     # omit the conftest?
     conftest.py
     setup.py
+
+    # This file is only used in unit tests
+    f5/utils/iapp_parser.py
