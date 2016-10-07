@@ -43,6 +43,7 @@ from f5.bigip.tm.sys.performance import Performances
 from f5.bigip.tm.sys.snmp import Snmp
 from f5.bigip.tm.sys.software import Software
 from f5.bigip.tm.sys.sshd import Sshd
+from f5.bigip.tm.sys.syslog import Syslog
 from f5.bigip.tm.sys.ucs import Ucs
 
 
@@ -65,5 +66,6 @@ class Sys(OrganizingCollection):
             Sshd,
             Httpd,
             Software,
-            Ucs
+            Ucs,
+            Syslog
         ]
