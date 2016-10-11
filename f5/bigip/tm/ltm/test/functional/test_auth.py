@@ -334,13 +334,14 @@ class TestSSLOcsp(object):
         auth.test_collection(request, mgmt_root)
 
 
+@pytest.mark.skipif(True, reason='this depends on an optional module')
 class TestTacacs(object):
     def test_MCURDL(self, request, mgmt_root):
-        auth = HelperTest('Radius_Servers')
-        auth.test_MCURDL(request, mgmt_root, server='10.10.10.10',
-                         secret='fortytwo')
+        auth = HelperTest('Tacacs_s')
+        auth.test_MCURDL(request, mgmt_root, servers=['10.10.10.10'],
+                         secret='fortytwo', service='http')
 
     def test_collection(self, request, mgmt_root):
-        auth = HelperTest('Radius_Servers')
-        auth.test_collection(request, mgmt_root, server='10.10.10.10',
-                             secret='fortytwo')
+        auth = HelperTest('Tacacs_s')
+        auth.test_collection(request, mgmt_root, servers=['10.10.10.10'],
+                             secret='fortytwo', service='http')
