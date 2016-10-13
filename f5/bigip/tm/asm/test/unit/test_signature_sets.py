@@ -15,7 +15,7 @@
 
 from f5.bigip import ManagementRoot
 from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.resource import UnsupportedMethod
+from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm.signature_sets import Signature_Set
 
 import mock
@@ -33,7 +33,7 @@ def FakeSignatureSet():
 
 class TestCheckSignature(object):
     def test_fetch_raises(self, FakeSignatureSet):
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             FakeSignatureSet.fetch()
 
     def test_create_two(self, fakeicontrolsession):

@@ -15,7 +15,7 @@
 
 from f5.bigip import ManagementRoot
 from f5.bigip.resource import UnsupportedOperation
-from f5.bigip.tm.asm.attack_types import Attack_Type
+from f5.bigip.tm.asm.signature_statuses import Signature_Status
 
 import mock
 import pytest
@@ -23,36 +23,36 @@ from six import iterkeys
 
 
 @pytest.fixture
-def FakeAttackTypes():
+def FakeSignatureStatuses():
     fake_asm = mock.MagicMock()
-    fake_atk = Attack_Type(fake_asm)
-    fake_atk._meta_data['bigip'].tmos_version = '11.6.0'
-    return fake_atk
+    fake_sigstat = Signature_Status(fake_asm)
+    fake_sigstat._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_sigstat
 
 
-class TestAttackSignatures(object):
-    def test_create_raises(self, FakeAttackTypes):
+class TestCheckSignature(object):
+    def test_create_raises(self, FakeSignatureStatuses):
         with pytest.raises(UnsupportedOperation):
-            FakeAttackTypes.create()
+            FakeSignatureStatuses.create()
 
-    def test_modify_raises(self, FakeAttackTypes):
+    def test_modify_raises(self, FakeSignatureStatuses):
         with pytest.raises(UnsupportedOperation):
-            FakeAttackTypes.modify()
+            FakeSignatureStatuses.modify()
 
-    def test_delete_raises(self, FakeAttackTypes):
+    def test_delete_raises(self, FakeSignatureStatuses):
         with pytest.raises(UnsupportedOperation):
-            FakeAttackTypes.delete()
+            FakeSignatureStatuses.delete()
 
-    def test_fetch_raises(self, FakeAttackTypes):
+    def test_fetch_raises(self, FakeSignatureStatuses):
         with pytest.raises(UnsupportedOperation):
-            FakeAttackTypes.fetch()
+            FakeSignatureStatuses.fetch()
 
     def test_collection(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
-        t = b.tm.asm.attack_types_s
+        t = b.tm.asm.signature_statuses_s
         test_meta = t._meta_data['attribute_registry']
         test_meta2 = t._meta_data['allowed_lazy_attributes']
-        kind = 'tm:asm:attack-types:attack-typestate'
+        kind = 'tm:asm:signature-statuses:signature-statusstate'
         assert kind in list(iterkeys(test_meta))
-        assert Attack_Type in test_meta2
+        assert Signature_Status in test_meta2
         assert t._meta_data['object_has_stats'] is False

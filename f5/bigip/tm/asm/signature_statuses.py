@@ -20,25 +20,26 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import UnsupportedOperation
 
 
-class Attack_Types_s(Collection):
-    """BIG-IP® ASM Attack Types collection."""
+class Signature_Statuses_s(Collection):
+    """BIG-IP® ASM Signature Statuses collection."""
     def __init__(self, asm):
-        super(Attack_Types_s, self).__init__(asm)
+        super(Signature_Statuses_s, self).__init__(asm)
         self._meta_data['object_has_stats'] = False
-        self._meta_data['allowed_lazy_attributes'] = [Attack_Type]
+        self._meta_data['allowed_lazy_attributes'] = [Signature_Status]
         self._meta_data['attribute_registry'] = {
-            'tm:asm:attack-types:attack-typestate': Attack_Type}
+            'tm:asm:signature-statuses:signature-statusstate':
+                Signature_Status}
 
 
-class Attack_Type(AsmResource):
-    """BIG-IP® ASM Attack Type resource"""
-    def __init__(self, attack_types_s):
-        super(Attack_Type, self).__init__(attack_types_s)
+class Signature_Status(AsmResource):
+    """BIG-IP® ASM Signature Status resource"""
+    def __init__(self, signature_statuses_s):
+        super(Signature_Status, self).__init__(signature_statuses_s)
         self._meta_data['required_json_kind'] =\
-            'tm:asm:attack-types:attack-typestate'
+            'tm:asm:signature-statuses:signature-statusstate'
 
     def create(self, **kwargs):
-        """Create is not supported for Attack Type resource
+        """Create is not supported for Signature Status resource
 
                 :raises: UnsupportedOperation
         """
@@ -47,7 +48,7 @@ class Attack_Type(AsmResource):
         )
 
     def fetch(self, **kwargs):
-        """Fetch is not supported for Attack Type resource
+        """Fetch is not supported for Signature Status resource
 
                 :raises: UnsupportedOperation
         """
@@ -56,7 +57,7 @@ class Attack_Type(AsmResource):
         )
 
     def delete(self, **kwargs):
-        """Delete is not supported for Attack Type resource
+        """Delete is not supported for Signature Status resource
 
                 :raises: UnsupportedOperation
         """
@@ -65,7 +66,7 @@ class Attack_Type(AsmResource):
         )
 
     def modify(self, **kwargs):
-        """Modify is not supported for Attack Type resource
+        """Modify is not supported for Signature Status resource
 
                 :raises: UnsupportedOperation
         """

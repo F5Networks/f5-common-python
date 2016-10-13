@@ -38,6 +38,7 @@ from f5.bigip.resource import ResourceBase
 from f5.bigip.resource import Stats
 from f5.bigip.resource import UnnamedResource
 from f5.bigip.resource import UnregisteredKind
+from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.resource import URICreationCollision
 from f5.bigip.tm.asm.signature_sets import Signature_Set
 from f5.bigip.tm.asm.tasks import Check_Signature
@@ -894,7 +895,7 @@ class TestStats(object):
 class TestAsmResource(object):
     def test_update_raises(self):
         asm_resource = AsmResource(mock.MagicMock())
-        with pytest.raises(UnsupportedMethod):
+        with pytest.raises(UnsupportedOperation):
             asm_resource.update()
 
     def test_load_missing_required_params(self):
