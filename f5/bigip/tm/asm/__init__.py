@@ -33,6 +33,7 @@ from f5.bigip.tm.asm.file_transfer import File_Transfer
 from f5.bigip.tm.asm.signature_sets import Signature_Sets_s
 from f5.bigip.tm.asm.signature_statuses import Signature_Statuses_s
 from f5.bigip.tm.asm.signature_update import Signature_Update
+from f5.bigip.tm.asm.signatures import Signatures_s
 from f5.bigip.tm.asm.tasks import Tasks
 
 
@@ -50,5 +51,6 @@ class Asm(OrganizingCollection):
             Signature_Sets_s,
             Signature_Statuses_s,
             Signature_Update,
+            Signatures_s,
             Tasks,
         ]
