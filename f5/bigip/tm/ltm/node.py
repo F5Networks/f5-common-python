@@ -29,6 +29,7 @@ REST Kind
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import NodeStateModifyUnsupported
 
 
 class Nodes(Collection):
@@ -49,7 +50,6 @@ class Node(Resource):
             ('partition', 'address',)
         )
         self._meta_data['read_only_attributes'].append('ephemeral')
-        self._meta_data['read_only_attributes'].append('state')
         self._meta_data['read_only_attributes'].append('address')
 
     def update(self, **kwargs):
@@ -75,4 +75,16 @@ class Node(Resource):
         if 'fqdn' in self.__dict__:
             self.__dict__['fqdn'].pop('autopopulate')
             self.__dict__['fqdn'].pop('addressFamily')
+        if 'state' in kwargs and kwargs['state'] == 'unchecked':
+            kwargs.pop('state')
+        if 'state' in self.__dict__ and self.__dict__['state'] == 'unchecked':
+            self.__dict__.pop('state')
         return self._update(**kwargs)
+
+    def _modify(self, **patch):
+        '''Override modify to check kwargs before request sent to device.'''
+        if 'state' in patch and patch['state'] == 'unchecked':
+            msg = "The node resource does not support a modify with the " \
+                "value of the 'state' attribute as 'unchecked'."
+            raise NodeStateModifyUnsupported(msg)
+        super(Node, self)._modify(**patch)
