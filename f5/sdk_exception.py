@@ -24,3 +24,8 @@ class F5SDKError(Exception):
 class UnsupportedMethod(F5SDKError):
     """Raise this if a method supplied is unsupported."""
     pass
+
+
+class NodeStateModifyUnsupported(F5SDKError):
+    '''Modify of node with state=unchecked is unsupported.'''
+    pass
