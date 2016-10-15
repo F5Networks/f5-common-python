@@ -16,7 +16,7 @@
 import mock
 import pytest
 
-from f5.bigip import BigIP
+from f5.bigip import ManagementRoot
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.auth.user import User
 
@@ -30,9 +30,9 @@ def FakeUser():
 
 class TestCreate(object):
     def test_create_two(self, fakeicontrolsession):
-        b = BigIP('localhost', 'admin', 'admin')
-        n1 = b.auth.users.user
-        n2 = b.auth.users.user
+        b = ManagementRoot('localhost', 'admin', 'admin')
+        n1 = b.tm.auth.users.user
+        n2 = b.tm.auth.users.user
         assert n1 is not n2
 
     def test_create_no_args(self, FakeUser):

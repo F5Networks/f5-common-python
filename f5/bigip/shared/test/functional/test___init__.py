@@ -13,18 +13,16 @@
 # limitations under the License.
 from pprint import pprint as pp
 
-from f5.bigip import BigIP
 from f5.bigip.tm.shared import Shared
 
 
-def test_shared(request, bigip):
-    s = bigip.shared
+def test_shared(request, mgmt_root):
+    s = mgmt_root.tm.shared
     pp(s.raw)
-    assert isinstance(s._meta_data['container'], BigIP)
     assert s._meta_data['allowed_lazy_attributes'][0].__name__ == "Licensing"
     suri = s._meta_data['uri']
     assert suri.endswith('/mgmt/tm/shared/')
-    l = bigip.shared.licensing
+    l = mgmt_root.tm.shared.licensing
     pp(l.raw)
     assert isinstance(l._meta_data['container'], Shared)
     luri = l._meta_data['uri']

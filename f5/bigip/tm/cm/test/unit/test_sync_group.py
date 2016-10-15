@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.bigip import BigIP
+from f5.bigip import ManagementRoot
 
 import mock
 import pytest
@@ -21,11 +21,11 @@ import pytest
 
 @pytest.fixture
 def FakeiControl(fakeicontrolsession):
-    bigip = BigIP('host', 'fake_admin', 'fake_admin')
+    bigip = ManagementRoot('host', 'fake_admin', 'fake_admin')
     mock_session = mock.MagicMock()
     mock_session.post.return_value.json.return_value = {}
     bigip._meta_data['icr_session'] = mock_session
-    return bigip.cm
+    return bigip.tm.cm
 
 
 class TestCMSync(object):

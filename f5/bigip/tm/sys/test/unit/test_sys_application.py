@@ -17,7 +17,7 @@ import mock
 import pytest
 from requests import HTTPError
 
-from f5.bigip import BigIP
+from f5.bigip import ManagementRoot
 from f5.bigip.resource import KindTypeMismatch
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
@@ -189,9 +189,9 @@ class MockHTTPErrorResponse400(HTTPError):
 
 class TestServiceCreate(object):
     def test_create_two(self, fakeicontrolsession):
-        b = BigIP('192.168.1.1', 'admin', 'admin')
-        serv1 = b.sys.application.services.service
-        serv2 = b.sys.application.services.service
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        serv1 = b.tm.sys.application.services.service
+        serv2 = b.tm.sys.application.services.service
         assert serv1 is not serv2
 
     def test_create_no_args(self, FakeService):
@@ -341,9 +341,9 @@ class TestServiceUpdate(object):
 
 class TestTemplateCreate(object):
     def test_create_two(self, fakeicontrolsession):
-        b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.application.templates.template
-        templ2 = b.sys.application.templates.template
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        templ1 = b.tm.sys.application.templates.template
+        templ2 = b.tm.sys.application.templates.template
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeTemplate):
@@ -355,9 +355,9 @@ class TestTemplateCreate(object):
 
 class TestAplscript(object):
     def test_create_two(self, fakeicontrolsession):
-        b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.application.aplscripts.aplscript
-        templ2 = b.sys.application.aplscripts.aplscript
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        templ1 = b.tm.sys.application.aplscripts.aplscript
+        templ2 = b.tm.sys.application.aplscripts.aplscript
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeAplscript):
@@ -368,9 +368,9 @@ class TestAplscript(object):
 
 class TestCustomstat(object):
     def test_create_two(self, fakeicontrolsession):
-        b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.application.customstats.customstat
-        templ2 = b.sys.application.customstats.customstat
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        templ1 = b.tm.sys.application.customstats.customstat
+        templ2 = b.tm.sys.application.customstats.customstat
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeCustomstat):

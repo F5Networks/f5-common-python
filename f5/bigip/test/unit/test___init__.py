@@ -19,48 +19,63 @@ try:
 except ImportError:
     from urllib import parse as urlparse
 
-from f5.bigip import BigIP
+from f5.bigip import ManagementRoot
 
+from f5.bigip.tm.asm import Asm
 from f5.bigip.tm.auth import Auth
+from f5.bigip.tm.cm import Cm
+from f5.bigip.tm.gtm import Gtm
 from f5.bigip.tm.ltm import Ltm
 from f5.bigip.tm.net import Net
 from f5.bigip.tm.shared import Shared
 from f5.bigip.tm.sys import Sys
+from f5.bigip.tm.util import Util
+from f5.bigip.tm.vcmp import Vcmp
 
 
 @pytest.fixture
 def FakeBigIP(fakeicontrolsession):
-    FBIP = BigIP('FakeHostName', 'admin', 'admin')
+    FBIP = ManagementRoot('FakeHostName', 'admin', 'admin')
     FBIP.icontrol = mock.MagicMock()
     return FBIP
 
 
 @pytest.fixture
 def FakeBigIPWithPort(fakeicontrolsession):
-    FBIP = BigIP('FakeHostName', 'admin', 'admin', port='10443')
+    FBIP = ManagementRoot('FakeHostName', 'admin', 'admin', port='10443')
     FBIP.icontrol = mock.MagicMock()
     return FBIP
 
 
 def test___get__attr(FakeBigIP):
-    bigip_dot_auth = FakeBigIP.auth
+    bigip_dot_asm = FakeBigIP.tm.asm
+    assert isinstance(bigip_dot_asm, Asm)
+    bigip_dot_auth = FakeBigIP.tm.auth
     assert isinstance(bigip_dot_auth, Auth)
-    bigip_dot_ltm = FakeBigIP.ltm
+    bigip_dot_cm = FakeBigIP.tm.cm
+    assert isinstance(bigip_dot_cm, Cm)
+    bigip_dot_gtm = FakeBigIP.tm.gtm
+    assert isinstance(bigip_dot_gtm, Gtm)
+    bigip_dot_ltm = FakeBigIP.tm.ltm
     assert isinstance(bigip_dot_ltm, Ltm)
-    bigip_dot_net = FakeBigIP.net
+    bigip_dot_net = FakeBigIP.tm.net
     assert isinstance(bigip_dot_net, Net)
-    bigip_dot_shared = FakeBigIP.shared
+    bigip_dot_shared = FakeBigIP.tm.shared
     assert isinstance(bigip_dot_shared, Shared)
-    bigip_dot_sys = FakeBigIP.sys
+    bigip_dot_sys = FakeBigIP.tm.sys
     assert isinstance(bigip_dot_sys, Sys)
+    bigip_dot_util = FakeBigIP.tm.util
+    assert isinstance(bigip_dot_util, Util)
+    bigip_dot_vcmp = FakeBigIP.tm.vcmp
+    assert isinstance(bigip_dot_vcmp, Vcmp)
     with pytest.raises(AttributeError):
-        FakeBigIP.this_is_not_a_real_attribute
+        FakeBigIP.tm.this_is_not_a_real_attribute
     assert FakeBigIP.hostname == 'FakeHostName'
 
 
 def test_invalid_args():
     with pytest.raises(TypeError) as err:
-        BigIP('FakeHostName', 'admin', 'admin', badArgs='foobar')
+        ManagementRoot('FakeHostName', 'admin', 'admin', badArgs='foobar')
     assert 'Unexpected **kwargs' in str(err.value)
 
 
