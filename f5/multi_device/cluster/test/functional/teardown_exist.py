@@ -1,9 +1,9 @@
-from f5.bigip import BigIP
+from f5.bigip import ManagementRoot
 from f5.cluster.cluster_manager import ClusterManager
 
-a = BigIP('10.190.20.202', 'admin', 'admin')
-b = BigIP('10.190.20.203', 'admin', 'admin')
-c = BigIP('10.190.20.204', 'admin', 'admin')
+a = ManagementRoot('10.190.20.202', 'admin', 'admin')
+b = ManagementRoot('10.190.20.203', 'admin', 'admin')
+c = ManagementRoot('10.190.20.204', 'admin', 'admin')
 
 cm = ClusterManager([a, b], 'testing_cluster', 'Common', 'sync-failover')
 

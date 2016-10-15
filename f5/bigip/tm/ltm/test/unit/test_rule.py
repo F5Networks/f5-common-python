@@ -16,7 +16,7 @@
 import mock
 import pytest
 
-from f5.bigip import BigIP
+from f5.bigip import ManagementRoot
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.ltm.nat import Nat
 
@@ -30,9 +30,9 @@ def FakeRule():
 
 class TestCreate(object):
     def test_create_two(self, fakeicontrolsession):
-        b = BigIP('192.168.1.1', 'admin', 'admin')
-        r1 = b.ltm.rules.rule
-        r2 = b.ltm.rules.rule
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        r1 = b.tm.ltm.rules.rule
+        r2 = b.tm.ltm.rules.rule
         assert r1 is not r2
 
     def test_create_no_args(self, FakeRule):
