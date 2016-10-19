@@ -1132,7 +1132,7 @@ class Websecurity(Resource):
     def __init__(self, Web_Securitys):
         super(Websecurity, self).__init__(Web_Securitys)
         self._meta_data['required_json_kind'] = \
-            'tm:ltm:profile:websecurity:websecuritystate'
+            'tm:ltm:profile:web-security:web-securitystate'
 
     def create(self, **kwargs):
         """Create is not supported for Web Security

@@ -256,4 +256,4 @@ class Tacacs(Resource):
         self._meta_data['required_json_kind'] =\
             'tm:ltm:auth:tacacs:tacacsstate'
         self._meta_data['required_creation_parameters'].update(
-            ('secret', 'server',))
+            ('secret', 'servers', 'service'))

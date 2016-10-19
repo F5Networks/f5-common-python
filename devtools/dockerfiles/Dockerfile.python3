@@ -22,18 +22,14 @@
 FROM python:3
 MAINTAINER @f5networks
 
+COPY . /tmp/src/
+
 RUN mkdir -p /artifacts/coverage
+RUN apt-get update && apt-get -y install apt-utils vim
+
+WORKDIR /tmp/src
+RUN pip install -r /tmp/src/requirements.test.txt
+RUN rm -rf /tmp/src
+
 WORKDIR /artifacts
-
-RUN apt-get update && apt-get -y install vim
-
-RUN pip install hacking==0.10.2 \
-    mock==1.3.0 \
-    pytest==2.9.1 \
-    pytest-cov>=2.2.1 \
-    git+https://github.com/F5Networks/pytest-symbols.git \
-    f5-icontrol-rest==1.0.7 \
-    pyOpenSSL==16.0.0 \
-    python-coveralls==2.7.0
-
 CMD /bin/bash
