@@ -16,6 +16,7 @@
 import copy
 from distutils.version import LooseVersion
 from icontrol.session import iControlUnexpectedHTTPError
+import json
 from pprint import pprint as pp
 import pytest
 
@@ -112,6 +113,32 @@ class TestPolicy_legacy(object):
             "given to this method and it was set to 'False'. This " \
             "is not allowed on the current device."
         assert msg == ex.value.message
+
+    def test_policy_update_race(self, setup, request, mgmt_root):
+        full_pol_dict = json.load(open('full_policy.json'))
+        empty_pol_dict = copy.deepcopy(full_pol_dict)
+        empty_pol_dict['rules'] = []
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest')
+        for i in range(30):
+            # Start out with an empty policy (no rules)
+            pol.refresh()
+            assert pol.rules_s.rules.exists(name='test_rule') is False
+            assert list(pol.rules_s.get_collection()) == []
+            # Update policy to have rules, which have conditions and actions
+            pol.update(**full_pol_dict)
+            # Ensure rules, actions, and conditions are present
+            assert pol.rules_s.rules.exists(name='test_rule') is True
+            rule = pol.rules_s.rules.load(name='test_rule')
+            assert rule.actions_s.actions.exists(name='0')
+            assert rule.actions_s.actions.exists(name='1')
+            assert rule.conditions_s.conditions.exists(name='0')
+            assert rule.conditions_s.conditions.exists(name='1')
+            assert rule.conditions_s.conditions.exists(name='2')
+            assert rule.conditions_s.conditions.exists(name='3')
+            assert rule.conditions_s.conditions.exists(name='4')
+            # Wipe the rule with an update
+            pol.update(**empty_pol_dict)
+            assert pol.rules_s.rules.exists(name='test_rule') is False
 
 
 @pytest.mark.skipif(
@@ -231,3 +258,29 @@ class TestPolicy(object):
         assert 'Modify operation not allowed on a published policy.' == \
             ex.value.message
         pol1.delete()
+
+    def test_policy_update_race(self, setup, request, mgmt_root):
+        full_pol_dict = json.load(open('full_policy.json'))
+        empty_pol_dict = copy.deepcopy(full_pol_dict)
+        empty_pol_dict['rules'] = []
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest',
+                                    subPath='Drafts')
+        for i in range(30):
+            # Start out with an empty policy (no rules)
+            assert pol.rules_s.rules.exists(name='test_rule') is False
+            assert list(pol.rules_s.get_collection()) == []
+            # Update policy to have rules, which have conditions and actions
+            pol.update(**full_pol_dict)
+            # Ensure rules, actions, and conditions are present
+            assert pol.rules_s.rules.exists(name='test_rule') is True
+            rule = pol.rules_s.rules.load(name='test_rule')
+            assert rule.actions_s.actions.exists(name='0')
+            assert rule.actions_s.actions.exists(name='1')
+            assert rule.conditions_s.conditions.exists(name='0')
+            assert rule.conditions_s.conditions.exists(name='1')
+            assert rule.conditions_s.conditions.exists(name='2')
+            assert rule.conditions_s.conditions.exists(name='3')
+            assert rule.conditions_s.conditions.exists(name='4')
+            # Wipe the rule with an update
+            pol.update(**empty_pol_dict)
+            assert pol.rules_s.rules.exists(name='test_rule') is False
