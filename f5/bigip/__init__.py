@@ -43,10 +43,12 @@ class ManagementRoot(PathElement):
         timeout = kwargs.pop('timeout', 30)
         port = kwargs.pop('port', 443)
         icontrol_version = kwargs.pop('icontrol_version', '')
+        token = kwargs.pop('token', False)
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
         # _meta_data variable values
-        iCRS = iControlRESTSession(username, password, timeout=timeout)
+        iCRS = iControlRESTSession(username, password, timeout=timeout,
+                                   token=token)
         # define _meta_data
         self._meta_data = {
             'allowed_lazy_attributes': [Tm, Cm, Shared],
