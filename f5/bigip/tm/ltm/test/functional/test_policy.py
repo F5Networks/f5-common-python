@@ -17,6 +17,7 @@ import copy
 from distutils.version import LooseVersion
 from icontrol.session import iControlUnexpectedHTTPError
 import json
+import os
 from pprint import pprint as pp
 import pytest
 
@@ -25,6 +26,7 @@ from f5.bigip.tm.ltm.policy import OperationNotSupportedOnPublishedPolicy
 
 pp('')
 TESTDESCRIPTION = "TESTDESCRIPTION"
+CURDIR = os.path.dirname(os.path.realpath(__file__))
 
 
 @pytest.fixture
@@ -115,7 +117,8 @@ class TestPolicy_legacy(object):
         assert msg == ex.value.message
 
     def test_policy_update_race(self, setup, request, mgmt_root):
-        full_pol_dict = json.load(open('full_policy.json'))
+        full_pol_dict = json.load(
+            open(os.path.join(CURDIR, 'full_policy.json')))
         empty_pol_dict = copy.deepcopy(full_pol_dict)
         empty_pol_dict['rules'] = []
         pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest')
@@ -260,7 +263,8 @@ class TestPolicy(object):
         pol1.delete()
 
     def test_policy_update_race(self, setup, request, mgmt_root):
-        full_pol_dict = json.load(open('full_policy.json'))
+        full_pol_dict = json.load(
+            open(os.path.join(CURDIR, 'full_policy.json')))
         empty_pol_dict = copy.deepcopy(full_pol_dict)
         empty_pol_dict['rules'] = []
         pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest',
