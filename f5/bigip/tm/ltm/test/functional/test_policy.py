@@ -22,6 +22,7 @@ from pprint import pprint as pp
 import pytest
 
 from f5.bigip.tm.ltm.policy import DraftPolicyNotSupportedInTMOSVersion
+from f5.bigip.tm.ltm.policy import NonExtantPolicyRule
 from f5.bigip.tm.ltm.policy import OperationNotSupportedOnPublishedPolicy
 
 pp('')
@@ -105,6 +106,23 @@ class TestPolicy_legacy(object):
         r1conditions = rules1.conditions_s.conditions.load(name="1")
         assert r1conditions.kind == r1conditions._meta_data[
             'required_json_kind']
+
+    def test_rules_nonextant_on_load(self, setup, request, mgmt_root):
+        rulespc = mgmt_root.tm.ltm.policys
+        test_pol1 = rulespc.policy.load(partition='Common',
+                                        name='_sys_CEC_video_policy')
+        rules_s1 = test_pol1.rules_s
+        with pytest.raises(NonExtantPolicyRule) as ex:
+            rules_s1.rules.load(name='bad_rule')
+        assert 'The rule named, bad_rule, does not exist on the device.' in \
+            ex.value.message
+
+    def test_rules_nonextant_on_exists(self, setup, request, mgmt_root):
+        rulespc = mgmt_root.tm.ltm.policys
+        test_pol1 = rulespc.policy.load(partition='Common',
+                                        name='_sys_CEC_video_policy')
+        rules_s1 = test_pol1.rules_s
+        assert rules_s1.rules.exists(name='bad_rule') is False
 
     def test_create_policy_legacy_false(self, setup, request, mgmt_root):
         with pytest.raises(DraftPolicyNotSupportedInTMOSVersion) as ex:
@@ -288,3 +306,16 @@ class TestPolicy(object):
             # Wipe the rule with an update
             pol.update(**empty_pol_dict)
             assert pol.rules_s.rules.exists(name='test_rule') is False
+
+    def test_rules_nonextant_on_load(self, setup, request, mgmt_root):
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest',
+                                    subPath='Drafts')
+        with pytest.raises(NonExtantPolicyRule) as ex:
+            pol.rules_s.rules.load(name='bad_rule')
+        assert 'The rule named, bad_rule, does not exist on the device.' in \
+            ex.value.message
+
+    def test_rules_nonextant_on_exists(self, setup, request, mgmt_root):
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest',
+                                    subPath='Drafts')
+        assert pol.rules_s.rules.exists(name='bad_rule') is False

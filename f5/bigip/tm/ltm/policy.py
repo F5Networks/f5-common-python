@@ -44,6 +44,11 @@ class OperationNotSupportedOnPublishedPolicy(F5SDKError):
     pass
 
 
+class NonExtantPolicyRule(F5SDKError):
+    '''Raise if a rule does not exist on the device.'''
+    pass
+
+
 class Policys(Collection):
     """BIG-IP® LTM policy collection."""
     def __init__(self, ltm):
@@ -177,6 +182,36 @@ class Rules(Resource):
                 'tm:ltm:policy:rules:conditions:conditionscollectionstate':
                 Conditions_s}
         self._meta_data['attribute_registry'] = temp
+
+    def _load(self, **kwargs):
+        """Must check if rule actually exists before proceeding with load."""
+
+        if self._check_rule_existence(kwargs['name']):
+            return super(Rules, self)._load(**kwargs)
+        msg = 'The rule named, {}, does not exist on the device.'.format(
+            kwargs['name'])
+        raise NonExtantPolicyRule(msg)
+
+    def exists(self, **kwargs):
+        """Check rule existence on device."""
+
+        return self._check_rule_existence(kwargs['name'])
+
+    def _check_rule_existence(self, rule_name):
+        """Check rule existence on the device.
+
+        In 11.6.0, a GET on any rule URI, regardless of whether the rule exists
+        or not, returns a 200 OK. We must check the get_collection of rules_s
+        to verify the rule exists or not.
+
+        :param rule_name: str -- name of rule to check
+        """
+
+        rc = self._meta_data['container'].get_collection()
+        for rule in rc:
+            if rule.name == rule_name:
+                return True
+        return False
 
 
 class Actions_s(Collection):
