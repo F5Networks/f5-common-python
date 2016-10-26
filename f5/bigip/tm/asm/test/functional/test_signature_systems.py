@@ -26,7 +26,7 @@ class TestSignatureSystems(object):
         assert isinstance(coll[1], Signature_System)
         assert coll[0].kind == coll[1].kind
         assert coll[0].id != coll[1].id
-        assert coll[0].name != coll[0].name
+        assert coll[0].name != coll[1].name
 
     def test_load(self, request, mgmt_root):
         coll = mgmt_root.tm.asm.signature_systems_s.get_collection()
@@ -53,7 +53,7 @@ class TestSignatureSystems(object):
             id=idhash1)
 
         assert sig1.kind == 'tm:asm:signature-systems:signature-systemstate'
-        sig2.referesh()
+        sig2.refresh()
         assert sig2.kind == sig1.kind
         assert sig1.name == sig2.name
         assert sig1.id == coll[0].id
