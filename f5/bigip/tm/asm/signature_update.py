@@ -20,9 +20,9 @@ from f5.bigip.resource import UnsupportedOperation
 
 
 class Signature_Update(UnnamedResource):
-    """BIG-IP® ASM Signature System resource"""
-    def __init__(self, signature_systems_s):
-        super(Signature_Update, self).__init__(signature_systems_s)
+    """BIG-IP® ASM Signature Update resource"""
+    def __init__(self, asm):
+        super(Signature_Update, self).__init__(asm)
         self._meta_data['object_has_stats'] = False
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
