@@ -16,14 +16,18 @@
 import copy
 from distutils.version import LooseVersion
 from icontrol.session import iControlUnexpectedHTTPError
+import json
+import os
 from pprint import pprint as pp
 import pytest
 
 from f5.bigip.tm.ltm.policy import DraftPolicyNotSupportedInTMOSVersion
+from f5.bigip.tm.ltm.policy import NonExtantPolicyRule
 from f5.bigip.tm.ltm.policy import OperationNotSupportedOnPublishedPolicy
 
 pp('')
 TESTDESCRIPTION = "TESTDESCRIPTION"
+CURDIR = os.path.dirname(os.path.realpath(__file__))
 
 
 @pytest.fixture
@@ -103,6 +107,23 @@ class TestPolicy_legacy(object):
         assert r1conditions.kind == r1conditions._meta_data[
             'required_json_kind']
 
+    def test_rules_nonextant_on_load(self, setup, request, mgmt_root):
+        rulespc = mgmt_root.tm.ltm.policys
+        test_pol1 = rulespc.policy.load(partition='Common',
+                                        name='_sys_CEC_video_policy')
+        rules_s1 = test_pol1.rules_s
+        with pytest.raises(NonExtantPolicyRule) as ex:
+            rules_s1.rules.load(name='bad_rule')
+        assert 'The rule named, bad_rule, does not exist on the device.' in \
+            ex.value.message
+
+    def test_rules_nonextant_on_exists(self, setup, request, mgmt_root):
+        rulespc = mgmt_root.tm.ltm.policys
+        test_pol1 = rulespc.policy.load(partition='Common',
+                                        name='_sys_CEC_video_policy')
+        rules_s1 = test_pol1.rules_s
+        assert rules_s1.rules.exists(name='bad_rule') is False
+
     def test_create_policy_legacy_false(self, setup, request, mgmt_root):
         with pytest.raises(DraftPolicyNotSupportedInTMOSVersion) as ex:
             setup_policy_test(request, mgmt_root, 'Common',
@@ -112,6 +133,33 @@ class TestPolicy_legacy(object):
             "given to this method and it was set to 'False'. This " \
             "is not allowed on the current device."
         assert msg == ex.value.message
+
+    def test_policy_update_race(self, setup, request, mgmt_root):
+        full_pol_dict = json.load(
+            open(os.path.join(CURDIR, 'full_policy.json')))
+        empty_pol_dict = copy.deepcopy(full_pol_dict)
+        empty_pol_dict['rules'] = []
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest')
+        for i in range(30):
+            # Start out with an empty policy (no rules)
+            pol.refresh()
+            assert pol.rules_s.rules.exists(name='test_rule') is False
+            assert list(pol.rules_s.get_collection()) == []
+            # Update policy to have rules, which have conditions and actions
+            pol.update(**full_pol_dict)
+            # Ensure rules, actions, and conditions are present
+            assert pol.rules_s.rules.exists(name='test_rule') is True
+            rule = pol.rules_s.rules.load(name='test_rule')
+            assert rule.actions_s.actions.exists(name='0')
+            assert rule.actions_s.actions.exists(name='1')
+            assert rule.conditions_s.conditions.exists(name='0')
+            assert rule.conditions_s.conditions.exists(name='1')
+            assert rule.conditions_s.conditions.exists(name='2')
+            assert rule.conditions_s.conditions.exists(name='3')
+            assert rule.conditions_s.conditions.exists(name='4')
+            # Wipe the rule with an update
+            pol.update(**empty_pol_dict)
+            assert pol.rules_s.rules.exists(name='test_rule') is False
 
 
 @pytest.mark.skipif(
@@ -231,3 +279,43 @@ class TestPolicy(object):
         assert 'Modify operation not allowed on a published policy.' == \
             ex.value.message
         pol1.delete()
+
+    def test_policy_update_race(self, setup, request, mgmt_root):
+        full_pol_dict = json.load(
+            open(os.path.join(CURDIR, 'full_policy.json')))
+        empty_pol_dict = copy.deepcopy(full_pol_dict)
+        empty_pol_dict['rules'] = []
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest',
+                                    subPath='Drafts')
+        for i in range(30):
+            # Start out with an empty policy (no rules)
+            assert pol.rules_s.rules.exists(name='test_rule') is False
+            assert list(pol.rules_s.get_collection()) == []
+            # Update policy to have rules, which have conditions and actions
+            pol.update(**full_pol_dict)
+            # Ensure rules, actions, and conditions are present
+            assert pol.rules_s.rules.exists(name='test_rule') is True
+            rule = pol.rules_s.rules.load(name='test_rule')
+            assert rule.actions_s.actions.exists(name='0')
+            assert rule.actions_s.actions.exists(name='1')
+            assert rule.conditions_s.conditions.exists(name='0')
+            assert rule.conditions_s.conditions.exists(name='1')
+            assert rule.conditions_s.conditions.exists(name='2')
+            assert rule.conditions_s.conditions.exists(name='3')
+            assert rule.conditions_s.conditions.exists(name='4')
+            # Wipe the rule with an update
+            pol.update(**empty_pol_dict)
+            assert pol.rules_s.rules.exists(name='test_rule') is False
+
+    def test_rules_nonextant_on_load(self, setup, request, mgmt_root):
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest',
+                                    subPath='Drafts')
+        with pytest.raises(NonExtantPolicyRule) as ex:
+            pol.rules_s.rules.load(name='bad_rule')
+        assert 'The rule named, bad_rule, does not exist on the device.' in \
+            ex.value.message
+
+    def test_rules_nonextant_on_exists(self, setup, request, mgmt_root):
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest',
+                                    subPath='Drafts')
+        assert pol.rules_s.rules.exists(name='bad_rule') is False

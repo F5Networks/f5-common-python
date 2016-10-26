@@ -1,0 +1,119 @@
+{
+    "subPath": "Drafts",
+    "requires": [
+      "http"
+    ],
+    "rules": [
+        {
+            "name": "test_rule",
+            "ordinal": 0,
+            "actions": [
+                {
+                    "name": "0",
+                    "code": 0,
+                    "httpHeader": true,
+                    "insert": true,
+                    "tmName": "Z-HEADER",
+                    "port": 0,
+                    "request": true,
+                    "status": 0,
+                    "value": "this is just a test of the rule",
+                    "vlanId": 0
+                },
+                {
+                    "name": "1",
+                    "code": 0,
+                    "httpHeader": true,
+                    "tmName": "Z-HEADER",
+                    "port": 0,
+                    "remove": true,
+                    "request": true,
+                    "status": 0,
+                    "vlanId": 0
+                }
+            ],
+            "conditions": [
+                {
+                    "name": "0",
+                    "all": true,
+                    "caseInsensitive": true,
+                    "equals": true,
+                    "external": true,
+                    "httpHeader": true,
+                    "index": 0,
+                    "tmName": "X-HEADER",
+                    "present": true,
+                    "remote": true,
+                    "request": true,
+                    "values": [
+                        "yes"
+                    ]
+                },
+                {
+                    "name": "1",
+                    "all": true,
+                    "caseInsensitive": true,
+                    "equals": true,
+                    "external": true,
+                    "httpHeader": true,
+                    "index": 0,
+                    "tmName": "Z-HEADER",
+                    "present": true,
+                    "remote": true,
+                    "request": true,
+                    "values": [
+                        "maybe"
+                    ]
+                },
+                {
+                    "name": "2",
+                    "all": true,
+                    "caseInsensitive": true,
+                    "equals": true,
+                    "external": true,
+                    "httpHeader": true,
+                    "index": 0,
+                    "tmName": "A-HEADER",
+                    "present": true,
+                    "remote": true,
+                    "request": true,
+                    "values": [
+                        "probably"
+                    ]
+                },
+                {
+                    "name": "3",
+                    "all": true,
+                    "caseInsensitive": true,
+                    "equals": true,
+                    "external": true,
+                    "httpHeader": true,
+                    "index": 0,
+                    "tmName": "B-HEADER",
+                    "present": true,
+                    "remote": true,
+                    "request": true,
+                    "values": [
+                        "unequivocally"
+                    ]
+                },
+                {
+                    "name": "4",
+                    "all": true,
+                    "caseInsensitive": true,
+                    "equals": true,
+                    "external": true,
+                    "httpHeader": true,
+                    "index": 0,
+                    "tmName": "C-HEADER",
+                    "present": true,
+                    "remote": true,
+                    "request": true,
+                    "values": [
+                        "certainly"
+                    ]
+                }
+            ]
+        }
+    ]
+}
