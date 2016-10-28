@@ -14,6 +14,7 @@
 #
 import copy
 from distutils.version import LooseVersion
+from f5.bigip.resource import URICreationCollision
 from f5.bigip.tm.gtm.pool import A
 from f5.bigip.tm.gtm.pool import Aaaa
 from f5.bigip.tm.gtm.pool import Cname
@@ -28,11 +29,13 @@ from f5.bigip.tm.gtm.pool import Mx
 from f5.bigip.tm.gtm.pool import Naptr
 from f5.bigip.tm.gtm.pool import Pool
 from f5.bigip.tm.gtm.pool import Srv
+import mock
 from pprint import pprint as pp
 import pytest
 
 from requests.exceptions import HTTPError
 from six import iteritems
+
 
 pp(__file__)
 
@@ -44,6 +47,14 @@ WIDEIPNAME = 'fake.wide.net'
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 # Dependencies setup to be shared between v11 and v12 tests
+
+
+class MockResponse(object):
+    def __init__(self, attr_dict):
+        self.__dict__ = attr_dict
+
+    def json(self):
+        return self.__dict__
 
 
 def delete_gtm_server(mgmt_root, name):
@@ -350,6 +361,71 @@ class HelperTest(object):
             assert rescollection.kind == \
                 'tm:gtm:pool:srv:members:memberscollectionstate'
 
+    def test_v12_A_AAAA_create_URICollision(self, request, mgmt_root,
+                                            **kwargs):
+        pool, rescollection = self.setup_test(request, mgmt_root, **kwargs)
+        mem_res = pool.members_s.member
+        mem_res._meta_data['uri'] = 'URI'
+        with pytest.raises(URICreationCollision) as UCCEIO:
+            mem_res.create(uri='URI')
+        assert str(UCCEIO.value) == \
+            "There was an attempt to assign a new uri to this " \
+            "resource, the _meta_data['uri'] " \
+            "is URI and it should not be changed."
+
+    def test_v12_A_AAAA_create_non_404(self, request, mgmt_root, **kwargs):
+        pool, rescollection = self.setup_test(request, mgmt_root, **kwargs)
+        mem_coll = pool.members_s
+        if isinstance(pool, A):
+            setup_gtm_vs(request, mgmt_root, GTM_VS, '20.20.20.20:80',
+                         addresses=[{'name': '1.1.1.1'}])
+            mock_response = mock.MagicMock()
+            mock_response.status_code = 500
+            mock_response.text = 'Internal Server Error'
+            error = HTTPError(response=mock_response)
+            fake_session = mock.MagicMock(name='mock_session')
+            fake_session.post.side_effect = error
+            session = mem_coll._meta_data['bigip']._meta_data['icr_session']
+            mem_coll._meta_data['bigip']._meta_data['icr_session'] = \
+                fake_session
+            with pytest.raises(HTTPError) as err:
+                mem_coll.member.create(name=RES_NAME, partition=self.partition)
+            assert err.value.response.status_code == 500
+            mem_coll._meta_data['bigip']._meta_data['icr_session'] = session
+
+        elif isinstance(pool, Aaaa):
+            setup_gtm_vs(request, mgmt_root, GTM_VS,
+                         'fd00:7967:71a5::.80',
+                         addresses=[{'name': 'fda8:e5d6:5ef6::'}])
+            mock_response = mock.MagicMock()
+            mock_response.status_code = 500
+            mock_response.text = 'Internal Server Error'
+            error = HTTPError(response=mock_response)
+            fake_session = mock.MagicMock(name='mock_session')
+            fake_session.post.side_effect = error
+            session = mem_coll._meta_data['bigip']._meta_data['icr_session']
+            mem_coll._meta_data['bigip']._meta_data['icr_session'] = \
+                fake_session
+            with pytest.raises(HTTPError) as err:
+                mem_coll.member.create(name=RES_NAME, partition=self.partition)
+            assert err.value.response.status_code == 500
+            mem_coll._meta_data['bigip']._meta_data['icr_session'] = session
+
+    def test_v12_A_AAAA_create_200_OK(self, request, mgmt_root, **kwargs):
+        pool, rescollection = self.setup_test(request, mgmt_root, **kwargs)
+        mem_coll = pool.members_s
+        MRO = MockResponse({u"kind": self.memkinds[self.urielementname()],
+                            u"selfLink":
+                                u".../~Common~testpool/members/~Common~fake"})
+        fake_session = mock.MagicMock(name='mock_session')
+        fake_session.post.return_value = MRO
+        session = mem_coll._meta_data['bigip']._meta_data['icr_session']
+        mem_coll._meta_data['bigip']._meta_data['icr_session'] = fake_session
+        a = mem_coll.member.create(name='fake', partition='Common')
+        assert a.selfLink == '.../~Common~testpool/members/~Common~fake'
+        assert a.kind == self.memkinds[self.urielementname()]
+        mem_coll._meta_data['bigip']._meta_data['icr_session'] = session
+
 
 @pytest.mark.skipif(
     LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
@@ -380,6 +456,18 @@ class TestPoolATypeSubcollMembers(object):
         pool = HelperTest('A_s')
         pool.test_members_sucollection(request, mgmt_root)
 
+    def test_A_create_URICollision(self, request, mgmt_root):
+        pool = HelperTest('A_s')
+        pool.test_v12_A_AAAA_create_URICollision(request, mgmt_root)
+
+    def test_A_create_non404(self, request, mgmt_root):
+        pool = HelperTest('A_s')
+        pool.test_v12_A_AAAA_create_non_404(request, mgmt_root)
+
+    def test_A_create_200OK(self, request, mgmt_root):
+        pool = HelperTest('A_s')
+        pool.test_v12_A_AAAA_create_200_OK(request, mgmt_root)
+
 
 @pytest.mark.skipif(
     LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
@@ -394,6 +482,18 @@ class TestPoolAAAAtype(object):
     def test_collection(self, request, mgmt_root):
         pool = HelperTest('Aaaas')
         pool.test_collection(request, mgmt_root)
+
+    def test_A_create_URICollision(self, request, mgmt_root):
+        pool = HelperTest('Aaaas')
+        pool.test_v12_A_AAAA_create_URICollision(request, mgmt_root)
+
+    def test_A_create_non404(self, request, mgmt_root):
+        pool = HelperTest('Aaaas')
+        pool.test_v12_A_AAAA_create_non_404(request, mgmt_root)
+
+    def test_A_create_200OK(self, request, mgmt_root):
+        pool = HelperTest('Aaaas')
+        pool.test_v12_A_AAAA_create_200_OK(request, mgmt_root)
 
 
 @pytest.mark.skipif(
