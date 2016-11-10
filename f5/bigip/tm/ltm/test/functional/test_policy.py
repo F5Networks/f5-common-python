@@ -15,13 +15,12 @@
 
 import copy
 from distutils.version import LooseVersion
-from icontrol.session import iControlUnexpectedHTTPError
 import json
 import os
 from pprint import pprint as pp
 import pytest
 
-from f5.bigip.tm.ltm.policy import DraftPolicyNotSupportedInTMOSVersion
+from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.ltm.policy import NonExtantPolicyRule
 from f5.bigip.tm.ltm.policy import OperationNotSupportedOnPublishedPolicy
 
@@ -50,7 +49,7 @@ def setup_policy_test(request, mgmt_root, partition, name,
         kw.pop('subPath', None)
         if mgmt_root.tm.ltm.policys.policy.exists(
                 name=name, partition=partition, **kw):
-            pol = mgmt_root.tlm.ltm.policys.policy.load(
+            pol = mgmt_root.tm.ltm.policys.policy.load(
                 name=name, partition=partition, **kw)
             pol.delete()
 
@@ -85,6 +84,11 @@ class TestPolicy_legacy(object):
         p2rc.refresh()
         assert p2rc._meta_data['required_json_kind'] == p2rc.kind
         assert p2rc.get_collection() == []
+        policy1.modify(strategy='/Common/first-match')
+        assert policy2.strategy == '/Common/all-match'
+        assert policy1.strategy != policy2.strategy
+        policy2.refresh()
+        assert policy1.strategy == policy2.strategy
 
     def test_rules_actions_refresh_update_load(self,
                                                setup, request, mgmt_root):
@@ -125,14 +129,9 @@ class TestPolicy_legacy(object):
         assert rules_s1.rules.exists(name='bad_rule') is False
 
     def test_create_policy_legacy_false(self, setup, request, mgmt_root):
-        with pytest.raises(DraftPolicyNotSupportedInTMOSVersion) as ex:
-            setup_policy_test(request, mgmt_root, 'Common',
-                              'poltest1', legacy=False)
-        msg = "The version of TMOS on the device does not support " \
-            "draft policies. The keyword argument 'legacy' was " \
-            "given to this method and it was set to 'False'. This " \
-            "is not allowed on the current device."
-        assert msg == ex.value.message
+        pol1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
+                                      'poltest1', legacy=False)
+        assert pol1.name == 'poltest1'
 
     def test_policy_update_race(self, setup, request, mgmt_root):
         full_pol_dict = json.load(
@@ -173,7 +172,7 @@ class TestPolicy(object):
                                                       mgmt_root):
         policy1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
                                          'poltest1', subPath='Drafts',
-                                         legacy=True)
+                                         legacy=False)
         assert policy1.name == 'poltest1'
         policy1.strategy = '/Common/all-match'
         policy1.update()
@@ -188,22 +187,27 @@ class TestPolicy(object):
         p2rc.refresh()
         assert p2rc._meta_data['required_json_kind'] == p2rc.kind
         assert p2rc.get_collection() == []
+        policy1.modify(strategy='/Common/first-match')
+        assert policy2.strategy == '/Common/all-match'
+        assert policy1.strategy != policy2.strategy
+        policy2.refresh()
+        assert policy1.strategy == policy2.strategy
 
     def test_policy_create_no_subpath(self, setup, mgmt_root, request):
-        with pytest.raises(iControlUnexpectedHTTPError) as ex:
+        with pytest.raises(MissingRequiredCreationParameter) as ex:
             pol, pc1 = setup_policy_test(request, mgmt_root, 'Common',
                                          'poltest1', legacy=False)
-        assert 'Cannot create/modify published policy' in ex.value.message
+        msg = "The keyword 'subPath' must be specified when creating " \
+            "draft policy in TMOS versions >= 12.1.0. Try and specify " \
+            "subPath as 'Drafts'."
+        assert msg == ex.value.message
 
     def test_policy_create_legacy_and_publish(
             self, setup, mgmt_root, request):
-        with pytest.raises(DraftPolicyNotSupportedInTMOSVersion) as ex:
-            setup_policy_test(request, mgmt_root, 'Common',
-                              'poltest1', legacy=True, publish=True)
-        msg = "The keyword arguments 'legacy' and 'publish' were given " \
-            "to this method and both are set to True. A legacy ltm " \
-            "policy does not have the 'draft' or 'published' status."
-        assert msg == ex.value.message
+        pol1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
+                                      'poltest1', legacy=True, publish=True)
+        assert 'Drafts' not in pol1._meta_data['uri']
+        assert pol1.status == 'legacy'
 
     def test_policy_create_draft(self, setup, mgmt_root, request):
         pol1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
