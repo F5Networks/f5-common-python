@@ -43,6 +43,7 @@ from f5.bigip.resource import URICreationCollision
 from f5.bigip.tm.asm.signature_sets import Signature_Set
 from f5.bigip.tm.asm.tasks import Check_Signature
 from f5.bigip.tm.cm.sync_status import Sync_Status
+from f5.bigip.tm.ltm.virtual import Policies_s
 from f5.bigip.tm.ltm.virtual import Profiles_s
 from f5.bigip.tm.ltm.virtual import Virtual
 from f5.sdk_exception import UnsupportedMethod
@@ -883,7 +884,8 @@ class TestStats(object):
         r.generation = 0
         x = r.load(partition='Common', name='test_load')
         assert x.selfLink == 'https://localhost:443/mgmt/tm/ltm/virtual'
-        assert x._meta_data['allowed_lazy_attributes'] == [Profiles_s, Stats]
+        assert x._meta_data['allowed_lazy_attributes'] == [
+            Policies_s, Profiles_s, Stats]
         statsfactory = x.stats
         assert 'selfLink' not in statsfactory.__dict__
         statsobj = statsfactory.load()
