@@ -27,6 +27,7 @@ REST Kind
     ``tm:ltm:policy:*``
 """
 
+from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import Resource
@@ -163,7 +164,7 @@ class Rules_s(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Rules]
 
 
-class Rules(Resource):
+class Rules(Resource, CheckExistenceMixin):
     """BIG-IP® LTM policy rules sub-collection resource."""
     def __init__(self, rules_s):
         super(Rules, self).__init__(rules_s)
@@ -178,7 +179,8 @@ class Rules(Resource):
     def _load(self, **kwargs):
         """Must check if rule actually exists before proceeding with load."""
 
-        if self._check_rule_existence(kwargs['name']):
+        if self._check_existence_by_collection(
+                self._meta_data['container'], kwargs['name']):
             return super(Rules, self)._load(**kwargs)
         msg = 'The rule named, {}, does not exist on the device.'.format(
             kwargs['name'])
@@ -187,23 +189,8 @@ class Rules(Resource):
     def exists(self, **kwargs):
         """Check rule existence on device."""
 
-        return self._check_rule_existence(kwargs['name'])
-
-    def _check_rule_existence(self, rule_name):
-        """Check rule existence on the device.
-
-        In 11.6.0, a GET on any rule URI, regardless of whether the rule exists
-        or not, returns a 200 OK. We must check the get_collection of rules_s
-        to verify the rule exists or not.
-
-        :param rule_name: str -- name of rule to check
-        """
-
-        rc = self._meta_data['container'].get_collection()
-        for rule in rc:
-            if rule.name == rule_name:
-                return True
-        return False
+        return self._check_existence_by_collection(
+            self._meta_data['container'], kwargs['name'])
 
 
 class Actions_s(Collection):

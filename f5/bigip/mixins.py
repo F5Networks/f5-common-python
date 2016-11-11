@@ -376,3 +376,20 @@ class DeviceMixin(object):
         device = [device for device in coll if device.selfDevice == 'true']
         assert len(device) == 1
         return device[0]
+
+
+class CheckExistenceMixin(object):
+    '''In 11.6.0 some items return True on exists whether they exist or not'''
+
+    def _check_existence_by_collection(self, container, item_name):
+        '''Check existnce of item based on get collection call.
+
+        :param collection: container object -- capable of get_collection()
+        :param item_name: str -- name of item to search for in collection
+        '''
+
+        coll = container.get_collection()
+        for item in coll:
+            if item.name == item_name:
+                return True
+        return False
