@@ -15,8 +15,12 @@
 
 from requests import HTTPError
 
+from f5.bigip.contexts import TransactionContextManager
+from f5.bigip.contexts import TransactionSubmitException
 from f5.bigip.tm.sys.application import Service
 from f5.bigip.tm.sys.application import Template
+
+import pytest
 
 TESTDESCRIPTION = 'TESTDESCRIPTION'
 
@@ -29,16 +33,16 @@ sections = {
 definition = {'definition': sections}
 
 
-def setup_application_test(request, bigip):
-    return bigip.sys.application
+def setup_application_test(request, mgmt_root):
+    return mgmt_root.tm.sys.application
 
 
-def setup_template_collection_test(request, bigip):
-    return bigip.sys.application.templates
+def setup_template_collection_test(request, mgmt_root):
+    return mgmt_root.tm.sys.application.templates
 
 
-def setup_service_collection_test(request, bigip):
-    return bigip.sys.application.services
+def setup_service_collection_test(request, mgmt_root):
+    return mgmt_root.tm.sys.application.services
 
 
 def delete_resource(resource):
@@ -49,8 +53,8 @@ def delete_resource(resource):
             raise
 
 
-def setup_template_test(request, bigip, name, partition):
-    template_s = setup_template_collection_test(request, bigip)
+def setup_template_test(request, mgmt_root, name, partition):
+    template_s = setup_template_collection_test(request, mgmt_root)
 
     def teardown():
         delete_resource(test_template)
@@ -66,15 +70,18 @@ def setup_template_test(request, bigip, name, partition):
     return template_s, test_template
 
 
-def setup_service_test(request, bigip, name, partition, template_name, tgroup):
-    service_s = setup_service_collection_test(request, bigip)
+def setup_service_test(request, mgmt_root, name, partition,
+                       template_name, tgroup):
+    service_s = setup_service_collection_test(request, mgmt_root)
 
     def teardown():
         # Delete the service first, then the template
         delete_resource(test_service)
         delete_resource(test_template)
 
-    template_factory = setup_template_collection_test(request, bigip).template
+    template_factory = setup_template_collection_test(
+        request, mgmt_root
+    ).template
     test_template = template_factory.create(
         name=template_name,
         partition=partition,
@@ -118,12 +125,12 @@ def curdle_check(collection, resource, resource_name, **kwargs):
 
 
 class TestApplication(object):
-    def test_get_collection(self, request, bigip):
-        app_org_s = setup_application_test(request, bigip)
+    def test_get_collection(self, request, mgmt_root):
+        app_org_s = setup_application_test(request, mgmt_root)
         app_org_full_s = app_org_s.get_collection()
         assert len(app_org_full_s) == 4
 
-    def test_disallowed_params(self, request, bigip):
+    def test_disallowed_params(self, request, mgmt_root):
         """Tests that a disallowed parameter is removed
 
         This check does not test for failure. Instead, the code in the
@@ -142,7 +149,7 @@ class TestApplication(object):
         """
         serv_s, test_serv = setup_service_test(
             request,
-            bigip,
+            mgmt_root,
             'test_service2',
             'Common',
             'test_template2',
@@ -150,8 +157,8 @@ class TestApplication(object):
         )
         # Make sure the uri is what we expect
         uri = ''.join([
-            bigip._meta_data['uri'],
-            'sys/application/service/~Common',
+            mgmt_root._meta_data['uri'],
+            'tm/sys/application/service/~Common',
             '~test_service2.app~test_service2'])
         assert uri in test_serv._meta_data['uri']
 
@@ -167,8 +174,8 @@ class TestApplication(object):
 
 
 class TestTemplateCollection(object):
-    def test_get_collection(self, request, bigip):
-        templ_s = setup_template_collection_test(request, bigip)
+    def test_get_collection(self, request, mgmt_root):
+        templ_s = setup_template_collection_test(request, mgmt_root)
         all_templates = templ_s.get_collection()
         assert len(all_templates) == 27
         for templ in all_templates:
@@ -177,10 +184,10 @@ class TestTemplateCollection(object):
 
 
 class TestTemplate(object):
-    def test_template_CURDL(self, request, bigip):
+    def test_template_CURDL(self, request, mgmt_root):
         templ_s, test_templ = setup_template_test(
             request,
-            bigip,
+            mgmt_root,
             'test_template',
             'Common'
         )
@@ -193,11 +200,29 @@ class TestTemplate(object):
         )
 
 
+class TestTemplateTransaction(object):
+    def test_template_transaction_CURDL(self, request, mgmt_root):
+        with pytest.raises(TransactionSubmitException) as ex:
+            tx = mgmt_root.tm.transactions.transaction
+            with TransactionContextManager(tx) as api:
+                api.tm.sys.application.templates.template.create(
+                    name="template_transaction",
+                    partition="Common",
+                    actions=dict(
+                        definition=dict(
+                            implementation='',
+                            presentation=''
+                        )
+                    )
+                )
+        assert 'may' in str(ex.value.message)
+
+
 class TestServiceCollection(object):
-    def test_get_collection(self, request, bigip):
+    def test_get_collection(self, request, mgmt_root):
         serv_s, test_service = setup_service_test(
             request,
-            bigip,
+            mgmt_root,
             'test_service',
             'Common',
             'test_template',
@@ -213,18 +238,23 @@ class TestServiceCollection(object):
 
 
 class TestService(object):
-    def test_service_CURDL(self, request, bigip):
+    def test_service_CURDL(self, request, mgmt_root):
         serv_s, test_serv = setup_service_test(
             request,
-            bigip,
+            mgmt_root,
             'test_service',
             'Common',
             'test_template',
             '/Common/traffic-group-local-only'
         )
         # Make sure the uri is what we expect
-        assert bigip._meta_data['uri'] + 'sys/application/service/~Common' \
-            '~test_service.app~test_service' in test_serv._meta_data['uri']
+        uri = ''.join([
+            mgmt_root._meta_data['uri'],
+            'tm/sys/application/service/~Common',
+            '~test_service.app~test_service'
+        ])
+
+        assert uri in test_serv._meta_data['uri']
         curdle_check(
             serv_s,
             test_serv,
