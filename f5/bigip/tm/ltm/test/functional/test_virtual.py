@@ -172,6 +172,7 @@ def test_policies(policy_setup, virtual_setup, setup_device_snapshot):
     assert vs_pol.name == pol.name == loaded_pol.name
     vs_pol.delete()
     v1.refresh()
+    # Bump to check the below call
     assert v1.policies_s.policies.exists(name='pol', partition='Common') is \
         False
 
