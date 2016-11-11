@@ -172,6 +172,7 @@ def test_policies(policy_setup, virtual_setup, setup_device_snapshot):
     assert vs_pol.name == pol.name == loaded_pol.name
     vs_pol.delete()
     v1.refresh()
+    # Bump to check the below call
     assert v1.policies_s.policies.exists(name='pol', partition='Common') is \
         False
 
@@ -188,4 +189,12 @@ def test_policies_missing_policy(virtual_setup, setup_device_snapshot):
     with pytest.raises(Exception) as ex:
         v1.profiles_s.profiles.create(name='bad_pol', partition='Common')
     assert 'The requested profile (/Common/bad_pol) was not found' in \
+        ex.value.message
+
+
+def test_policies_load_missing_policy(virtual_setup, setup_device_snapshot):
+    v1 = virtual_setup
+    with pytest.raises(Exception) as ex:
+        v1.policies_s.policies.load(name='bad_pol', partition='Common')
+    assert 'The Policy named, bad_pol, does not exist on the device.' == \
         ex.value.message
