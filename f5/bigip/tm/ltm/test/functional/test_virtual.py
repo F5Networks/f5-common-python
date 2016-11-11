@@ -32,6 +32,48 @@ pytestmark = pytest.mark.skipif(
 )
 
 
+@pytest.fixture
+def virtual_setup(request, mgmt_root):
+    vs_kwargs = {'name': 'vs', 'partition': 'Common'}
+    vs = mgmt_root.tm.ltm.virtuals.virtual
+
+    def teardown():
+        if vs.exists(**vs_kwargs):
+            v1 = vs.load(**vs_kwargs)
+            v1.delete()
+    teardown()
+    request.addfinalizer(teardown)
+    v1 = vs.create(profiles=['/Common/http'], **vs_kwargs)
+    return v1
+
+
+@pytest.fixture
+def policy_setup(request, mgmt_root):
+    pol = mgmt_root.tm.ltm.policys.policy
+    pol_create_kwargs = {
+        'name': 'pol', 'partition': 'Common', 'legacy': True,
+        'strategy': 'all-match'
+    }
+    pol_read_kwargs = {'name': 'pol', 'partition': 'Common'}
+    vs_kwargs = {'name': 'vs', 'partition': 'Common'}
+
+    def teardown():
+        vs = mgmt_root.tm.ltm.virtuals.virtual
+        if vs.exists(**vs_kwargs):
+            v1 = vs.load(**vs_kwargs)
+            if v1.policies_s.policies.exists(**pol_read_kwargs):
+                vs_pol = v1.policies_s.policies.load(**pol_read_kwargs)
+                vs_pol.delete()
+        if pol.exists(**pol_read_kwargs):
+            test_pol = pol.load(**pol_read_kwargs)
+            test_pol.delete()
+    teardown()
+    p1 = pol.create(**pol_create_kwargs)
+    rule = p1.rules_s.rules.create(name='test_rule', partition='Common')
+    request.addfinalizer(teardown)
+    return p1, rule
+
+
 def delete_resource(resources):
     for resource in resources.get_collection():
         resource.delete()
@@ -120,3 +162,30 @@ def test_profiles_CE_check_load_params(mgmt_root, setup_device_snapshot):
     p1.exists(name='http', partition='Common')
 
     v1.delete()
+
+
+def test_policies(policy_setup, virtual_setup, setup_device_snapshot):
+    pol, pc = policy_setup
+    v1 = virtual_setup
+    vs_pol = v1.policies_s.policies.create(name='pol', partition='Common')
+    loaded_pol = v1.policies_s.policies.load(name='pol', partition='Common')
+    assert vs_pol.name == pol.name == loaded_pol.name
+    vs_pol.delete()
+    v1.refresh()
+    assert v1.policies_s.policies.exists(name='pol', partition='Common') is \
+        False
+
+
+def test_policies_no_partition(virtual_setup, setup_device_snapshot):
+    v1 = virtual_setup
+    with pytest.raises(MissingRequiredCreationParameter) as ex:
+        v1.profiles_s.profiles.create(name='test_policy')
+    assert "Missing required params: ['partition']" == ex.value.message
+
+
+def test_policies_missing_policy(virtual_setup, setup_device_snapshot):
+    v1 = virtual_setup
+    with pytest.raises(Exception) as ex:
+        v1.profiles_s.profiles.create(name='bad_pol', partition='Common')
+    assert 'The requested profile (/Common/bad_pol) was not found' in \
+        ex.value.message
