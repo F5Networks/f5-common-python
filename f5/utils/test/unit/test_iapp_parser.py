@@ -18,7 +18,8 @@ from f5.utils import iapp_parser as ip
 import pytest
 
 
-good_templ = '''sys application template good_templ {
+good_templ = '''
+sys application template good_templ {
   actions {
     definition {
       html-help {
@@ -26,6 +27,9 @@ good_templ = '''sys application template good_templ {
       }
       implementation {
         # TMSH implementation code
+      }
+      macro {
+        # TMSH macro code
       }
       presentation {
         # APL presentation language
@@ -330,6 +334,78 @@ slashes_name_templ = '''sys application template /Common/good_slashes_templ {
   requires-modules { ltm }
 }'''
 
+empty_role_acl_templ = '''
+sys application template good_templ {
+  actions {
+    definition {
+      html-help {}
+      implementation {}
+      presentation {}
+    }
+  }
+  requires-modules { }
+  description <template description>
+  partition <partition name>
+}'''
+
+cli_scripts_templ = '''
+cli script script.one {
+  # TMSH script 1 code
+}
+cli script script.two {
+  # TMSH script 2 code
+}
+sys application template good_templ {
+  actions {
+    definition {
+      html-help {
+        # HTML Help for the template
+      }
+      implementation {
+        # TMSH implementation code
+      }
+      macro {
+        # TMSH macro code
+      }
+      presentation {
+        # APL presentation language
+      }
+      role-acl { hello test }
+      run-as <user context>
+    }
+  }
+  description <template description>
+  partition <partition name>
+  requires-modules { ltm }
+  ignore-verification <verification>
+  requires-bigip-version-max <max version>
+  requires-bigip-version-min <min version>
+  signing-key <signing key>
+  tmpl-checksum <checksum>
+  tmpl-signature <signature>
+  prerequisite-errors <errors>
+}'''
+
+unbalanced_quote_templ = '''
+sys application template unbalanced_quote_templ {
+  actions {
+    definition {
+      html-help {}
+      implementation {
+        set val [string map {\\" ""} $val]
+
+      }
+      presentation {}
+      role-acl { hello test }
+      run-as <user context>
+    }
+  }
+  description <template description>
+  partition <partition name>
+  requires-modules { ltm }
+}'''
+
+
 good_templ_dict = {
     u'name': u'good_templ',
     u'description': u'<template description>',
@@ -341,6 +417,21 @@ good_templ_dict = {
             u'roleAcl': [u'hello', u'test'],
             u'implementation': u'# TMSH implementation code',
             u'presentation': u'# APL presentation language'
+        }
+    }
+}
+
+unbalanced__quote_templ_dict = {
+    u'name': u'good_templ',
+    u'description': u'<template description>',
+    u'partition': u'<partition name>',
+    u'requiresModules': [u'ltm'],
+    'actions': {
+        'definition': {
+            u'htmlHelp': u'',
+            u'roleAcl': [u'hello', u'test'],
+            u'implementation': u'set val [string map {\" ""} $val]',
+            u'presentation': u''
         }
     }
 }
@@ -434,6 +525,52 @@ slashes_name_templ_dict = {
     }
 }
 
+cli_scripts_templ_dict = {
+    u'name': u'good_templ',
+    u'description': u'<template description>',
+    u'partition': u'<partition name>',
+    u'requiresModules': [u'ltm'],
+    u'ignoreVerification': u'<verification>',
+    u'requiresBigipVersionMax': u'<max version>',
+    u'requiresBigipVersionMin': u'<min version>',
+    u'signingKey': u'<signing key>',
+    u'tmplChecksum': u'<checksum>',
+    u'tmplSignature': u'<signature>',
+    u'prerequisiteErrors': u'<errors>',
+    'actions': {
+        'definition': {
+            u'htmlHelp': u'# HTML Help for the template',
+            u'roleAcl': [u'hello', u'test'],
+            u'implementation': u'# TMSH implementation code',
+            u'presentation': u'# APL presentation language'
+        }
+    },
+    'scripts': [
+        {
+            'name': u'script.one',
+            'script': u'# TMSH script 1 code',
+        },
+        {
+            'name': u'script.two',
+            'script': u'# TMSH script 2 code',
+        },
+    ]
+}
+
+empty_rm_templ_dict = {
+    u'name': u'good_templ',
+    u'partition': u'<partition name>',
+    u'requiresModules': [],
+    'actions': {
+        'definition': {
+            u'htmlHelp': u'# HTML Help for the template',
+            u'roleAcl': [u'hello', u'test'],
+            u'implementation': u'# TMSH implementation code',
+            u'presentation': u'# APL presentation language'
+        }
+    }
+}
+
 
 @pytest.fixture
 def TemplateSectionSetup(request):
@@ -486,6 +623,11 @@ def test_get_section_end_no_close_brace_error():
         prsr._get_section_end_index(u'html_help', help_start)
     assert CurlyBraceMismatchExceptInfo.value.message == \
         'Curly braces mismatch in section html_help.'
+
+
+def test_unbalanced_quote_error():
+    prsr = ip.IappParser(unbalanced_quote_templ)
+    prsr.parse_template()
 
 
 def test_get_template_name():
@@ -541,6 +683,11 @@ def test_parse_template_brace_in_quote():
     assert prsr.parse_template() == brace_in_quote_templ_dict
 
 
+def test_count_template_cli_scripts():
+    prsr = ip.IappParser(cli_scripts_templ)
+    assert prsr.parse_template() == cli_scripts_templ_dict
+
+
 def test_parse_template_no_section_found(TemplateSectionSetup):
     with pytest.raises(ip.NonextantSectionException) as \
             NonextantSectionExceptInfo:
@@ -574,20 +721,9 @@ def test_attr_no_description():
     assert 'description' not in templ_dict
 
 
-def test_attr_empty_rm_error():
+def test_attr_empty_rm():
     prsr = ip.IappParser(empty_rm_templ)
-    with pytest.raises(ip.MalformedTCLListException) as ex:
-        prsr.parse_template()
-    assert 'requires-modules' in ex.value.message
-
-
-def test_attr_whitespace_rm_error():
-    prsr = ip.IappParser(whitespace_rm_templ)
-    with pytest.raises(ip.MalformedTCLListException) as ex:
-        prsr.parse_template()
-    assert 'TCL list for "requires-modules" is malformed. If no elements are '\
-        'needed "none" should be used without curly braces.' in \
-        ex.value.message
+    assert prsr.parse_template() == empty_rm_templ_dict
 
 
 def test_attr_none_rm():
