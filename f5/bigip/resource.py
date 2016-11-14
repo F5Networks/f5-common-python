@@ -101,6 +101,7 @@ from f5.bigip.mixins import ToDictMixin
 from f5.sdk_exception import F5SDKError
 from f5.sdk_exception import UnsupportedMethod
 from requests.exceptions import HTTPError
+from icontrol.exceptions import iControlUnexpectedHTTPError
 from six import iteritems
 from six import iterkeys
 from six import itervalues
@@ -508,9 +509,19 @@ class ResourceBase(PathElement, ToDictMixin):
 
         data_dict.update(kwargs)
 
-        response = session.put(update_uri, json=data_dict, **requests_params)
-        self._meta_data = temp_meta
-        self._local_update(response.json())
+        # This is necessary as when we receive exception the returned object
+        # has its _meta_data stripped.
+
+        try:
+            response = session.put(update_uri, json=data_dict,
+                                   **requests_params)
+            self._meta_data = temp_meta
+            self._local_update(response.json())
+        except iControlUnexpectedHTTPError:
+                response = session.get(update_uri, **requests_params)
+                self._meta_data = temp_meta
+                self._local_update(response.json())
+                raise
 
     def update(self, **kwargs):
         """Update the configuration of the resource on the BIG-IP®.
