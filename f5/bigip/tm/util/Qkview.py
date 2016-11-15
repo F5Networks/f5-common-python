@@ -28,7 +28,6 @@ REST Kind
 
 from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import UnnamedResource
-from f5.utils.util_exceptions import UtilError
 
 
 class Qkview(UnnamedResource, CommandExecutionMixin):
@@ -45,22 +44,3 @@ class Qkview(UnnamedResource, CommandExecutionMixin):
         self._meta_data['required_command_parameters'].update(('utilCmdArgs',))
         self._meta_data['required_json_kind'] = 'tm:util:qkview:runstate'
         self._meta_data['allowed_commands'].append('run')
-
-    def _exec_cmd(self, command, **kwargs):
-        kwargs['command'] = command
-        self._check_exclusive_parameters(**kwargs)
-        requests_params = self._handle_requests_params(kwargs)
-        self._check_command_parameters(**kwargs)
-
-        session = self._meta_data['bigip']._meta_data['icr_session']
-        response = session.post(
-            self._meta_data['uri'], json=kwargs, **requests_params)
-        self._local_update(response.json())
-
-        if 'commandResult' in self.__dict__:
-            if 'invalid option' in self.commandResult:
-                raise UtilError('%s' % self.commandResult)
-            else:
-                return self
-        else:
-            return self

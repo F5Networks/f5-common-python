@@ -31,6 +31,11 @@ from f5.sdk_exception import F5SDKError
 from f5.sdk_exception import UnsupportedMethod
 
 
+class UtilError(F5SDKError):
+    """Raise this if command excecution returns an error."""
+    pass
+
+
 class InvalidCommand(F5SDKError):
     """Raise this if command argument supplied is invalid."""
     pass
@@ -170,12 +175,12 @@ class LazyAttributeMixin(object):
 class ExclusiveAttributesMixin(object):
     """Overrides ``__setattr__`` to remove exclusive attrs from the object."""
     def __setattr__(self, key, value):
-        '''Remove any of the existing exclusive attrs from the object
+        """Remove any of the existing exclusive attrs from the object
 
         Objects attributes can be exclusive for example disable/enable.  So
         we need to make sure objects only have one of these attributes at
         at time so that the updates won't fail.
-        '''
+        """
         if '_meta_data' in self.__dict__:
             # Sometimes this is called prior to full object construction
             for attr_set in self._meta_data['exclusive_attributes']:
@@ -197,62 +202,82 @@ class CommandExecutionMixin(object):
     """
 
     def create(self, **kwargs):
-        '''Create is not supported for command execution
+        """Create is not supported for command execution
 
         :raises: UnsupportedOperation
-        '''
+        """
         raise UnsupportedMethod(
             "%s does not support the create method" % self.__class__.__name__
         )
 
     def delete(self, **kwargs):
-        '''Delete is not supported for command execution
+        """Delete is not supported for command execution
 
         :raises: UnsupportedOperation
-        '''
+        """
         raise UnsupportedMethod(
             "%s does not support the delete method" % self.__class__.__name__
         )
 
     def load(self, **kwargs):
-        '''Load is not supported for command execution
+        """Load is not supported for command execution
 
                 :raises: UnsupportedOperation
-        '''
+        """
         raise UnsupportedMethod(
             "%s does not support the load method" % self.__class__.__name__
         )
 
-    def exec_cmd(self, command, **kwargs):
-
+    def _is_allowed_command(self, command):
+        """Checking if the given command is allowed on a given endpoint."""
         cmds = self._meta_data['allowed_commands']
-
         if command not in self._meta_data['allowed_commands']:
             error_message = "The command value {0} does not exist" \
                             "Valid commands are {1}".format(command, cmds)
             raise InvalidCommand(error_message)
 
+    def _check_command_result(self):
+        """If command result exists run these checks."""
+        if self.commandResult.startswith('/bin/bash'):
+            raise UtilError('%s' % self.commandResult.split(' ', 1)[1])
+        if self.commandResult.startswith('/bin/mv'):
+            raise UtilError('%s' % self.commandResult.split(' ', 1)[1])
+        if self.commandResult.startswith('/bin/ls'):
+            raise UtilError('%s' % self.commandResult.split(' ', 1)[1])
+        if self.commandResult.startswith('/bin/rm'):
+            raise UtilError('%s' % self.commandResult.split(' ', 1)[1])
+        if 'invalid option' in self.commandResult:
+            raise UtilError('%s' % self.commandResult)
+        if 'Invalid option' in self.commandResult:
+            raise UtilError('%s' % self.commandResult)
+
+    def exec_cmd(self, command, **kwargs):
+        """Wrapper method that can be changed in the inheriting classes."""
+        self._is_allowed_command(command)
+        self._check_command_parameters(**kwargs)
         return self._exec_cmd(command, **kwargs)
 
     def _exec_cmd(self, command, **kwargs):
-        '''Create a new method as command has specific requirements.
+        """Create a new method as command has specific requirements.
 
         There is a handful of the TMSH global commands supported,
         so this method requires them as a parameter.
 
         :raises: InvalidCommand
-        '''
+        """
 
         kwargs['command'] = command
         self._check_exclusive_parameters(**kwargs)
         requests_params = self._handle_requests_params(kwargs)
-        self._check_command_parameters(**kwargs)
         session = self._meta_data['bigip']._meta_data['icr_session']
         response = session.post(
             self._meta_data['uri'], json=kwargs, **requests_params)
-        self._local_update(response.json())
+        new_instance = self._stamp_out_core()
+        new_instance._local_update(response.json())
+        if 'commandResult' in new_instance.__dict__:
+            new_instance._check_command_result()
 
-        return self
+        return new_instance
 
 
 class FileUploadMixin(object):
