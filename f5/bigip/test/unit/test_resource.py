@@ -47,6 +47,7 @@ from f5.bigip.tm.ltm.virtual import Policies_s
 from f5.bigip.tm.ltm.virtual import Profiles_s
 from f5.bigip.tm.ltm.virtual import Virtual
 from f5.sdk_exception import UnsupportedMethod
+from icontrol.exceptions import iControlUnexpectedHTTPError
 
 
 @pytest.fixture
@@ -327,6 +328,30 @@ class TestResource_update(object):
         r.generation = 0
         pre_meta = r._meta_data.copy()
         r.update(a=u"b")
+        assert pre_meta == r._meta_data
+        assert r.raw == r.__dict__
+
+    def test_meta_data_exception_raised(self):
+        r = Resource(mock.MagicMock())
+        fake_session = mock.MagicMock(name='mock_session')
+        r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['uri'] = 'URI'
+        text = 'Unexpected Error: Bad Request for uri: URI'
+        error_response = mock.MagicMock(name='error_mock')
+        error_response.status_code = 400
+        error_response.text = text
+        error = iControlUnexpectedHTTPError(response=error_response)
+        fake_session.get.return_value = MockResponse({u"generation": 0})
+        fake_session.put.side_effect = error
+        r._meta_data['bigip']._meta_data = {'icr_session': fake_session,
+                                            'hostname': 'TESTDOMAINNAME',
+                                            'uri':
+                                            'https://TESTDOMAIN:443/mgmt/tm/'}
+        pre_meta = r._meta_data.copy()
+        with pytest.raises(iControlUnexpectedHTTPError) as err:
+            r.update(a=u"b")
+        assert err.value.response.status_code == 400
+        assert err.value.response.text == text
         assert pre_meta == r._meta_data
         assert r.raw == r.__dict__
 
