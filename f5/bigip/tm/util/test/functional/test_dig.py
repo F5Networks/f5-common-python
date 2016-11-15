@@ -1,4 +1,3 @@
-
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,25 +20,25 @@ from f5.bigip.resource import MissingRequiredCommandParameter
 from icontrol.session import iControlUnexpectedHTTPError
 
 
-def test_E_dig(mgmt_root):
-
+def test_missing_required_params(mgmt_root):
     with pytest.raises(MissingRequiredCommandParameter) as err:
         mgmt_root.tm.util.dig.exec_cmd('run')
-        assert "Missing required params: ['utilCmdArgs']" in err.response.text
+    assert "Missing required params: ['utilCmdArgs']" in str(err)
 
+
+def test_command_result_present(mgmt_root):
     dig1 = mgmt_root.tm.util.dig.exec_cmd('run', utilCmdArgs='f5.com NS')
-
-    # commandResult should be present with data from 'f5.com NS'
     assert 'commandResult' in dig1.__dict__
     assert 'DiG' in dig1.commandResult
 
-    # UtilError should be raised if there is an invalid option for dig
+
+def test_invalid_dig_options(mgmt_root):
     with pytest.raises(UtilError) as err:
         mgmt_root.tm.util.dig.exec_cmd('run', utilCmdArgs='-9 f5.com NS')
-        assert 'Invalid option' in err.response.text
+    assert 'Invalid option' in str(err.value)
 
-    # iControlUnexpectedHTTPError should be raised if quotes don't match
+
+def test_unbalanced_quotes(mgmt_root):
     with pytest.raises(iControlUnexpectedHTTPError) as err:
         mgmt_root.tm.util.dig.exec_cmd('run', utilCmdArgs='"')
-        assert err.response.status_code == 400
-        assert 'quotes are not balanced' in err.response.text
+    assert 'quotes are not balanced' in err.value.response.text

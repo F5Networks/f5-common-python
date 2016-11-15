@@ -1,4 +1,3 @@
-
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,6 +37,9 @@ def test_E_unix_rm(mgmt_root):
     # if command was successful, commandResult should not be present
     assert 'commandResult' not in fr1.__dict__
 
+
+def test_rm_file_does_not_exist(mgmt_root):
     # UtilError should be raised when non-existent file is mentioned
-    with pytest.raises(UtilError):
+    with pytest.raises(UtilError) as err:
         mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs='testfile.txt')
+    assert 'No such file or directory' in str(err.value)

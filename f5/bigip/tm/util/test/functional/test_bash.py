@@ -1,4 +1,3 @@
-
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,46 +20,38 @@ from f5.bigip.resource import MissingRequiredCommandParameter
 from icontrol.session import iControlUnexpectedHTTPError
 
 
-def test_E_bash(mgmt_root):
-
+def test_required_params(mgmt_root):
     with pytest.raises(MissingRequiredCommandParameter) as err:
         mgmt_root.tm.util.bash.exec_cmd('run')
-        assert "Missing required params: ['utilCmdArgs']" in err.response.text
+    assert "Missing required params: ['utilCmdArgs']" in str(err)
 
-    # use bash to create a test file
-    bash1 = mgmt_root.tm.util.bash.exec_cmd(
-        'run',
-        utilCmdArgs='-c "echo hello >> /var/tmp/test.txt"')
 
-    # commandResult should not be present if this was successful
-    assert 'commandResult' not in bash1.__dict__
+def test_command_result_not_present(mgmt_root):
+    args = '-c "echo hello >> /var/tmp/test.txt"'
+    bash = mgmt_root.tm.util.bash.exec_cmd('run', utilCmdArgs=args)
 
-    bash2 = mgmt_root.tm.util.bash.exec_cmd(
-        'run',
-        utilCmdArgs='-c df -k')
-
-    # commandResult should be present with data from 'df -k'
-    assert 'commandResult' in bash2.__dict__
-
-    # UtilError should be raised if -c is not specified
-    with pytest.raises(UtilError) as err:
-        mgmt_root.tm.util.bash.exec_cmd('run',
-                                        utilCmdArgs='-9 hello')
-        assert 'Required format is "-c <bash command and arguments>"'\
-               in err.response.text
-
-    # UtilError should be raised if command isn't found
-    with pytest.raises(UtilError) as err:
-        mgmt_root.tm.util.bash.exec_cmd('run',
-                                        utilCmdArgs='-c hello')
-        assert 'command not found' in err.response.text
-
-    # clean up test file
+    assert 'commandResult' not in bash.__dict__
     mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs='/var/tmp/test.txt')
 
-    # iControlUnexpectedHTTPError should be raised if quotes don't match
+
+def test_command_result_present(mgmt_root):
+    bash = mgmt_root.tm.util.bash.exec_cmd('run', utilCmdArgs='-c df -k')
+    assert 'commandResult' in bash.__dict__
+
+
+def test_missing_dash_c_argument(mgmt_root):
+    with pytest.raises(UtilError) as err:
+        mgmt_root.tm.util.bash.exec_cmd('run', utilCmdArgs='-9 hello')
+    assert 'Required format is "-c <bash command and arguments>"' in str(err)
+
+
+def test_command_not_found(mgmt_root):
+    with pytest.raises(UtilError) as err:
+        mgmt_root.tm.util.bash.exec_cmd('run', utilCmdArgs='-c hello')
+    assert 'command not found' in str(err)
+
+
+def test_test_unbalanced_quotes_in_command(mgmt_root):
     with pytest.raises(iControlUnexpectedHTTPError) as err:
-        mgmt_root.tm.util.bash.exec_cmd('run',
-                                        utilCmdArgs='-c "df -k')
-        assert err.response.status_code == 400
-        assert 'quotes are not balanced' in err.response.text
+        mgmt_root.tm.util.bash.exec_cmd('run', utilCmdArgs='-c "df -k')
+    assert 'quotes are not balanced' in err.value.response.text

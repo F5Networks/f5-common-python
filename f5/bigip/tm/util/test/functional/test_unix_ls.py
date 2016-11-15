@@ -1,4 +1,3 @@
-
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,8 +32,6 @@ def test_E_unix_ls(mgmt_root):
 
     # create
     fls1 = mgmt_root.tm.util.unix_ls.exec_cmd('run', utilCmdArgs=tpath_name)
-    # grab tmos version for later use in version discrepancy
-    tmos_ver = fls1._meta_data['bigip']._meta_data['tmos_version']
 
     # validate object was created
     assert fls1.utilCmdArgs == tpath_name
@@ -49,21 +46,29 @@ def test_E_unix_ls(mgmt_root):
     with pytest.raises(UtilError) as err:
         mgmt_root.tm.util.unix_ls.exec_cmd('run',
                                            utilCmdArgs='/configs/testfile.txt')
-        assert 'No such file or directory' in err.response.text
+    assert 'No such file or directory' in str(err)
 
     # clean up created file
     mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs=tpath_name)
 
-    # test that a bad command option errors out
-    if LooseVersion(tmos_ver) < LooseVersion('12.0.0'):
-        with pytest.raises(UtilError) as err:
-            mgmt_root.tm.util.unix_ls.exec_cmd('run',
-                                               utilCmdArgs='-9')
-            assert 'invalid option -- 9' in err.response.text
 
-    else:
-        with pytest.raises(iControlUnexpectedHTTPError) as err:
-            mgmt_root.tm.util.unix_ls.exec_cmd('run',
-                                               utilCmdArgs='-9')
-            assert err.response.status_code == 400
-            assert 'unix-ls does not support' in err.response.text
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release'))
+    < LooseVersion('12.0.0'),
+    reason='Needs v12.0.0 TMOS or greater to pass.'
+)
+def test_bad_command_options_post_v12(mgmt_root):
+    with pytest.raises(iControlUnexpectedHTTPError) as err:
+        mgmt_root.tm.util.unix_ls.exec_cmd('run', utilCmdArgs='-9')
+    assert 'unix-ls does not support' in err.value.response.text
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release'))
+    >= LooseVersion('12.0.0'),
+    reason='Needs TMOS version less than v12.0.0 to pass.'
+)
+def test_bad_command_options_pre_v12(mgmt_root):
+    with pytest.raises(UtilError) as err:
+        mgmt_root.tm.util.unix_ls.exec_cmd('run', utilCmdArgs='-9')
+    assert 'invalid option -- 9' in str(err)
