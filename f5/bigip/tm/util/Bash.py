@@ -27,8 +27,8 @@ REST Kind
 """
 
 from f5.bigip.mixins import CommandExecutionMixin
+from f5.bigip.mixins import UtilError
 from f5.bigip.resource import UnnamedResource
-from f5.utils.util_exceptions import UtilError
 
 
 class Bash(UnnamedResource, CommandExecutionMixin):
@@ -46,25 +46,10 @@ class Bash(UnnamedResource, CommandExecutionMixin):
         self._meta_data['required_json_kind'] = 'tm:util:bash:runstate'
         self._meta_data['allowed_commands'].append('run')
 
-    def _exec_cmd(self, command, **kwargs):
-        kwargs['command'] = command
-        self._check_exclusive_parameters(**kwargs)
-        requests_params = self._handle_requests_params(kwargs)
+    def exec_cmd(self, command, **kwargs):
+        self._is_allowed_command(command)
         self._check_command_parameters(**kwargs)
-
         if not kwargs['utilCmdArgs'].startswith("-c"):
             raise UtilError(
                 'Required format is "-c <bash command and arguments>"')
-
-        session = self._meta_data['bigip']._meta_data['icr_session']
-        response = session.post(
-            self._meta_data['uri'], json=kwargs, **requests_params)
-        self._local_update(response.json())
-
-        if 'commandResult' in self.__dict__:
-            if self.commandResult.startswith('/bin/bash'):
-                raise UtilError('%s' % self.commandResult.split(' ', 1)[1])
-            else:
-                return self
-        else:
-            return self
+        return self._exec_cmd(command, **kwargs)

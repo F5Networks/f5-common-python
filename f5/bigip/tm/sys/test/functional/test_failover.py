@@ -63,18 +63,18 @@ class TestFailover(object):
 
     def test_toggle_standby(self, bigip):
         f = bigip.sys.failover
-        f.toggle_standby(trafficgroup="traffic-group-1", state=None)
-        assert f.standby is None
-        assert f.command == u"run"
-        pp(f.raw)
-        f.toggle_standby(trafficgroup="traffic-group-1", state=True)
-        assert f.standby is True
-        assert f.command == u"run"
+        fl = f.toggle_standby(trafficgroup="traffic-group-1", state=None)
+        assert fl.standby is None
+        assert fl.command == u"run"
+        pp(fl.raw)
+        fl = f.toggle_standby(trafficgroup="traffic-group-1", state=True)
+        assert fl.standby is True
+        assert fl.command == u"run"
         pp('************')
-        f.refresh()
+        fl.refresh()
         pp('after refresh')
-        pp(f.raw)
-        assert 'Failover active' in f.apiRawValues['apiAnonymous']
+        pp(fl.raw)
+        assert 'Failover active' in fl.apiRawValues['apiAnonymous']
 
     def test_toggle_bad_kwargs_standby(self, mgmt_root):
         with pytest.raises(TypeError) as ex:

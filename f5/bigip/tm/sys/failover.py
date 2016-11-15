@@ -98,7 +98,8 @@ class Failover(UnnamedResource, CommandExecutionMixin):
         if 'online' in kwargs:
             self._meta_data['exclusive_attributes'].append(
                 ('online', 'standby'))
-
+        self._is_allowed_command(command)
+        self._check_command_parameters(**kwargs)
         return self._exec_cmd(command, **kwargs)
 
     def toggle_standby(self, **kwargs):
@@ -116,4 +117,4 @@ class Failover(UnnamedResource, CommandExecutionMixin):
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
         arguments = {'standby': state, 'traffic-group': trafficgroup}
-        self.exec_cmd('run', **arguments)
+        return self.exec_cmd('run', **arguments)

@@ -16,8 +16,8 @@
 
 import pytest
 
+from f5.bigip.mixins import UtilError
 from f5.bigip.resource import MissingRequiredCommandParameter
-from f5.utils.util_exceptions import UtilError
 from icontrol.session import iControlUnexpectedHTTPError
 
 

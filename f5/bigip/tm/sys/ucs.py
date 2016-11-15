@@ -27,7 +27,6 @@ REST Kind
 """
 
 from f5.bigip.mixins import CommandExecutionMixin
-from f5.bigip.mixins import InvalidCommand
 from f5.bigip.resource import UnnamedResource
 from requests.exceptions import HTTPError
 
@@ -59,19 +58,14 @@ class Ucs(UnnamedResource, CommandExecutionMixin):
         self._meta_data['minimum_version'] = '12.0.0'
 
     def exec_cmd(self, command, **kwargs):
-        """Due to ID476518 the load command need special treatment"""
-        cmds = self._meta_data['allowed_commands']
-
-        if command not in self._meta_data['allowed_commands']:
-            error_message = "The command value {0} does not exist" \
-                            "Valid commands are {1}".format(command, cmds)
-            raise InvalidCommand(error_message)
+        """Due to ID476518 the load command need special treatment."""
+        self._is_allowed_command(command)
+        self._check_command_parameters(**kwargs)
 
         if command == 'load':
             kwargs['command'] = command
             self._check_exclusive_parameters(**kwargs)
             requests_params = self._handle_requests_params(kwargs)
-            self._check_command_parameters(**kwargs)
             session = self._meta_data['bigip']._meta_data['icr_session']
             try:
 
