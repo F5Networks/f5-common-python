@@ -1,4 +1,3 @@
-
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,28 +26,28 @@ from icontrol.session import iControlUnexpectedHTTPError
     ) < LooseVersion('12.1.0'),
     reason='util/clientssl-ciphers is only supported in 12.1.0 or greater.'
 )
-def test_E_clientssl_ciphers(mgmt_root):
+class TestClientSslCiphersV12(object):
+    def test_missing_required_params(self, mgmt_root):
+        with pytest.raises(MissingRequiredCommandParameter) as err:
+            mgmt_root.tm.util.clientssl_ciphers.exec_cmd('run')
+        assert "Missing required params: ['utilCmdArgs']" in str(err)
 
-    with pytest.raises(MissingRequiredCommandParameter) as err:
-        mgmt_root.tm.util.clientssl_ciphers.exec_cmd('run')
-        assert "Missing required params: ['utilCmdArgs']" in err.response.text
+    def test_syntax_message(self, mgmt_root):
+        cssl_cipher1 = mgmt_root.tm.util.clientssl_ciphers.exec_cmd(
+            'run', utilCmdArgs=''
+        )
+        assert 'Syntax: clientssl-ciphers \'<cipher-string>\'' in \
+               cssl_cipher1.commandResult
 
-    cssl_cipher1 = mgmt_root.tm.util.clientssl_ciphers.exec_cmd('run',
-                                                                utilCmdArgs='')
+    def test_cipher_list_returned(self, mgmt_root):
+        cssl_cipher2 = mgmt_root.tm.util.clientssl_ciphers.exec_cmd(
+            'run', utilCmdArgs='DEFAULT'
+        )
+        assert 'DHE-RSA-AES128-GCM-SHA256' in \
+               cssl_cipher2.commandResult
 
-    # syntax message should be present
-    assert 'Syntax: clientssl-ciphers \'<cipher-string>\'' in \
-           cssl_cipher1.commandResult
-
-    cssl_cipher2 = mgmt_root.tm.util.clientssl_ciphers.exec_cmd(
-        'run', utilCmdArgs='DEFAULT')
-
-    # cipher list should be returned, match the header row
-    assert 'DHE-RSA-AES128-GCM-SHA256' in \
-           cssl_cipher2.commandResult
-
-    # iControlUnexpectedHTTPError should be raised if quotes don't match
-    with pytest.raises(iControlUnexpectedHTTPError) as err:
-        mgmt_root.tm.util.clientssl_ciphers.exec_cmd('run', utilCmdArgs='"')
-        assert err.response.status_code == 400
-        assert 'quotes are not balanced' in err.response.text
+    def test_test_unbalanced_quotes_in_command(self, mgmt_root):
+        with pytest.raises(iControlUnexpectedHTTPError) as err:
+            mgmt_root.tm.util.clientssl_ciphers.exec_cmd('run',
+                                                         utilCmdArgs='"')
+        assert 'quotes are not balanced' in err.value.response.text

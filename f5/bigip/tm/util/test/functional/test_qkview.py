@@ -1,4 +1,3 @@
-
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,25 +20,25 @@ from f5.bigip.resource import MissingRequiredCommandParameter
 from icontrol.session import iControlUnexpectedHTTPError
 
 
-def test_E_qkview(mgmt_root):
-
+def test_missing_required_params(mgmt_root):
     with pytest.raises(MissingRequiredCommandParameter) as err:
         mgmt_root.tm.util.qkview.exec_cmd('run')
-        assert "Missing required params: ['utilCmdArgs']" in err.response.text
+    assert "Missing required params: ['utilCmdArgs']" in str(err)
 
+
+def test_command_result_present(mgmt_root):
     qv1 = mgmt_root.tm.util.qkview.exec_cmd('run', utilCmdArgs='-h')
-
-    # commandResult should be present with data from '-h'
     assert 'commandResult' in qv1.__dict__
     assert 'usage: qkview' in qv1.commandResult
 
-    # UtilError should be raised if there is an invalid option for qkview
+
+def test_invalid_option_for_qkview(mgmt_root):
     with pytest.raises(UtilError) as err:
         mgmt_root.tm.util.qkview.exec_cmd('run', utilCmdArgs='-9')
-        assert 'invalid option' in err.response.text
+    assert 'invalid option' in str(err.value)
 
-    # iControlUnexpectedHTTPError should be raised if quotes don't match
+
+def test_unbalanced_quotes(mgmt_root):
     with pytest.raises(iControlUnexpectedHTTPError) as err:
         mgmt_root.tm.util.qkview.exec_cmd('run', utilCmdArgs='"')
-        assert err.response.status_code == 400
-        assert 'quotes are not balanced' in err.response.text
+    assert 'quotes are not balanced' in err.value.response.text

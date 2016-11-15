@@ -1,4 +1,3 @@
-
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +40,9 @@ def test_E_unix_mv(mgmt_root):
     # if command was successful, commandResult should not be present
     assert 'commandResult' not in fm1.__dict__
 
+
+def test_mv_file_does_not_exist(mgmt_root):
     # UtilError should be raised when non-existent file is mentioned
-    with pytest.raises(UtilError):
-        mgmt_root.tm.util.unix_mv.exec_cmd(
-            'run', utilCmdArgs='{0}/mf.txt'.format(tpath_name))
+    with pytest.raises(UtilError) as err:
+        mgmt_root.tm.util.unix_mv.exec_cmd('run', utilCmdArgs='/foo/mf.txt')
+    assert 'missing destination file operand after' in str(err.value)
