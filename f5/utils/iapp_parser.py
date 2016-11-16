@@ -27,16 +27,43 @@ class IappParser(object):
         u'role-acl'
     ]
 
-    tcl_list_for_attr_re = '{(\s*\w+\s*)+}'
+    tcl_list_for_attr_re = '{(\s*(\w+)?\s*)+}'
     tcl_list_for_section_re = '(\s*\w+\s*)+'
-    section_map = {u'html-help': u'htmlHelp', u'role-acl': u'roleAcl'}
-    attr_map = {u'requires-modules': u'requiresModules'}
-    sections_not_required = [u'html-help', u'role-acl']
+    section_map = {
+        u'html-help': u'htmlHelp',
+        u'role-acl': u'roleAcl'
+    }
+    attr_map = {
+        u'requires-modules': u'requiresModules',
+        u'ignore-verification': u'ignoreVerification',
+        u'tmpl-signature': u'tmplSignature',
+        u'requires-bigip-version-min': u'requiresBigipVersionMin',
+        u'requires-bigip-version-max': u'requiresBigipVersionMax',
+        u'total-signing-status': u'totalSigningStatus',
+        u'prerequisite-errors': u'prerequisiteErrors',
+        u'verification-status': u'verificationStatus',
+        u'signing-key': u'signingKey',
+        u'tmpl-checksum': u'tmplChecksum'
+    }
+    sections_not_required = [u'html-help', u'role-acl', u'macro']
     tcl_list_patterns = {
         u'requires-modules': tcl_list_for_attr_re,
         u'role-acl': tcl_list_for_section_re
     }
-    template_attrs = [u'description', u'partition', u'requires-modules']
+    template_attrs = [
+        u'description',
+        u'partition',
+        u'requires-modules',
+        u'ignore-verification',
+        u'requires-bigip-version-max',
+        u'requires-bigip-version-min',
+        u'signing-key',
+        u'tmpl-checksum',
+        u'tmpl-signature',
+        u'total-signing-status',
+        u'prerequisite-errors',
+        u'verification-status',
+    ]
 
     def __init__(self, template_str):
         '''Initialize class.
@@ -64,11 +91,29 @@ class IappParser(object):
 
         brace_count = 0
         in_quote = False
+        in_escape = False
+
         for index, char in enumerate(self.template_str[section_start:]):
-            if char == '"' and not in_quote:
-                in_quote = True
-            elif char == '"' and in_quote:
-                in_quote = False
+            # This check is to look for items inside of an escape sequence.
+            #
+            # For example, in the iApp team's iApps, there is a proc called
+            # "iapp_get_items" which has a line that looks like this.
+            #
+            #     set val [string map {\" ""} $val]
+            #
+            # This will cause this parser to fail because of the unbalanced
+            # quotes. Therefore, this conditional takes this into consideration
+            #
+            if char == '\\' and not in_escape:
+                in_escape = True
+            elif char == '\\' and in_escape:
+                in_escape = False
+
+            if not in_escape:
+                if char == '"' and not in_quote:
+                    in_quote = True
+                elif char == '"' and in_quote:
+                    in_quote = False
 
             if char == u'{' and not in_quote:
                 brace_count += 1
@@ -152,6 +197,38 @@ class IappParser(object):
             self.template_str = self.template_str[:sec_start+1] + \
                 self.template_str[sec_end:]
 
+    def _add_cli_scripts(self):
+        '''Add the found external sections to the templ_dict.'''
+
+        pattern = "cli script\s+" \
+                  "(\/[\w\.\-]+\/)?" \
+                  "(?P<name>[\w\.\-]+)\s*\{"
+        sections = re.finditer(pattern, self.template_str)
+
+        for section in sections:
+            if 'scripts' not in self.templ_dict:
+                self.templ_dict['scripts'] = []
+
+            try:
+                sec_start = self._get_section_start_index(
+                    section.group('name')
+                )
+            except NonextantSectionException:
+                continue
+
+            sec_end = self._get_section_end_index(
+                section.group('name'), sec_start
+            )
+            section_value = self.template_str[sec_start+1:sec_end].strip()
+
+            self.templ_dict['scripts'].append(dict(
+                name=section.group('name'),
+                script=section_value
+            ))
+
+            self.template_str = self.template_str[:sec_start+1] + \
+                self.template_str[sec_end:]
+
     def _add_attrs(self):
         '''Add the found and required attrs to the templ_dict.'''
         for attr in self.template_attrs:
@@ -176,15 +253,18 @@ class IappParser(object):
         '''
 
         list_str = list_str.strip()
+
+        if not list_str:
+            return []
+
         if list_str[0] != '{' and list_str[-1] != '}':
             if list_str.find('none') >= 0:
                 return list_str
 
         if not re.search(self.tcl_list_patterns[attr], list_str):
-            raise MalformedTCLListException('TCL list for "%s" is malformed. '
-                                            'If no elements are needed "none" '
-                                            'should be used without curly '
-                                            'braces.' % attr)
+            raise MalformedTCLListException(
+                'TCL list for "%s" is malformed. ' % attr
+            )
 
         list_str = list_str.strip('{').strip('}')
         list_str = list_str.strip()
@@ -220,6 +300,7 @@ class IappParser(object):
 
         self.templ_dict[u'name'] = self._get_template_name()
 
+        self._add_cli_scripts()
         self._add_sections()
         self._add_attrs()
 
