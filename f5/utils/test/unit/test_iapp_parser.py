@@ -407,166 +407,166 @@ sys application template unbalanced_quote_templ {
 
 
 good_templ_dict = {
-    u'name': u'good_templ',
-    u'description': u'<template description>',
-    u'partition': u'<partition name>',
-    u'requiresModules': [u'ltm'],
+    'name': 'good_templ',
+    'description': '<template description>',
+    'partition': '<partition name>',
+    'requiresModules': ['ltm'],
     'actions': {
         'definition': {
-            u'htmlHelp': u'# HTML Help for the template',
-            u'roleAcl': [u'hello', u'test'],
-            u'implementation': u'# TMSH implementation code',
-            u'presentation': u'# APL presentation language'
+            'htmlHelp': '# HTML Help for the template',
+            'roleAcl': ['hello', 'test'],
+            'implementation': '# TMSH implementation code',
+            'presentation': '# APL presentation language'
         }
     }
 }
 
 unbalanced__quote_templ_dict = {
-    u'name': u'good_templ',
-    u'description': u'<template description>',
-    u'partition': u'<partition name>',
-    u'requiresModules': [u'ltm'],
+    'name': 'good_templ',
+    'description': '<template description>',
+    'partition': '<partition name>',
+    'requiresModules': ['ltm'],
     'actions': {
         'definition': {
-            u'htmlHelp': u'',
-            u'roleAcl': [u'hello', u'test'],
-            u'implementation': u'set val [string map {\" ""} $val]',
-            u'presentation': u''
+            'htmlHelp': '',
+            'roleAcl': ['hello', 'test'],
+            'implementation': 'set val [string map {\" ""} $val]',
+            'presentation': ''
         }
     }
 }
 
 brace_in_quote_templ_dict = {
-    u'name': u'good_templ',
-    u'description': u'<template description>',
-    u'partition': u'<partition name>',
-    u'requiresModules': [u'ltm'],
+    'name': 'good_templ',
+    'description': '<template description>',
+    'partition': '<partition name>',
+    'requiresModules': ['ltm'],
     'actions': {
         'definition': {
-            u'htmlHelp': u'# HTML Help for "" the template',
-            u'roleAcl': [u'hello', u'test'],
-            u'implementation': u'# TMSH"{}{{}}}}}""{{{{}}"implementation code',
-            u'presentation': u'# APL"{}{}{{{{{{" presentation language'
+            'htmlHelp': '# HTML Help for "" the template',
+            'roleAcl': ['hello', 'test'],
+            'implementation': '# TMSH"{}{{}}}}}""{{{{}}"implementation code',
+            'presentation': '# APL"{}{}{{{{{{" presentation language'
         }
     }
 }
 
 no_help_templ_dict = {
-    u'name': u'good_templ',
-    u'description': u'<template description>',
-    u'partition': u'<partition name>',
-    u'requiresModules': [u'ltm', u'asm'],
+    'name': 'good_templ',
+    'description': '<template description>',
+    'partition': '<partition name>',
+    'requiresModules': ['ltm', 'asm'],
     'actions': {
         'definition': {
-            u'roleAcl': [u'hello', u'test'],
-            u'implementation': u'# TMSH implementation code',
-            u'presentation': u'# APL presentation language'
+            'roleAcl': ['hello', 'test'],
+            'implementation': '# TMSH implementation code',
+            'presentation': '# APL presentation language'
         }
     }
 }
 
 none_rm_templ_dict = {
-    u'name': u'good_templ',
-    u'partition': u'<partition name>',
-    u'requiresModules': u'none',
+    'name': 'good_templ',
+    'partition': '<partition name>',
+    'requiresModules': 'none',
     'actions': {
         'definition': {
-            u'htmlHelp': u'# HTML Help for the template',
-            u'roleAcl': [u'hello', u'test'],
-            u'implementation': u'# TMSH implementation code',
-            u'presentation': u'# APL presentation language'
+            'htmlHelp': '# HTML Help for the template',
+            'roleAcl': ['hello', 'test'],
+            'implementation': '# TMSH implementation code',
+            'presentation': '# APL presentation language'
         }
     }
 }
 
 dot_name_templ_dict = {
-    u'name': u'good.dot.templ',
-    u'description': u'<template description>',
-    u'partition': u'<partition name>',
-    u'requiresModules': [u'ltm'],
+    'name': 'good.dot.templ',
+    'description': '<template description>',
+    'partition': '<partition name>',
+    'requiresModules': ['ltm'],
     'actions': {
         'definition': {
-            u'htmlHelp': u'# HTML Help for the template',
-            u'roleAcl': [u'hello', u'test'],
-            u'implementation': u'# TMSH implementation code',
-            u'presentation': u'# APL presentation language'
+            'htmlHelp': '# HTML Help for the template',
+            'roleAcl': ['hello', 'test'],
+            'implementation': '# TMSH implementation code',
+            'presentation': '# APL presentation language'
         }
     }
 }
 
 
 dot_hyphen_name_templ_dict = {
-    u'name': u'good.-dot-hyphen.-templ',
-    u'description': u'<template description>',
-    u'partition': u'<partition name>',
-    u'requiresModules': [u'ltm'],
+    'name': 'good.-dot-hyphen.-templ',
+    'description': '<template description>',
+    'partition': '<partition name>',
+    'requiresModules': ['ltm'],
     'actions': {
         'definition': {
-            u'htmlHelp': u'# HTML Help for the template',
-            u'roleAcl': [u'hello', u'test'],
-            u'implementation': u'# TMSH implementation code',
-            u'presentation': u'# APL presentation language'
+            'htmlHelp': '# HTML Help for the template',
+            'roleAcl': ['hello', 'test'],
+            'implementation': '# TMSH implementation code',
+            'presentation': '# APL presentation language'
         }
     }
 }
 
 slashes_name_templ_dict = {
-    u'name': u'good_slashes_templ',
-    u'description': u'<template description>',
-    u'partition': u'<partition name>',
-    u'requiresModules': [u'ltm'],
+    'name': 'good_slashes_templ',
+    'description': '<template description>',
+    'partition': '<partition name>',
+    'requiresModules': ['ltm'],
     'actions': {
         'definition': {
-            u'htmlHelp': u'# HTML Help for the template',
-            u'roleAcl': [u'hello', u'test'],
-            u'implementation': u'# TMSH implementation code',
-            u'presentation': u'# APL presentation language'
+            'htmlHelp': '# HTML Help for the template',
+            'roleAcl': ['hello', 'test'],
+            'implementation': '# TMSH implementation code',
+            'presentation': '# APL presentation language'
         }
     }
 }
 
 cli_scripts_templ_dict = {
-    u'name': u'good_templ',
-    u'description': u'<template description>',
-    u'partition': u'<partition name>',
-    u'requiresModules': [u'ltm'],
-    u'ignoreVerification': u'<verification>',
-    u'requiresBigipVersionMax': u'<max version>',
-    u'requiresBigipVersionMin': u'<min version>',
-    u'signingKey': u'<signing key>',
-    u'tmplChecksum': u'<checksum>',
-    u'tmplSignature': u'<signature>',
-    u'prerequisiteErrors': u'<errors>',
+    'name': 'good_templ',
+    'description': '<template description>',
+    'partition': '<partition name>',
+    'requiresModules': ['ltm'],
+    'ignoreVerification': '<verification>',
+    'requiresBigipVersionMax': '<max version>',
+    'requiresBigipVersionMin': '<min version>',
+    'signingKey': '<signing key>',
+    'tmplChecksum': '<checksum>',
+    'tmplSignature': '<signature>',
+    'prerequisiteErrors': '<errors>',
     'actions': {
         'definition': {
-            u'htmlHelp': u'# HTML Help for the template',
-            u'roleAcl': [u'hello', u'test'],
-            u'implementation': u'# TMSH implementation code',
-            u'presentation': u'# APL presentation language'
+            'htmlHelp': '# HTML Help for the template',
+            'roleAcl': ['hello', 'test'],
+            'implementation': '# TMSH implementation code',
+            'presentation': '# APL presentation language'
         }
     },
     'scripts': [
         {
-            'name': u'script.one',
-            'script': u'# TMSH script 1 code',
+            'name': 'script.one',
+            'script': '# TMSH script 1 code',
         },
         {
-            'name': u'script.two',
-            'script': u'# TMSH script 2 code',
+            'name': 'script.two',
+            'script': '# TMSH script 2 code',
         },
     ]
 }
 
 empty_rm_templ_dict = {
-    u'name': u'good_templ',
-    u'partition': u'<partition name>',
-    u'requiresModules': [],
+    'name': 'good_templ',
+    'partition': '<partition name>',
+    'requiresModules': [],
     'actions': {
         'definition': {
-            u'htmlHelp': u'# HTML Help for the template',
-            u'roleAcl': [u'hello', u'test'],
-            u'implementation': u'# TMSH implementation code',
-            u'presentation': u'# APL presentation language'
+            'htmlHelp': '# HTML Help for the template',
+            'roleAcl': ['hello', 'test'],
+            'implementation': '# TMSH implementation code',
+            'presentation': '# APL presentation language'
         }
     }
 }
@@ -589,18 +589,17 @@ def test__init__():
 
 def test__init__error():
     prsr = None
-    with pytest.raises(ip.EmptyTemplateException) as EmptyTemplateExceptInfo:
+    with pytest.raises(ip.EmptyTemplateException) as ex:
         prsr = ip.IappParser('')
-    assert EmptyTemplateExceptInfo.value.message == \
-        'Template empty or None value.'
+    assert str(ex.value) == 'Template empty or None value.'
     assert prsr is None
 
 
 def test_get_section_end_index():
     prsr = ip.IappParser(good_templ)
-    impl_start = prsr._get_section_start_index(u'implementation')
-    impl_end = prsr._get_section_end_index(u'implementation', impl_start)
-    templ_impl = unicode('''{
+    impl_start = prsr._get_section_start_index('implementation')
+    impl_end = prsr._get_section_end_index('implementation', impl_start)
+    templ_impl = str('''{
         # TMSH implementation code
       }''')
     assert good_templ[impl_start:impl_end+1] == templ_impl
@@ -608,21 +607,17 @@ def test_get_section_end_index():
 
 def test_get_section_start_index_no_open_brace_error():
     prsr = ip.IappParser(no_open_brace_templ)
-    with pytest.raises(ip.NonextantSectionException) as \
-            NonextantSectionExceptInfo:
-        prsr._get_section_start_index(u'html-help')
-    assert NonextantSectionExceptInfo.value.message == \
-        'Section html-help not found in template'
+    with pytest.raises(ip.NonextantSectionException) as ex:
+        prsr._get_section_start_index('html-help')
+    assert str(ex.value) == 'Section html-help not found in template'
 
 
 def test_get_section_end_no_close_brace_error():
     prsr = ip.IappParser(no_close_brace_templ)
-    with pytest.raises(ip.CurlyBraceMismatchException) as \
-            CurlyBraceMismatchExceptInfo:
-        help_start = prsr._get_section_start_index(u'html-help')
-        prsr._get_section_end_index(u'html_help', help_start)
-    assert CurlyBraceMismatchExceptInfo.value.message == \
-        'Curly braces mismatch in section html_help.'
+    with pytest.raises(ip.CurlyBraceMismatchException) as ex:
+        help_start = prsr._get_section_start_index('html-help')
+        prsr._get_section_end_index('html_help', help_start)
+    assert str(ex.value) == 'Curly braces mismatch in section html_help.'
 
 
 def test_unbalanced_quote_error():
@@ -632,30 +627,26 @@ def test_unbalanced_quote_error():
 
 def test_get_template_name():
     prsr = ip.IappParser(good_templ)
-    assert prsr._get_template_name() == u'good_templ'
+    assert prsr._get_template_name() == 'good_templ'
 
 
 def test_get_template_name_next_to_brace():
     prsr = ip.IappParser(name_brace_templ)
-    assert prsr._get_template_name() == u'name_next_to_brace'
+    assert prsr._get_template_name() == 'name_next_to_brace'
 
 
 def test_get_template_name_error():
     prsr = ip.IappParser(no_name_templ)
-    with pytest.raises(ip.NonextantTemplateNameException) as \
-            NonextantTemplateNameExceptInfo:
+    with pytest.raises(ip.NonextantTemplateNameException) as ex:
         prsr._get_template_name()
-    assert NonextantTemplateNameExceptInfo.value.message == \
-        'Template name not found.'
+    assert str(ex.value) == 'Template name not found.'
 
 
 def test_get_template_name_bad_name_error():
     prsr = ip.IappParser(bad_name_templ)
-    with pytest.raises(ip.NonextantTemplateNameException) as \
-            NonextantTemplateNameExceptInfo:
+    with pytest.raises(ip.NonextantTemplateNameException) as ex:
         prsr._get_template_name()
-    assert NonextantTemplateNameExceptInfo.value.message == \
-        'Template name not found.'
+    assert str(ex.value) == 'Template name not found.'
 
 
 def test_get_template_name_with_dot():
@@ -689,12 +680,10 @@ def test_count_template_cli_scripts():
 
 
 def test_parse_template_no_section_found(TemplateSectionSetup):
-    with pytest.raises(ip.NonextantSectionException) as \
-            NonextantSectionExceptInfo:
+    with pytest.raises(ip.NonextantSectionException) as ex:
         TemplateSectionSetup.parse_template()
     assert 'notfound' in TemplateSectionSetup.template_sections
-    assert 'Section notfound not found in template' in \
-        NonextantSectionExceptInfo.value.message
+    assert 'Section notfound not found in template' in str(ex.value)
 
 
 def test_parse_template_no_section_found_not_required():
@@ -705,13 +694,13 @@ def test_parse_template_no_section_found_not_required():
 
 def test_get_template_attr():
     prsr = ip.IappParser(good_attr_templ)
-    attr = prsr._get_template_attr(u'partition')
-    assert attr == u'just_a_partition name'
+    attr = prsr._get_template_attr('partition')
+    assert attr == 'just_a_partition name'
 
 
 def test_get_template_attr_attr_not_exists():
     prsr = ip.IappParser(good_attr_templ)
-    attr = prsr._get_template_attr(u'bad_attr')
+    attr = prsr._get_template_attr('bad_attr')
     assert attr is None
 
 

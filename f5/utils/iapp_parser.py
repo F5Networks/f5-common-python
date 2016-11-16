@@ -21,48 +21,48 @@ from f5.sdk_exception import F5SDKError
 class IappParser(object):
 
     template_sections = [
-        u'presentation',
-        u'implementation',
-        u'html-help',
-        u'role-acl'
+        'presentation',
+        'implementation',
+        'html-help',
+        'role-acl'
     ]
 
     tcl_list_for_attr_re = '{(\s*(\w+)?\s*)+}'
     tcl_list_for_section_re = '(\s*\w+\s*)+'
     section_map = {
-        u'html-help': u'htmlHelp',
-        u'role-acl': u'roleAcl'
+        'html-help': 'htmlHelp',
+        'role-acl': 'roleAcl'
     }
     attr_map = {
-        u'requires-modules': u'requiresModules',
-        u'ignore-verification': u'ignoreVerification',
-        u'tmpl-signature': u'tmplSignature',
-        u'requires-bigip-version-min': u'requiresBigipVersionMin',
-        u'requires-bigip-version-max': u'requiresBigipVersionMax',
-        u'total-signing-status': u'totalSigningStatus',
-        u'prerequisite-errors': u'prerequisiteErrors',
-        u'verification-status': u'verificationStatus',
-        u'signing-key': u'signingKey',
-        u'tmpl-checksum': u'tmplChecksum'
+        'requires-modules': 'requiresModules',
+        'ignore-verification': 'ignoreVerification',
+        'tmpl-signature': 'tmplSignature',
+        'requires-bigip-version-min': 'requiresBigipVersionMin',
+        'requires-bigip-version-max': 'requiresBigipVersionMax',
+        'total-signing-status': 'totalSigningStatus',
+        'prerequisite-errors': 'prerequisiteErrors',
+        'verification-status': 'verificationStatus',
+        'signing-key': 'signingKey',
+        'tmpl-checksum': 'tmplChecksum'
     }
-    sections_not_required = [u'html-help', u'role-acl', u'macro']
+    sections_not_required = ['html-help', 'role-acl', 'macro']
     tcl_list_patterns = {
-        u'requires-modules': tcl_list_for_attr_re,
-        u'role-acl': tcl_list_for_section_re
+        'requires-modules': tcl_list_for_attr_re,
+        'role-acl': tcl_list_for_section_re
     }
     template_attrs = [
-        u'description',
-        u'partition',
-        u'requires-modules',
-        u'ignore-verification',
-        u'requires-bigip-version-max',
-        u'requires-bigip-version-min',
-        u'signing-key',
-        u'tmpl-checksum',
-        u'tmpl-signature',
-        u'total-signing-status',
-        u'prerequisite-errors',
-        u'verification-status',
+        'description',
+        'partition',
+        'requires-modules',
+        'ignore-verification',
+        'requires-bigip-version-max',
+        'requires-bigip-version-min',
+        'signing-key',
+        'tmpl-checksum',
+        'tmpl-signature',
+        'total-signing-status',
+        'prerequisite-errors',
+        'verification-status',
     ]
 
     def __init__(self, template_str):
@@ -73,7 +73,7 @@ class IappParser(object):
         '''
 
         if template_str:
-            self.template_str = unicode(template_str)
+            self.template_str = str(template_str)
         else:
             raise EmptyTemplateException('Template empty or None value.')
 
@@ -115,9 +115,9 @@ class IappParser(object):
                 elif char == '"' and in_quote:
                     in_quote = False
 
-            if char == u'{' and not in_quote:
+            if char == '{' and not in_quote:
                 brace_count += 1
-            elif char == u'}' and not in_quote:
+            elif char == '}' and not in_quote:
                 brace_count -= 1
 
             if brace_count is 0:
@@ -298,7 +298,7 @@ class IappParser(object):
 
         self.templ_dict = {'actions': {'definition': {}}}
 
-        self.templ_dict[u'name'] = self._get_template_name()
+        self.templ_dict['name'] = self._get_template_name()
 
         self._add_cli_scripts()
         self._add_sections()
