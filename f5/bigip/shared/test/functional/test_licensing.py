@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pprint import pprint as pp
 import pytest
 
 from f5.bigip.mixins import UnsupportedMethod
@@ -34,6 +33,5 @@ class TestRegistration(object):
         assert hasattr(reg, 'generation')
 
     def test_update(self, request, bigip):
-        pp(bigip.shared.raw)
         with pytest.raises(UnsupportedMethod):
             bigip.shared.licensing.registration.update()

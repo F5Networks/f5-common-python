@@ -14,7 +14,6 @@
 #
 
 import copy
-from pprint import pprint as pp
 from six import iteritems
 
 
@@ -34,8 +33,6 @@ class TestSignatureUpdate(object):
         sig1, interval = setup_sig_test(request, mgmt_root)
         sig2 = mgmt_root.tm.asm.signature_update.load()
         assert sig1.updateInterval == sig2.updateInterval
-        pp(sig1.raw)
-        pp(sig2.raw)
 
         # Refresh
         sig1.modify(updateInterval=inter)

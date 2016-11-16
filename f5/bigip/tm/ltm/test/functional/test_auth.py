@@ -28,12 +28,10 @@ from f5.bigip.tm.ltm.auth import Ssl_Cc_Ldap
 from f5.bigip.tm.ltm.auth import Ssl_Crldp
 from f5.bigip.tm.ltm.auth import Ssl_Ocsp
 from f5.bigip.tm.ltm.auth import Tacacs
-from pprint import pprint as pp
 import pytest
 from requests.exceptions import HTTPError
 from six import iteritems
 TESTDESCRIPTION = "TESTDESCRIPTION"
-pp(__file__)
 
 
 def delete_dependency(mgmt_root, name):
@@ -118,7 +116,6 @@ class HelperTest(object):
 
         # Testing update
         authres.description = TESTDESCRIPTION
-        pp(authres.raw)
         authres.update()
         assert hasattr(authres, 'description')
         assert authres.description == TESTDESCRIPTION

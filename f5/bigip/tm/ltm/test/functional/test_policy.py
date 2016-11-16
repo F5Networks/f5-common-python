@@ -17,14 +17,12 @@ import copy
 from distutils.version import LooseVersion
 import json
 import os
-from pprint import pprint as pp
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.ltm.policy import NonExtantPolicyRule
 from f5.bigip.tm.ltm.policy import OperationNotSupportedOnPublishedPolicy
 
-pp('')
 TESTDESCRIPTION = "TESTDESCRIPTION"
 CURDIR = os.path.dirname(os.path.realpath(__file__))
 

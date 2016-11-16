@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-from pprint import pprint as pp
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
@@ -188,7 +187,6 @@ class TestCreate(object):
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         disabled=False)
-        pp(n1.raw)
         assert 'disabled' not in n1.raw
         assert n1.enabled is True
         n1.enabled = False

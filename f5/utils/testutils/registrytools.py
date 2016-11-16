@@ -14,7 +14,6 @@
 #
 
 import logging
-from pprint import pprint as pp
 from six import itervalues
 
 from f5.bigip.mixins import UnsupportedTmosVersion
@@ -39,7 +38,6 @@ def register_collection_atoms(collection):
             try:
                 resource_registry[resource.selfLink] = resource
             except KeyError as ex:
-                pp(resource.raw)
                 raise ex
             except UnsupportedTmosVersion as ex:
                 logging.debug(ex)

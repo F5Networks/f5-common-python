@@ -13,7 +13,6 @@
 #   limitations under the License.
 #
 
-from pprint import pprint as pp
 import pytest
 
 V11_SUPPORTED = ['11.5.4', '11.6.0', '11.6.1', '11.6.2']
@@ -51,15 +50,11 @@ class TestSshd11(object):
         assert ssh1.logLevel == ssh2.logLevel
         assert ssh1.login == ssh2.login
 
-        pp(ssh1.raw)
-        pp(ssh2.raw)
-
     def test_update_allow(self, request, bigip):
         ssh1 = setup_sshd_test(request, bigip)
         ssh2 = setup_sshd_test(request, bigip)
 
         ssh1.allow = ['192.168.1.1']
-        pp(ssh2.raw)
         ssh1.update()
         assert ['192.168.1.1'] == ssh1.allow
         assert ['192.168.1.1'] != ssh2.allow
@@ -76,7 +71,6 @@ class TestSshd11(object):
 
         for banner in banners:
             ssh1.banner = banner
-            pp(ssh2.raw)
             ssh1.update()
             assert banner == ssh1.banner
             assert banner != ssh2.banner
@@ -120,7 +114,6 @@ class TestSshd11(object):
 
         for level in levels:
             ssh1.logLevel = level
-            pp(ssh2.raw)
             ssh1.update()
             assert level == ssh1.logLevel
             assert level != ssh2.logLevel
@@ -137,7 +130,6 @@ class TestSshd11(object):
 
         for login in logins:
             ssh1.login = login
-            pp(ssh2.raw)
             ssh1.update()
             assert login == ssh1.login
             assert login != ssh2.login
@@ -160,9 +152,6 @@ class TestSshd12(object):
         assert ssh1.logLevel == ssh2.logLevel
         assert ssh1.login == ssh2.login
         assert ssh1.port == ssh2.port
-
-        pp(ssh1.raw)
-        pp(ssh2.raw)
 
     def test_update_allow(self, request, bigip):
         ssh1 = setup_sshd_test(request, bigip)

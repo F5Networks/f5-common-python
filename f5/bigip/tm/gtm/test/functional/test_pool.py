@@ -30,14 +30,10 @@ from f5.bigip.tm.gtm.pool import Naptr
 from f5.bigip.tm.gtm.pool import Pool
 from f5.bigip.tm.gtm.pool import Srv
 import mock
-from pprint import pprint as pp
 import pytest
 
 from requests.exceptions import HTTPError
 from six import iteritems
-
-
-pp(__file__)
 
 
 GTM_SERVER = 'fake_serv1'
@@ -210,7 +206,6 @@ class HelperTest(object):
 
         # Testing update
         pool.description = TESTDESCRIPTION
-        pp(pool.raw)
         pool.update()
         if hasattr(pool, 'description'):
             assert pool.description == TESTDESCRIPTION
@@ -302,7 +297,6 @@ class HelperTest(object):
 
         # Testing update
         member.description = TESTDESCRIPTION
-        pp(member.raw)
         member.update()
         if hasattr(member, 'description'):
             assert member.description == TESTDESCRIPTION

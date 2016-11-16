@@ -16,7 +16,6 @@
 from distutils.version import LooseVersion
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
-from pprint import pprint as pp
 from six import iteritems
 
 import copy
@@ -84,7 +83,6 @@ def setup_virtual_test(request, mgmt_root, partition, name):
         delete_resource(vc1)
     request.addfinalizer(teardown)
     vc1 = mgmt_root.tm.ltm.virtuals
-    pp('****')
     virtual1 = vc1.virtual.create(name=name, partition=partition)
     return virtual1, vc1
 

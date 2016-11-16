@@ -14,7 +14,6 @@
 #
 
 from f5.bigip.tm.asm.signature_systems import Signature_System
-from pprint import pprint as pp
 
 
 class TestSignatureSystems(object):
@@ -41,8 +40,6 @@ class TestSignatureSystems(object):
         assert sig1.name != sig2.name
         assert sig1.id == coll[0].id
         assert sig2.id == coll[1].id
-        pp(sig1.raw)
-        pp(sig2.raw)
 
     def test_refresh(self, request, mgmt_root):
         coll = mgmt_root.tm.asm.signature_systems_s.get_collection()
@@ -58,5 +55,3 @@ class TestSignatureSystems(object):
         assert sig1.name == sig2.name
         assert sig1.id == coll[0].id
         assert sig2.id == coll[0].id
-        pp(sig1.raw)
-        pp(sig2.raw)

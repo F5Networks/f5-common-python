@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-from pprint import pprint as pp
 import pytest
 
 from requests.exceptions import HTTPError
@@ -127,7 +126,6 @@ class TestPoolMembers(object):
     def test_members_exists(self, request, bigip):
         member1, pool1 = setup_member_test(request, bigip, 'membertestpool1',
                                            'Common')
-        pp(member1.raw)
         assert\
             member1.exists(partition="Common", name="192.168.15.15:80") is True
         assert\

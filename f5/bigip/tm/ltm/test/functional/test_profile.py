@@ -13,16 +13,12 @@
 # limitations under the License.
 #
 
-
 import copy
 import pytest
 
 from distutils.version import LooseVersion
 from f5.bigip.mixins import UnsupportedTmosVersion
-from pprint import pprint as pp
 from six import iteritems
-
-pp(__file__)
 
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
@@ -63,7 +59,6 @@ class HelperTest(object):
 
         # Testing update
         profile1.description = TESTDESCRIPTION
-        pp(profile1.raw)
         profile1.update()
         if hasattr(profile1, 'description'):
             assert profile1.description == TESTDESCRIPTION
@@ -665,7 +660,6 @@ class TestOcspStaplingParams(object):
         reason='This collection exists on 11.6.0 or greater.'
     )
     def test_MCURDL_11_6_and_greater(self, request, mgmt_root):
-
         # Setup DNS resolver as prerequisite
         dns = setup_dns_resolver(request, mgmt_root, 'test_resolv')
 
@@ -678,7 +672,6 @@ class TestOcspStaplingParams(object):
             trustedCa='/Common/ca-bundle.crt',
             useProxyServer='disabled')
 
-        pp(ocsp1.raw)
         assert ocsp1.name == 'test.ocsp_stapling_params'
         del ocsphc
 
@@ -705,7 +698,6 @@ class TestOcspStaplingParams(object):
         reason='This collection does not exist on 11.5.4 or less.'
     )
     def test_MCURDL_11_6_and_less(self, request, mgmt_root):
-
         # Setup DNS resolver as prerequisite
         dns = setup_dns_resolver(request, mgmt_root, 'test_resolv')
 

@@ -14,7 +14,6 @@
 #
 
 import copy
-from pprint import pprint as pp
 from six import iteritems
 
 
@@ -31,7 +30,6 @@ def setup_traffic_test(request, mgmt_root, name, classification):
         delete_resource(tc1)
     request.addfinalizer(teardown)
     tc1 = mgmt_root.tm.ltm.traffic_class_s
-    pp('****')
     traffic1 = tc1.traffic_class.create(name=name,
                                         classification=classification)
     return traffic1, tc1
