@@ -24,7 +24,6 @@ from f5.bigip.tm.gtm.wideip import Mx
 from f5.bigip.tm.gtm.wideip import Naptr
 from f5.bigip.tm.gtm.wideip import Srv
 from f5.bigip.tm.gtm.wideip import Wideip
-from pprint import pprint as pp
 from requests.exceptions import HTTPError
 from six import iteritems
 
@@ -88,7 +87,6 @@ class HelperTest(object):
 
         # Testing update
         wideip.description = TESTDESCRIPTION
-        pp(wideip.raw)
         wideip.update()
         if hasattr(wideip, 'description'):
             assert wideip.description == TESTDESCRIPTION

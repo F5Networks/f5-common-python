@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-from pprint import pprint as pp
 import pytest
 
 from f5.bigip import ManagementRoot
@@ -59,7 +58,6 @@ def cleaner(request, symbols):
     def cleaner():
         sslclientprofiles = mr.tm.ltm.profile.client_ssls.get_collection()
         for sscp in sslclientprofiles:
-            pp(sscp.raw)
             if sscp.fullPath not in initfullpaths:
                 sscp.delete()
     request.addfinalizer(cleaner)
@@ -81,7 +79,6 @@ def test_ssl_profile_creation(cleaner, symbols, tmpdir):
                         port=symbols.bigip_port)
     uploader = mr.shared.file_transfer.uploads
     cert_registrar = mr.tm.sys.crypto.certs
-    pp(cert_registrar.raw)
     key_registrar = mr.tm.sys.crypto.keys
     ssl_client_profile = mr.tm.ltm.profile.client_ssls.client_ssl
     uploader.upload_file(str(certpath))
@@ -91,11 +88,8 @@ def test_ssl_profile_creation(cleaner, symbols, tmpdir):
     cert_set = {'from-local-file': CERTPATH, 'name': 'faketestcert'}
     key_set = {'from-local-file': KEYPATH, 'name': 'faketestkey'}
     cert_registrar.exec_cmd('install', **cert_set)
-    pp([cert.raw for cert in cert_registrar.get_collection()])
     key_registrar.exec_cmd('install', **key_set)
-    pp([key.raw for key in key_registrar.get_collection()])
     chain = [{'name': 'newestcert',
               'cert': '/Common/NEWTESTCLIENTPROFILENAME.crt',
               'key': '/Common/NEWTESTCLIENTPROFILENAME.key'}]
     ssl_client_profile.create(name='test_cert', certKeyChain=chain)
-    pp(ssl_client_profile.raw)

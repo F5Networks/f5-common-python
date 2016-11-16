@@ -16,7 +16,6 @@
 from f5.bigip.resource import BooleansToReduceHaveSameValue
 from f5.multi_device.utils import get_device_info
 from f5.multi_device.utils import pollster
-from pprint import pprint as pp
 
 import pytest
 
@@ -66,14 +65,10 @@ class TestFailover(object):
         fl = f.toggle_standby(trafficgroup="traffic-group-1", state=None)
         assert fl.standby is None
         assert fl.command == u"run"
-        pp(fl.raw)
         fl = f.toggle_standby(trafficgroup="traffic-group-1", state=True)
         assert fl.standby is True
         assert fl.command == u"run"
-        pp('************')
         fl.refresh()
-        pp('after refresh')
-        pp(fl.raw)
         assert 'Failover active' in fl.apiRawValues['apiAnonymous']
 
     def test_toggle_bad_kwargs_standby(self, mgmt_root):
@@ -105,12 +100,10 @@ class TestFailover(object):
         # trying.
         pollster(check_device_state_as_expected)(mgmt_root, 'forced-offline')
         fl.refresh()
-        pp(fl.raw)
         assert 'Failover forced_offline' in fl.apiRawValues['apiAnonymous']
         f.exec_cmd('run', offline=False, online=True)
         pollster(check_device_state_as_expected)(mgmt_root, 'active')
         fl.refresh()
-        pp(fl.raw)
         assert 'Failover active' in fl.apiRawValues['apiAnonymous']
 
     def test_exec_cmd_cmdargs(self, mgmt_root, teardown_device_failover_state):

@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 
-from pprint import pprint as pp
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
@@ -42,7 +41,6 @@ def delete_resource(resources):
                 and rn != 'tcp' and rn != 'tcp_echo'\
                 and rn != 'tcp_half_open' and rn != 'udp'\
                 and rn != 'virtual_location' and rn != 'wap' and rn != 'wmi':
-            pp(resource.__dict__)
             resource.delete()
 
 
@@ -51,7 +49,6 @@ def setup_http_test(request, bigip, partition, name):
         delete_resource(hc1)
     request.addfinalizer(teardown)
     hc1 = bigip.ltm.monitor.https
-    pp(hc1._meta_data)
     http1 = hc1.http.create(name=name, partition=partition)
     return http1, hc1
 
@@ -757,7 +754,6 @@ class TestMonitorSASP(object):
         sasp1, hc1 = setup_sasp_test(request, bigip, 'Common', 'sasptest')
         assert sasp1.name == 'sasptest'
         sasp1.description = TESTDESCRIPTION
-        pp(sasp1.__dict__)
         sasp1.update()
         assert sasp1.description == TESTDESCRIPTION
         sasp1.description = ''

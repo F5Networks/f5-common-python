@@ -13,9 +13,6 @@
 # limitations under the License.
 #
 
-from pprint import pprint as pp
-pp('')
-
 
 def test_persist_universal_CURDLE(bigip, opt_release):
     u1 = bigip.ltm.persistence.universals.universal.create(
