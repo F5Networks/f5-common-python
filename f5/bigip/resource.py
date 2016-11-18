@@ -888,6 +888,7 @@ class Resource(ResourceBase):
         rset = self._meta_data['required_load_parameters']
         check = _missing_required_parameters(rset, **kwargs)
         if check:
+            check.sort()
             error_message = 'Missing required params: %s' % check
             raise MissingRequiredReadParameter(error_message)
 
