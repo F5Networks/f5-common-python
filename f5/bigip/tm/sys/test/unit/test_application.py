@@ -296,7 +296,7 @@ class TestServiceLoad(object):
         with pytest.raises(MissingRequiredReadParameter) as ex:
             FakeService.load()
         assert ex.value.message == \
-            "Missing required params: ['partition', 'name']"
+            "Missing required params: ['name', 'partition']"
 
     def test_load_no_partition(self, FakeService):
         with pytest.raises(MissingRequiredReadParameter) as ex:

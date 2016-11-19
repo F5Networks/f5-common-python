@@ -1,32 +1,33 @@
+language: python
+python: 2.7
 sudo: false
 env:
   global:
-  - DIST_REPO="f5-sdk-dist"
+    - DIST_REPO="f5-sdk-dist"
 services:
   - docker
-language: python
 python:
-- '2.7'
-- '2.6'
+  - '2.7'
+  - '2.6'
 before_install:
-- git config --global user.email "OpenStack_TravisCI@f5.com"
-- git config --global user.name "Travis F5 Openstack"
-- git fetch --depth=100
+  - git config --global user.email "OpenStack_TravisCI@f5.com"
+  - git config --global user.name "Travis F5 Openstack"
+  - git fetch --depth=100
 install:
-- pip install hacking pytest pytest-cov
-- pip install -r requirements.test.txt
-- pip install -r requirements.docs.txt
+  - pip install hacking pytest pytest-cov tox
+  - pip install -r requirements.test.txt
+  - pip install -r requirements.docs.txt
 script:
-- flake8 --exclude=docs .
-- py.test -c tox.ini.travis --cov
-- python setup.py sdist
-- cd docs
-- make html
-- cd ../
-- ${DIST_REPO}/scripts/package.sh "redhat" "7"
-- ${DIST_REPO}/scripts/package.sh "ubuntu" "14.04"
-- sudo chown -R travis:travis ${DIST_REPO}/rpms/build
-- sudo chown  travis:travis ${DIST_REPO}/deb_dist/*.deb
+  - tox -e flake
+  - tox -e unit
+  - python setup.py sdist
+  - cd docs
+  - make html
+  - cd ../
+  - ${DIST_REPO}/scripts/package.sh "redhat" "7"
+  - ${DIST_REPO}/scripts/package.sh "ubuntu" "14.04"
+  - sudo chown -R travis:travis ${DIST_REPO}/rpms/build
+  - sudo chown travis:travis ${DIST_REPO}/deb_dist/*.deb
 
 before_deploy: PKG_VERSION=$(python -c "import f5; print(f5.__version__)")
 deploy:
@@ -55,7 +56,7 @@ deploy:
 notifications:
   slack:
     rooms:
-    - secure: S6uiqdMGkI5qHUrE+ekoRrxXg9gU7LNogdndgI06L8yJBgDPHZ/USTl8cCDbSLVu/mzSZ3ysD/zO3CmEzB+kiX1yQAnbHA3dxwcBgLg9pO8CMISnmOS61N3o5GC6At6qB5wshVET+J7ul5OzPnDZaTI7M+vI7l9gL2ZhSRzabxI4z7f5LesBqiuUhV6sZA38YiLSjTRrImVMNGYsy9C0BE18HbyGQzhnk7M1OVjRswT5YA05e7JZCYSzlqYD1H2EJtaLNg3pPoA2nEN2e/Lo1atpnG0AURvqbs0+O3HqwtFSSipwFX5crEFUB4xS4FFJH/4qjtPb3r1s1JiRdF8wYGGwlc9VhQId6Ik3k+Php88bVl+/3P7XONTixnWNWy6vHZrE3Nn4kfQDkT1YH9aDzCY5xak6I2DSx+K97ZMZkgjSBwkOsbuYeaaiPsixp6Y0k8TU8oeLMQO+8YdGe7PgEwd30u/qPOoSuohUeS2YRBnPQg11+C0irB0K7e+BfbO5Nl1oTwGL2F0NRs4AGutUYTzPP402fIdUnu9UI1EmCamlRsgp2Ax2fgL5UFCj+vildnlgwxBxxG4S6MqVrxuL+f7CedZe4JcSSwnYCgg6sXiUuqz+aCwydVz6xNQjiBe27rDh2n0OwZ+qHLWcoc1AsTMnHRPVeJpltwxAebkyMrw=
-    - secure: dB/k8UDpidkkcq/nbwHTr+UlWqn1CGtTau5C1Q5D6aNvTPHU4mlChUV7JnoOjekRf2KTDNjpJ9miKBw4uB+TySTsscQHja6xnpqaU8IZYzShT0+2jkCDsw80Ogr+JK3DZFKXQdgUncfKp73cTCPpANxfewoOAFBa0JjIqupE/VsdbX67agM1gqVbArrFt3WmQkgHaXpajPHCFyX7286HIb3Xj1WoIF93RcmUrChFni3KsHbGGB0n2XiAlFo9s2Xv4woiFafoYQuUFmW0aarvRqSAJfhV9l2+rKnXL5XBMNbMAycn/bu4zFaCwInKfufuS0pKOSMhaa0ctGr7Ts+BnVfLjgOJBXnbJSD813siyqbI1rj5634s6C6PC90aK8jc348qVrLXlj95G3CkZz4ofDv9dB3/dWHxVRe6hEFHqUSNWYeEbubHaC9KHY030qDAvba99kB2Z0pDN6B19c4yV1sTP0fIaWEotYw6TE98unRfYHPYxQvZMy55qVTE5oDtHqjoi7PUciL94E3kQwWlCY6ucd691L9NEe/3EkKDkhrLvsZoxzPq8NjUeFO4CgThMicl3nl4zuzycMpoG1x85shUI48JpWTPvWnxKNQYlmRLriVodiMiTAPN0eiWbw+owjwMT5sJqDD7fjSDju5dwomoZcDv8MqyfQpHcT5zg+0=
+      - secure: S6uiqdMGkI5qHUrE+ekoRrxXg9gU7LNogdndgI06L8yJBgDPHZ/USTl8cCDbSLVu/mzSZ3ysD/zO3CmEzB+kiX1yQAnbHA3dxwcBgLg9pO8CMISnmOS61N3o5GC6At6qB5wshVET+J7ul5OzPnDZaTI7M+vI7l9gL2ZhSRzabxI4z7f5LesBqiuUhV6sZA38YiLSjTRrImVMNGYsy9C0BE18HbyGQzhnk7M1OVjRswT5YA05e7JZCYSzlqYD1H2EJtaLNg3pPoA2nEN2e/Lo1atpnG0AURvqbs0+O3HqwtFSSipwFX5crEFUB4xS4FFJH/4qjtPb3r1s1JiRdF8wYGGwlc9VhQId6Ik3k+Php88bVl+/3P7XONTixnWNWy6vHZrE3Nn4kfQDkT1YH9aDzCY5xak6I2DSx+K97ZMZkgjSBwkOsbuYeaaiPsixp6Y0k8TU8oeLMQO+8YdGe7PgEwd30u/qPOoSuohUeS2YRBnPQg11+C0irB0K7e+BfbO5Nl1oTwGL2F0NRs4AGutUYTzPP402fIdUnu9UI1EmCamlRsgp2Ax2fgL5UFCj+vildnlgwxBxxG4S6MqVrxuL+f7CedZe4JcSSwnYCgg6sXiUuqz+aCwydVz6xNQjiBe27rDh2n0OwZ+qHLWcoc1AsTMnHRPVeJpltwxAebkyMrw=
+      - secure: dB/k8UDpidkkcq/nbwHTr+UlWqn1CGtTau5C1Q5D6aNvTPHU4mlChUV7JnoOjekRf2KTDNjpJ9miKBw4uB+TySTsscQHja6xnpqaU8IZYzShT0+2jkCDsw80Ogr+JK3DZFKXQdgUncfKp73cTCPpANxfewoOAFBa0JjIqupE/VsdbX67agM1gqVbArrFt3WmQkgHaXpajPHCFyX7286HIb3Xj1WoIF93RcmUrChFni3KsHbGGB0n2XiAlFo9s2Xv4woiFafoYQuUFmW0aarvRqSAJfhV9l2+rKnXL5XBMNbMAycn/bu4zFaCwInKfufuS0pKOSMhaa0ctGr7Ts+BnVfLjgOJBXnbJSD813siyqbI1rj5634s6C6PC90aK8jc348qVrLXlj95G3CkZz4ofDv9dB3/dWHxVRe6hEFHqUSNWYeEbubHaC9KHY030qDAvba99kB2Z0pDN6B19c4yV1sTP0fIaWEotYw6TE98unRfYHPYxQvZMy55qVTE5oDtHqjoi7PUciL94E3kQwWlCY6ucd691L9NEe/3EkKDkhrLvsZoxzPq8NjUeFO4CgThMicl3nl4zuzycMpoG1x85shUI48JpWTPvWnxKNQYlmRLriVodiMiTAPN0eiWbw+owjwMT5sJqDD7fjSDju5dwomoZcDv8MqyfQpHcT5zg+0=
     on_success: change
     on_failure: always
