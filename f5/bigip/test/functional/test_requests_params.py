@@ -31,10 +31,10 @@ def test_get_collection(request, bigip, pool_factory, opt_release):
     for pool_inst in list(itervalues(pool_registry)):
         for mem in pool_inst.members_s.get_collection():
             selfLinks.append(mem.selfLink)
-    assert selfLinks[0] == u'https://localhost/mgmt/tm/ltm/pool/' +\
+    assert selfLinks[0] == 'https://localhost/mgmt/tm/ltm/pool/' +\
         '~Common~TEST/members/~Common~192.168.15.15:80' +\
         '?ver='+opt_release
-    assert selfLinks[1] == u'https://localhost/mgmt/tm/ltm/pool/' +\
+    assert selfLinks[1] == 'https://localhost/mgmt/tm/ltm/pool/' +\
         '~Common~TEST/members/~Common~192.168.16.16:8080' +\
         '?ver='+opt_release
 

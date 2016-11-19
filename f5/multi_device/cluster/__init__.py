@@ -70,7 +70,6 @@ There are two major use-cases here:
                 )
         assert cluster_mgr.cluster.devices == list_of_bigips
 '''
-from __future__ import print_function
 
 from f5.multi_device.device_group import DeviceGroup
 from f5.multi_device.trust_domain import TrustDomain
@@ -158,20 +157,16 @@ class ClusterManager(object):
             msg = 'The ClusterManager is already managing a cluster.'
             raise AlreadyManagingCluster(msg)
         self._check_device_number(kwargs['devices'])
-        print('Adding trusted peers to root BigIP...')
         self.trust_domain.create(
             devices=kwargs['devices'],
             partition=kwargs['device_group_partition']
         )
-        print('Creating device group...')
         self.device_group.create(**kwargs)
-        print('Cluster created...')
         self.cluster = Cluster(**kwargs)
 
     def teardown(self):
         '''Teardown the cluster of BIG-IP® devices.'''
 
-        print('Tearing down the cluster...')
         self.device_group.teardown()
         self.trust_domain.teardown()
         self.cluster = None

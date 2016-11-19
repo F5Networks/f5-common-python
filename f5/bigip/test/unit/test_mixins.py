@@ -138,8 +138,8 @@ class FakeCommandResource(CommandExecutionMixin, Resource):
         self._meta_data['uri'] = mockuri
         self._meta_data['bigip']._meta_data[
             'icr_session'].post.return_value =\
-            MockResponse({u"generation": 0, u"selfLink": mockuri,
-                          u"kind": u"tm:ltm:fakeendpoint:fakeres"})
+            MockResponse({"generation": 0, "selfLink": mockuri,
+                          "kind": "tm:ltm:fakeendpoint:fakeres"})
 
 
 class TestCommandExecutionMixin(object):

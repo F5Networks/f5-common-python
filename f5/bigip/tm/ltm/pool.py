@@ -101,12 +101,12 @@ class Members(Resource):
                 ' pass "state=None".'
             raise MemberStateAlwaysRequiredOnUpdate(error_message)
         if state is None:
-            self.__dict__.pop(u'state', '')
+            self.__dict__.pop('state', '')
         else:
             self.state = state
         # This is an example implementation of read-only params
-        self.__dict__.pop(u'ephemeral', '')
-        self.__dict__.pop(u'address', '')
+        self.__dict__.pop('ephemeral', '')
+        self.__dict__.pop('address', '')
         self._update(**kwargs)
 
     def exists(self, **kwargs):
@@ -149,7 +149,7 @@ class Members(Resource):
             else:
                 raise
         rdict = response.json()
-        if u"address" not in rdict:
+        if "address" not in rdict:
             # We can add 'or' conditions to be more restrictive.
             return False
         # Only after all conditions are met...

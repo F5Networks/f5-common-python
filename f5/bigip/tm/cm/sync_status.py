@@ -37,6 +37,6 @@ class Sync_Status(UnnamedResource):
         super(Sync_Status, self).__init__(cm)
         self._meta_data['template_generated'] = True
         self._meta_data['required_json_kind'] =\
-            u"tm:cm:sync-status:sync-statusstats"
+            "tm:cm:sync-status:sync-statusstats"
         self._meta_data['attribute_registry'] =\
             {}

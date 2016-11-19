@@ -408,9 +408,9 @@ class HelperTest(object):
     def test_v12_A_AAAA_create_200_OK(self, request, mgmt_root, **kwargs):
         pool, rescollection = self.setup_test(request, mgmt_root, **kwargs)
         mem_coll = pool.members_s
-        MRO = MockResponse({u"kind": self.memkinds[self.urielementname()],
-                            u"selfLink":
-                                u".../~Common~testpool/members/~Common~fake"})
+        MRO = MockResponse({"kind": self.memkinds[self.urielementname()],
+                            "selfLink":
+                                ".../~Common~testpool/members/~Common~fake"})
         fake_session = mock.MagicMock(name='mock_session')
         fake_session.post.return_value = MRO
         session = mem_coll._meta_data['bigip']._meta_data['icr_session']

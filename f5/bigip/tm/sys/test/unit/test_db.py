@@ -1,4 +1,3 @@
-from __future__ import print_function
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +30,6 @@ def fake_dbs():
 class TestDb(object):
     def test_create_raises(self):
         dbs = fake_dbs()
-        print(dbs.raw)
         db = dbs.db
         with pytest.raises(UnsupportedOperation):
             db.create()

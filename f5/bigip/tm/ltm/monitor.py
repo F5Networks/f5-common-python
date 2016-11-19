@@ -102,7 +102,7 @@ class UpdateMonitorMixin(object):
         :param kwargs: keys and associated values to alter on the device
 
         """
-        self.__dict__.pop(u'defaultsFrom', '')
+        self.__dict__.pop('defaultsFrom', '')
         self._update(**kwargs)
 
 

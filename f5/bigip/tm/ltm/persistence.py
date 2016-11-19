@@ -103,7 +103,7 @@ class Global_Settings(Resource):
         super(Global_Settings, self).__init__(Global_Settings_s)
         self._meta_data['template_generated'] = True
         self._meta_data['required_json_kind'] =\
-            u"tm:ltm:persistence:global-settings:global-settingsstate"
+            "tm:ltm:persistence:global-settings:global-settingsstate"
         self._meta_data['attribute_registry'] =\
             {}
 
@@ -137,7 +137,7 @@ class Cookies(Collection):
         super(Cookies, self).__init__(persistence)
         self._meta_data['allowed_lazy_attributes'] = [Cookie]
         self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:persistence:cookie:cookiestate': Cookie}
+            {'tm:ltm:persistence:cookie:cookiestate': Cookie}
         self._meta_data['template_generated'] = True
 
 
@@ -148,7 +148,7 @@ class Cookie(Resource):
         super(Cookie, self).__init__(cookies)
         self._meta_data['template_generated'] = True
         self._meta_data['required_json_kind'] =\
-            u"tm:ltm:persistence:cookie:cookiestate"
+            "tm:ltm:persistence:cookie:cookiestate"
         self._meta_data['attribute_registry'] =\
             {}
 
@@ -171,6 +171,6 @@ class Universal(Resource):
         super(Universal, self).__init__(Universals)
         self._meta_data['template_generated'] = True
         self._meta_data['required_json_kind'] =\
-            u"tm:ltm:persistence:universal:universalstate"
+            "tm:ltm:persistence:universal:universalstate"
         self._meta_data['attribute_registry'] =\
             {}

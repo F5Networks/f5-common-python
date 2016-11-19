@@ -35,13 +35,13 @@ class Ifiles(Collection):
         super(Ifiles, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Ifile]
         self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:ifile:ifilestate': Ifile}
+            {'tm:ltm:ifile:ifilestate': Ifile}
 
 
 class Ifile(Resource):
     def __init__(self, ifile_s):
         super(Ifile, self).__init__(ifile_s)
-        self._meta_data['required_json_kind'] = u'tm:ltm:ifile:ifilestate'
+        self._meta_data['required_json_kind'] = 'tm:ltm:ifile:ifilestate'
         self._meta_data['required_creation_parameters'].update(
             ('name', 'fileName')
         )
