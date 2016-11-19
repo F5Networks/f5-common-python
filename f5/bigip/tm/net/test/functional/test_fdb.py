@@ -37,7 +37,7 @@ def test_tunnel_exists_load_update_refresh(mgmt_root):
     http2_tunnel = t_fact.load(partition='Common', name='http-tunnel')
     http_tunnel.update(records=TEST_MAC)
     http2_tunnel.refresh()
-    assert http2_tunnel.records == [{u'name': u'02:00:00:00:00:01'}]
+    assert http2_tunnel.records == [{'name': '02:00:00:00:00:01'}]
     http_tunnel.update(records=None)
     assert 'records' not in http_tunnel.__dict__
 
@@ -53,7 +53,7 @@ def test_tunnel_exists_load_update_refresh_v12_1(mgmt_root):
     http2_tunnel = t_fact.load(partition='Common', name='http-tunnel')
     http_tunnel.update(records=V12PAYLOAD)
     http2_tunnel.refresh()
-    assert http2_tunnel.records == [{u'name': u'02:00:00:00:00:01',
-                                     u'endpoint': u'10.1.1.1'}]
+    assert http2_tunnel.records == [{'name': '02:00:00:00:00:01',
+                                     'endpoint': '10.1.1.1'}]
     http_tunnel.update(records=None)
     assert 'records' not in http_tunnel.__dict__

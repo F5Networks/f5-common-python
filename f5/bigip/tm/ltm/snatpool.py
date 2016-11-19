@@ -37,7 +37,7 @@ class Snatpools(Collection):
         super(Snatpools, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Snatpool]
         self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:snatpool:snatpoolstate': Snatpool}
+            {'tm:ltm:snatpool:snatpoolstate': Snatpool}
         self._meta_data['template_generated'] = True
 
 
@@ -48,6 +48,6 @@ class Snatpool(Resource):
         super(Snatpool, self).__init__(Snatpools)
         self._meta_data['template_generated'] = True
         self._meta_data['required_json_kind'] =\
-            u"tm:ltm:snatpool:snatpoolstate"
+            "tm:ltm:snatpool:snatpoolstate"
         self._meta_data['attribute_registry'] =\
             {}

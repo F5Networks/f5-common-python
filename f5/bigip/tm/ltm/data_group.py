@@ -48,9 +48,9 @@ class Internals(Collection):
         super(Internals, self).__init__(data_groups)
         self._meta_data['allowed_lazy_attributes'] = [Internal]
         self._meta_data['required_json_kind'] = \
-            u'tm:ltm:data-group:internal:internalcollectionstate'
+            'tm:ltm:data-group:internal:internalcollectionstate'
         self._meta_data['attribute_registry'] = \
-            {u'tm:ltm:data-group:internal:internalstate': Internal}
+            {'tm:ltm:data-group:internal:internalstate': Internal}
         self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
 
 
@@ -58,7 +58,7 @@ class Internal(Resource):
     def __init__(self, internals):
         super(Internal, self).__init__(internals)
         self._meta_data['required_json_kind'] = \
-            u'tm:ltm:data-group:internal:internalstate'
+            'tm:ltm:data-group:internal:internalstate'
         self._meta_data['required_creation_parameters'].update(
             ('name', 'type', 'records')
         )
@@ -74,9 +74,9 @@ class Externals(Collection):
         super(Externals, self).__init__(data_groups)
         self._meta_data['allowed_lazy_attributes'] = [External]
         self._meta_data['required_json_kind'] =\
-            u'tm:ltm:data-group:external:externalcollectionstate'
+            'tm:ltm:data-group:external:externalcollectionstate'
         self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:data-group:external:externalstate': External}
+            {'tm:ltm:data-group:external:externalstate': External}
         self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
 
 
@@ -84,7 +84,7 @@ class External(Resource):
     def __init__(self, externals):
         super(External, self).__init__(externals)
         self._meta_data['required_json_kind'] =\
-            u'tm:ltm:data-group:external:externalstate'
+            'tm:ltm:data-group:external:externalstate'
         self._meta_data['required_creation_parameters'].update(
             ('name', 'externalFileName')
         )

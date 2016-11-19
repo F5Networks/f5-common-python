@@ -39,7 +39,7 @@ class Route_Domains(Collection):
         super(Route_Domains, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [Route_Domain]
         self._meta_data['attribute_registry'] =\
-            {u'tm:net:route-domain:route-domainstate': Route_Domain}
+            {'tm:net:route-domain:route-domainstate': Route_Domain}
         self._meta_data['template_generated'] = True
         self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
 
@@ -52,6 +52,6 @@ class Route_Domain(Resource):
         self._meta_data['template_generated'] = True
         self._meta_data['read_only_attributes'].append('id')
         self._meta_data['required_json_kind'] =\
-            u"tm:net:route-domain:route-domainstate"
+            "tm:net:route-domain:route-domainstate"
         self._meta_data['attribute_registry'] =\
             {}

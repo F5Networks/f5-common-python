@@ -64,10 +64,10 @@ class TestFailover(object):
         f = bigip.sys.failover
         fl = f.toggle_standby(trafficgroup="traffic-group-1", state=None)
         assert fl.standby is None
-        assert fl.command == u"run"
+        assert fl.command == "run"
         fl = f.toggle_standby(trafficgroup="traffic-group-1", state=True)
         assert fl.standby is True
-        assert fl.command == u"run"
+        assert fl.command == "run"
         fl.refresh()
         assert 'Failover active' in fl.apiRawValues['apiAnonymous']
 
@@ -76,7 +76,7 @@ class TestFailover(object):
             f = mgmt_root.tm.sys.failover
             f.toggle_standby(trafficgroup="traffic-group-1",
                              state=None, foo="bar")
-        assert "Unexpected **kwargs" in ex.value.message
+        assert "Unexpected **kwargs" in str(ex.value)
 
     def test_attribute_values(self, bigip):
         fl = bigip.sys.failover
@@ -84,11 +84,11 @@ class TestFailover(object):
         with pytest.raises(BooleansToReduceHaveSameValue) as ex1:
             fl.exec_cmd('run', online=True, offline=True)
         assert 'online and offline, have same value: True' \
-            in ex1.value.message
+            in str(ex1.value)
         with pytest.raises(BooleansToReduceHaveSameValue) as ex2:
             fl.exec_cmd('run', online=False, offline=False)
         assert 'online and offline, have same value: False' \
-            in ex2.value.message
+            in str(ex2.value)
 
     def test_exec_cmd(self, mgmt_root, teardown_device_failover_state):
         fl = mgmt_root.tm.sys.failover.load()
