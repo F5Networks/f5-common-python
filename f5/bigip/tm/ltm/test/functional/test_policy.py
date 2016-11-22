@@ -334,6 +334,12 @@ class TestPolicy(object):
         pol1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
                                       'poltest1', legacy=True)
         pol1.update(legacy=True, rules=[])
-        pol1.update(legacy=False, rules=[])
         pol1.modify(legacy=True, rules=[])
-        pol1.modify(legacy=False, rules=[])
+        with pytest.raises(OperationNotSupportedOnPublishedPolicy) as ex1:
+            pol1.update(legacy=False, rules=[])
+        assert 'Update operation not allowed on a published policy.' in \
+            ex1.value.message
+        with pytest.raises(OperationNotSupportedOnPublishedPolicy) as ex2:
+            pol1.modify(legacy=False, rules=[])
+        assert 'Modify operation not allowed on a published policy.' in \
+            ex2.value.message
