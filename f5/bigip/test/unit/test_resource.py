@@ -53,10 +53,10 @@ from icontrol.exceptions import iControlUnexpectedHTTPError
 @pytest.fixture
 def fake_vs():
     r = Virtual(mock.MagicMock())
-    MRO = MockResponse({u"kind": u"tm:ltm:virtual:virtualstate",
-                        u"selfLink": u".../~Common~test_create"})
+    MRO = MockResponse({"kind": "tm:ltm:virtual:virtualstate",
+                        "selfLink": ".../~Common~test_create"})
     r._meta_data['bigip']._meta_data['icr_session'].post.return_value = MRO
-    r._meta_data['required_json_kind'] = u"tm:ltm:virtual:virtualstate"
+    r._meta_data['required_json_kind'] = "tm:ltm:virtual:virtualstate"
     r._meta_data['allowed_lazy_attributes'] = []
     return r
 
@@ -66,10 +66,10 @@ def fake_rsrc():
     r = Resource(mock.MagicMock())
     r._meta_data['allowed_lazy_attributes'] = []
     r._meta_data['uri'] = 'URI'
-    r._meta_data['read_only_attributes'] = [u"READONLY"]
-    attrs = {'put.return_value': MockResponse({u"generation": 0}),
-             'get.return_value': MockResponse({u"generation": 0}),
-             'patch.return_value': MockResponse({u"generation": 0})}
+    r._meta_data['read_only_attributes'] = ["READONLY"]
+    attrs = {'put.return_value': MockResponse({"generation": 0}),
+             'get.return_value': MockResponse({"generation": 0}),
+             'patch.return_value': MockResponse({"generation": 0})}
     mock_session = mock.MagicMock(**attrs)
     r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
     return r
@@ -79,17 +79,21 @@ def fake_rsrc():
 def fake_asmsig():
     r = Signature_Set(mock.MagicMock())
     r._meta_data['allowed_lazy_attributes'] = []
-    response = {u"type": u"filter-based", u"id": u"SqKxkr8hvYEJeGmk6cAjHg",
-                u"isUserDefined": u"true", u"selfLink":
-                    u"https://localhost/mgmt/tm/asm/signature-sets"
-                    u"/SqKxkr8hvYEJeGmk6cAjHg", u"kind":
-                    u"tm:asm:signature-sets:signature-setstate"}
+    response = dict(
+        type="filter-based",
+        id="SqKxkr8hvYEJeGmk6cAjHg",
+        isUserDefined="true",
+        selfLink="https://localhost/mgmt/tm/asm/signature-sets"
+                 "/SqKxkr8hvYEJeGmk6cAjHg",
+        kind="tm:asm:signature-sets:signature-setstate"
+    )
     attrs = {'get.return_value': MockResponse(response)}
     mock_session = mock.MagicMock(**attrs)
-    r._meta_data['bigip']._meta_data = {'icr_session': mock_session,
-                                        'hostname': 'TESTDOMAINNAME',
-                                        'uri':
-                                            'https://TESTDOMAIN:443/mgmt/tm/'}
+    r._meta_data['bigip']._meta_data = dict(
+        icr_session=mock_session,
+        hostname='TESTDOMAINNAME',
+        uri='https://TESTDOMAIN:443/mgmt/tm/'
+    )
     r._meta_data['required_json_kind'] = \
         'tm:asm:signature-sets:signature-setstate'
     return r
@@ -104,11 +108,11 @@ def fake_asmchksig():
     mockuri = 'https://localhost/mgmt/tm/asm/tasks/check-signatures' \
               '/BaAI0BPPpaV4vMaJvneBjQ'
     resp = {
-        u"selfLink": mockuri, u"kind":
-            u"tm:asm:tasks:check-signatures:check-signatures-taskstate",
-        u"status": u"NEW", u"lastUpdateMicros": 1.474367299e+15,
-        u"startTime": u"2016-09-20T10:28:19Z", u"id":
-            u"BaAI0BPPpaV4vMaJvneBjQ"}
+        "selfLink": mockuri, "kind":
+            "tm:asm:tasks:check-signatures:check-signatures-taskstate",
+        "status": "NEW", "lastUpdateMicros": 1.474367299e+15,
+        "startTime": "2016-09-20T10:28:19Z", "id":
+            "BaAI0BPPpaV4vMaJvneBjQ"}
     attrs = {'post.return_value': MockResponse(resp)}
     mock_session = mock.MagicMock(**attrs)
     r._meta_data['bigip']._meta_data = {'icr_session': mock_session,
@@ -169,7 +173,7 @@ def test_Resource_refresh():
     r = Resource(mock.MagicMock())
 
     r._meta_data['bigip']._meta_data['icr_session'].get.return_value =\
-        MockResponse({u"a": 1})
+        MockResponse({"a": 1})
     r._meta_data['uri'] = 'URI'
     r.refresh()
     assert r.a == 1
@@ -204,8 +208,8 @@ class TestResourceCreate(object):
 
     def test_success(self, fake_vs):
         x = fake_vs.create(partition="Common", name="test_create")
-        assert x.kind == u"tm:ltm:virtual:virtualstate"
-        assert x.selfLink == u".../~Common~test_create"
+        assert x.kind == "tm:ltm:virtual:virtualstate"
+        assert x.selfLink == ".../~Common~test_create"
 
     def test_reduce_boolean_removes_enabled(self, fake_vs):
         assert fake_vs._meta_data['reduction_forcing_pairs'] == \
@@ -215,22 +219,23 @@ class TestResourceCreate(object):
                 ('vlansEnabled', 'vlansDisabled')
             ]
         fake_vs.create(partition="Common", name="test_create", enabled=False)
-        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].post.\
-            call_args
+        session = fake_vs._meta_data['bigip']._meta_data['icr_session']
+        pos, kwargs = session.post.call_args
         assert kwargs['json']['disabled'] is True
         assert 'enabled' not in kwargs['json']
 
     def test_reduce_boolean_removes_disabled(self, fake_vs):
-        fake_vs.create(partition='Common', name='test_create', disabled=False)
-        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].post.\
-            call_args
+        fake_vs.create(partition='Common', name='test_create',
+                       disabled=False)
+        session = fake_vs._meta_data['bigip']._meta_data['icr_session']
+        pos, kwargs = session.post.call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
 
     def test_reduce_boolean_removes_nothing(self, fake_vs):
         fake_vs.create(partition='Common', name='test_create', enabled=True)
-        pos, kwargs = fake_vs._meta_data['bigip']._meta_data['icr_session'].post.\
-            call_args
+        session = fake_vs._meta_data['bigip']._meta_data['icr_session']
+        pos, kwargs = session.post.call_args
         assert kwargs['json']['enabled'] is True
         assert 'disabled' not in kwargs['json']
 
@@ -245,14 +250,14 @@ class TestResourceCreate(object):
         msg = 'Boolean pair, enabled and disabled, have same value: True. ' \
             'If both are given to this method, they cannot be the same, as ' \
             'this method cannot decide which one should be True.'
-        assert msg == ex.value.message
+        assert msg == str(ex.value)
 
 
 def test__activate_URI():
     r = Resource(mock.MagicMock())
     r._meta_data['object_has_stats'] = True
     r._meta_data['allowed_lazy_attributes'] = []
-    r._meta_data['attribute_registry'] = {u"tm:": u"SPAM"}
+    r._meta_data['attribute_registry'] = {"tm:": "SPAM"}
     r._meta_data['bigip']._meta_data = {
         'hostname': 'TESTDOMAIN',
         'uri': 'https://TESTDOMAIN:443/mgmt/tm/'
@@ -266,14 +271,14 @@ def test__activate_URI():
     assert r._meta_data['creation_uri_qargs'] ==\
         {'a': ['b'], 'ver': ['11.5']}
     assert r._meta_data['creation_uri_frag'] == 'FOO'
-    assert r._meta_data['allowed_lazy_attributes'] == [u"SPAM", Stats]
+    assert r._meta_data['allowed_lazy_attributes'] == ["SPAM", Stats]
 
 
 def test__activate_URI_no_stats():
     r = Resource(mock.MagicMock())
     r._meta_data['object_has_stats'] = False
     r._meta_data['allowed_lazy_attributes'] = []
-    r._meta_data['attribute_registry'] = {u"tm:": u"SPAM"}
+    r._meta_data['attribute_registry'] = {"tm:": "SPAM"}
     r._meta_data['bigip']._meta_data = {
         'hostname': 'TESTDOMAIN',
         'uri': 'https://TESTDOMAIN:443/mgmt/tm/'
@@ -287,7 +292,7 @@ def test__activate_URI_no_stats():
     assert r._meta_data['creation_uri_qargs'] ==\
         {'a': ['b'], 'ver': ['12.0']}
     assert r._meta_data['creation_uri_frag'] == 'FOO'
-    assert r._meta_data['allowed_lazy_attributes'] == [u"SPAM"]
+    assert r._meta_data['allowed_lazy_attributes'] == ["SPAM"]
 
 
 def test__create_with_Collision():
@@ -307,12 +312,12 @@ class TestResource_update(object):
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
         r._meta_data['bigip']._meta_data['icr_session'].get.return_value =\
-            MockResponse({u"generation": 0})
+            MockResponse({"generation": 0})
         r._meta_data['bigip']._meta_data['icr_session'].put.return_value =\
-            MockResponse({u"generation": 0})
+            MockResponse({"generation": 0})
         r.generation = 1
         with pytest.raises(GenerationMismatch) as GMEIO:
-            r.update(a=u"b", force=False)
+            r.update(a="b", force=False)
         assert str(GMEIO.value) ==\
             'The generation of the object on the BigIP (0)'\
             ' does not match the current object(1)'
@@ -322,12 +327,12 @@ class TestResource_update(object):
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
         r._meta_data['bigip']._meta_data['icr_session'].get.return_value =\
-            MockResponse({u"generation": 0})
+            MockResponse({"generation": 0})
         r._meta_data['bigip']._meta_data['icr_session'].put.return_value =\
-            MockResponse({u"generation": 0})
+            MockResponse({"generation": 0})
         r.generation = 0
         pre_meta = r._meta_data.copy()
-        r.update(a=u"b")
+        r.update(a="b")
         assert pre_meta == r._meta_data
         assert r.raw == r.__dict__
 
@@ -341,7 +346,7 @@ class TestResource_update(object):
         error_response.status_code = 400
         error_response.text = text
         error = iControlUnexpectedHTTPError(response=error_response)
-        fake_session.get.return_value = MockResponse({u"generation": 0})
+        fake_session.get.return_value = MockResponse({"generation": 0})
         fake_session.put.side_effect = error
         r._meta_data['bigip']._meta_data = {'icr_session': fake_session,
                                             'hostname': 'TESTDOMAINNAME',
@@ -349,7 +354,7 @@ class TestResource_update(object):
                                             'https://TESTDOMAIN:443/mgmt/tm/'}
         pre_meta = r._meta_data.copy()
         with pytest.raises(iControlUnexpectedHTTPError) as err:
-            r.update(a=u"b")
+            r.update(a="b")
         assert err.value.response.status_code == 400
         assert err.value.response.text == text
         assert pre_meta == r._meta_data
@@ -359,14 +364,14 @@ class TestResource_update(object):
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
-        attrs = {'put.return_value': MockResponse({u"generation": 0}),
-                 'get.return_value': MockResponse({u"generation": 0})}
+        attrs = {'put.return_value': MockResponse({"generation": 0}),
+                 'get.return_value': MockResponse({"generation": 0})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
         r.generation = 0
         r.contained = Collection(mock.MagicMock())
         assert 'contained' in r.__dict__
-        r.update(a=u"b")
+        r.update(a="b")
         submitted = r._meta_data['bigip']. \
             _meta_data['icr_session'].put.call_args[1]['json']
         assert 'contained' not in submitted
@@ -375,15 +380,15 @@ class TestResource_update(object):
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
-        r._meta_data['read_only_attributes'] = [u"READONLY"]
-        attrs = {'put.return_value': MockResponse({u"generation": 0}),
-                 'get.return_value': MockResponse({u"generation": 0})}
+        r._meta_data['read_only_attributes'] = ["READONLY"]
+        attrs = {'put.return_value': MockResponse({"generation": 0}),
+                 'get.return_value': MockResponse({"generation": 0})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
         r.generation = 0
         r.READONLY = True
         assert 'READONLY' in r.__dict__
-        r.update(a=u"b")
+        r.update(a="b")
         submitted = r._meta_data['bigip'].\
             _meta_data['icr_session'].put.call_args[1]['json']
         assert 'READONLY' not in submitted
@@ -420,7 +425,7 @@ class TestResource_update(object):
         msg = 'Boolean pair, enabled and disabled, have same value: True. ' \
             'If both are given to this method, they cannot be the same, as ' \
             'this method cannot decide which one should be True.'
-        assert msg == ex.value.message
+        assert msg == str(ex.value)
 
 
 class TestResource_modify(object):
@@ -430,26 +435,26 @@ class TestResource_modify(object):
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
         r._meta_data['bigip']._meta_data['icr_session'].get.return_value =\
-            MockResponse({u"generation": 0})
+            MockResponse({"generation": 0})
         r._meta_data['bigip']._meta_data['icr_session'].patch.return_value =\
-            MockResponse({u"generation": 0})
+            MockResponse({"generation": 0})
         r.generation = 0
         pre_meta = r._meta_data.copy()
-        r.modify(a=u"b")
+        r.modify(a="b")
         assert pre_meta == r._meta_data
 
     def test_Collection_removal(self):
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
-        attrs = {'patch.return_value': MockResponse({u"generation": 0}),
-                 'get.return_value': MockResponse({u"generation": 0})}
+        attrs = {'patch.return_value': MockResponse({"generation": 0}),
+                 'get.return_value': MockResponse({"generation": 0})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
         r.generation = 0
         r.contained = Collection(mock.MagicMock())
         assert 'contained' in r.__dict__
-        r.modify(a=u"b")
+        r.modify(a="b")
         submitted = r._meta_data['bigip']. \
             _meta_data['icr_session'].patch.call_args[1]['json']
 
@@ -459,9 +464,9 @@ class TestResource_modify(object):
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
-        r._meta_data['read_only_attributes'] = [u"READONLY"]
-        attrs = {'patch.return_value': MockResponse({u"generation": 0}),
-                 'get.return_value': MockResponse({u"generation": 0})}
+        r._meta_data['read_only_attributes'] = ["READONLY"]
+        attrs = {'patch.return_value': MockResponse({"generation": 0}),
+                 'get.return_value': MockResponse({"generation": 0})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
         r.generation = 0
@@ -501,7 +506,7 @@ class TestResource_modify(object):
         msg = 'Boolean pair, enabled and disabled, have same value: True. ' \
             'If both are given to this method, they cannot be the same, as ' \
             'this method cannot decide which one should be True.'
-        assert msg == ex.value.message
+        assert msg == str(ex.value)
 
 
 class TestResource_delete(object):
@@ -510,9 +515,9 @@ class TestResource_delete(object):
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
         attrs = {'delete.return_value':
-                 MockResponse({u"generation": 0, u"status_code": 200}),
+                 MockResponse({"generation": 0, "status_code": 200}),
                  'get.return_value':
-                 MockResponse({u"generation": 0, u"status_code": 200})}
+                 MockResponse({"generation": 0, "status_code": 200})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
         r.generation = 0
@@ -538,13 +543,13 @@ class Element(Resource):
 class TestCollection_get_collection(object):
     def test_success(self):
         c = Collection(mock.MagicMock())
-        c._meta_data['attribute_registry'] = {u"tm:": Element}
+        c._meta_data['attribute_registry'] = {"tm:": Element}
         c._meta_data['uri'] = 'URI'
         items = [{'kind': 'tm:', 'selfLink': 'htpps://...'},
                  {'reference': {'link': 'https://...'}}]
         attrs = {'get.return_value':
-                 MockResponse({u"generation": 0,
-                               u"items": items})}
+                 MockResponse({"generation": 0,
+                               "items": items})}
         mock_session = mock.MagicMock(**attrs)
         c._meta_data['bigip']._meta_data =\
             {'icr_session': mock_session,
@@ -555,13 +560,13 @@ class TestCollection_get_collection(object):
 
     def test_unregistered_kind(self):
         c = Collection(mock.MagicMock())
-        c._meta_data['attribute_registry'] = {u"t:": Element}
+        c._meta_data['attribute_registry'] = {"t:": Element}
         c._meta_data['uri'] = 'URI'
         items = [{'kind': 'tm:', 'selfLink': 'htpps://...'},
                  {'reference': {'link': 'https://...'}}]
         attrs = {'get.return_value':
-                 MockResponse({u"generation": 0,
-                               u"items": items})}
+                 MockResponse({"generation": 0,
+                               "items": items})}
         mock_session = mock.MagicMock(**attrs)
         c._meta_data['bigip']._meta_data =\
             {'icr_session': mock_session,
@@ -597,14 +602,14 @@ class TestResource_load(object):
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
         r._meta_data['icontrol_version'] = '11.6.0'
-        attrs = {'put.return_value': MockResponse({u"generation": 0}),
-                 'get.return_value': MockResponse({u"generation": 0})}
+        attrs = {'put.return_value': MockResponse({"generation": 0}),
+                 'get.return_value': MockResponse({"generation": 0})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
         r.generation = 0
         r.contained = Collection(mock.MagicMock())
         assert 'contained' in r.__dict__
-        r.update(a=u"b")
+        r.update(a="b")
         submitted = r._meta_data['bigip']. \
             _meta_data['icr_session'].put.call_args[1]['params']
         assert submitted['ver'] == '11.6.0'
@@ -613,14 +618,14 @@ class TestResource_load(object):
         r = Resource(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
-        attrs = {'put.return_value': MockResponse({u"generation": 0}),
-                 'get.return_value': MockResponse({u"generation": 0})}
+        attrs = {'put.return_value': MockResponse({"generation": 0}),
+                 'get.return_value': MockResponse({"generation": 0})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
         r.generation = 0
         r.contained = Collection(mock.MagicMock())
         assert 'contained' in r.__dict__
-        r.update(a=u"b")
+        r.update(a="b")
         submitted = r._meta_data['bigip']. \
             _meta_data['icr_session'].put.call_args
         assert 'params' not in submitted
@@ -632,9 +637,9 @@ class TestResource_load(object):
         attrs = {'get.return_value':
                  MockResponse(
                      {
-                         u"generation": 0,
-                         u"selfLink": mockuri,
-                         u"kind": u"tm:ltm:virtual:virtualstate"
+                         "generation": 0,
+                         "selfLink": mockuri,
+                         "kind": "tm:ltm:virtual:virtualstate"
                      }
                  )}
         mock_session = mock.MagicMock(**attrs)
@@ -653,9 +658,9 @@ class TestResource_load(object):
         attrs = {'get.return_value':
                  MockResponse(
                      {
-                         u"generation": 0,
-                         u"selfLink": mockuri,
-                         u"kind": u"tm:ltm:virtual:virtualstate"
+                         "generation": 0,
+                         "selfLink": mockuri,
+                         "kind": "tm:ltm:virtual:virtualstate"
                      }
                  )}
         mock_session = mock.MagicMock(**attrs)
@@ -666,9 +671,9 @@ class TestResource_load(object):
         r.generation = 0
         x = r.load(partition='Common', name='test_load')
         assert x.selfLink == mockuri
-        with pytest.raises(URICreationCollision) as UCCEIO:
+        with pytest.raises(URICreationCollision) as ex:
             x.load(uri='URI')
-        assert UCCEIO.value.message ==\
+        assert str(ex.value) ==\
             "There was an attempt to assign a new uri to this resource, the"\
             " _meta_data['uri'] is "\
             "https://TESTDOMAIN:443/mgmt/tm/ltm/virtual/"\
@@ -681,7 +686,7 @@ class TestResource_exists(object):
         r._meta_data['allowed_lazy_attributes'] = []
         mockuri = "https://localhost:443/mgmt/tm/ltm/nat/~Common~test_exists"
         attrs = {'get.return_value':
-                 MockResponse({u"generation": 0, u"selfLink": mockuri})}
+                 MockResponse({"generation": 0, "selfLink": mockuri})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data =\
             {'icr_session': mock_session,
@@ -723,9 +728,9 @@ def test_OrganizingCollection():
     items = [{'reference': {'link': 'https://...A'}},
              {'reference': {'link': 'https://...B'}}]
     attrs = {'get.return_value':
-             MockResponse({u"generation": 0,
-                           u"selfLink": 'mockuri',
-                           u"items": items})}
+             MockResponse({"generation": 0,
+                           "selfLink": 'mockuri',
+                           "items": items})}
     mock_session = mock.MagicMock(**attrs)
     MockBigIP._meta_data = {'uri': 'https://TESTDOMAIN/mgmt/tm/',
                             'bigip': MockBigIP,
@@ -741,16 +746,13 @@ def test_ResourceBase():
     rb = ResourceBase(MockBigIP)
     with pytest.raises(InvalidResource) as load_EIO:
         rb.load()
-    assert load_EIO.value.message ==\
-        "Only Resources support 'load'."
+    assert str(load_EIO.value) == "Only Resources support 'load'."
     with pytest.raises(InvalidResource) as create_EIO:
         rb.create()
-    assert create_EIO.value.message ==\
-        "Only Resources support 'create'."
+    assert str(create_EIO.value) == "Only Resources support 'create'."
     with pytest.raises(InvalidResource) as delete_EIO:
         rb.delete()
-    assert delete_EIO.value.message ==\
-        "Only Resources support 'delete'."
+    assert str(delete_EIO.value) == "Only Resources support 'delete'."
 
 
 class Under_s(Collection):
@@ -788,23 +790,23 @@ class TestPathElement(object):
     def test_check_load_parameters_fail(self):
         p = Resource(mock.MagicMock())
         p._meta_data['required_load_parameters'] = set(['FAKELOAD'])
-        with pytest.raises(MissingRequiredReadParameter) as RLPEIO:
+        with pytest.raises(MissingRequiredReadParameter) as ex:
             p._check_load_parameters(FOOLOAD='FOOVAL')
-        assert "['FAKELOAD']" in RLPEIO.value.message
+        assert "['FAKELOAD']" in str(ex)
 
     def test_check_create_parameters_fail(self):
         p = Resource(mock.MagicMock())
         p._meta_data['required_creation_parameters'] = set(['FAKECREATE'])
-        with pytest.raises(MissingRequiredCreationParameter) as RCPEIO:
+        with pytest.raises(MissingRequiredCreationParameter) as ex:
             p._check_create_parameters(FOOCREATE='FOOVAL')
-        assert "['FAKECREATE']" in RCPEIO.value.message
+        assert "['FAKECREATE']" in str(ex)
 
     def test_check_command_parameters_fail(self):
         p = PathElement(mock.MagicMock())
         p._meta_data['required_command_parameters'] = set(['FAKECOMMAND'])
-        with pytest.raises(MissingRequiredCommandParameter) as RCPEIO:
+        with pytest.raises(MissingRequiredCommandParameter) as ex:
             p._check_command_parameters(BARCOMMAND='FOOVAL')
-        assert "['FAKECOMMAND']" in RCPEIO.value.message
+        assert "['FAKECOMMAND']" in str(ex)
 
     def test_check_exclusive_parameters_empty_attr(self):
         p = PathElement(mock.MagicMock())
@@ -824,9 +826,9 @@ class TestPathElement(object):
         p = PathElement(mock.MagicMock())
         p._meta_data['exclusive_attributes'] = [('FOOEX', 'BAREX')]
         fakearg = {'FOOEX': 'FOOVAL', 'BAREX': 'BARVAL'}
-        with pytest.raises(ExclusiveAttributesPresent) as EAEIO:
+        with pytest.raises(ExclusiveAttributesPresent) as ex:
             p._check_exclusive_parameters(**fakearg)
-        assert 'FOOEX, BAREX' in EAEIO.value.message
+        assert 'BAREX, FOOEX' in str(ex)
 
 
 class TestUnnamedResource(object):
@@ -847,9 +849,9 @@ class TestUnnamedResource(object):
         attrs = {'get.return_value':
                  MockResponse(
                      {
-                         u"generation": 0,
-                         u"selfLink": mockuri,
-                         u"kind": u"tm:cm:sync-status:sync-statusstats"
+                         "generation": 0,
+                         "selfLink": mockuri,
+                         "kind": "tm:cm:sync-status:sync-statusstats"
                      }
                  )}
         mock_session = mock.MagicMock(**attrs)
@@ -884,38 +886,42 @@ class TestStats(object):
         attrs = {'get.side_effect':
                  [MockResponse(
                      {
-                         u"generation": 0,
-                         u"selfLink": "https://localhost:443/mgmt/tm/ltm/"
+                         "generation": 0,
+                         "selfLink": "https://localhost:443/mgmt/tm/ltm/"
                          "virtual",
-                         u"kind": u"tm:ltm:virtual:virtualstate"
+                         "kind": "tm:ltm:virtual:virtualstate"
                      }),
                   MockResponse(
                      {
-                         u"generation": 0,
-                         u"selfLink": u'https://localhost/mgmt/tm/ltm/virtual/'
+                         "generation": 0,
+                         "selfLink": 'https://localhost/mgmt/tm/ltm/virtual/'
                          '~Common~modtest1/stats?ver=11.6.0',
-                         u"kind": u"tm:ltm:virtual:virtualstats"
+                         "kind": "tm:ltm:virtual:virtualstats"
                      })
                   ]}
         mock_session = mock.MagicMock(**attrs)
         ver_mock = mock.PropertyMock(return_value='11.5.0')
         type(r._meta_data['bigip']).tmos_version = ver_mock
-        r._meta_data['bigip']._meta_data =\
-            {'icr_session': mock_session,
-             'hostname': 'TESTDOMAINNAME',
-             'uri': 'https://TESTDOMAIN:443/mgmt/tm/',
-             'tmos_version': '11.5.0',
-             'minimum_version': '11.5.0'}
+        r._meta_data['bigip']._meta_data = dict(
+            icr_session=mock_session,
+            hostname='TESTDOMAINNAME',
+            uri='https://TESTDOMAIN:443/mgmt/tm/',
+            tmos_version='11.5.0',
+            minimum_version='11.5.0'
+        )
         r.generation = 0
         x = r.load(partition='Common', name='test_load')
         assert x.selfLink == 'https://localhost:443/mgmt/tm/ltm/virtual'
-        assert x._meta_data['allowed_lazy_attributes'] == [
-            Policies_s, Profiles_s, Stats]
+
+        assert Policies_s in x._meta_data['allowed_lazy_attributes']
+        assert Profiles_s in x._meta_data['allowed_lazy_attributes']
+        assert Stats in x._meta_data['allowed_lazy_attributes']
+
         statsfactory = x.stats
         assert 'selfLink' not in statsfactory.__dict__
         statsobj = statsfactory.load()
         assert statsobj.selfLink ==\
-            u'https://localhost/mgmt/tm/ltm/virtual/'\
+            'https://localhost/mgmt/tm/ltm/virtual/'\
             '~Common~modtest1/stats?ver=11.6.0'
 
 
@@ -939,10 +945,10 @@ class TestAsmResource(object):
                   "-QDXeCpdkA"
         attrs = {'get.return_value': MockResponse(
                 {
-                    u"isUserDefined": u"true",
-                    u"selfLink": mockuri,
-                    u"kind": u"tm:asm:signature-sets:signature-setstate",
-                    u"id": u"T84Lsg_fb11W-QDXeCpdkA"
+                    "isUserDefined": "true",
+                    "selfLink": mockuri,
+                    "kind": "tm:asm:signature-sets:signature-setstate",
+                    "id": "T84Lsg_fb11W-QDXeCpdkA"
                 }
             )}
         mock_session = mock.MagicMock(**attrs)
@@ -962,10 +968,10 @@ class TestAsmResource(object):
                   "-QDXeCpdkA"
         attrs = {'get.return_value': MockResponse(
             {
-                u"isUserDefined": u"true",
-                u"selfLink": mockuri,
-                u"kind": u"tm:asm:signature-sets:signature-setstate",
-                u"id": u"T84Lsg_fb11W-QDXeCpdkA"
+                "isUserDefined": "true",
+                "selfLink": mockuri,
+                "kind": "tm:asm:signature-sets:signature-setstate",
+                "id": "T84Lsg_fb11W-QDXeCpdkA"
             }
         )}
         mock_session = mock.MagicMock(**attrs)
@@ -976,13 +982,13 @@ class TestAsmResource(object):
         r.isUserDefined = True
         x = r.load(id='T84Lsg_fb11W-QDXeCpdkA')
         assert x.selfLink == mockuri
-        with pytest.raises(URICreationCollision) as UCCEIO:
+        with pytest.raises(URICreationCollision) as ex:
             x.load(uri='URI')
         msg = "There was an attempt to assign a new uri to this resource, " \
               "the _meta_data['uri'] is https://TESTDOMAIN:443/mgmt/tm/asm/" \
               "signature-sets/T84Lsg_fb11W-QDXeCpdkA/ " \
               "and it should not be changed."
-        assert UCCEIO.value.message == msg
+        assert str(ex.value) == msg
 
     def test_load_pop_name_id_uri(self, fake_asmsig):
         x = fake_asmsig.load(name='test_fake', id='SqKxkr8hvYEJeGmk6cAjHg',
@@ -1002,10 +1008,10 @@ class TestAsmResource(object):
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['uri'] = 'URI'
         attrs = {'delete.return_value':
-                 MockResponse({u"signatureId": 300000006, u"status_code":
+                 MockResponse({"signatureId": 300000006, "status_code":
                                201}),
                  'get.return_value':
-                 MockResponse({u"signatureId": 300000006, u"status_code":
+                 MockResponse({"signatureId": 300000006, "status_code":
                                201})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = {'icr_session': mock_session}
@@ -1019,7 +1025,7 @@ class TestAsmResource(object):
         mockuri = "https://localhost/mgmt/tm/asm/signatures/T84Lsg_fb11W" \
                   "-QDXeCpdkA"
         attrs = {'get.return_value':
-                 MockResponse({u"signatureId": 300000006, u"selfLink":
+                 MockResponse({"signatureId": 300000006, "selfLink":
                                mockuri})}
         mock_session = mock.MagicMock(**attrs)
         r._meta_data['bigip']._meta_data = \
@@ -1062,7 +1068,7 @@ class TestAsmResource(object):
         mockuri = "https://localhost/mgmt/tm/asm/signatures/" \
                   "T84Lsg_fb11W-QDXeCpdkA"
         attrs = {'get.return_value':
-                 MockResponse({u"signatureId": 300000006, u"selfLink":
+                 MockResponse({"signatureId": 300000006, "selfLink":
                                mockuri})}
         mock_session = mock.MagicMock(**attrs)
         r.exists(name='fake_name', id='T84Lsg_fb11W-QDXeCpdkA',

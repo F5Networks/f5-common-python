@@ -26,4 +26,4 @@ class TestSyncStatus(object):
              ['entries']
              ['status']
              ['description'])
-        assert des == u"Standalone"
+        assert des == "Standalone"

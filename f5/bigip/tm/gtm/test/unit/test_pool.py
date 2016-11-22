@@ -296,9 +296,9 @@ class HelperTest(object):
         mock_response = mock.MagicMock()
         mock_response.status_code = 404
         error = HTTPError(response=mock_response)
-        MRO = MockResponse({u"kind": self.memkinds[self.urielementname()],
-                            u"selfLink":
-                                u".../~Common~testpool/members/~Common~fake"})
+        MRO = MockResponse({"kind": self.memkinds[self.urielementname()],
+                            "selfLink":
+                                ".../~Common~testpool/members/~Common~fake"})
         session = mock.MagicMock(name='mock_session')
         session.post.side_effect = error
         session.get.return_value = MRO
@@ -312,9 +312,9 @@ class HelperTest(object):
         memc = Members_s(r1)
         memres = memc.member
         memres._meta_data['bigip']._meta_data['tmos_version'] = '12.1.0'
-        MRO = MockResponse({u"kind": self.memkinds[self.urielementname()],
-                            u"selfLink":
-                                u".../~Common~testpool/members/~Common~fake"})
+        MRO = MockResponse({"kind": self.memkinds[self.urielementname()],
+                            "selfLink":
+                                ".../~Common~testpool/members/~Common~fake"})
         session = mock.MagicMock(name='mock_session')
         session.post.return_value = MRO
         memres._meta_data['bigip']._meta_data['icr_session'] = session

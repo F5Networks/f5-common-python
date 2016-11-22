@@ -37,7 +37,7 @@ class Snat_Translations(Collection):
         super(Snat_Translations, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Snat_Translation]
         self._meta_data['attribute_registry'] = {
-            u'tm:ltm:snat-translation:snat-translationstate': Snat_Translation
+            'tm:ltm:snat-translation:snat-translationstate': Snat_Translation
         }
         self._meta_data['template_generated'] = True
         self._meta_data['uri'] = self._meta_data['uri'].replace("_", "-")
@@ -51,7 +51,7 @@ class Snat_Translation(ExclusiveAttributesMixin, Resource):
         super(Snat_Translation, self).__init__(Snat_Translations)
         self._meta_data['template_generated'] = True
         self._meta_data['required_json_kind'] =\
-            u"tm:ltm:snat-translation:snat-translationstate"
+            "tm:ltm:snat-translation:snat-translationstate"
         self._meta_data['attribute_registry'] = {}
         self._meta_data['read_only_attributes'].append('address')
         self._meta_data['exclusive_attributes'].append(('enabled', 'disabled'))

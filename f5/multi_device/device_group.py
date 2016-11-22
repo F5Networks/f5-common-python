@@ -58,7 +58,6 @@ Methods:
     * manage_extant -- manage an existing device group
 
 '''
-from __future__ import print_function
 
 from f5.multi_device.exceptions import DeviceGroupNotSupported
 from f5.multi_device.exceptions import MissingRequiredDeviceGroupParameter
@@ -230,7 +229,6 @@ class DeviceGroup(object):
 
         device_name = get_device_info(device).name
         dg = pollster(self._get_device_group)(device)
-        print('Adding following device to group: ' + device_name)
         dg.devices_s.devices.create(name=device_name, partition=self.partition)
         pollster(self._check_device_exists_in_device_group)(device_name)
 
@@ -250,7 +248,6 @@ class DeviceGroup(object):
         '''
 
         device_name = get_device_info(device).name
-        print('Deleting following device from group: %s ' % device_name)
         dg = pollster(self._get_device_group)(device)
         device_to_remove = dg.devices_s.devices.load(
             name=device_name, partition=self.partition

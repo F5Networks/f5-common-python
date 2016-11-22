@@ -68,10 +68,10 @@ class TestPoolMembersCollection(object):
             selfLinks.append(mem.selfLink)
             mem.delete()
             assert mem.__dict__ == {'deleted': True}
-        assert selfLinks[0] == u'https://localhost/mgmt/tm/ltm/pool/' +\
+        assert selfLinks[0] == 'https://localhost/mgmt/tm/ltm/pool/' +\
             '~Common~membertestpool1/members/~Common~192.168.15.15:80' +\
             '?ver='+opt_release
-        assert selfLinks[1] == u'https://localhost/mgmt/tm/ltm/pool/' +\
+        assert selfLinks[1] == 'https://localhost/mgmt/tm/ltm/pool/' +\
             '~Common~membertestpool1/members/~Common~192.168.16.16:8080' +\
             '?ver='+opt_release
         try:

@@ -43,7 +43,6 @@ Methods:
                   itself.
 
 '''
-from __future__ import print_function
 from six import iteritems
 
 from f5.multi_device.exceptions import DeviceAlreadyInTrustDomain
@@ -253,7 +252,6 @@ class TrustDomain(object):
         '''
 
         trustee_info = pollster(get_device_info)(trustee)
-        print('Adding following peer to root: %s' % trustee_info.name)
         username = trustee._meta_data['username']
         password = trustee._meta_data['password']
         return 'tmsh::modify cm trust-domain Root ca-devices add ' \

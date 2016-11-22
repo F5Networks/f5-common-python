@@ -317,7 +317,7 @@ class PathElement(LazyAttributeMixin):
         if len(self._meta_data['exclusive_attributes']) > 0:
             attr_set = set(list(iterkeys(kwargs)))
             ex_set = set(self._meta_data['exclusive_attributes'][0])
-            common_set = attr_set.intersection(ex_set)
+            common_set = sorted(attr_set.intersection(ex_set))
             if len(common_set) > 1:
                 cset = ', '.join(common_set)
                 error = 'Mutually exclusive arguments submitted. ' \
@@ -888,6 +888,7 @@ class Resource(ResourceBase):
         rset = self._meta_data['required_load_parameters']
         check = _missing_required_parameters(rset, **kwargs)
         if check:
+            check.sort()
             error_message = 'Missing required params: %s' % check
             raise MissingRequiredReadParameter(error_message)
 

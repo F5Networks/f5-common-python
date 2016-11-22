@@ -56,8 +56,8 @@ def check_peer(request, bigip):
 class TestTrust(object):
     def test_run(self, request, bigip, peer):
         # Check sync state, assume standalone
-        assert check_sync(request, bigip) == u"Standalone"
-        assert check_sync(request, peer) == u"Standalone"
+        assert check_sync(request, bigip) == "Standalone"
+        assert check_sync(request, peer) == "Standalone"
 
         # Obtain peer information
         device1, devicename1 = check_peer(request, peer)
@@ -68,16 +68,16 @@ class TestTrust(object):
                   devicename1, 'admin', 'admin')
 
         # Verify sync state assume disconnected
-        assert check_sync(request, bigip) == u"Disconnected"
-        assert check_sync(request, peer) == u"Disconnected"
+        assert check_sync(request, bigip) == "Disconnected"
+        assert check_sync(request, peer) == "Disconnected"
 
         # Remove trust from both units
         unset_trust(request, bigip, 'Root', devicename1)
         unset_trust(request, peer, 'Root', devicename2)
 
         # Verify devices sync state is Standalone
-        assert check_sync(request, bigip) == u"Standalone"
-        assert check_sync(request, peer) == u"Standalone"
+        assert check_sync(request, bigip) == "Standalone"
+        assert check_sync(request, peer) == "Standalone"
 
     def test_invalid_cmd_meta(self, request, bigip):
         dvcs = bigip.cm

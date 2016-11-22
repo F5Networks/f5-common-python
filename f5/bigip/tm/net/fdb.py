@@ -50,7 +50,7 @@ class Tunnel(Resource):
         super(Tunnel, self).__init__(Tunnels)
         self._meta_data['template_generated'] = True
         self._meta_data['required_json_kind'] =\
-            u"tm:net:fdb:tunnel:tunnelstate"
+            "tm:net:fdb:tunnel:tunnelstate"
         self._meta_data['attribute_registry'] = {}
         # Setting this here to be explicit, even though it is set via
         # the super call from its containing object.
@@ -64,7 +64,7 @@ class Tunnels(Collection):
         super(Tunnels, self).__init__(fdb)
         self._meta_data['allowed_lazy_attributes'] = [Tunnel]
         self._meta_data['attribute_registry'] =\
-            {u'tm:net:fdb:tunnel:tunnelstate': Tunnel}
+            {'tm:net:fdb:tunnel:tunnelstate': Tunnel}
         self._meta_data['template_generated'] = True
         # Setting this here to be explicit, even though it is set via
         # the super call from its containing object.

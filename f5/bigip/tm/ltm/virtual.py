@@ -66,7 +66,7 @@ class Profiles(Resource):
         self._meta_data['required_load_parameters'].update(('partition',))
         self._meta_data['template_generated'] = True
         self._meta_data['required_json_kind'] =\
-            u"tm:ltm:virtual:profiles:profilesstate"
+            "tm:ltm:virtual:profiles:profilesstate"
         self._meta_data['attribute_registry'] =\
             {}
 
@@ -78,7 +78,7 @@ class Profiles_s(Collection):
         super(Profiles_s, self).__init__(virtual)
         self._meta_data['allowed_lazy_attributes'] = [Profiles]
         self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:virtual:profiles:profilesstate': Profiles}
+            {'tm:ltm:virtual:profiles:profilesstate': Profiles}
         self._meta_data['template_generated'] = True
 
 
@@ -91,7 +91,7 @@ class Policies(Resource, CheckExistenceMixin):
         self._meta_data['required_load_parameters'].update(('partition',))
         self._meta_data['template_generated'] = True
         self._meta_data['required_json_kind'] =\
-            u"tm:ltm:virtual:policies:policiesstate"
+            "tm:ltm:virtual:policies:policiesstate"
         self._meta_data['attribute_registry'] =\
             {}
 
@@ -119,5 +119,5 @@ class Policies_s(Collection):
         super(Policies_s, self).__init__(virtual)
         self._meta_data['allowed_lazy_attributes'] = [Policies]
         self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:virtual:policies:policiesstate': Policies}
+            {'tm:ltm:virtual:policies:policiesstate': Policies}
         self._meta_data['template_generated'] = True

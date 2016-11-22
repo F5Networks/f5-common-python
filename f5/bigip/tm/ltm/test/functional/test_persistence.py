@@ -18,20 +18,20 @@ def test_persist_universal_CURDLE(bigip, opt_release):
     u1 = bigip.ltm.persistence.universals.universal.create(
         partition="Common", name="UniversalTest")
     assert u1.selfLink ==\
-        u"https://localhost/mgmt/tm/ltm/persistence/universal/"\
+        "https://localhost/mgmt/tm/ltm/persistence/universal/"\
         "~Common~UniversalTest?ver="+opt_release
-    assert u1.timeout == u"180"
+    assert u1.timeout == "180"
     u1.timeout = 179
     u1.update()
-    assert u1.timeout == u"179"
+    assert u1.timeout == "179"
     u2 = bigip.ltm.persistence.universals.universal.load(
         partition="Common", name="UniversalTest")
-    u2.timeout = u"180"
+    u2.timeout = "180"
     u2.update()
     u1.refresh()
-    assert u1.timeout == u"180"
+    assert u1.timeout == "180"
     u1.delete()
-    assert u1.raw == {u"deleted": True}
+    assert u1.raw == {"deleted": True}
     assert u2.exists(partition="Common", name="UniversalTest") is False
 
 
@@ -39,18 +39,18 @@ def test_persist_cookie_CURDLE(bigip, opt_release):
     c1 = bigip.ltm.persistence.cookies.cookie.create(
         partition="Common", name="CookieTest")
     assert c1.selfLink ==\
-        u"https://localhost/mgmt/tm/ltm/persistence/cookie/"\
+        "https://localhost/mgmt/tm/ltm/persistence/cookie/"\
         "~Common~CookieTest?ver="+opt_release
-    assert c1.timeout == u"180"
+    assert c1.timeout == "180"
     c1.timeout = 179
     c1.update()
-    assert c1.timeout == u"179"
+    assert c1.timeout == "179"
     c2 = bigip.ltm.persistence.cookies.cookie.load(
         partition="Common", name="CookieTest")
-    c2.timeout = u"180"
+    c2.timeout = "180"
     c2.update()
     c1.refresh()
-    assert c1.timeout == u"180"
+    assert c1.timeout == "180"
     c1.delete()
-    assert c1.raw == {u"deleted": True}
+    assert c1.raw == {"deleted": True}
     assert c2.exists(partition="Common", name="CookieTest") is False

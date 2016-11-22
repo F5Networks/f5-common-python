@@ -101,9 +101,11 @@ class Policy(Resource):
         :raises: OperationNotSupportedOnPublishedPolicy
         '''
 
+        legacy = patch.pop('legacy', False)
         tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
         if 'Drafts' not in self._meta_data['uri'] and \
-                LooseVersion(tmos_ver) >= LooseVersion('12.1.0'):
+                LooseVersion(tmos_ver) >= LooseVersion('12.1.0') and \
+                not legacy:
             msg = 'Modify operation not allowed on a published policy.'
             raise OperationNotSupportedOnPublishedPolicy(msg)
         super(Policy, self)._modify(**patch)
@@ -115,9 +117,11 @@ class Policy(Resource):
         :raises: OperationNotSupportedOnPublishedPolicy
         '''
 
+        legacy = kwargs.pop('legacy', False)
         tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
         if 'Drafts' not in self._meta_data['uri'] and \
-                LooseVersion(tmos_ver) >= LooseVersion('12.1.0'):
+                LooseVersion(tmos_ver) >= LooseVersion('12.1.0') and \
+                not legacy:
             msg = 'Update operation not allowed on a published policy.'
             raise OperationNotSupportedOnPublishedPolicy(msg)
         super(Policy, self)._update(**kwargs)

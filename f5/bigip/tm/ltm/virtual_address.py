@@ -37,7 +37,7 @@ class Virtual_Address_s(Collection):
         super(Virtual_Address_s, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Virtual_Address]
         self._meta_data['attribute_registry'] =\
-            {u'tm:ltm:virtual-address:virtual-addressstate': Virtual_Address}
+            {'tm:ltm:virtual-address:virtual-addressstate': Virtual_Address}
         self._meta_data['template_generated'] = True
         self._meta_data['uri'] = self._meta_data['uri'].replace('_', '-')
 
@@ -49,6 +49,6 @@ class Virtual_Address(Resource):
         super(Virtual_Address, self).__init__(Virtual_Address_s)
         self._meta_data['template_generated'] = True
         self._meta_data['required_json_kind'] =\
-            u"tm:ltm:virtual-address:virtual-addressstate"
+            "tm:ltm:virtual-address:virtual-addressstate"
         self._meta_data['attribute_registry'] = {}
         self._meta_data['read_only_attributes'].append('address')
