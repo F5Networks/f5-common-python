@@ -131,6 +131,14 @@ class TestPolicy_legacy(object):
                                       'poltest1', legacy=False)
         assert pol1.name == 'poltest1'
 
+    def test_policy_update_modify_update(self, setup, request, mgmt_root):
+        pol1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
+                                      'poltest1', legacy=True)
+        pol1.update(legacy=True, rules=[])
+        pol1.update(legacy=False, rules=[])
+        pol1.modify(legacy=True, rules=[])
+        pol1.modify(legacy=False, rules=[])
+
     def test_policy_update_race(self, setup, request, mgmt_root):
         full_pol_dict = json.load(
             open(os.path.join(CURDIR, 'full_policy.json')))
@@ -321,3 +329,17 @@ class TestPolicy(object):
         pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest',
                                     subPath='Drafts')
         assert pol.rules_s.rules.exists(name='bad_rule') is False
+
+    def test_policy_update_modify_update(self, setup, request, mgmt_root):
+        pol1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
+                                      'poltest1', legacy=True)
+        pol1.update(legacy=True, rules=[])
+        pol1.modify(legacy=True, rules=[])
+        with pytest.raises(OperationNotSupportedOnPublishedPolicy) as ex1:
+            pol1.update(legacy=False, rules=[])
+        assert 'Update operation not allowed on a published policy.' in \
+            ex1.value.message
+        with pytest.raises(OperationNotSupportedOnPublishedPolicy) as ex2:
+            pol1.modify(legacy=False, rules=[])
+        assert 'Modify operation not allowed on a published policy.' in \
+            ex2.value.message
