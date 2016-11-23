@@ -28,6 +28,7 @@ REST Kind
 """
 
 from f5.bigip.resource import AsmResource
+from f5.bigip.resource import AsmTaskResource
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import UnsupportedOperation
@@ -56,35 +57,17 @@ class Check_Signatures_s(Collection):
                 Check_Signature}
 
 
-class Check_Signature(AsmResource):
+class Check_Signature(AsmTaskResource):
     """BIG-IP® ASM Tasks Check Signature Resource
 
 
         To create this resource on the ASM, one must utilize fetch() method
-        from AsmResource class, create() is not supported.
+        from AsmTaskResource class, create() is not supported.
     """
     def __init__(self, check_signatures_s):
         super(Check_Signature, self).__init__(check_signatures_s)
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:check-signatures:check-signatures-taskstate'
-
-    def create(self, **kwargs):
-        """Create is not supported for Check Signature resource
-
-                :raises: UnsupportedOperation
-        """
-        raise UnsupportedOperation(
-            "%s does not support the create method" % self.__class__.__name__
-        )
-
-    def modify(self, **kwargs):
-        """Modify is not supported for Check Signature resource
-
-                :raises: UnsupportedOperation
-        """
-        raise UnsupportedOperation(
-            "%s does not support the modify method" % self.__class__.__name__
-        )
 
 
 class Export_Signatures_s(Collection):
@@ -116,15 +99,6 @@ class Export_Signature(AsmResource):
             "%s does not support the modify method" % self.__class__.__name__
         )
 
-    def fetch(self):
-        """Fetch is not supported for Export Signature resource
-
-                :raises: UnsupportedOperation
-        """
-        raise UnsupportedOperation(
-            "%s does not support the create method" % self.__class__.__name__
-        )
-
 
 class Update_Signatures_s(Collection):
     """BIG-IP® ASM Tasks Update Signatures Collection."""
@@ -137,32 +111,14 @@ class Update_Signatures_s(Collection):
                 Update_Signature}
 
 
-class Update_Signature(AsmResource):
+class Update_Signature(AsmTaskResource):
     """BIG-IP® ASM Tasks Update Signature Resource resource
 
 
         To create this resource on the ASM, one must utilize fetch() method
-        from AsmResource class, create() is not supported.
+        from AsmTaskResource class, create() is not supported.
     """
     def __init__(self, update_signatures_s):
         super(Update_Signature, self).__init__(update_signatures_s)
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:update-signatures:update-signatures-taskstate'
-
-    def create(self, **kwargs):
-        """Create is not supported for Update Signature resource
-
-                :raises: UnsupportedOperation
-        """
-        raise UnsupportedOperation(
-            "%s does not support the create method" % self.__class__.__name__
-        )
-
-    def modify(self, **kwargs):
-        """Modify is not supported for Update Signature resource
-
-                :raises: UnsupportedOperation
-        """
-        raise UnsupportedOperation(
-            "%s does not support the modify method" % self.__class__.__name__
-        )
