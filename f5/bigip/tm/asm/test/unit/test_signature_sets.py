@@ -15,7 +15,6 @@
 
 from f5.bigip import ManagementRoot
 from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm.signature_sets import Signature_Set
 
 import mock

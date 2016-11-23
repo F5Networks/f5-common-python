@@ -17,7 +17,6 @@
 
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
-from f5.bigip.resource import UnsupportedOperation
 
 
 class Signatures_s(Collection):
