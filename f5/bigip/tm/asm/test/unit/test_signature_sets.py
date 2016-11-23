@@ -32,9 +32,6 @@ def FakeSignatureSet():
 
 
 class TestCheckSignature(object):
-    def test_fetch_raises(self, FakeSignatureSet):
-        with pytest.raises(UnsupportedOperation):
-            FakeSignatureSet.fetch()
 
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')

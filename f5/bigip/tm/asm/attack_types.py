@@ -46,15 +46,6 @@ class Attack_Type(AsmResource):
             "%s does not support the create method" % self.__class__.__name__
         )
 
-    def fetch(self, **kwargs):
-        """Fetch is not supported for Attack Type resource
-
-                :raises: UnsupportedOperation
-        """
-        raise UnsupportedOperation(
-            "%s does not support the fetch method" % self.__class__.__name__
-        )
-
     def delete(self, **kwargs):
         """Delete is not supported for Attack Type resource
 

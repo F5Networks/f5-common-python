@@ -42,12 +42,3 @@ class Signature_Set(AsmResource):
         super(Signature_Set, self).__init__(signature_sets_s)
         self._meta_data['required_json_kind'] = \
             'tm:asm:signature-sets:signature-setstate'
-
-    def fetch(self, **kwargs):
-        """Fetch is not supported for Signature Set resource
-
-                :raises: UnsupportedOperation
-        """
-        raise UnsupportedOperation(
-            "%s does not support the create method" % self.__class__.__name__
-        )

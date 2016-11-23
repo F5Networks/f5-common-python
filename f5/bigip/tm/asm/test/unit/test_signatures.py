@@ -32,9 +32,6 @@ def FakeSignature():
 
 
 class TestExportSignature(object):
-    def test_fetch_raises(self, FakeSignature):
-        with pytest.raises(UnsupportedOperation):
-            FakeSignature.fetch()
 
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')

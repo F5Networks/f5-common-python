@@ -81,10 +81,6 @@ class TestCheckSignature(object):
 
 
 class TestExportSignature(object):
-    def test_fetch_raises(self, FakeExportSignature):
-        with pytest.raises(UnsupportedOperation):
-            FakeExportSignature.fetch()
-
     def test_modify_raises(self, FakeExportSignature):
         with pytest.raises(UnsupportedOperation):
             FakeExportSignature.modify()
