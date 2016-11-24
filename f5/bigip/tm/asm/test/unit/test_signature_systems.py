@@ -40,12 +40,6 @@ class TestSignatureCreate(object):
             FakeSignatureSystem.create()
 
 
-class TestSignatureFetch(object):
-    def test_update_raises(self, FakeSignatureSystem):
-        with pytest.raises(UnsupportedOperation):
-            FakeSignatureSystem.fetch()
-
-
 class TestSignatureDelete(object):
     def test_update_raises(self, FakeSignatureSystem):
         with pytest.raises(UnsupportedOperation):

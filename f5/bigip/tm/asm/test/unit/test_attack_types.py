@@ -43,10 +43,6 @@ class TestAttackSignatures(object):
         with pytest.raises(UnsupportedOperation):
             FakeAttackTypes.delete()
 
-    def test_fetch_raises(self, FakeAttackTypes):
-        with pytest.raises(UnsupportedOperation):
-            FakeAttackTypes.fetch()
-
     def test_collection(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         t = b.tm.asm.attack_types_s
