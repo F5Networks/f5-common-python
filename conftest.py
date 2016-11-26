@@ -43,6 +43,8 @@ def pytest_addoption(parser):
                      default="admin")
     parser.addoption("--port", action="store", help="BIG-IP port",
                      default=443)
+    parser.addoption("--token", action="store_true",
+                     help="Token Authentication")
     parser.addoption("--peer", action="store",
                      help="Peer BIG-IP hostname or IP address", default='none')
     parser.addoption("--release", action="store",
@@ -127,6 +129,11 @@ def opt_port(request):
 
 
 @pytest.fixture(scope='session')
+def opt_token(request):
+    return request.config.getoption("--token")
+
+
+@pytest.fixture(scope='session')
 def opt_vcmp_host(request):
     return request.config.getoption("--vcmp-host")
 
@@ -139,9 +146,11 @@ def bigip(opt_bigip, opt_username, opt_password, opt_port, scope="module"):
 
 
 @pytest.fixture(scope='module')
-def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, scope="module"):
+def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, opt_token,
+              scope="module"):
     '''bigip fixture'''
-    m = ManagementRoot(opt_bigip, opt_username, opt_password, port=opt_port)
+    m = ManagementRoot(opt_bigip, opt_username, opt_password, port=opt_port,
+                       token=opt_token)
     return m
 
 
