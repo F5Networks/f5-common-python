@@ -41,6 +41,7 @@
                     "external": true,
                     "httpHeader": true,
                     "index": 0,
+                    "not_": true,
                     "tmName": "X-HEADER",
                     "present": true,
                     "remote": true,

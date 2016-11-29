@@ -88,6 +88,7 @@ Available Classes:
       and supports a customized 'load' that doesn't require name/partition
       parameters.
 """
+import copy
 import keyword
 import re
 import tokenize
@@ -392,6 +393,7 @@ class ResourceBase(PathElement, ToDictMixin):
                 % read_only_mutations
             raise AttemptedMutationOfReadOnly(msg)
 
+        patch = self._check_for_python_keywords(patch)
         response = session.patch(patch_uri, json=patch, **requests_params)
         self._local_update(response.json())
 
@@ -419,14 +421,43 @@ class ResourceBase(PathElement, ToDictMixin):
         read_only = self._meta_data.get('read_only_attributes', [])
         return requests_params, update_uri, session, read_only
 
+    def _iter_list_for_dicts(self, check_list):
+        '''Iterate over list to find dicts and check for python keywords.'''
+
+        list_copy = copy.deepcopy(check_list)
+        for index, elem in enumerate(check_list):
+            if isinstance(elem, dict):
+                list_copy[index] = self._check_for_python_keywords(elem)
+            elif isinstance(elem, list):
+                list_copy[index] = self._iter_list_for_dicts(elem)
+            else:
+                list_copy[index] = elem
+        return list_copy
+
+    def _check_for_python_keywords(self, kwargs):
+        '''When Python keywords seen, mutate to remove trailing underscore.'''
+
+        kwargs_copy = copy.deepcopy(kwargs)
+        for key, val in kwargs.iteritems():
+            if isinstance(val, dict):
+                kwargs_copy[key] = self._check_for_python_keywords(val)
+            elif isinstance(val, list):
+                kwargs_copy[key] = self._iter_list_for_dicts(val)
+            else:
+                if key.endswith('_'):
+                    strip_key = key.rstrip('_')
+                    if keyword.iskeyword(strip_key):
+                        kwargs_copy[strip_key] = val
+                        kwargs_copy.pop(key)
+        return kwargs_copy
+
     def _check_keys(self, rdict):
         """Call this from _local_update to validate response keys
 
         disallowed server-response json keys:
         1. The string-literal '_meta_data'
         2. strings that are not valid Python 2.7 identifiers
-        3. strings that are Python keywords
-        4. strings beginning with '__'.
+        3. strings beginning with '__'.
 
         :param rdict: from response.json()
         :raises: DeviceProvidesIncompatibleKey
@@ -442,9 +473,9 @@ class ResourceBase(PathElement, ToDictMixin):
                     " because it's not a valid Python 2.7 identifier." % x
                 raise DeviceProvidesIncompatibleKey(error_message)
             elif keyword.iskeyword(x):
-                error_message = "Device provided %r which is disallowed"\
-                    " because it's a Python keyword." % x
-                raise DeviceProvidesIncompatibleKey(error_message)
+                # If attribute is keyword, append underscore to attribute name
+                rdict[x + '_'] = rdict[x]
+                rdict.pop(x)
             elif x.startswith('__'):
                 error_message = "Device provided %r which is disallowed"\
                     ", it mangles into a Python non-public attribute." % x
@@ -508,6 +539,7 @@ class ResourceBase(PathElement, ToDictMixin):
             data_dict.pop(attr, '')
 
         data_dict.update(kwargs)
+        data_dict = self._check_for_python_keywords(data_dict)
 
         # This is necessary as when we receive exception the returned object
         # has its _meta_data stripped.
@@ -843,6 +875,7 @@ class Resource(ResourceBase):
         _create_uri = self._meta_data['container']._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
 
+        kwargs = self._check_for_python_keywords(kwargs)
         # Invoke the REST operation on the device.
         response = session.post(_create_uri, json=kwargs, **requests_params)
 
@@ -907,6 +940,7 @@ class Resource(ResourceBase):
         kwargs.update(requests_params)
         for key1, key2 in self._meta_data['reduction_forcing_pairs']:
             kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
+        kwargs = self._check_for_python_keywords(kwargs)
         response = refresh_session.get(base_uri, **kwargs)
         # Make new instance of self
         return self._produce_instance(response)
@@ -988,6 +1022,8 @@ class Resource(ResourceBase):
         session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
         kwargs.update(requests_params)
+        kwargs = self._check_for_python_keywords(kwargs)
+
         try:
             session.get(base_uri, **kwargs)
         except HTTPError as err:

@@ -143,15 +143,40 @@ def test_Resource__local_update_IncompatibleKeys():
         "Device provided '__MANGLENAME' which is disallowed,"\
         " it mangles into a Python non-public attribute."
     with pytest.raises(DeviceProvidesIncompatibleKey) as DPIKIO:
-        r._local_update({"for": "foo"})
-    assert str(DPIKIO.value) ==\
-        "Device provided 'for' which is disallowed because"\
-        " it's a Python keyword."
-    with pytest.raises(DeviceProvidesIncompatibleKey) as DPIKIO:
         r._local_update({"%abcd": "foo"})
     assert str(DPIKIO.value) ==\
         "Device provided '%abcd' which is disallowed because"\
         " it's not a valid Python 2.7 identifier."
+
+
+def test_Resource__check_keys_python_keyword():
+    r = Resource(mock.MagicMock())
+    sanitized = r._check_keys({'for': 'test', 'not': 'yep'})
+    assert 'for_' in sanitized
+    assert 'not_' in sanitized
+    assert 'not' not in sanitized
+    assert 'for' not in sanitized
+
+
+def test_Resource__check_for_python_keywords():
+    r = Resource(mock.MagicMock())
+    checked = r._check_for_python_keywords({'for_': 1, 'if_': True})
+    assert 'for' in checked
+    assert 'if' in checked
+    assert 'for_' not in checked
+    assert 'if_' not in checked
+
+
+def test_Resource__check_for_python_keywords_recursive():
+    r = Resource(mock.MagicMock())
+    checked = r._check_for_python_keywords(
+        {'for_': 1, 'test': {'if_': False},
+         't': [{'not_': False}, [{'def_': 1}]]})
+    print(checked)
+    assert 'for' in checked
+    assert 'if' in checked['test']
+    assert 'not' in checked['t'][0]
+    assert 'def' in checked['t'][1][0]
 
 
 def test_Resource__local_update(fake_vs):
@@ -695,7 +720,7 @@ class TestResource_exists(object):
         assert r.exists(partition='Common', name='test_exists')
 
     def test_not_found(self):
-        r = Resource(mock.MagicMock())
+        r = Resource(mock.MagicMock(name='mock_base'))
         r._meta_data['allowed_lazy_attributes'] = []
         response = requests.Response()
         response.status_code = 404
@@ -705,6 +730,7 @@ class TestResource_exists(object):
             'icr_session': mock_session,
             'hostname': 'TESTDOMAINNAME'
         }
+        r._meta_data['icontrol_version'] = '11.6.0'
         assert not r.exists(partition='Common', name='test_exists')
 
     def test_error(self):
@@ -712,12 +738,13 @@ class TestResource_exists(object):
         response.status_code = 400
         mock_session = mock.MagicMock()
         mock_session.get.side_effect = requests.HTTPError(response=response)
-        r = Resource(mock.MagicMock())
+        r = Resource(mock.MagicMock(name='mock_base'))
         r._meta_data['allowed_lazy_attributes'] = []
         r._meta_data['bigip']._meta_data = {
             'icr_session': mock_session,
             'hostname': 'TESTDOMAINNAME'
         }
+        r._meta_data['icontrol_version'] = '12.1.0'
         with pytest.raises(requests.HTTPError) as err:
             r.exists(partition='Common', name='test_exists')
             assert err.response.status_code == 400
@@ -883,6 +910,7 @@ class TestStats(object):
     def test_load(self):
         r = Virtual(mock.MagicMock())
         r._meta_data['allowed_lazy_attributes'] = []
+        r._meta_data['icontrol_version'] = '12.0.0'
         attrs = {'get.side_effect':
                  [MockResponse(
                      {
