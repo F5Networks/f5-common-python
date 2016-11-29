@@ -88,6 +88,10 @@ Available Classes:
       and supports a customized 'load' that doesn't require name/partition
       parameters.
 """
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 import copy
 import keyword
 import re
@@ -383,7 +387,6 @@ class ResourceBase(PathElement, ToDictMixin):
         requests_params, patch_uri, session, read_only = \
             self._prepare_put_or_patch(patch)
         self._check_for_boolean_pair_reduction(patch)
-
         read_only_mutations = []
         for attr in read_only:
             if attr in patch:
@@ -393,7 +396,7 @@ class ResourceBase(PathElement, ToDictMixin):
                 % read_only_mutations
             raise AttemptedMutationOfReadOnly(msg)
 
-        patch = self._check_for_python_keywords(patch)
+        patch = self._prepare_request_json(patch)
         response = session.patch(patch_uri, json=patch, **requests_params)
         self._local_update(response.json())
 
@@ -420,6 +423,21 @@ class ResourceBase(PathElement, ToDictMixin):
         session = self._meta_data['bigip']._meta_data['icr_session']
         read_only = self._meta_data.get('read_only_attributes', [])
         return requests_params, update_uri, session, read_only
+
+    def _prepare_request_json(self, kwargs):
+        '''Prepare request args for sending to device as JSON.'''
+
+        # Check for python keywords in dict
+        kwargs = self._check_for_python_keywords(kwargs)
+
+        # Check for the key 'check' in kwargs
+        if 'check' in kwargs:
+            od = OrderedDict()
+            od['check'] = kwargs['check']
+            kwargs.pop('check')
+            od.update(kwargs)
+            return od
+        return kwargs
 
     def _iter_list_for_dicts(self, check_list):
         '''Iterate over list to find dicts and check for python keywords.'''
@@ -539,7 +557,7 @@ class ResourceBase(PathElement, ToDictMixin):
             data_dict.pop(attr, '')
 
         data_dict.update(kwargs)
-        data_dict = self._check_for_python_keywords(data_dict)
+        data_dict = self._prepare_request_json(data_dict)
 
         # This is necessary as when we receive exception the returned object
         # has its _meta_data stripped.
@@ -866,6 +884,7 @@ class Resource(ResourceBase):
         self._check_exclusive_parameters(**kwargs)
         requests_params = self._handle_requests_params(kwargs)
         self._check_create_parameters(**kwargs)
+        kwargs = self._check_for_python_keywords(kwargs)
 
         # Reduce boolean pairs as specified by the meta_data entry below
         for key1, key2 in self._meta_data['reduction_forcing_pairs']:
@@ -875,7 +894,8 @@ class Resource(ResourceBase):
         _create_uri = self._meta_data['container']._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
 
-        kwargs = self._check_for_python_keywords(kwargs)
+        kwargs = self._prepare_request_json(kwargs)
+
         # Invoke the REST operation on the device.
         response = session.post(_create_uri, json=kwargs, **requests_params)
 
@@ -1022,7 +1042,6 @@ class Resource(ResourceBase):
         session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
         kwargs.update(requests_params)
-        kwargs = self._check_for_python_keywords(kwargs)
 
         try:
             session.get(base_uri, **kwargs)

@@ -12,6 +12,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+try:
+        from collections import OrderedDict
+except ImportError:
+        from ordereddict import OrderedDict
 import mock
 import pytest
 import requests
@@ -172,11 +176,19 @@ def test_Resource__check_for_python_keywords_recursive():
     checked = r._check_for_python_keywords(
         {'for_': 1, 'test': {'if_': False},
          't': [{'not_': False}, [{'def_': 1}]]})
-    print(checked)
     assert 'for' in checked
     assert 'if' in checked['test']
     assert 'not' in checked['t'][0]
     assert 'def' in checked['t'][1][0]
+
+
+def test_Resource__prepare_request_json():
+    r = Resource(mock.MagicMock(name='test'))
+    kwargs = {'name': 'rule1', 'partition': 'Common',
+              'apiAnonymous': 'test', 'check': 'syntax'}
+    prepped = r._prepare_request_json(kwargs)
+    assert prepped == kwargs
+    assert isinstance(prepped, OrderedDict)
 
 
 def test_Resource__local_update(fake_vs):

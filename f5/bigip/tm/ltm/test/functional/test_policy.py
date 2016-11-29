@@ -398,9 +398,17 @@ def test_policy_condition_python_keyword_get_collection(
     rule = pol.rules_s.rules.load(name='test_rule')
     cond = rule.conditions_s.conditions.load(name='0')
     assert cond.not_ is True
-    rules = pol.rules_s.get_collection()
-    for r in rules:
-        if r.name == '0':
-            assert r.not_ is True
+    conds = rule.conditions_s.get_collection()
+    for cond in conds:
+        if cond.name == '0':
+            assert cond.not_ is True
         else:
-            assert not hasattr(r, 'not_')
+            assert not hasattr(cond, 'not_')
+    # Let's modify one of the conditions that doesn't have not as True
+    c2 = rule.conditions_s.conditions.load(name='1')
+    assert not hasattr(c2, 'not_')
+    c2.modify(not_=True)
+    c2.refresh()
+    assert c2.not_ is True
+    backup_c2 = rule.conditions_s.conditions.load(name='1')
+    assert backup_c2.not_ is True
