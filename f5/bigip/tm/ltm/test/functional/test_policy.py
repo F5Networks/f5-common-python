@@ -343,3 +343,72 @@ class TestPolicy(object):
             pol1.modify(legacy=False, rules=[])
         assert 'Modify operation not allowed on a published policy.' in \
             ex2.value.message
+
+
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) <= LooseVersion('12.1.1'),
+    reason='Bug exists where not attr is not honored from request.'
+)
+def test_policy_condition_python_keyword(setup, request, mgmt_root):
+    full_pol_dict = json.load(
+        open(os.path.join(CURDIR, 'full_policy.json')))
+    empty_pol_dict = copy.deepcopy(full_pol_dict)
+    empty_pol_dict['rules'] = []
+    pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest')
+    # Start out with an empty policy (no rules)
+    pol.refresh()
+    assert pol.rules_s.rules.exists(name='test_rule') is False
+    assert list(pol.rules_s.get_collection()) == []
+    # Update policy to have rules, which have conditions and actions
+    pol.update(**full_pol_dict)
+    rule = pol.rules_s.rules.load(name='test_rule')
+    cond = rule.conditions_s.conditions.load(name='0')
+    assert cond.not_ is True
+    # The following operation does not make any change to the
+    # specified rule. This has been verified on 11.6.0, 11.6.1, and 12.1.1
+    # This test will be skipped since this bug still exists on those
+    # versions
+    cond.not_ = False
+    cond.update()
+    # When not is False, it is not included in response from device
+    assert hasattr(cond, 'not_') is False
+    cond.modify(not_=True)
+    assert cond.not_ is True
+
+
+def test_policy_condition_python_keyword_get_collection(
+        setup, request, mgmt_root):
+    full_pol_dict = json.load(
+        open(os.path.join(CURDIR, 'full_policy.json')))
+    empty_pol_dict = copy.deepcopy(full_pol_dict)
+    empty_pol_dict['rules'] = []
+    # Because of the legacy keyword, this will work on all supported versions
+    # If it is present on a version that does not support legacy, the keyword
+    # will be evicted from the request.
+    pol, pc = setup_policy_test(
+        request, mgmt_root, 'Common', 'racetest', legacy=True)
+    # Start out with an empty policy (no rules)
+    pol.refresh()
+    assert pol.rules_s.rules.exists(name='test_rule') is False
+    assert list(pol.rules_s.get_collection()) == []
+    # Update policy to have rules, which have conditions and actions
+    pol.update(legacy=True, **full_pol_dict)
+    rule = pol.rules_s.rules.load(name='test_rule')
+    cond = rule.conditions_s.conditions.load(name='0')
+    assert cond.not_ is True
+    conds = rule.conditions_s.get_collection()
+    for cond in conds:
+        if cond.name == '0':
+            assert cond.not_ is True
+        else:
+            assert not hasattr(cond, 'not_')
+    # Let's modify one of the conditions that doesn't have not as True
+    c2 = rule.conditions_s.conditions.load(name='1')
+    assert not hasattr(c2, 'not_')
+    c2.modify(not_=True)
+    c2.refresh()
+    assert c2.not_ is True
+    backup_c2 = rule.conditions_s.conditions.load(name='1')
+    assert backup_c2.not_ is True

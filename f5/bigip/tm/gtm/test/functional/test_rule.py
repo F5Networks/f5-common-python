@@ -96,6 +96,22 @@ class TestCreate(object):
         )
         assert 'check syntax' in rule1.apiAnonymous
 
+    def test_create_optional_args_bad_order(self, request, mgmt_root):
+        '''The device requires the check key to be before apiAnonymous.
+
+        Apparently order matters against the device when it comes to
+        the check key value and the apiAnonymous key value in the JSON blob.
+        This test is to ensure we at least try for a different ordering.
+        '''
+
+        setup_create_test(request, mgmt_root, 'rule1', 'Common')
+
+        rule1 = mgmt_root.tm.gtm.rules.rule.create(
+            name='rule1', check='syntax', partition='Common',
+            apiAnonymous=RULE
+        )
+        assert 'check syntax' in rule1.apiAnonymous
+
     def test_create_duplicate(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, 'rule1', 'Common')
         rule1 = mgmt_root.tm.gtm.rules.rule
