@@ -56,15 +56,6 @@ class Signature_System(AsmResource):
             "%s does not support the modify method" % self.__class__.__name__
         )
 
-    def fetch(self):
-        """Fetch is not supported for Signature System resource
-
-                :raises: UnsupportedOperation
-        """
-        raise UnsupportedOperation(
-            "%s does not support the fetch method" % self.__class__.__name__
-        )
-
     def delete(self):
         """Delete is not supported for Signature System resource
 

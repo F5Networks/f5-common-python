@@ -15,7 +15,6 @@
 
 from f5.bigip import ManagementRoot
 from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm.signature_sets import Signature_Set
 
 import mock
@@ -32,9 +31,6 @@ def FakeSignatureSet():
 
 
 class TestCheckSignature(object):
-    def test_fetch_raises(self, FakeSignatureSet):
-        with pytest.raises(UnsupportedOperation):
-            FakeSignatureSet.fetch()
 
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')

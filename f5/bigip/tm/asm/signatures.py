@@ -17,7 +17,6 @@
 
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
-from f5.bigip.resource import UnsupportedOperation
 
 
 class Signatures_s(Collection):
@@ -43,12 +42,3 @@ class Signature(AsmResource):
             'tm:asm:signatures:signaturestate'
         self._meta_data['required_creation_parameters'].update(
             ('attackTypeReference', 'rule'))
-
-    def fetch(self):
-        """Fetch is not supported for Signature resource
-
-                :raises: UnsupportedOperation
-        """
-        raise UnsupportedOperation(
-            "%s does not support the create method" % self.__class__.__name__
-        )

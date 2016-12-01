@@ -43,10 +43,6 @@ class TestCheckSignature(object):
         with pytest.raises(UnsupportedOperation):
             FakeSignatureStatuses.delete()
 
-    def test_fetch_raises(self, FakeSignatureStatuses):
-        with pytest.raises(UnsupportedOperation):
-            FakeSignatureStatuses.fetch()
-
     def test_collection(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         t = b.tm.asm.signature_statuses_s

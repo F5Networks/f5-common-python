@@ -168,6 +168,8 @@ def test_policies(policy_setup, virtual_setup, setup_device_snapshot):
     vs_pol = v1.policies_s.policies.create(name='pol', partition='Common')
     loaded_pol = v1.policies_s.policies.load(name='pol', partition='Common')
     assert vs_pol.name == pol.name == loaded_pol.name
+    pc = list(v1.policies_s.get_collection())
+    assert len(pc) == 1
     vs_pol.delete()
     v1.refresh()
     # Bump to check the below call
