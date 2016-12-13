@@ -13,8 +13,6 @@
 # limitations under the License.
 #
 
-from f5.bigip import BigIP
-from f5.bigip import ManagementRoot
 from f5.bigip.resource import UnsupportedOperation
 from f5.utils.testutils.registrytools import register_device
 from icontrol.session import iControlRESTSession
@@ -139,30 +137,6 @@ def opt_vcmp_host(request):
 
 
 @pytest.fixture(scope='session')
-def bigip(opt_bigip, opt_username, opt_password, opt_port, scope="module"):
-    '''bigip fixture'''
-    b = BigIP(opt_bigip, opt_username, opt_password, port=opt_port)
-    return b
-
-
-@pytest.fixture(scope='module')
-def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, opt_token,
-              scope="module"):
-    '''bigip fixture'''
-    m = ManagementRoot(opt_bigip, opt_username, opt_password, port=opt_port,
-                       token=opt_token)
-    return m
-
-
-@pytest.fixture(scope='module')
-def vcmp_host(opt_vcmp_host, opt_username, opt_password, opt_port):
-    '''vcmp fixture'''
-    m = ManagementRoot(
-        opt_vcmp_host, opt_username, opt_password, port=opt_port)
-    return m
-
-
-@pytest.fixture(scope='session')
 def opt_release(request):
     return request.config.getoption("--release")
 
@@ -170,13 +144,6 @@ def opt_release(request):
 @pytest.fixture
 def opt_peer(request):
     return request.config.getoption("--peer")
-
-
-@pytest.fixture
-def peer(opt_peer, opt_username, opt_password, scope="module"):
-    '''peer bigip fixture'''
-    p = BigIP(opt_peer, opt_username, opt_password)
-    return p
 
 
 @pytest.fixture
