@@ -31,9 +31,11 @@ class TestInterfaces(object):
             assert ifc.generation
 
 
-@pytest.skip('A known issue with generation number.'
-             'See: https://github.com/F5Networks/f5-common-python/issues/334')
 class TestInterface(object):
+    @pytest.mark.skip(
+        'A known issue with generation number. '
+        'See: https://github.com/F5Networks/f5-common-python/issues/334'
+    )
     def test_RUL(self, request, bigip):
         cleanup_test(request, bigip)
         # We can't create or delete interfaces so we will load them to start

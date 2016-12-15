@@ -14,16 +14,13 @@ before_install:
   - git config --global user.name "Travis F5 Openstack"
   - git fetch --depth=100
 install:
-  - pip install hacking pytest pytest-cov tox
+  - pip install tox
   - pip install -r requirements.test.txt
   - pip install -r requirements.docs.txt
 script:
   - tox -e flake
   - tox -e unit
   - python setup.py sdist
-  - cd docs
-  - make html
-  - cd ../
   - ${DIST_REPO}/scripts/package.sh "redhat" "7"
   - ${DIST_REPO}/scripts/package.sh "ubuntu" "14.04"
   - sudo chown -R travis:travis ${DIST_REPO}/rpms/build
