@@ -31,7 +31,6 @@ def FakeSignature():
 
 
 class TestExportSignature(object):
-
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         t1 = b.tm.asm.signatures_s.signature

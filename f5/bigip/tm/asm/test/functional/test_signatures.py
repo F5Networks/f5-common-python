@@ -153,7 +153,7 @@ class TestSignature(object):
 
 
 class TestSignaturesCollection(object):
-    def test_server_collection(self, request, mgmt_root):
+    def test_signature_collection(self, request, mgmt_root):
         # As ASM has predefined items, there is no need to create one
         # However this test might be an issue as the returned json is quite
         # large.
