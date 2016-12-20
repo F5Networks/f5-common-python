@@ -30,6 +30,7 @@ REST Kind
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.asm.attack_types import Attack_Types_s
 from f5.bigip.tm.asm.file_transfer import File_Transfer
+from f5.bigip.tm.asm.policies import Policies_s
 from f5.bigip.tm.asm.signature_sets import Signature_Sets_s
 from f5.bigip.tm.asm.signature_statuses import Signature_Statuses_s
 from f5.bigip.tm.asm.signature_systems import Signature_Systems_s
@@ -49,6 +50,7 @@ class Asm(OrganizingCollection):
         self._meta_data['allowed_lazy_attributes'] = [
             Attack_Types_s,
             File_Transfer,
+            Policies_s,
             Signature_Sets_s,
             Signature_Statuses_s,
             Signature_Systems_s,
