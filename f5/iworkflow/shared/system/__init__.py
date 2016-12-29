@@ -16,15 +16,13 @@
 #
 
 from f5.iworkflow.resource import OrganizingCollection
-from f5.iworkflow.shared.identified_devices import Identified_Devices
-from f5.iworkflow.shared.system import System
+from f5.iworkflow.shared.system.setup import Setup
 
 
-class Shared(OrganizingCollection):
+class System(OrganizingCollection):
     """An organizing collection for shared resources."""
     def __init__(self, iworkflow):
-        super(Shared, self).__init__(iworkflow)
+        super(System, self).__init__(iworkflow)
         self._meta_data['allowed_lazy_attributes'] = [
-            Identified_Devices,
-            System
+            Setup
         ]
