@@ -16,16 +16,13 @@
 #
 """Classes and functions for configuring iWorkflow"""
 
-from f5.iworkflow.cm.cloud import Cloud
-from f5.iworkflow.cm.shared import Shared
+from f5.iworkflow.cm.cloud.connectors.local import Locals
 from f5.iworkflow.resource import OrganizingCollection
 
 
-class Cm(OrganizingCollection):
-    """An organizing collection for CM resources."""
-    def __init__(self, iworkflow):
-        super(Cm, self).__init__(iworkflow)
+class Connectors(OrganizingCollection):
+    def __init__(self, cloud):
+        super(Connectors, self).__init__(cloud)
         self._meta_data['allowed_lazy_attributes'] = [
-            Cloud,
-            Shared
+            Locals
         ]
