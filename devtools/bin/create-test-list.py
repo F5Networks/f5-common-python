@@ -20,6 +20,7 @@ for non-*.py files
 import subprocess
 import os
 import sys
+import argparse
 
 
 def examine_python_rules(line):
@@ -50,12 +51,12 @@ def examine_non_python_rules(line):
         return line
 
 
-def determine_files_to_test(product):
+def determine_files_to_test(product, commit):
     results = []
     output_file = "pytest.{0}.jenkins.txt".format(product)
 
     p1 = subprocess.Popen(
-        ['git', '--no-pager', 'diff', '--name-only', 'origin/development', '$GIT_COMMIT'],
+        ['git', '--no-pager', 'diff', '--name-only', 'origin/development', commit],
         stdout=subprocess.PIPE,
     )
     p2 = subprocess.Popen(
@@ -91,5 +92,10 @@ def determine_files_to_test(product):
         fh.close()
 
 
-for product in ['iworkflow', 'bigip', 'bigiq']:
-    determine_files_to_test(product)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c','--commit', help='Git commit to check', required=True)
+    args = parser.parse_args()
+
+    for product in ['iworkflow', 'bigip', 'bigiq']:
+        determine_files_to_test(product, args.commit)
