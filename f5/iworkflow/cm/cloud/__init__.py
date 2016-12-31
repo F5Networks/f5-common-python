@@ -17,6 +17,7 @@
 """Classes and functions for configuring iWorkflow"""
 
 from f5.iworkflow.cm.cloud.connectors import Connectors
+from f5.iworkflow.cm.cloud.tenants import Tenants_s
 from f5.iworkflow.resource import OrganizingCollection
 
 
@@ -24,5 +25,6 @@ class Cloud(OrganizingCollection):
     def __init__(self, cm):
         super(Cloud, self).__init__(cm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Connectors
+            Connectors,
+            Tenants_s
         ]
