@@ -31,6 +31,7 @@ from f5.bigip.resource import PathElement
 from f5.bigip.tm.util.Bash import Bash
 from f5.bigip.tm.util.Clientssl_Ciphers import Clientssl_Ciphers
 from f5.bigip.tm.util.Dig import Dig
+from f5.bigip.tm.util.Get_Dossier import Get_Dossier
 from f5.bigip.tm.util.Qkview import Qkview
 from f5.bigip.tm.util.Serverssl_Ciphers import Serverssl_Ciphers
 from f5.bigip.tm.util.Unix_Ls import Unix_Ls
@@ -45,6 +46,7 @@ class Util(PathElement):
             Bash,
             Clientssl_Ciphers,
             Dig,
+            Get_Dossier,
             Qkview,
             Serverssl_Ciphers,
             Unix_Ls,
