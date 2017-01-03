@@ -15,18 +15,19 @@
 # limitations under the License.
 #
 
+"""iWorkflow® Resolver (shared) module
+
+REST URI
+    ``http://localhost/mgmt/shared/resolver/``
+"""
+
 from f5.iworkflow.resource import OrganizingCollection
-from f5.iworkflow.shared.identified_devices import Identified_Devices
-from f5.iworkflow.shared.resolver import Resolver
-from f5.iworkflow.shared.system import System
+from f5.iworkflow.shared.resolver.device_groups import Device_Groups
 
 
-class Shared(OrganizingCollection):
-    """An organizing collection for shared resources."""
-    def __init__(self, iworkflow):
-        super(Shared, self).__init__(iworkflow)
+class Resolver(OrganizingCollection):
+    def __init__(self, shared):
+        super(Resolver, self).__init__(shared)
         self._meta_data['allowed_lazy_attributes'] = [
-            Identified_Devices,
-            Resolver,
-            System
+            Device_Groups
         ]
