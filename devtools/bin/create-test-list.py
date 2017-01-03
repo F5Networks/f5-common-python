@@ -38,12 +38,11 @@ def examine_python_rules(line):
     elif fext == '.py' and os.path.exists(functional_test_file):
         return functional_test_file
     elif 'test/functional' in line and filename == '__init__.py':
-        print("Skipping {0} because it is not a test file".format(line))
-        return
+        print("  * Skipping {0} because it is not a test file".format(line))
     elif filename == '__init__.py' and not os.path.exists(functional_test_dir):
-        print("{0} does not have a side-band test directory!".format(line))
+        print("  * {0} does not have a side-band test directory!".format(line))
     else:
-        print("{0} did not match any rules!".format(line))
+        print("  * {0} did not match any rules!".format(line))
 
 
 def examine_non_python_rules(line):
@@ -60,34 +59,34 @@ def determine_files_to_test(product, commit):
         stdout=subprocess.PIPE,
     )
     p2 = subprocess.Popen(
-        ['egrep', '-v', "'(^requirements\.|^setup.py)'"],
+        ['egrep', '-v', '(^requirements\.|^setup.py)'],
         stdin=p1.stdout,
         stdout=subprocess.PIPE,
     )
     p3 = subprocess.Popen(
-        ['egrep', "'(^f5\/{0}\/)'".format(product)],
+        ['egrep', '(^f5\/{0}\/)'.format(product)],
         stdin=p2.stdout,
         stdout=subprocess.PIPE,
     )
-    p1.stdout.close()
-    p2.stdout.close()
     out, err = p3.communicate()
     out = out.splitlines()
     out = filter(None, out)
 
     if not out:
-        sys.exit(1)
+        return
 
     for line in out:
         fname, fext = os.path.splitext(line)
         if fext == '.py':
             result = examine_python_rules(line)
-            results.append(result)
+            if result:
+                results.append(result)
         else:
             result = examine_non_python_rules(line)
-            results.append(result)
+            if result:
+                results.append(result)
     if results:
-        fh = open(output_file, w)
+        fh = open(output_file, 'w')
         fh.writelines(results)
         fh.close()
 

@@ -15,18 +15,25 @@
 # limitations under the License.
 #
 
+"""iWorkflow® Device Groups (shared) module
+
+REST URI
+    ``http://localhost/mgmt/shared/resolver/device-groups``
+
+GUI Path
+    ``Device Management --> Inventory``
+
+REST Kind
+    N/A -- HTTP GET returns an error
+"""
+
 from f5.iworkflow.resource import OrganizingCollection
-from f5.iworkflow.shared.identified_devices import Identified_Devices
-from f5.iworkflow.shared.resolver import Resolver
-from f5.iworkflow.shared.system import System
+from f5.iworkflow.shared.resolver.device_groups.cm_cloud_managed_devices import Cm_Cloud_Managed_Devices  # NOQA
 
 
-class Shared(OrganizingCollection):
-    """An organizing collection for shared resources."""
-    def __init__(self, iworkflow):
-        super(Shared, self).__init__(iworkflow)
+class Device_Groups(OrganizingCollection):
+    def __init__(self, resolver):
+        super(Device_Groups, self).__init__(resolver)
         self._meta_data['allowed_lazy_attributes'] = [
-            Identified_Devices,
-            Resolver,
-            System
+            Cm_Cloud_Managed_Devices
         ]
