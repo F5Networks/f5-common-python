@@ -105,3 +105,37 @@ class TestSNAT(object):
         with pytest.raises(iControlUnexpectedHTTPError) as err:
             snat1.update()
             assert EXPECTED_ORIGINS_DELETION_MESSAGE in err.response.text
+
+
+class TestIssue863(object):
+    """Test Github issue 863
+
+    @see: https://github.com/F5Networks/f5-common-python/issues/863
+    """
+    def test_issue_resolution(self, request, mgmt_root):
+        name = 'issue863'
+        partition = 'Common'
+
+        def teardown():
+            delete_snat(mgmt_root, name, partition)
+        request.addfinalizer(teardown)
+
+        mgmt_root.tm.ltm.snats.snat.create(
+            name=name,
+            partition=partition,
+            description='this will not fail',
+            origins=('2.2.2.2', '3.3.3.3'),
+            translation='1.1.1.1'
+        )
+
+    def test_multiple_required_one_args(self, request, mgmt_root):
+        with pytest.raises(RequireOneOf) as err:
+            mgmt_root.tm.ltm.snats.snat.create(
+                name='test1',
+                partition='Common',
+                description='this will not fail',
+                origins=('2.2.2.2', '3.3.3.3'),
+                translation='1.1.1.1',
+                automap=True
+            )
+        assert "Creation requires one of" in str(err)

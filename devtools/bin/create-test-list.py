@@ -86,6 +86,7 @@ def determine_files_to_test(product, commit):
             if result:
                 results.append(result)
     if results:
+        results = set(results)
         fh = open(output_file, 'w')
         fh.writelines(results)
         fh.close()
