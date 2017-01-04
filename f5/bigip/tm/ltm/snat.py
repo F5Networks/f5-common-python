@@ -76,7 +76,7 @@ class Snat(Resource):
         query args, or hash fragments.
 
         The following is done prior to the POST
-        * Ensures that one of ``automap``, ``snatpool``, ``translastion``
+        * Ensures that one of ``automap``, ``snatpool``, ``translation``
           parameter is passed in.
 
         :param kwargs: All the key-values needed to create the resource
@@ -84,17 +84,16 @@ class Snat(Resource):
         uri-published resource.  The uri of the resource is part of the
         object's _meta_data.
         """
-        rcp = self._meta_data['required_creation_parameters']
-        required_singles = set(('automap', 'snatpool', 'translation'))
-        pre_req_len = len(list(iterkeys(kwargs)))
-        if len(rcp - required_singles) != (pre_req_len - 1):
-            error_message = 'Creation requires one of the provided k,v:\n'
-            for req_sing in required_singles:
-                try:
-                    req_val = kwargs.pop(req_sing)
-                except KeyError:
-                    req_val = ''
-                error_message = error_message + str(req_sing) + ', ' +\
-                    str(req_val) + '\n'
-            raise RequireOneOf(error_message)
-        return self._create(**kwargs)
+        required_one_of = ['automap', 'snatpool', 'translation']
+        has_any = [x for x in iterkeys(kwargs) if x in required_one_of]
+
+        # The rules for SNAT is that you must provide one, and only one,
+        # of the `required_one_of` values above.
+        if len(has_any) == 1:
+            return self._create(**kwargs)
+
+        raise RequireOneOf(
+            "Creation requires one of the provided {0}".format(
+                ', '.join(required_one_of)
+            )
+        )
