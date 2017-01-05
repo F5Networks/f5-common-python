@@ -19,8 +19,13 @@ for non-*.py files
 
 import subprocess
 import os
-import sys
+import shutil
 import argparse
+
+
+def cleanup_tox_directory():
+    if os.path.exists('.tox'):
+        shutil.rmtree('.tox')
 
 
 def examine_python_rules(line):
@@ -77,7 +82,10 @@ def determine_files_to_test(product, commit):
 
     for line in out:
         fname, fext = os.path.splitext(line)
-        if fext == '.py':
+        if line == 'setup.py':
+            cleanup_tox_directory()
+            results.append('f5/{0}'.format(product))
+        elif fext == '.py':
             result = examine_python_rules(line)
             if result:
                 results.append(result)
