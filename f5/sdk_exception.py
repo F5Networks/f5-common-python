@@ -29,3 +29,15 @@ class UnsupportedMethod(F5SDKError):
 class NodeStateModifyUnsupported(F5SDKError):
     '''Modify of node with state=unchecked is unsupported.'''
     pass
+
+
+class RequiredOneOf(F5SDKError):
+    def __init__(self, required_one_of):
+        errors = []
+        message = 'Creation requires one of the following lists of args {0}'
+        for require in required_one_of:
+            requires = ','.join(require)
+            error = '( {0} )'.format(requires)
+            errors.append(error)
+        msg = message.format(' or '.join(errors))
+        super(RequiredOneOf, self).__init__(msg)

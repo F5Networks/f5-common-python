@@ -14,9 +14,9 @@
 #
 
 import pytest
+import time
 
 from pytest import symbols
-from requests.exceptions import HTTPError
 
 
 MISSING_SYMBOLS_LICENSE = True
@@ -33,27 +33,74 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def delete_pool(mgmt_root, uuid):
-    try:
-        p = mgmt_root.cm.shared.licensing.pools_s.pool.load(uuid=uuid)
-    except HTTPError as err:
-        if err.response.status_code != 404:
-            raise
-        return
-    p.delete()
+def wait_for_state(obj, state):
+    for x in range(60):
+        obj.refresh()
+        if obj.state == state:
+            return
+        time.sleep(1)
 
 
-def setup_basic_test(request, mgmt_root, key):
-    def teardown():
-        delete_pool(mgmt_root, uuid)
+@pytest.fixture(scope="module")
+def pool(mgmt_root):
+    pool = mgmt_root.cm.shared.licensing.pools_s.pool.create(
+        baseRegKey=symbols.iwf_license_pool
+    )
+    wait_for_state(pool, 'LICENSED')
+    yield pool
+    pool.delete()
 
-    pool1 = mgmt_root.cm.shared.licensing.pools_s.pool.create(baseRegKey=key)
-    uuid = pool1.uuid
 
-    request.addfinalizer(teardown)
-    return pool1
+@pytest.fixture(scope="module")
+def managed_device(mgmt_root):
+    dg = mgmt_root.shared.resolver.device_groups
+    device = dg.cm_cloud_managed_devices.devices_s.device.create(
+        address="10.2.2.2",
+        userName="admin",
+        password="admin",
+        automaticallyUpdateFramework=False
+    )
+    wait_for_state(device, 'ACTIVE')
+    yield device
+    device.delete()
+
+
+@pytest.fixture
+def pools(mgmt_root):
+    pools = mgmt_root.cm.shared.licensing.pools_s.get_collection()
+    return pools
 
 
 class TestLicensePoolCollection(object):
-    def test_get_collection(self, request, mgmt_root, opt_release):
-        setup_basic_test(request, mgmt_root, symbols.iwf_license_pool)
+    def test_get_collection(self, pools):
+        assert len(pools) == 0
+
+
+class TestDeviceLicensing(object):
+    def test_license_managed_device(self, pool, managed_device):
+        """Test licensing a managed device
+
+        A managed device is one that iWorkflow has already discovered. To
+        license a managed device you need to supply the device's
+        deviceReference to the member's collection.
+
+        As part of adding the reference, iWorkflow should generate a uuid
+        for the entry in the member's collection.
+
+        :param pool:
+        :param managed_device:
+        :return:
+        """
+        member = pool.members_s.member.create(
+            deviceReference=dict(
+                link=managed_device.selfLink
+            )
+        )
+        wait_for_state(member, 'LICENSED')
+
+        try:
+            assert member.state == 'LICENSED'
+            assert managed_device.product == "BIG-IP"
+            assert managed_device.state == "ACTIVE"
+        finally:
+            member.delete()
