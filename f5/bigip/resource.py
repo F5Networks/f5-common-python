@@ -456,7 +456,7 @@ class ResourceBase(PathElement, ToDictMixin):
         '''When Python keywords seen, mutate to remove trailing underscore.'''
 
         kwargs_copy = copy.deepcopy(kwargs)
-        for key, val in kwargs.iteritems():
+        for key, val in iteritems(kwargs):
             if isinstance(val, dict):
                 kwargs_copy[key] = self._check_for_python_keywords(val)
             elif isinstance(val, list):
