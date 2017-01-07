@@ -15,25 +15,22 @@
 # limitations under the License.
 #
 
-"""
+"""BIG-IQ® License (shared) module
 
 REST URI
-    ``http://localhost/mgmt/shared/resolver/``
-
-GUI Path
-    ``Device Management --> Inventory``
+    ``http://localhost/mgmt/cm/shared/licensing/``
 
 REST Kind
     N/A -- HTTP GET returns an error
 """
 
+from f5.bigiq.cm.shared.licensing.pools import Pools_s
 from f5.bigiq.resource import OrganizingCollection
-from f5.bigiq.shared.resolver import Resolver
 
 
-class Shared(OrganizingCollection):
-    def __init__(self, bigiq):
-        super(Shared, self).__init__(bigiq)
+class Licensing(OrganizingCollection):
+    def __init__(self, shared):
+        super(Licensing, self).__init__(shared)
         self._meta_data['allowed_lazy_attributes'] = [
-            Resolver
+            Pools_s
         ]

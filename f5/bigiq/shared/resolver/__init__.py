@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IQ® Resolver (shared) module
+"""
 
 REST URI
     ``http://localhost/mgmt/shared/resolver/``
@@ -28,7 +28,7 @@ REST Kind
 """
 
 from f5.bigiq.resource import OrganizingCollection
-from f5.bigiq.shared.resolver import Device_Groups
+from f5.bigiq.shared.resolver.device_groups import Device_Groups
 
 
 class Resolver(OrganizingCollection):

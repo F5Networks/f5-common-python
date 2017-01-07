@@ -294,7 +294,7 @@ class PathElement(LazyAttributeMixin):
         """Validate parameters that will be passed to the requests verbs.
 
         This method validates that there is no conflict in the names of the
-        requests_params passed to the function an the other kwargs.  It also
+        requests_params passed to the function and the other kwargs.  It also
         ensures that the required request parameters for the object are
         added to the request params that are passed into the verbs.  An
         example of the latter is ensuring that a certain version of the API

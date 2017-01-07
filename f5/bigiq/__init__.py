@@ -15,7 +15,9 @@
 # limitations under the License.
 #
 
+from f5.bigiq.cm import Cm
 from f5.bigiq.resource import PathElement
+from f5.bigiq.shared import Shared
 from f5.bigiq.tm import Tm
 from icontrol.session import iControlRESTSession
 
@@ -34,7 +36,7 @@ class ManagementRoot(PathElement):
                                    token=token)
         # define _meta_data
         self._meta_data = {
-            'allowed_lazy_attributes': [Tm],
+            'allowed_lazy_attributes': [Cm, Shared, Tm],
             'hostname': hostname,
             'port': port,
             'uri': 'https://%s:%s/mgmt/' % (hostname, port),
