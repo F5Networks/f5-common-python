@@ -32,12 +32,7 @@ from f5.bigiq.resource import Resource
 from f5.sdk_exception import F5SDKError
 
 
-class CMAutoDeployDeviceReadOnly(F5SDKError):
-    pass
-
-
 class Cm_Autodeploy_Group_Manager_Autodeployment(Resource):
-    """BIG-IQ® Device Group for CM AutoDeployed Devices resource"""
     def __init__(self, device_groups):
         super(Cm_Autodeploy_Group_Manager_Autodeployment,
               self).__init__(device_groups)
@@ -47,30 +42,12 @@ class Cm_Autodeploy_Group_Manager_Autodeployment(Resource):
             'cm:shared:licensing:pools:licensepoolmembercollectionstate':
                 Devices_s
         }
-        self._meta_data['uri'] = "%s%s" % (
-            self._meta_data['container']._meta_data['uri'],
-            'cm-autodeploy-group-manager-autodeployment/')
         self._meta_data['allowed_lazy_attributes'] = [
             Devices_s
         ]
 
-    def load(self, **kwargs):
-        base_uri = "%s%s" % (self._meta_data['container']._meta_data['uri'],
-                             'cm-autodeploy-group-manager-autodeployment')
-        self._meta_data['uri'] = base_uri
-        self._meta_data['required_load_parameters'] = {}
-        refresh_session = self._meta_data['bigip']._meta_data['icr_session']
-        response = refresh_session.get(base_uri, **kwargs)
-        self._local_update(response.json())
-        self._activate_URI(self.selfLink)
-        return self
-
-    def exists(self, **kwargs):
-        return True
-
 
 class Devices_s(Collection):
-    """BIG-IQ® Devices sub-collection"""
     def __init__(self, cm_autodeploy_group_Manager_autodeployment):
         super(Devices_s, self).__init__(
             cm_autodeploy_group_Manager_autodeployment
@@ -84,7 +61,6 @@ class Devices_s(Collection):
 
 
 class Device(Resource):
-    """BIG-IP® LTM pool members sub-collection resource"""
     def __init__(self, devices_s):
         super(Device, self).__init__(devices_s)
         self._meta_data['required_json_kind'] = \
@@ -94,12 +70,7 @@ class Device(Resource):
         )
         self._meta_data['required_load_parameters'] = str(('uuid',))
 
-    def create(self, userName='admin', rootUser='root', **kwargs):
-        self._create(userName=userName, rootUser=rootUser,
-                     automaticallyUpdateFramework=True, **kwargs)
-        return self
-
     def update(self, **kwargs):
-        raise CMAutoDeployDeviceReadOnly(
+        raise F5SDKError(
             'Auto Deploy items can be created or deleted, not updated'
         )

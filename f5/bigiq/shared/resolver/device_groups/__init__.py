@@ -28,7 +28,7 @@ REST Kind
 """
 
 from f5.bigiq.resource import OrganizingCollection
-from f5.bigiq.shared.resolver import Cm_Autodeploy_Group_Manager_Autodeployment  # NOQA
+from f5.bigiq.shared.resolver.device_groups.cm_autodeploy_group_manager_autodeployment import Cm_Autodeploy_Group_Manager_Autodeployment  # NOQA
 
 
 class Device_Groups(OrganizingCollection):

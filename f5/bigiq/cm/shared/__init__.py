@@ -15,25 +15,14 @@
 # limitations under the License.
 #
 
-"""
-
-REST URI
-    ``http://localhost/mgmt/shared/resolver/``
-
-GUI Path
-    ``Device Management --> Inventory``
-
-REST Kind
-    N/A -- HTTP GET returns an error
-"""
-
+from f5.bigiq.cm.shared.licensing import Licensing
 from f5.bigiq.resource import OrganizingCollection
-from f5.bigiq.shared.resolver import Resolver
 
 
 class Shared(OrganizingCollection):
-    def __init__(self, bigiq):
-        super(Shared, self).__init__(bigiq)
+    """An organizing collection for Shared resources."""
+    def __init__(self, cm):
+        super(Shared, self).__init__(cm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Resolver
+            Licensing
         ]
