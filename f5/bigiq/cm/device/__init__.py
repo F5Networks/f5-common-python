@@ -15,16 +15,22 @@
 # limitations under the License.
 #
 
-from f5.bigiq.cm.device import Device
-from f5.bigiq.cm.shared import Shared
+"""
+
+REST URI
+    ``http://localhost/mgmt/cm/device/licensing/pool/regkey``
+
+REST Kind
+    N/A -- HTTP GET returns an error
+"""
+
+from f5.bigiq.cm.device.licensing import Licensing
 from f5.bigiq.resource import OrganizingCollection
 
 
-class Cm(OrganizingCollection):
-    """An organizing collection for CM resources."""
-    def __init__(self, bigiq):
-        super(Cm, self).__init__(bigiq)
+class Device(OrganizingCollection):
+    def __init__(self, cm):
+        super(Device, self).__init__(cm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Device,
-            Shared
+            Licensing
         ]
