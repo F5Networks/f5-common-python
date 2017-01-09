@@ -96,7 +96,7 @@ def determine_files_to_test(product, commit):
     if results:
         results = set(results)
         fh = open(output_file, 'w')
-        fh.writelines(results)
+        fh.writelines("%s\n" % l for l in results)
         fh.close()
 
 
