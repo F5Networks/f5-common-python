@@ -156,8 +156,8 @@ class TestVLANInterfaces(object):
         assert i.untagged is True
         with pytest.raises(iControlUnexpectedHTTPError) as err:
             i.update(tagged=True, tagMode='service')
-            assert err.response.status_code == 400
-            assert "may not be specified with" in err.response.text
+        assert err.value.response.status_code == 400
+        assert "may not be specified with" in err.value.response.text
 
     @pytest.mark.skipif(
         LooseVersion(

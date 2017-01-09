@@ -18,6 +18,7 @@ import pytest
 
 from distutils.version import LooseVersion
 from f5.bigip.mixins import UnsupportedTmosVersion
+from requests.exceptions import HTTPError
 from six import iteritems
 
 
@@ -644,10 +645,19 @@ class TestNtlm(object):
 
 # Begin Ocsp Stapling Params tests
 
+def delete_dns_resolver(request, mgmt_root, name):
+    try:
+        foo = mgmt_root.tm.net.dns_resolvers.dns_resolver.load(name=name)
+    except HTTPError as err:
+        if err.response.status_code != 404:
+            raise
+        return
+    foo.delete()
+
+
 def setup_dns_resolver(request, mgmt_root, name):
     def teardown():
-        if dns_res.exists(name=name):
-            dns_res.delete()
+        delete_dns_resolver(request, mgmt_root, name)
     request.addfinalizer(teardown)
     dns_res = mgmt_root.tm.net.dns_resolvers.dns_resolver.create(name=name)
     return dns_res
