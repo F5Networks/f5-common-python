@@ -699,12 +699,12 @@ class TestPools_v11(object):
         assert pool1.limitMaxBpsStatus == 'disabled'
 
     def test_create_duplicate(self, request, mgmt_root):
-        setup_create_pool_test(request, mgmt_root, 'fake_pool')
+        setup_pool_basic_test(request, mgmt_root, 'fake_pool', 'Common')
         try:
             mgmt_root.tm.gtm.pools.pool.create(name='fake_pool',
                                                partition='Common')
         except HTTPError as err:
-            assert err.response.status_code == 400
+            assert err.response.status_code == 409
 
     def test_refresh(self, request, mgmt_root):
         setup_pool_basic_test(request, mgmt_root, 'fake_pool', 'Common')

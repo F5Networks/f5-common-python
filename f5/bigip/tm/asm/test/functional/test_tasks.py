@@ -253,7 +253,7 @@ class TestUpdateSignature(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.tasks.update_signatures_s.update_signature.load(
                 id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         chk1 = set_updsig_test(request, mgmt_root)

@@ -103,7 +103,7 @@ class TestCreate(object):
                 partition='Common',
                 apiAnonymous=RULE,
                 ignoreVerification=True)
-            assert err.response.status_code == 400
+        assert err.value.response.status_code == 400
 
 
 class TestRefresh(object):
@@ -129,7 +129,7 @@ class TestLoad(object):
         with pytest.raises(HTTPError) as err:
             bigip.ltm.rules.rule.load(
                 name='rule1', partition='Common')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, bigip):
         setup_basic_test(request, bigip, 'rule1', 'Common')
@@ -165,7 +165,7 @@ class TestDelete(object):
         with pytest.raises(HTTPError) as err:
             bigip.ltm.rules.rule.load(
                 name='rule1', partition='Common')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
 
 class TestRuleCollection(object):

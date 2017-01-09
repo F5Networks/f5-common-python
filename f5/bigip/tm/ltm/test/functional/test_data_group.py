@@ -123,7 +123,7 @@ class TestExternalDatagroup(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.ltm.data_group.externals.external.load(
                 name='dg1', partition='Common')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
         try:
             DATAGROUP.delete()
@@ -186,7 +186,7 @@ class TestInternalDatagroup(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.ltm.data_group.internals.internal.load(
                 name='dg1', partition='Common')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_modify(self, request, mgmt_root):
         dg1 = setup_basic_test_idg(request, mgmt_root, 'dg1', 'Common',

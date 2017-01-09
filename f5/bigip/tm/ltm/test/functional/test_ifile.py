@@ -83,7 +83,7 @@ class TestiFile(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.ltm.ifiles.ifile.load(
                 name='ifile1', partition='Common')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
         # not testing this function here; but need to clean it up
         try:
