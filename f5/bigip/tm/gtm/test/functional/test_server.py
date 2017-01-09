@@ -149,7 +149,7 @@ class TestCreate(object):
             mgmt_root.tm.gtm.servers.server.create(
                 name='fake_serv1', datacenter='dc1',
                 addresses=[{'name': '1.1.1.1'}])
-            assert err.response.status_code == 400
+        assert err.value.response.status_code == 409
 
 
 class TestRefresh(object):
@@ -174,7 +174,7 @@ class TestLoad(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.servers.server.load(
                 name='fake_serv1')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     @pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) ==
                         '11.5.4',
@@ -231,7 +231,7 @@ class TestDelete(object):
         s1.delete()
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
 
 class TestServerCollection(object):

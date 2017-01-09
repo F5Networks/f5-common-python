@@ -289,7 +289,7 @@ class TestWideips_v11(object):
     def test_load_no_object(self, mgmt_root):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.wideips.wideip.load(name='fake.lab.local')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         setup_basic_test(request, mgmt_root, 'fake.lab.local')
@@ -325,7 +325,7 @@ class TestWideips_v11(object):
         s1.delete()
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.wideips.wideip.load(name='fake.lab.local')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_wideips_collection(self, request, mgmt_root):
         wideip1 = setup_basic_test(request, mgmt_root, 'fake.lab.local',

@@ -102,7 +102,7 @@ class TestCheckSignature(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.tasks.check_signatures_s.check_signature.load(
                 id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         chk1 = set_chksig_test(request, mgmt_root)
@@ -195,7 +195,7 @@ class TestExportSignature(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.tasks.export_signatures_s.export_signature \
                 .load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         f = 'fake_export.xml'
@@ -213,7 +213,7 @@ class TestExportSignature(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.tasks.export_signatures_s.export_signature.load(
                 id=hashid)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_signature_export_collection(self, request, mgmt_root):
         f = 'fake_export.xml'

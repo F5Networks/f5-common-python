@@ -125,12 +125,12 @@ class TestSignature(object):
         sig1.delete()
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.signatures_s.signature.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, mgmt_root):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.signatures_s.signature.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         rule = "content:\"ABC\"; depth:10;"
