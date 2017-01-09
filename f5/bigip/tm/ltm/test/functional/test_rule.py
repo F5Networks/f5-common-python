@@ -103,7 +103,7 @@ class TestCreate(object):
                 partition='Common',
                 apiAnonymous=RULE,
                 ignoreVerification=True)
-        assert err.value.response.status_code == 400
+        assert err.value.response.status_code == 409
 
 
 class TestRefresh(object):
