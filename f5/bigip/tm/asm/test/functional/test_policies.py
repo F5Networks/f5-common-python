@@ -27,6 +27,8 @@ from f5.bigip.tm.asm.policies import Filetype
 from f5.bigip.tm.asm.policies import Filetypes_s
 from f5.bigip.tm.asm.policies import Gwt_Profile
 from f5.bigip.tm.asm.policies import Gwt_Profiles_s
+from f5.bigip.tm.asm.policies import Header
+from f5.bigip.tm.asm.policies import Headers_s
 from f5.bigip.tm.asm.policies import Host_Name
 from f5.bigip.tm.asm.policies import Host_Names_s
 from f5.bigip.tm.asm.policies import Http_Protocol
@@ -178,9 +180,9 @@ class TestPolicy(object):
     def test_policies_attr_reg(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         obj_class = [Blocking_Settings, Cookies_s, Filetypes_s,
-                     Gwt_Profiles_s, Host_Names_s, Json_Profiles_s, Methods_s,
-                     Parameters_s, Signatures_s, Signature_Sets_s, Urls_s,
-                     Whitelist_Ips_s, Xml_Profiles_s]
+                     Gwt_Profiles_s, Headers_s, Host_Names_s, Json_Profiles_s,
+                     Methods_s,Parameters_s, Signatures_s, Signature_Sets_s,
+                     Urls_s, Whitelist_Ips_s, Xml_Profiles_s]
         attributes = pol1._meta_data['attribute_registry']
         assert set(obj_class) == set(attributes.values())
 
@@ -1660,3 +1662,82 @@ class TestSignatureSets(object):
         assert isinstance(cc, list)
         assert len(cc)
         assert isinstance(cc[0], Signature_Set)
+
+
+class TestHeaders(object):
+    def test_create_req_arg(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake')
+        assert h1.kind == 'tm:asm:policies:headers:headerstate'
+        assert h1.name == 'fake'
+        assert h1.type == 'explicit'
+        assert h1.base64Decoding is False
+
+    def test_create_optional_args(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake', base64Decoding=True)
+        assert h1.kind == 'tm:asm:policies:headers:headerstate'
+        assert h1.name == 'fake'
+        assert h1.type == 'explicit'
+        assert h1.base64Decoding is True
+
+    def test_refresh(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake')
+        h2 = pol1.headers_s.header.load(id=h1.id)
+        assert h1.kind == h2.kind
+        assert h1.name == h2.name
+        assert h1.base64Decoding == h2.base64Decoding
+        h2.modify(base64Decoding=True)
+        assert h1.base64Decoding is False
+        assert h2.base64Decoding is True
+        h1.refresh()
+        assert h1.base64Decoding is True
+
+    def test_modify(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake')
+        original_dict = copy.copy(h1.__dict__)
+        itm = 'base64Decoding'
+        h1.modify(base64Decoding=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = h1.__dict__[k]
+            elif k == itm:
+                assert h1.__dict__[k] is True
+
+    def test_delete(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake')
+        idhash = str(h1.id)
+        h1.delete()
+        with pytest.raises(HTTPError) as err:
+            pol1.headers_s.header.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        with pytest.raises(HTTPError) as err:
+            pol1.headers_s.header.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake')
+        assert h1.kind == 'tm:asm:policies:headers:headerstate'
+        assert h1.name == 'fake'
+        assert h1.base64Decoding is False
+        h1.modify(base64Decoding=True)
+        assert h1.base64Decoding is True
+        h2 = pol1.headers_s.header.load(id=h1.id)
+        assert h1.name == h2.name
+        assert h1.selfLink == h2.selfLink
+        assert h1.kind == h2.kind
+        assert h1.base64Decoding == h2.base64Decoding
+
+    def test_method_subcollection(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        mc = pol1.headers_s.get_collection()
+        assert isinstance(mc, list)
+        assert len(mc)
+        assert isinstance(mc[0], Header)

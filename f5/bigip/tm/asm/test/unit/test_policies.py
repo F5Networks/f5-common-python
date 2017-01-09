@@ -18,6 +18,7 @@ from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm import Asm
 from f5.bigip.tm.asm.policies import Evasion
+from f5.bigip.tm.asm.policies import Header
 from f5.bigip.tm.asm.policies import Http_Protocol
 from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
@@ -97,8 +98,8 @@ def FakeWebsec():
 
 @pytest.fixture
 def FakeSignature():
-    fake_asm = mock.MagicMock()
-    fake_sig = Signature(fake_asm)
+    fake_policy = mock.MagicMock()
+    fake_sig = Signature(fake_policy)
     fake_sig._meta_data['bigip'].tmos_version = '11.6.0'
     return fake_sig
 
@@ -115,6 +116,14 @@ def FakePolicyParameters():
 def FakeUrlParameters():
     fake_policy = mock.MagicMock()
     fake_param = UrlParametersCollection(fake_policy)
+    fake_param._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_param
+
+
+@pytest.fixture
+def FakeHeader():
+    fake_policy = mock.MagicMock()
+    fake_param = Header(fake_policy)
     fake_param._meta_data['bigip'].tmos_version = '11.6.0'
     return fake_param
 
@@ -222,3 +231,9 @@ class TestSignature(object):
     def test_delete_raises(self, FakeSignature):
         with pytest.raises(UnsupportedOperation):
             FakeSignature.delete()
+
+
+class TestHeader(object):
+    def test_create_no_args(self, FakeHeader):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeHeader.create()
