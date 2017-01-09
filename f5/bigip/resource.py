@@ -175,6 +175,11 @@ class InvalidForceType(ValueError):
     pass
 
 
+class InvalidName(ValueError):
+    """Raised during creationm when a given resource name is invalid"""
+    pass
+
+
 class URICreationCollision(F5SDKError):
     """self._meta_data['uri'] can only be assigned once. In create or load."""
     pass
@@ -663,13 +668,13 @@ class ResourceBase(PathElement, ToDictMixin):
         return new_instance
 
     def _reduce_boolean_pair(self, config_dict, key1, key2):
-        '''Ensure only one key with a boolean value is present in dict.
+        """Ensure only one key with a boolean value is present in dict.
 
         :param config_dict: dict -- dictionary of config or kwargs
         :param key1: string -- first key name
         :param key2: string -- second key name
         :raises: BooleansToReduceHaveSameValue
-        '''
+        """
 
         if key1 in config_dict and key2 in config_dict \
                 and config_dict[key1] == config_dict[key2]:
@@ -1064,19 +1069,19 @@ class UnnamedResource(ResourceBase):
     """
 
     def create(self, **kwargs):
-        '''Create is not supported for unnamed resources
+        """Create is not supported for unnamed resources
 
         :raises: UnsupportedOperation
-        '''
+        """
         raise UnsupportedMethod(
             "%s does not support the create method" % self.__class__.__name__
         )
 
     def delete(self, **kwargs):
-        '''Delete is not supported for unnamed resources
+        """Delete is not supported for unnamed resources
 
         :raises: UnsupportedOperation
-        '''
+        """
         raise UnsupportedMethod(
             "%s does not support the delete method" % self.__class__.__name__
         )
@@ -1088,13 +1093,13 @@ class UnnamedResource(ResourceBase):
 
 
 class Stats(UnnamedResource):
-    '''For stats resources.'''
+    """For stats resources."""
 
     def modify(self, **kwargs):
-        '''Modify is not supported for unnamed resources
+        """Modify is not supported for unnamed resources
 
         :raises: UnsupportedOperation
-        '''
+        """
         raise UnsupportedMethod(
             "%s does not support the modify method" % self.__class__.__name__
         )

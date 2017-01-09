@@ -33,6 +33,7 @@ from f5.bigip.tm.gtm.datacenter import Datacenters
 from f5.bigip.tm.gtm.pool import Pools
 from f5.bigip.tm.gtm.rule import Rules
 from f5.bigip.tm.gtm.server import Servers
+from f5.bigip.tm.gtm.topology import Topology_s
 from f5.bigip.tm.gtm.wideip import Wideips
 
 
@@ -45,5 +46,6 @@ class Gtm(OrganizingCollection):
             Pools,
             Rules,
             Servers,
+            Topology_s,
             Wideips,
         ]
