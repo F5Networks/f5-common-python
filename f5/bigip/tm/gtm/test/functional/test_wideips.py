@@ -265,11 +265,11 @@ class TestWideips_v11(object):
         assert wideip1.ipv6NoErrorResponse == 'disabled'
 
     def test_create_duplicate(self, request, mgmt_root):
-        setup_create_test(request, mgmt_root, 'fake.lab.local')
+        setup_basic_test(request, mgmt_root, 'fake.lab.local')
         try:
             mgmt_root.tm.gtm.wideips.wideip.create(name='fake.lab.local')
         except HTTPError as err:
-            assert err.response.status_code == 400
+            assert err.response.status_code == 409
 
     def test_refresh(self, request, mgmt_root):
         setup_basic_test(request, mgmt_root, 'fake.lab.local')
@@ -289,7 +289,7 @@ class TestWideips_v11(object):
     def test_load_no_object(self, mgmt_root):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.wideips.wideip.load(name='fake.lab.local')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         setup_basic_test(request, mgmt_root, 'fake.lab.local')
@@ -325,7 +325,7 @@ class TestWideips_v11(object):
         s1.delete()
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.wideips.wideip.load(name='fake.lab.local')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_wideips_collection(self, request, mgmt_root):
         wideip1 = setup_basic_test(request, mgmt_root, 'fake.lab.local',

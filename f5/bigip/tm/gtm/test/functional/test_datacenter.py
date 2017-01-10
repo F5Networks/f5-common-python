@@ -91,7 +91,7 @@ class TestCreate(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.datacenters.datacenter.create(
                 name='dc1', partition='Common')
-            assert err.response.status_code == 400
+        assert err.value.response.status_code == 409
 
 
 class TestRefresh(object):
@@ -117,7 +117,7 @@ class TestLoad(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.datacenters.datacenter.load(
                 name='dc1', partition='Common')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         setup_basic_test(request, mgmt_root, 'dc1', 'Common')
@@ -153,7 +153,7 @@ class TestDelete(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.datacenters.datacenter.load(
                 name='dc1', partition='Common')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
 
 class TestDatacenterCollection(object):
