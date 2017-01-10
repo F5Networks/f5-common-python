@@ -15,18 +15,13 @@
 # limitations under the License.
 #
 
-from f5.bigiq.cm.asm import Asm
-from f5.bigiq.cm.device import Device
-from f5.bigiq.cm.shared import Shared
+from f5.bigiq.cm.asm.tasks import Tasks
 from f5.bigiq.resource import OrganizingCollection
 
 
-class Cm(OrganizingCollection):
-    """An organizing collection for CM resources."""
-    def __init__(self, bigiq):
-        super(Cm, self).__init__(bigiq)
+class Asm(OrganizingCollection):
+    def __init__(self, cm):
+        super(Asm, self).__init__(cm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Asm,
-            Device,
-            Shared
+            Tasks
         ]
