@@ -181,7 +181,7 @@ class TestPolicy(object):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         obj_class = [Blocking_Settings, Cookies_s, Filetypes_s,
                      Gwt_Profiles_s, Headers_s, Host_Names_s, Json_Profiles_s,
-                     Methods_s,Parameters_s, Signatures_s, Signature_Sets_s,
+                     Methods_s, Parameters_s, Signatures_s, Signature_Sets_s,
                      Urls_s, Whitelist_Ips_s, Xml_Profiles_s]
         attributes = pol1._meta_data['attribute_registry']
         assert set(obj_class) == set(attributes.values())
