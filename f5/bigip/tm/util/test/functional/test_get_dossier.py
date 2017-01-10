@@ -37,7 +37,7 @@ def test_invalid_get_dossier_options(mgmt_root):
     with pytest.raises(UtilError) as err:
         mgmt_root.tm.util.get_dossier.exec_cmd(
             'run', utilCmdArgs='-x registration-key')
-    assert 'Invalid option' in str(err.value)
+    assert 'usage: /usr/bin/get_dossier' in str(err.value)
 
 
 def test_unbalanced_quotes(mgmt_root):

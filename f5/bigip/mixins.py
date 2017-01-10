@@ -254,6 +254,8 @@ class CommandExecutionMixin(object):
             raise UtilError('%s' % self.commandResult)
         if 'Invalid option' in self.commandResult:
             raise UtilError('%s' % self.commandResult)
+        if 'usage: /usr/bin/get_dossier' in self.commandResult:
+            raise UtilError('%s' % self.commandResult)
 
     def exec_cmd(self, command, **kwargs):
         """Wrapper method that can be changed in the inheriting classes."""
