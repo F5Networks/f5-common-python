@@ -76,7 +76,7 @@ class TestSignatureSets(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.signature_sets_s.signature_set.create(
                 name='fake_sig')
-            assert err.response.status_code == 400
+        assert err.value.response.status_code == 400
 
     def test_refresh(self, request, mgmt_root):
         sig1 = create_sigset(request, mgmt_root, name='fake_sig')
@@ -96,7 +96,7 @@ class TestSignatureSets(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.signature_sets_s.signature_set.load(
                 id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         sig1 = create_sigset(request, mgmt_root, name='fake_sig')
@@ -123,7 +123,7 @@ class TestSignatureSets(object):
         sig.delete()
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.signature_sets_s.signature_set.load(id=hashid)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_modify(self, request, mgmt_root):
         sig = create_sigset(request, mgmt_root, name='fake_sig')
