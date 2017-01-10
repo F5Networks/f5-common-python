@@ -38,7 +38,6 @@ def pytest_addoption(parser):
                      help="IP address of VCMP enabled host.")
 
 
-
 @pytest.fixture(scope='session')
 def opt_bigip(request):
     return request.config.getoption("--bigip")

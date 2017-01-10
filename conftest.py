@@ -31,6 +31,7 @@ logger.setLevel(logging.WARNING)
 
 requests.packages.urllib3.disable_warnings()
 
+
 @pytest.fixture
 def fakeicontrolsession(monkeypatch):
     class Response(object):
