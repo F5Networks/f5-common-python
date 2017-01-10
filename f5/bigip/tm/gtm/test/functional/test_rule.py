@@ -123,7 +123,7 @@ class TestCreate(object):
             rule2.create(name='rule1', partition='Common',
                          apiAnonymous=RULE,
                          check='syntax')
-            assert err.response.status_code == 400
+        assert err.value.response.status_code == 409
 
 
 class TestRefresh(object):
@@ -149,7 +149,7 @@ class TestLoad(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.rules.rule.load(
                 name='rule1', partition='Common')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         setup_basic_test(request, mgmt_root, 'rule1', 'Common')
@@ -182,7 +182,7 @@ class TestDelete(object):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.gtm.rules.rule.load(
                 name='rule1', partition='Common')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
 
 class TestRuleCollection(object):
