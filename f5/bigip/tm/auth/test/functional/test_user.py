@@ -169,10 +169,9 @@ class TestDelete(object):
         setup_loadable_user_test(request, mgmt_root, USER)
         n1 = mgmt_root.tm.auth.users.user.load(name='user1')
         n1.delete()
-        del(n1)
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.auth.users.user.load(name='user1')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
 
 class TestUpdate(object):
