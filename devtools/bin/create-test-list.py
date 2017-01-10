@@ -57,6 +57,9 @@ def examine_non_python_rules(line):
 
 def determine_files_to_test(product, commit):
     results = []
+    build_all = [
+        'setup.py', 'contexts.py', 'mixins.py', 'resource.py'
+    ]
     output_file = "pytest.{0}.jenkins.txt".format(product)
 
     p1 = subprocess.Popen(
@@ -82,7 +85,7 @@ def determine_files_to_test(product, commit):
 
     for line in out:
         fname, fext = os.path.splitext(line)
-        if line == 'setup.py':
+        if line in build_all:
             cleanup_tox_directory()
             results.append('f5/{0}'.format(product))
         elif fext == '.py':
