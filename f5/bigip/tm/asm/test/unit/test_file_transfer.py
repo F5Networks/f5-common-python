@@ -132,7 +132,7 @@ def test_404_response():
     try:
         dwnld.download_file('fakefile.txt')
     except HTTPError as err:
-        assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
 
 def test_zero_content_length_header():

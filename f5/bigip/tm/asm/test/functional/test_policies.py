@@ -27,6 +27,8 @@ from f5.bigip.tm.asm.policies import Filetype
 from f5.bigip.tm.asm.policies import Filetypes_s
 from f5.bigip.tm.asm.policies import Gwt_Profile
 from f5.bigip.tm.asm.policies import Gwt_Profiles_s
+from f5.bigip.tm.asm.policies import Header
+from f5.bigip.tm.asm.policies import Headers_s
 from f5.bigip.tm.asm.policies import Host_Name
 from f5.bigip.tm.asm.policies import Host_Names_s
 from f5.bigip.tm.asm.policies import Http_Protocol
@@ -137,12 +139,12 @@ class TestPolicy(object):
         pol1.delete()
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.policies_s.policy.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, mgmt_root):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.policies_s.policy.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -178,9 +180,9 @@ class TestPolicy(object):
     def test_policies_attr_reg(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         obj_class = [Blocking_Settings, Cookies_s, Filetypes_s,
-                     Gwt_Profiles_s, Host_Names_s, Json_Profiles_s, Methods_s,
-                     Parameters_s, Signatures_s, Signature_Sets_s, Urls_s,
-                     Whitelist_Ips_s, Xml_Profiles_s]
+                     Gwt_Profiles_s, Headers_s, Host_Names_s, Json_Profiles_s,
+                     Methods_s,Parameters_s, Signatures_s, Signature_Sets_s,
+                     Urls_s, Whitelist_Ips_s, Xml_Profiles_s]
         attributes = pol1._meta_data['attribute_registry']
         assert set(obj_class) == set(attributes.values())
 
@@ -233,13 +235,13 @@ class TestMethods(object):
         met1.delete()
         with pytest.raises(HTTPError) as err:
             pol1.methods_s.method.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.methods_s.method.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -311,13 +313,13 @@ class TestFiletypes(object):
         ft1.delete()
         with pytest.raises(HTTPError) as err:
             pol1.filetypes_s.filetype.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.filetypes_s.filetype.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -389,13 +391,13 @@ class TestCookies(object):
         cook1.delete()
         with pytest.raises(HTTPError) as err:
             pol1.cookies_s.cookie.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.cookies_s.cookie.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -467,13 +469,13 @@ class TestHostNames(object):
         host1.delete()
         with pytest.raises(HTTPError) as err:
             pol1.host_names_s.host_name.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.host_names_s.host_name.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -576,7 +578,7 @@ class TestEvasions(object):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.blocking_settings.evasions_s.evasion.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -646,7 +648,7 @@ class TestViolations(object):
         with pytest.raises(HTTPError) as err:
             pol1.blocking_settings.violations_s.violation.load(
                 id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -719,7 +721,7 @@ class TestHTTPProtoccols(object):
         with pytest.raises(HTTPError) as err:
             pol1.blocking_settings.http_protocols_s.\
                 http_protocol.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -795,7 +797,7 @@ class TestWebServicesSecurities(object):
         wsc = pol1.blocking_settings.web_services_securities_s
         with pytest.raises(HTTPError) as err:
             wsc.web_services_security.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -872,13 +874,13 @@ class TestUrls(object):
         url1.delete()
         with pytest.raises(HTTPError) as err:
             pol1.urls_s.url.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.urls_s.url.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -1004,14 +1006,14 @@ class TestUrlParameters(object):
         param1.delete()
         with pytest.raises(HTTPError) as err:
             url.parameters_s.parameter.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         url = pol1.urls_s.url.create(name='testing')
         with pytest.raises(HTTPError) as err:
             url.parameters_s.parameter.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -1097,13 +1099,13 @@ class TestPolicyParameters(object):
         param1.delete()
         with pytest.raises(HTTPError) as err:
             pol1.parameters_s.parameter.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.parameters_s.parameter.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -1196,13 +1198,13 @@ class TestWhitelistIps(object):
         ip1.delete()
         with pytest.raises(HTTPError) as err:
             pol1.whitelist_ips_s.whitelist_ip.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.whitelist_ips_s.whitelist_ip.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -1286,13 +1288,13 @@ class TestGwtProfiles(object):
         gwt1.delete()
         with pytest.raises(HTTPError) as err:
             pol1.gwt_profiles_s.gwt_profile.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.gwt_profiles_s.gwt_profile.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -1373,13 +1375,13 @@ class TestJsonProfile(object):
         json1.delete()
         with pytest.raises(HTTPError) as err:
             pol1.json_profiles_s.json_profile.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.json_profiles_s.json_profile.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -1460,13 +1462,13 @@ class TestXmlProfile(object):
         xml1.delete()
         with pytest.raises(HTTPError) as err:
             pol1.xml_profiles_s.xml_profile.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.xml_profiles_s.xml_profile.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -1537,7 +1539,7 @@ class TestSignature(object):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.signatures_s.signature.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
@@ -1628,13 +1630,13 @@ class TestSignatureSets(object):
         ss1.delete()
         with pytest.raises(HTTPError) as err:
             pol1.signature_sets_s.signature_set.load(id=idhash)
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load_no_object(self, request, mgmt_root):
         pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
         with pytest.raises(HTTPError) as err:
             pol1.signature_sets_s.signature_set.load(id='Lx3553-321')
-            assert err.response.status_code == 404
+        assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         coll = mgmt_root.tm.asm.signature_sets_s.get_collection(
@@ -1660,3 +1662,82 @@ class TestSignatureSets(object):
         assert isinstance(cc, list)
         assert len(cc)
         assert isinstance(cc[0], Signature_Set)
+
+
+class TestHeaders(object):
+    def test_create_req_arg(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake')
+        assert h1.kind == 'tm:asm:policies:headers:headerstate'
+        assert h1.name == 'fake'
+        assert h1.type == 'explicit'
+        assert h1.base64Decoding is False
+
+    def test_create_optional_args(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake', base64Decoding=True)
+        assert h1.kind == 'tm:asm:policies:headers:headerstate'
+        assert h1.name == 'fake'
+        assert h1.type == 'explicit'
+        assert h1.base64Decoding is True
+
+    def test_refresh(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake')
+        h2 = pol1.headers_s.header.load(id=h1.id)
+        assert h1.kind == h2.kind
+        assert h1.name == h2.name
+        assert h1.base64Decoding == h2.base64Decoding
+        h2.modify(base64Decoding=True)
+        assert h1.base64Decoding is False
+        assert h2.base64Decoding is True
+        h1.refresh()
+        assert h1.base64Decoding is True
+
+    def test_modify(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake')
+        original_dict = copy.copy(h1.__dict__)
+        itm = 'base64Decoding'
+        h1.modify(base64Decoding=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = h1.__dict__[k]
+            elif k == itm:
+                assert h1.__dict__[k] is True
+
+    def test_delete(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake')
+        idhash = str(h1.id)
+        h1.delete()
+        with pytest.raises(HTTPError) as err:
+            pol1.headers_s.header.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        with pytest.raises(HTTPError) as err:
+            pol1.headers_s.header.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        h1 = pol1.headers_s.header.create(name='Fake')
+        assert h1.kind == 'tm:asm:policies:headers:headerstate'
+        assert h1.name == 'fake'
+        assert h1.base64Decoding is False
+        h1.modify(base64Decoding=True)
+        assert h1.base64Decoding is True
+        h2 = pol1.headers_s.header.load(id=h1.id)
+        assert h1.name == h2.name
+        assert h1.selfLink == h2.selfLink
+        assert h1.kind == h2.kind
+        assert h1.base64Decoding == h2.base64Decoding
+
+    def test_method_subcollection(self, request, mgmt_root):
+        pol1 = set_policy_test(request, mgmt_root, 'fake_policy')
+        mc = pol1.headers_s.get_collection()
+        assert isinstance(mc, list)
+        assert len(mc)
+        assert isinstance(mc[0], Header)

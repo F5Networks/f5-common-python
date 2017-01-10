@@ -59,7 +59,8 @@ class Policy(AsmResource):
             'tm:asm:policies:signatures:signaturecollectionstate':
                 Signatures_s,
             'tm:asm:policies:signature-sets:signature-setcollectionstate':
-                Signature_Sets_s
+                Signature_Sets_s,
+            'tm:asm:policies:headers:headercollectionstate': Headers_s
         }
         self._set_attr_reg()
 
@@ -637,3 +638,24 @@ class Signature_Set(AsmResource):
             'tm:asm:policies:signature-sets:signature-setstate'
         self._meta_data['required_creation_parameters'] = \
             set(('signatureSetReference',))
+
+
+class Headers_s(Collection):
+    """BIG-IP® ASM Headers sub-collection."""
+    def __init__(self, policy):
+        super(Headers_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['allowed_lazy_attributes'] = [Header]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:headers:headercollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:headers:headerstate':
+                Header}
+
+
+class Header(AsmResource):
+    """BIG-IP® ASM Headers resource."""
+    def __init__(self, headers_s):
+        super(Header, self).__init__(headers_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:headers:headerstate'
