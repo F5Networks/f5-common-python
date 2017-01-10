@@ -106,46 +106,6 @@ def fakeicontrolsession_v12(monkeypatch):
     monkeypatch.setattr('f5.bigip.iControlRESTSession', fakesessionclass)
 
 
-@pytest.fixture(scope='session')
-def opt_bigip(request):
-    return request.config.getoption("--bigip")
-
-
-@pytest.fixture(scope='session')
-def opt_username(request):
-    return request.config.getoption("--username")
-
-
-@pytest.fixture(scope='session')
-def opt_password(request):
-    return request.config.getoption("--password")
-
-
-@pytest.fixture(scope='session')
-def opt_port(request):
-    return request.config.getoption("--port")
-
-
-@pytest.fixture(scope='session')
-def opt_token(request):
-    return request.config.getoption("--token")
-
-
-@pytest.fixture(scope='session')
-def opt_vcmp_host(request):
-    return request.config.getoption("--vcmp-host")
-
-
-@pytest.fixture(scope='session')
-def opt_release(request):
-    return request.config.getoption("--release")
-
-
-@pytest.fixture
-def opt_peer(request):
-    return request.config.getoption("--peer")
-
-
 @pytest.fixture
 def NAT(bigip):
     n = bigip.ltm.nats.nat
