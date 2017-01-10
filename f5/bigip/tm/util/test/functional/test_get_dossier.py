@@ -30,7 +30,7 @@ def test_command_result_present(mgmt_root):
     dossier1 = mgmt_root.tm.util.get_dossier.exec_cmd(
         'run', utilCmdArgs='-b registration-key')
     assert 'commandResult' in dossier1.__dict__
-    assert len(dossier1.commandResult) == 2048
+    assert len(dossier1.commandResult) > 0
 
 
 def test_invalid_get_dossier_options(mgmt_root):
