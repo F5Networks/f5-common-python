@@ -29,11 +29,13 @@ REST Kind
 
 from f5.bigiq.resource import OrganizingCollection
 from f5.bigiq.shared.resolver.device_groups.cm_autodeploy_group_manager_autodeployment import Cm_Autodeploy_Group_Manager_Autodeployment  # NOQA
+from f5.bigiq.shared.resolver.device_groups.cm_bigip_allbigipdevices import Cm_BigIp_AllBigIpDevices  # NOQA
 
 
 class Device_Groups(OrganizingCollection):
-    def __init__(self, bigip):
-        super(Device_Groups, self).__init__(bigip)
+    def __init__(self, bigiq):
+        super(Device_Groups, self).__init__(bigiq)
         self._meta_data['allowed_lazy_attributes'] = [
-            Cm_Autodeploy_Group_Manager_Autodeployment
+            Cm_Autodeploy_Group_Manager_Autodeployment,
+            Cm_BigIp_AllBigIpDevices
         ]

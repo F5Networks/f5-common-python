@@ -33,7 +33,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def license(mgmt_root):
     """Creates a license pool to put license offerings in
 
@@ -51,11 +51,36 @@ def license(mgmt_root):
     license.delete()
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def licenses(mgmt_root):
     licensing = mgmt_root.cm.device.licensing
     lics = licensing.pool.regkey.licenses_s.get_collection()
     return lics
+
+
+def wait_for_state(obj, state):
+    for x in range(60):
+        obj.refresh()
+        if obj.state == state:
+            return
+        time.sleep(1)
+
+
+@pytest.fixture(scope='function')
+def offering(license):
+    offering = license.offerings_s.offering.create(
+        regKey=symbols.bigip_v12_license,
+        status="ACTIVATING_AUTOMATIC"
+    )
+
+    for x in range(60):
+        offering.refresh()
+        if offering.status == 'READY':
+            break
+        time.sleep(1)
+
+    yield offering
+    offering.delete()
 
 
 class TestLicensePoolRegkeyCollection(object):
@@ -81,3 +106,39 @@ class TestLicensePoolRegkey(object):
         finally:
             pass
             offering.delete()
+
+
+class TestDeviceLicensing(object):
+    def test_license_unmanaged_device(self, offering):
+        member = offering.members_s.member.create(
+            deviceAddress=symbols.biq_bigip_unmanaged_device,
+            username="admin",
+            password="admin",
+        )
+        wait_for_state(member, 'LICENSED')
+
+        try:
+            assert member.state == 'LICENSED'
+            assert member.deviceAddress == symbols.biq_bigip_unmanaged_device
+        finally:
+            member.delete(
+                username='admin',
+                password='admin'
+            )
+
+    def test_license_managed_device(self, offering):
+        member = offering.members_s.member.create(
+            deviceAddress=symbols.biq_bigip_unmanaged_device,
+            username="admin",
+            password="admin",
+        )
+        wait_for_state(member, 'LICENSED')
+
+        try:
+            assert member.state == 'LICENSED'
+            assert member.deviceAddress == symbols.biq_bigip_unmanaged_device
+        finally:
+            member.delete(
+                username='admin',
+                password='admin'
+            )

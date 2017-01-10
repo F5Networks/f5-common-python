@@ -18,40 +18,38 @@
 """BIG-IQ® Device Groups (shared) module for CM AutoDeployed Devices
 
 REST URI
-    ``http://localhost/mgmt/shared/resolver/device-groups/cm-autodeploy-group-manager-autodeployment``
-
-GUI Path
-    ``Device Management --> Inventory``
+    ``http://localhost/mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices``
 
 REST Kind
-    N/A -- HTTP GET returns an error
+    ``shared:resolver:device-groups:*``
 """
 
 from f5.bigiq.resource import Collection
+from f5.bigiq.resource import OrganizingCollection
 from f5.bigiq.resource import Resource
 from f5.sdk_exception import F5SDKError
 
 
-class Cm_Autodeploy_Group_Manager_Autodeployment(Resource):
+class Cm_BigIp_AllBigIpDevices(OrganizingCollection):
     def __init__(self, device_groups):
-        super(Cm_Autodeploy_Group_Manager_Autodeployment,
-              self).__init__(device_groups)
+        super(Cm_BigIp_AllBigIpDevices, self).__init__(device_groups)
         self._meta_data['required_json_kind'] = \
             'shared:resolver:device-groups:devicegroupstate'
         self._meta_data['attribute_registry'] = {
-            'cm:shared:licensing:pools:licensepoolmembercollectionstate':
+            'shared:resolver:device-groups:devicegroupdevicecollectionstate':
                 Devices_s
         }
         self._meta_data['allowed_lazy_attributes'] = [
             Devices_s
         ]
 
+    def _format_resource_name(self):
+        return 'cm-bigip-allBigIpDevices'
+
 
 class Devices_s(Collection):
-    def __init__(self, cm_autodeploy_group_manager_autodeployment):
-        super(Devices_s, self).__init__(
-            cm_autodeploy_group_manager_autodeployment
-        )
+    def __init__(self, cm_bigip_allbigipdevices):
+        super(Devices_s, self).__init__(cm_bigip_allbigipdevices)
         self._meta_data['allowed_lazy_attributes'] = [Device]
         self._meta_data['required_json_kind'] = \
             'shared:resolver:device-groups:devicegroupdevicecollectionstate'

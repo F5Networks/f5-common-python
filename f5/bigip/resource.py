@@ -247,18 +247,83 @@ class PathElement(LazyAttributeMixin):
         self._meta_data['object_has_stats'] = True
 
     def _set_meta_data_uri(self):
-        base_uri = self.__class__.__name__.lower()
-        if isinstance(self, Collection):
-            # Handle 'terminal s or _s'
-            if self.__class__.__name__.lower()[-2:] == '_s':
-                endind = 2
-            else:
-                endind = 1
-            base_uri = self.__class__.__name__.lower()[:-endind]
+        base_uri = self._get_base_uri()
         endpoint = base_uri.replace('_', '-')
-        final_uri =\
-            self._meta_data['container']._meta_data['uri'] + endpoint + '/'
+        final_uri = self._build_final_uri(endpoint)
         self._meta_data['uri'] = final_uri
+
+    def _get_base_uri(self):
+        if isinstance(self, Collection):
+            return self._format_collection_name()
+        return self._format_resource_name()
+
+    def _build_final_uri(self, endpoint):
+        return self._meta_data['container']._meta_data['uri'] + endpoint + '/'
+
+    def _format_collection_name(self):
+        """Formats a name from Collection format
+
+        Collections are of two name formats based on their actual URI
+        representation in the REST service.
+
+        1. For cases where the actual URI of a collection is singular, for
+           example,
+
+               /mgmt/tm/ltm/node
+
+           The name of the collection, as exposed to the user, will be made
+           plural. For example,
+
+               mgmt.tm.ltm.nodes
+
+        2. For cases where the actual URI of a collection is plural, for
+           example,
+
+               /mgmt/cm/shared/licensing/pools/
+
+           The name of the collection, as exposed to the user, will remain
+           plural, but will have an `_s` appended to it. For example,
+
+               mgmt.cm.shared.licensing.pools_s
+
+        This method is responsible for undoing the user provided plurality.
+        It ensures that the URI that is being sent to the REST service is
+        correctly plural, or plural plus.
+
+        Returns:
+            A string representation of the user formatted Collection with its
+            plurality identifier removed appropriately.
+        """
+        base_uri = self._format_resource_name()
+        if base_uri[-2:] == '_s':
+            endind = 2
+        else:
+            endind = 1
+        return base_uri[:-endind]
+
+    def _format_resource_name(self):
+        """Formats the name of a Resource
+
+        When the names of Resources are used to create URIs, their names are
+        automatically cast to lowercase to match the actual URI expected by
+        the REST service.
+
+        There are certain URIs, however, that must not be cast in this way.
+
+        For these URIs, this method should be overloaded in the Resource
+        class itself to specify how to handle the Resource name.
+
+        An example of this difference in behavior, refer to the BIG-IQ or
+        iWorkflow APIs such as,
+
+            /mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/
+
+        Returns:
+            A string representation of the Resource as it should be
+            represented when contructing the final URI used to reach that
+            Resource.
+        """
+        return self.__class__.__name__.lower()
 
     def _check_command_parameters(self, **kwargs):
         """Params given to exec_cmd should satisfy required params.

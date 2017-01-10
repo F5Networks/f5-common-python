@@ -118,10 +118,8 @@ class LazyAttributeMixin(object):
             raise LazyAttributesRequired(error_message)
 
         # ensure the requested attr is present
-        lower_attr_names =\
-            [la.__name__.lower() for la in
-                container._meta_data['allowed_lazy_attributes']]
-        if name not in lower_attr_names:
+        attr_names = container.transform_attr_names()
+        if name not in attr_names:
             error_message = "'%s' object has no attribute '%s'"\
                 % (container.__class__, name)
             raise AttributeError(error_message)
@@ -139,6 +137,12 @@ class LazyAttributeMixin(object):
                 if 'Resource' not in bases:
                     setattr(container, name, attribute)
                 return attribute
+
+    def transform_attr_names(self):
+        attr_names = \
+            [la.__name__.lower() for la in
+             self._meta_data['allowed_lazy_attributes']]
+        return attr_names
 
     def _check_supported_versions(self, container, attribute):
         tmos_v = container._meta_data['bigip'].tmos_version
