@@ -93,6 +93,15 @@ def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, opt_token):
     return m
 
 
+@pytest.fixture(scope='session')
+def symbols_mgmt_root(symbols):
+    '''bigip fixture'''
+    m = ManagementRoot(symbols.bigip_mgmt_ip_public,
+                       symbols.bigip_username,
+                       symbols.bigip_password)
+    return m
+
+
 @pytest.fixture(scope='module')
 def vcmp_host(opt_vcmp_host, opt_username, opt_password, opt_port):
     '''vcmp fixture'''
