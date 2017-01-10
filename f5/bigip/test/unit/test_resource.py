@@ -747,7 +747,7 @@ class TestResource_exists(object):
 
     def test_error(self):
         response = requests.Response()
-        response.status_code = 400
+        response.status_code = 409
         mock_session = mock.MagicMock()
         mock_session.get.side_effect = requests.HTTPError(response=response)
         r = Resource(mock.MagicMock(name='mock_base'))
@@ -759,7 +759,7 @@ class TestResource_exists(object):
         r._meta_data['icontrol_version'] = '12.1.0'
         with pytest.raises(requests.HTTPError) as err:
             r.exists(partition='Common', name='test_exists')
-            assert err.response.status_code == 400
+        assert err.value.response.status_code == 409
 
 
 def test_OrganizingCollection():
@@ -1089,7 +1089,7 @@ class TestAsmResource(object):
 
     def test_exists_error(self):
         response = requests.Response()
-        response.status_code = 400
+        response.status_code = 409
         mock_session = mock.MagicMock()
         mock_session.get.side_effect = requests.HTTPError(response=response)
         r = AsmResource(mock.MagicMock())
@@ -1100,7 +1100,7 @@ class TestAsmResource(object):
         }
         with pytest.raises(requests.HTTPError) as err:
             r.exists(id='T84Lsg_fb11W-QDXeCpdkA')
-            assert err.response.status_code == 400
+        assert err.value.response.status_code == 409
 
     def test_exists_pop_name_id_uri(self):
         r = AsmResource(mock.MagicMock())

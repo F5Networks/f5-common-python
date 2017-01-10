@@ -104,6 +104,6 @@ class TestDeviceGroup(object):
         with pytest.raises(iControlUnexpectedHTTPError) as err:
             sync_cmd = 'config-sync from-group %s' % dg1.name
             mgmt_root.tm.cm.exec_cmd('run', utilCmdArgs=sync_cmd)
-            assert err.response.status_code == 400
-            assert 'is not allowed until a push has been done first' \
-                   in err.response.text
+        assert err.value.response.status_code == 400
+        assert 'is not allowed until a push has been done first' \
+               in err.value.response.text
