@@ -87,10 +87,14 @@ def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, opt_token):
         m = ManagementRoot(opt_bigip, opt_username, opt_password,
                            port=opt_port, token=opt_token)
     else:
-        m = ManagementRoot(symbols.bigip_mgmt_ip_public,
-                           symbols.bigip_username,
-                           symbols.bigip_password,
-                           port=opt_port, token=opt_token)
+        if symbols is not None:
+            m = ManagementRoot(symbols.bigip_mgmt_ip_public,
+                               symbols.bigip_username,
+                               symbols.bigip_password,
+                               port=opt_port, token=opt_token)
+        else:
+            m = ManagementRoot(opt_bigip, opt_username, opt_password,
+                               port=opt_port, token=opt_token)
     return m
 
 
