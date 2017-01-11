@@ -85,6 +85,11 @@ def determine_files_to_test(product, commit):
 
     for line in out:
         fname, fext = os.path.splitext(line)
+
+        if not os.path.exists(line):
+            print "{0} was not found. Maybe this is a rename?".format(line)
+            continue
+
         if line in build_all:
             cleanup_tox_directory()
             results.append('f5/{0}'.format(product))
