@@ -58,7 +58,7 @@ def examine_non_python_rules(line):
 def determine_files_to_test(product, commit):
     results = []
     build_all = [
-        'setup.py', 'contexts.py', 'mixins.py', 'resource.py'
+        'setup.py', 'contexts.py', 'mixins.py', 'resource.py', 'f5sdk_plugins/fixtures.py'
     ]
     output_file = "pytest.{0}.jenkins.txt".format(product)
 
