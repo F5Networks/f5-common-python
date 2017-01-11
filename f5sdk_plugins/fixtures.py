@@ -78,28 +78,30 @@ def opt_peer(request):
     return request.config.getoption("--peer")
 
 
-@pytest.fixture
-def bigip(opt_bigip, opt_username, opt_password, opt_port):
-    '''bigip fixture'''
-    b = BigIP(opt_bigip, opt_username, opt_password, port=opt_port)
-    return b
-
-
 @pytest.fixture(scope='session')
 def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, opt_token):
     '''bigip fixture'''
-    m = ManagementRoot(opt_bigip, opt_username, opt_password, port=opt_port,
-                       token=opt_token)
+    try:
+        from pytest import symbols
+    except ImportError:
+        m = ManagementRoot(opt_bigip, opt_username, opt_password,
+                           port=opt_port, token=opt_token)
+    else:
+        if symbols is not None:
+            m = ManagementRoot(symbols.bigip_mgmt_ip_public,
+                               symbols.bigip_username,
+                               symbols.bigip_password,
+                               port=opt_port, token=opt_token)
+        else:
+            m = ManagementRoot(opt_bigip, opt_username, opt_password,
+                               port=opt_port, token=opt_token)
     return m
 
 
-@pytest.fixture(scope='session')
-def symbols_mgmt_root(symbols):
+@pytest.fixture
+def bigip(mgmt_root):
     '''bigip fixture'''
-    m = ManagementRoot(symbols.bigip_mgmt_ip_public,
-                       symbols.bigip_username,
-                       symbols.bigip_password)
-    return m
+    return mgmt_root.tm
 
 
 @pytest.fixture(scope='module')
