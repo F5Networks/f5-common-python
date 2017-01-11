@@ -32,26 +32,6 @@ logger.setLevel(logging.WARNING)
 requests.packages.urllib3.disable_warnings()
 
 
-def pytest_addoption(parser):
-    parser.addoption("--bigip", action="store",
-                     help="BIG-IP hostname or IP address")
-    parser.addoption("--username", action="store", help="BIG-IP REST username",
-                     default="admin")
-    parser.addoption("--password", action="store", help="BIG-IP REST password",
-                     default="admin")
-    parser.addoption("--port", action="store", help="BIG-IP port",
-                     default=443)
-    parser.addoption("--token", action="store_true",
-                     help="Token Authentication")
-    parser.addoption("--peer", action="store",
-                     help="Peer BIG-IP hostname or IP address", default='none')
-    parser.addoption("--release", action="store",
-                     help="TMOS version, in dotted format, eg. 12.0.0",
-                     default='11.6.0')
-    parser.addoption("--vcmp-host", action="store",
-                     help="IP address of VCMP enabled host.")
-
-
 @pytest.fixture
 def fakeicontrolsession(monkeypatch):
     class Response(object):
@@ -104,46 +84,6 @@ def fakeicontrolsession_v12(monkeypatch):
     fakesessioninstance.get = mock.MagicMock(return_value=Response())
     fakesessionclass.return_value = fakesessioninstance
     monkeypatch.setattr('f5.bigip.iControlRESTSession', fakesessionclass)
-
-
-@pytest.fixture(scope='session')
-def opt_bigip(request):
-    return request.config.getoption("--bigip")
-
-
-@pytest.fixture(scope='session')
-def opt_username(request):
-    return request.config.getoption("--username")
-
-
-@pytest.fixture(scope='session')
-def opt_password(request):
-    return request.config.getoption("--password")
-
-
-@pytest.fixture(scope='session')
-def opt_port(request):
-    return request.config.getoption("--port")
-
-
-@pytest.fixture(scope='session')
-def opt_token(request):
-    return request.config.getoption("--token")
-
-
-@pytest.fixture(scope='session')
-def opt_vcmp_host(request):
-    return request.config.getoption("--vcmp-host")
-
-
-@pytest.fixture(scope='session')
-def opt_release(request):
-    return request.config.getoption("--release")
-
-
-@pytest.fixture
-def opt_peer(request):
-    return request.config.getoption("--peer")
 
 
 @pytest.fixture
