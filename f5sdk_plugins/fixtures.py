@@ -78,13 +78,6 @@ def opt_peer(request):
     return request.config.getoption("--peer")
 
 
-@pytest.fixture
-def bigip(opt_bigip, opt_username, opt_password, opt_port):
-    '''bigip fixture'''
-    b = BigIP(opt_bigip, opt_username, opt_password, port=opt_port)
-    return b
-
-
 @pytest.fixture(scope='session')
 def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, opt_token):
     '''bigip fixture'''
@@ -98,8 +91,13 @@ def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, opt_token):
                            symbols.bigip_username,
                            symbols.bigip_password,
                            port=opt_port, token=opt_token)
-    from pprint import pprint as pp
     return m
+
+
+@pytest.fixture
+def bigip(mgmt_root):
+    '''bigip fixture'''
+    return mgmt_root.tm
 
 
 @pytest.fixture(scope='module')
