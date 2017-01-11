@@ -83,7 +83,7 @@ def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, opt_token):
     '''bigip fixture'''
     try:
         from pytest import symbols
-    except ImportError as e:
+    except ImportError:
         m = ManagementRoot(opt_bigip, opt_username, opt_password,
                            port=opt_port, token=opt_token)
     else:
