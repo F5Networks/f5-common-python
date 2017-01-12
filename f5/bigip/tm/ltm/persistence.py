@@ -38,13 +38,13 @@ class Persistence(OrganizingCollection):
     def __init__(self, ltm):
         super(Persistence, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Source_Addrs,
-            Hashs,
-            Sips,
-            Ssls,
-            Dest_Addrs,
-            Msrdps,
             Cookies,
+            Dest_Addrs,
+            Hashs,
+            Msrdps,
+            Sips,
+            Source_Addrs,
+            Ssls,
             Universals
         ]
 
