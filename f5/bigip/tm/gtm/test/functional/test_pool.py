@@ -762,7 +762,7 @@ class TestPools_v11(object):
                                        'Common')
         p1.delete()
         with pytest.raises(HTTPError) as err:
-            mgmt_root.tm.gtm.wideips.wideip.load(name='fake_pool')
+            mgmt_root.tm.gtm.pools.pool.load(name='fake_pool')
         assert err.value.response.status_code == 404
 
     def test_pool_collection(self, request, mgmt_root):
