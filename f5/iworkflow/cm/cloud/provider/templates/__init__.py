@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,4 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-__version__ = '2.1.0'
+
+from f5.iworkflow.cm.cloud.provider.templates.iapp import Iapps
+from f5.iworkflow.resource import OrganizingCollection
+
+
+class Templates(OrganizingCollection):
+    def __init__(self, provider):
+        super(Templates, self).__init__(provider)
+        self._meta_data['allowed_lazy_attributes'] = [
+            Iapps
+        ]

@@ -79,48 +79,48 @@ class HelperTest(object):
 
     def test_MCURDL(self, request, bigip, **kwargs):
         # Testing create
-        wideip, rescollection = self.setup_test(request, bigip, **kwargs)
-        assert wideip.name == self.test_name
-        assert wideip.fullPath == '/Common/'+self.test_name
-        assert wideip.generation and isinstance(wideip.generation, int)
-        assert wideip.kind == self.kinds[self.urielementname()]
+        res, rescollection = self.setup_test(request, bigip, **kwargs)
+        assert res.name == self.test_name
+        assert res.fullPath == '/Common/'+self.test_name
+        assert res.generation and isinstance(res.generation, int)
+        assert res.kind == self.kinds[self.urielementname()]
 
         # Testing update
-        wideip.description = TESTDESCRIPTION
-        wideip.update()
-        if hasattr(wideip, 'description'):
-            assert wideip.description == TESTDESCRIPTION
+        res.description = TESTDESCRIPTION
+        res.update()
+        if hasattr(res, 'description'):
+            assert res.description == TESTDESCRIPTION
 
         # Testing refresh
-        wideip.description = ''
-        wideip.refresh()
-        if hasattr(wideip, 'description'):
-            assert wideip.description == TESTDESCRIPTION
+        res.description = ''
+        res.refresh()
+        if hasattr(res, 'description'):
+            assert res.description == TESTDESCRIPTION
 
         # Testing modify
-        meta_data = wideip.__dict__.pop('_meta_data')
-        start_dict = copy.deepcopy(wideip.__dict__)
-        wideip.__dict__['_meta_data'] = meta_data
-        wideip.modify(description='MODIFIED')
+        meta_data = res.__dict__.pop('_meta_data')
+        start_dict = copy.deepcopy(res.__dict__)
+        res.__dict__['_meta_data'] = meta_data
+        res.modify(description='MODIFIED')
         desc = 'description'
-        for k, v in iteritems(wideip.__dict__):
+        for k, v in iteritems(res.__dict__):
             if k != desc:
-                start_dict[k] = wideip.__dict__[k]
-                assert getattr(wideip, k) == start_dict[k]
+                start_dict[k] = res.__dict__[k]
+                assert getattr(res, k) == start_dict[k]
             elif k == desc:
-                assert getattr(wideip, desc) == 'MODIFIED'
+                assert getattr(res, desc) == 'MODIFIED'
 
         # Testing load
         p2 = getattr(rescollection, self.urielementname())
-        wideip2 = p2.load(partition=self.partition, name=self.test_name)
-        assert wideip.selfLink == wideip2.selfLink
+        res2 = p2.load(partition=self.partition, name=self.test_name)
+        assert res.selfLink == res2.selfLink
 
     def test_collection(self, request, bigip, **kwargs):
-        wideip, rescollection = self.setup_test(request, bigip, **kwargs)
-        assert wideip.name == self.test_name
-        assert wideip.fullPath == '/Common/'+self.test_name
-        assert wideip.generation and isinstance(wideip.generation, int)
-        assert wideip.kind == self.kinds[self.urielementname()]
+        res, rescollection = self.setup_test(request, bigip, **kwargs)
+        assert res.name == self.test_name
+        assert res.fullPath == '/Common/'+self.test_name
+        assert res.generation and isinstance(res.generation, int)
+        assert res.kind == self.kinds[self.urielementname()]
 
         coll = rescollection.get_collection()
         assert isinstance(coll, list)

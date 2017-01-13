@@ -28,7 +28,10 @@ class ManagementRoot(PathElement):
         timeout = kwargs.pop('timeout', 30)
         port = kwargs.pop('port', 443)
         icontrol_version = kwargs.pop('icontrol_version', '')
-        token = kwargs.pop('token', False)
+
+        # The BIG-IQ token is called "local", as opposed to BIG-IP's which
+        # is called "tmos"
+        token = kwargs.pop('token', 'local')
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
         # _meta_data variable values
