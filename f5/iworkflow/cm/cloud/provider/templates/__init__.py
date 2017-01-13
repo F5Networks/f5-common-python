@@ -14,21 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Classes and functions for configuring iWorkflow"""
 
-from f5.iworkflow.cm.cloud.connectors import Connectors
-from f5.iworkflow.cm.cloud.provider import Provider
-from f5.iworkflow.cm.cloud.templates import Templates
-from f5.iworkflow.cm.cloud.tenants import Tenants_s
+from f5.iworkflow.cm.cloud.provider.templates.iapp import Iapps
 from f5.iworkflow.resource import OrganizingCollection
 
 
-class Cloud(OrganizingCollection):
-    def __init__(self, cm):
-        super(Cloud, self).__init__(cm)
+class Templates(OrganizingCollection):
+    def __init__(self, provider):
+        super(Templates, self).__init__(provider)
         self._meta_data['allowed_lazy_attributes'] = [
-            Connectors,
-            Provider,
-            Templates,
-            Tenants_s
+            Iapps
         ]

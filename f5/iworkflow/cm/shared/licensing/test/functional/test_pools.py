@@ -24,6 +24,10 @@ if hasattr(symbols, 'run_iwf_license_tests'):
     if symbols.run_iwf_license_tests is True:
         MISSING_SYMBOLS_LICENSE = False
 
+MISSING_SYMBOLS_BIGIP = True
+if hasattr(symbols, 'run_iwf_cloud_managed_devices_tests'):
+    if symbols.run_iwf_cloud_managed_devices_tests is True:
+        MISSING_SYMBOLS_BIGIP = False
 
 pytestmark = pytest.mark.skipif(
     MISSING_SYMBOLS_LICENSE,
@@ -55,10 +59,10 @@ def pool(mgmt_root):
 def managed_device(mgmt_root):
     dg = mgmt_root.shared.resolver.device_groups
     device = dg.cm_cloud_managed_devices.devices_s.device.create(
-        address="10.2.2.2",
+        address=symbols.iwf_bigip_managed_device,
         userName="admin",
         password="admin",
-        automaticallyUpdateFramework=False
+        automaticallyUpdateFramework=True
     )
     wait_for_state(device, 'ACTIVE')
     yield device
@@ -71,12 +75,13 @@ def pools(mgmt_root):
     return pools
 
 
-class TestLicensePoolCollection(object):
-    def test_get_collection(self, pools):
-        assert len(pools) == 0
-
-
 class TestDeviceLicensing(object):
+    @pytest.mark.skipif(
+        MISSING_SYMBOLS_BIGIP,
+        reason="You must opt-in to run iWorkflow cloud-managed-devices tests."
+               "To run them, set the symbols variable "
+               "'run_iwf_cloud_managed_devices_tests: True'"
+    )
     def test_license_managed_device(self, pool, managed_device):
         """Test licensing a managed device
 
