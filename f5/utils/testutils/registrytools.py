@@ -22,24 +22,22 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.asm import Asm
 
 
-
-
-AGENT_LB_DEL_ORDER = {'/mgmt/tm/ltm/virtual':           1,
-                      '/mgmt/tm/ltm/pool':              2,
-                      'mgmt/tm/ltm/node/':              3,
-                      'monitor':                        4,
-                      'virtual-address':                5,
-                      'mgmt/tm/net/self/':              6,
-                      '/mgmt/tm/net/fdb':               7,
-                      'mgmt/tm/net/tunnels/tunnel/':    8,
-                      'mgmt/tm/net/tunnels/vxlan/':     9,
-                      'mgmt/tm/net/tunnels/gre':       10,
-                      'mgmt/tm/net/vlan':              11,
-                      'route':                         12,
-                      '/mgmt/tm/ltm/snatpool':         13,
+AGENT_LB_DEL_ORDER = {'/mgmt/tm/ltm/virtual': 1,
+                      '/mgmt/tm/ltm/pool': 2,
+                      'mgmt/tm/ltm/node/': 3,
+                      'monitor': 4,
+                      'virtual-address': 5,
+                      'mgmt/tm/net/self/': 6,
+                      '/mgmt/tm/net/fdb': 7,
+                      'mgmt/tm/net/tunnels/tunnel/': 8,
+                      'mgmt/tm/net/tunnels/vxlan/': 9,
+                      'mgmt/tm/net/tunnels/gre': 10,
+                      'mgmt/tm/net/vlan': 11,
+                      'route': 12,
+                      '/mgmt/tm/ltm/snatpool': 13,
                       '/mgmt/tm/ltm/snat-translation': 14,
-                      '/mgmt/tm/net/route-domain':     15,
-                      '/mgmt/tm/sys/folder':           16}
+                      '/mgmt/tm/net/route-domain': 15,
+                      '/mgmt/tm/sys/folder': 16}
 
 
 def order_by_weights(unordered, weights_table):
@@ -63,6 +61,7 @@ def order_by_weights(unordered, weights_table):
         return min_minus_one
     ordered_by_weights = sorted(list(unordered), key=order_key)
     return ordered_by_weights
+
 
 def register_collection_atoms(collection):
     '''Given a collection return a registry of all of its atoms (elements).
