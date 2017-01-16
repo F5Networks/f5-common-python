@@ -15,7 +15,6 @@
 
 import copy
 from distutils.version import LooseVersion
-from f5.bigip.resource import AttemptedMutationOfReadOnly
 from f5.bigip.resource import UnsupportedMethod
 from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm.policies import Blocking_Settings
@@ -58,6 +57,7 @@ from f5.bigip.tm.asm.policies import Whitelist_Ip
 from f5.bigip.tm.asm.policies import Whitelist_Ips_s
 from f5.bigip.tm.asm.policies import Xml_Profile
 from f5.bigip.tm.asm.policies import Xml_Profiles_s
+from f5.sdk_exception import AttemptedMutationOfReadOnly
 
 import pytest
 from requests.exceptions import HTTPError

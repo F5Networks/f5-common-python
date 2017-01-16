@@ -13,9 +13,9 @@
 # limitations under the License.
 #
 
-from f5.bigip.resource import BooleansToReduceHaveSameValue
 from f5.multi_device.utils import get_device_info
 from f5.multi_device.utils import pollster
+from f5.sdk_exception import BooleansToReduceHaveSameValue
 
 import pytest
 
