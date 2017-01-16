@@ -16,8 +16,9 @@
 import mock
 import pytest
 
-from f5.bigip.mixins import UnsupportedMethod
+
 from f5.bigip.tm.sys.dns import Dns
+from f5.sdk_exception import UnsupportedMethod
 
 
 @pytest.fixture

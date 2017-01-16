@@ -16,9 +16,9 @@
 import mock
 import pytest
 
-from f5.bigip.mixins import UnsupportedMethod
 from f5.iworkflow.shared.identified_devices.config.device_info \
     import Device_Info
+from f5.sdk_exception import UnsupportedMethod
 
 
 @pytest.fixture

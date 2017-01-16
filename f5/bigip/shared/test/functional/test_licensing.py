@@ -14,7 +14,7 @@
 
 import pytest
 
-from f5.bigip.mixins import UnsupportedMethod
+from f5.sdk_exception import UnsupportedMethod
 
 
 class TestActivation(object):

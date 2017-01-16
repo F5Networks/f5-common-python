@@ -16,8 +16,8 @@
 import mock
 import pytest
 
-from f5.bigip.mixins import UnsupportedMethod
 from f5.bigip.tm.auth.password_policy import Password_Policy
+from f5.sdk_exception import UnsupportedMethod
 
 
 @pytest.fixture

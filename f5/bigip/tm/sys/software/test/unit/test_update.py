@@ -17,8 +17,8 @@ import mock
 import pytest
 
 
-from f5.bigip.mixins import UnsupportedMethod
 from f5.bigip.tm.sys.software.update import Update
+from f5.sdk_exception import UnsupportedMethod
 
 
 @pytest.fixture
