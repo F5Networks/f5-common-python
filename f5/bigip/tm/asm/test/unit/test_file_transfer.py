@@ -20,11 +20,11 @@ import requests_mock
 import struct
 
 from f5.bigip import ManagementRoot
-from f5.bigip.mixins import EmptyContent
-from f5.bigip.mixins import MissingHttpHeader
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.asm.file_transfer import Downloads
 from f5.bigip.tm.asm.file_transfer import FileMustNotHaveDotISOExtension
+from f5.sdk_exception import EmptyContent
+from f5.sdk_exception import MissingHttpHeader
 
 from requests import HTTPError
 

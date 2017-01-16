@@ -27,12 +27,12 @@ REST Kind
     ``tm:gtm:topology:*``
 """
 from distutils.version import LooseVersion
-from f5.bigip.mixins import UnsupportedTmosVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import InvalidName
 from f5.bigip.resource import Resource
 from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.resource import URICreationCollision
+from f5.sdk_exception import UnsupportedTmosVersion
 
 
 from requests import HTTPError

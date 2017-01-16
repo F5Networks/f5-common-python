@@ -27,37 +27,11 @@ from six import iteritems
 
 import logging
 
-from f5.sdk_exception import F5SDKError
+from f5.sdk_exception import InvalidCommand
+from f5.sdk_exception import LazyAttributesRequired
 from f5.sdk_exception import UnsupportedMethod
+from f5.sdk_exception import UnsupportedTmosVersion
 from f5.sdk_exception import UtilError
-
-
-class InvalidCommand(F5SDKError):
-    """Raise this if command argument supplied is invalid."""
-    pass
-
-
-class UnsupportedTmosVersion(F5SDKError):
-    """Raise the error if a class of an API is instantiated,
-
-    on a TMOS version where API was not yet implemented/supported.
-    """
-    pass
-
-
-class EmptyContent(F5SDKError):
-    """Raise an error if the returned content size is 0"""
-    pass
-
-
-class MissingHttpHeader(F5SDKError):
-    """We raise this when the expected http header in response is missing"""
-    pass
-
-
-class LazyAttributesRequired(F5SDKError):
-    """Raised when a object accesses a lazy attribute that is not listed"""
-    pass
 
 
 class ToDictMixin(object):

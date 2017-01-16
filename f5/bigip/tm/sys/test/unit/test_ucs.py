@@ -20,8 +20,8 @@ import mock
 import pytest
 
 from f5.bigip import ManagementRoot
-from f5.bigip.mixins import UnsupportedTmosVersion
 from f5.bigip.tm.sys.ucs import Ucs
+from f5.sdk_exception import UnsupportedTmosVersion
 
 
 @pytest.fixture

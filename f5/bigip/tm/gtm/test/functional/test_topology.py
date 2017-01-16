@@ -17,11 +17,11 @@
 import pytest
 
 from distutils.version import LooseVersion
-from f5.bigip.mixins import UnsupportedTmosVersion
 from f5.bigip.resource import InvalidName
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.gtm.topology import Topology
+from f5.sdk_exception import UnsupportedTmosVersion
 from pytest import symbols
 from requests.exceptions import HTTPError
 
