@@ -29,11 +29,7 @@ import logging
 
 from f5.sdk_exception import F5SDKError
 from f5.sdk_exception import UnsupportedMethod
-
-
-class UtilError(F5SDKError):
-    """Raise this if command excecution returns an error."""
-    pass
+from f5.sdk_exception import UtilError
 
 
 class InvalidCommand(F5SDKError):
