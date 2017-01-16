@@ -25,17 +25,12 @@ from f5.bigip.resource import AsmResource
 from f5.bigip.resource import AttemptedMutationOfReadOnly
 from f5.bigip.resource import BooleansToReduceHaveSameValue
 from f5.bigip.resource import Collection
-from f5.bigip.resource import DeviceProvidesIncompatibleKey
-from f5.bigip.resource import ExclusiveAttributesPresent
 from f5.bigip.resource import GenerationMismatch
 from f5.bigip.resource import InvalidForceType
-from f5.bigip.resource import InvalidResource
-from f5.bigip.resource import KindTypeMismatch
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import PathElement
-from f5.bigip.resource import RequestParamKwargCollision
 from f5.bigip.resource import Resource
 from f5.bigip.resource import ResourceBase
 from f5.bigip.resource import Stats
@@ -49,7 +44,12 @@ from f5.bigip.tm.cm.sync_status import Sync_Status
 from f5.bigip.tm.ltm.virtual import Policies_s
 from f5.bigip.tm.ltm.virtual import Profiles_s
 from f5.bigip.tm.ltm.virtual import Virtual
+from f5.sdk_exception import DeviceProvidesIncompatibleKey
+from f5.sdk_exception import ExclusiveAttributesPresent
+from f5.sdk_exception import InvalidResource
+from f5.sdk_exception import KindTypeMismatch
 from f5.sdk_exception import MissingRequiredCommandParameter
+from f5.sdk_exception import RequestParamKwargCollision
 from f5.sdk_exception import UnsupportedMethod
 from icontrol.exceptions import iControlUnexpectedHTTPError
 

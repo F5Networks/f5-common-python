@@ -16,8 +16,8 @@
 import mock
 import pytest
 
-from f5.bigip.resource import MissingUpdateParameter
 from f5.bigip.tm.ltm.profile import Ocsp_Stapling_Params
+from f5.sdk_exception import MissingUpdateParameter
 
 
 @pytest.fixture
