@@ -17,7 +17,7 @@ import copy
 import pytest
 
 from distutils.version import LooseVersion
-from f5.bigip.mixins import UnsupportedTmosVersion
+from f5.sdk_exception import UnsupportedTmosVersion
 from six import iteritems
 
 

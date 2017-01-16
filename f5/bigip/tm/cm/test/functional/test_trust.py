@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.bigip.mixins import InvalidCommand
+from f5.sdk_exception import InvalidCommand
 import pytest
 
 

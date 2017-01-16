@@ -16,10 +16,10 @@
 import logging
 from six import itervalues
 
-from f5.bigip.mixins import UnsupportedTmosVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.asm import Asm
+from f5.sdk_exception import UnsupportedTmosVersion
 
 
 AGENT_LB_DEL_ORDER = {'/mgmt/tm/ltm/virtual': 1,

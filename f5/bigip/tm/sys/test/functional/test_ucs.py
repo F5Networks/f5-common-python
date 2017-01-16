@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.bigip.mixins import LazyAttributesRequired
+from f5.sdk_exception import LazyAttributesRequired
 import pytest
 import time
 
