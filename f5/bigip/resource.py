@@ -103,6 +103,8 @@ except ImportError:
 
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
+from f5.sdk_exception import AttemptedMutationOfReadOnly
+from f5.sdk_exception import BooleansToReduceHaveSameValue
 from f5.sdk_exception import DeviceProvidesIncompatibleKey
 from f5.sdk_exception import ExclusiveAttributesPresent
 from f5.sdk_exception import F5SDKError
@@ -134,16 +136,6 @@ class URICreationCollision(F5SDKError):
 
 class UnsupportedOperation(F5SDKError):
     """Object does not support the method that was called."""
-    pass
-
-
-class BooleansToReduceHaveSameValue(F5SDKError):
-    '''Dict contains two keys with same boolean value.'''
-    pass
-
-
-class AttemptedMutationOfReadOnly(F5SDKError):
-    """Read only parameters cannot be set."""
     pass
 
 

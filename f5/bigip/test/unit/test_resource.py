@@ -22,8 +22,6 @@ import requests
 
 from f5.bigip.resource import _missing_required_parameters
 from f5.bigip.resource import AsmResource
-from f5.bigip.resource import AttemptedMutationOfReadOnly
-from f5.bigip.resource import BooleansToReduceHaveSameValue
 from f5.bigip.resource import Collection
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import OrganizingCollection
@@ -40,6 +38,8 @@ from f5.bigip.tm.cm.sync_status import Sync_Status
 from f5.bigip.tm.ltm.virtual import Policies_s
 from f5.bigip.tm.ltm.virtual import Profiles_s
 from f5.bigip.tm.ltm.virtual import Virtual
+from f5.sdk_exception import AttemptedMutationOfReadOnly
+from f5.sdk_exception import BooleansToReduceHaveSameValue
 from f5.sdk_exception import DeviceProvidesIncompatibleKey
 from f5.sdk_exception import ExclusiveAttributesPresent
 from f5.sdk_exception import GenerationMismatch
