@@ -16,7 +16,7 @@
 from distutils.version import LooseVersion
 import pytest
 
-from f5.bigip.mixins import UtilError
+from f5.sdk_exception import UtilError
 from icontrol.session import iControlUnexpectedHTTPError
 import os
 from tempfile import NamedTemporaryFile
