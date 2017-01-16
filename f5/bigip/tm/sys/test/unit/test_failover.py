@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-from f5.bigip.resource import ExclusiveAttributesPresent
 from f5.bigip.tm.sys import Failover
+from f5.sdk_exception import ExclusiveAttributesPresent
 
 import mock
 import pytest

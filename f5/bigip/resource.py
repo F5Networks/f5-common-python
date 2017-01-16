@@ -103,47 +103,19 @@ except ImportError:
 
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
+from f5.sdk_exception import DeviceProvidesIncompatibleKey
+from f5.sdk_exception import ExclusiveAttributesPresent
 from f5.sdk_exception import F5SDKError
+from f5.sdk_exception import InvalidResource
+from f5.sdk_exception import KindTypeMismatch
 from f5.sdk_exception import MissingRequiredCommandParameter
+from f5.sdk_exception import RequestParamKwargCollision
 from f5.sdk_exception import UnsupportedMethod
 from icontrol.exceptions import iControlUnexpectedHTTPError
 from requests.exceptions import HTTPError
 from six import iteritems
 from six import iterkeys
 from six import itervalues
-
-
-class ExclusiveAttributesPresent(F5SDKError):
-    """Raises this when exclusive attributes are present."""
-    pass
-
-
-class MissingUpdateParameter(F5SDKError):
-    """Raises this when update requires specific parameters together."""
-    pass
-
-
-class RequestParamKwargCollision(F5SDKError):
-    pass
-
-
-class KindTypeMismatch(F5SDKError):
-    """Raise this when server JSON keys are incorrect for the Resource type."""
-    pass
-
-
-class DeviceProvidesIncompatibleKey(F5SDKError):
-    """Raise this when server JSON keys are incompatible with Python."""
-    pass
-
-
-class InvalidResource(F5SDKError):
-    """Raise this when a caller tries to invoke an unsupported CRUDL op.
-
-    All resources support `refresh` and `raw`.
-    Only `Resource`'s support `load`, `create`, `update`, and `delete`.
-    """
-    pass
 
 
 class MissingRequiredCreationParameter(F5SDKError):
