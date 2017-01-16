@@ -45,7 +45,7 @@ def setup_basic_test(request, bigip, name, partition):
     return v
 
 
-def setup_interfaces_test(request, bigip, name, partition, iname='1.1'):
+def setup_interfaces_test(request, bigip, name, partition, iname='1.3'):
     v = setup_basic_test(request, bigip, name, partition)
     i = v.interfaces_s.interfaces.create(name=iname)
     return i, v
@@ -73,11 +73,11 @@ class TestVLANInterfacesCollection(object):
     def test_get_collection(self, request, bigip):
         # Setup will create a VLAN and one interfaces
         v1 = setup_basic_test(request, bigip, 'v1', 'Common')
-        v1.interfaces_s.interfaces.create(name='1.1')
+        v1.interfaces_s.interfaces.create(name='1.3')
         ifcs = v1.interfaces_s.get_collection()
         i2 = ifcs[0]
         assert len(ifcs) is 1
-        assert ifcs[0].name == '1.1'
+        assert ifcs[0].name == '1.3'
         i2.delete()
         ifcs = v1.interfaces_s.get_collection()
         assert len(ifcs) is 0
@@ -86,7 +86,7 @@ class TestVLANInterfacesCollection(object):
 class TestVLANInterfaces(object):
     def test_create_interfaces(self, request, bigip):
         i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
-        assert i.name == '1.1'
+        assert i.name == '1.3'
 
     @pytest.mark.skipif(
         LooseVersion(
@@ -216,7 +216,7 @@ class TestVLANInterfaces(object):
 
     def test_load(self, request, bigip):
         i1, v = setup_interfaces_test(request, bigip, 'v1', 'Common')
-        i2 = v.interfaces_s.interfaces.load(name='1.1')
+        i2 = v.interfaces_s.interfaces.load(name='1.3')
         assert i1.name == i2.name
         assert i1.generation == i2.generation
 
@@ -251,13 +251,13 @@ class TestVLAN(object):
         # Create a VLAN and verify some of the attributes
         v1 = bigip.net.vlans.vlan.create(name='v1', partition='Common')
         v1.interfaces_s.interfaces.create(
-            name='1.1', tagged=True, tagMode='service')
+            name='1.3', tagged=True, tagMode='service')
         v1_ifcs = v1.interfaces_s.get_collection()
         gen1 = v1.generation
         assert v1.name == 'v1'
         assert hasattr(v1, 'generation') and isinstance(v1.generation, int)
         assert len(v1_ifcs) == 1
-        assert v1_ifcs[0].name == '1.1'
+        assert v1_ifcs[0].name == '1.3'
 
         # Update it
         v1.description = DESCRIPTION
@@ -294,7 +294,7 @@ class TestVLAN(object):
         v1 = bigip.net.vlans.vlan.create(name='v1', partition='Common')
         with pytest.raises(TagModeDisallowedForTMOSVersion) as ex:
             v1.interfaces_s.interfaces.create(
-                name='1.1', tagged=True, tagMode='service')
+                name='1.3', tagged=True, tagMode='service')
         assert "'tagMode', is not allowed against the following version of " \
             'TMOS: 11.5.4' in ex.value.message
 
