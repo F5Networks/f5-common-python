@@ -23,15 +23,12 @@ import requests
 from f5.bigip.resource import _missing_required_parameters
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import PathElement
 from f5.bigip.resource import Resource
 from f5.bigip.resource import ResourceBase
 from f5.bigip.resource import Stats
 from f5.bigip.resource import UnnamedResource
-from f5.bigip.resource import UnsupportedOperation
-from f5.bigip.resource import URICreationCollision
 from f5.bigip.tm.asm.signature_sets import Signature_Set
 from f5.bigip.tm.asm.tasks import Check_Signature
 from f5.bigip.tm.cm.sync_status import Sync_Status
@@ -47,10 +44,13 @@ from f5.sdk_exception import InvalidForceType
 from f5.sdk_exception import InvalidResource
 from f5.sdk_exception import KindTypeMismatch
 from f5.sdk_exception import MissingRequiredCommandParameter
+from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import MissingRequiredReadParameter
 from f5.sdk_exception import RequestParamKwargCollision
 from f5.sdk_exception import UnregisteredKind
 from f5.sdk_exception import UnsupportedMethod
+from f5.sdk_exception import UnsupportedOperation
+from f5.sdk_exception import URICreationCollision
 from icontrol.exceptions import iControlUnexpectedHTTPError
 
 

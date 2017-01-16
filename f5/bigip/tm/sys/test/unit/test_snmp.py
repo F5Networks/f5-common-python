@@ -16,11 +16,11 @@
 import mock
 import pytest
 
-from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.sys.snmp import Snmp
 from f5.bigip.tm.sys.snmp import Trap
 from f5.bigip.tm.sys.snmp import User
 from f5.sdk_exception import UnsupportedMethod
+from f5.sdk_exception import UnsupportedOperation
 
 
 @pytest.fixture

@@ -16,10 +16,10 @@
 import mock
 import pytest
 
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.vcmp.guest import DisallowedCreationParameter
 from f5.bigip.tm.vcmp.guest import DisallowedReadParameter
 from f5.bigip.tm.vcmp.guest import Guest
+from f5.sdk_exception import MissingRequiredCreationParameter
 
 
 @pytest.fixture

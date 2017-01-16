@@ -16,8 +16,8 @@
 import mock
 import pytest
 
-from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.net.interface import Interface
+from f5.sdk_exception import UnsupportedOperation
 
 
 @pytest.fixture

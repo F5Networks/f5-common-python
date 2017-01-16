@@ -18,7 +18,6 @@ import pytest
 
 from f5.bigip import ManagementRoot
 from f5.bigip.resource import Collection
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.gtm.wideip import A
 from f5.bigip.tm.gtm.wideip import Aaaa
@@ -28,6 +27,7 @@ from f5.bigip.tm.gtm.wideip import Naptr
 from f5.bigip.tm.gtm.wideip import Srv
 from f5.bigip.tm.gtm.wideip import Wideip
 from f5.bigip.tm.gtm.wideip import WideipCollection
+from f5.sdk_exception import MissingRequiredCreationParameter
 
 from six import iterkeys
 

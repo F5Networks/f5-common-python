@@ -18,9 +18,7 @@ import pytest
 
 from f5.bigip import ManagementRoot
 from f5.bigip.resource import Collection
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import OrganizingCollection
-from f5.bigip.resource import URICreationCollision
 from f5.bigip.tm.gtm.pool import A
 from f5.bigip.tm.gtm.pool import Aaaa
 from f5.bigip.tm.gtm.pool import Cname
@@ -45,6 +43,8 @@ from f5.bigip.tm.gtm.pool import Naptr
 from f5.bigip.tm.gtm.pool import Pool
 from f5.bigip.tm.gtm.pool import PoolCollection
 from f5.bigip.tm.gtm.pool import Srv
+from f5.sdk_exception import MissingRequiredCreationParameter
+from f5.sdk_exception import URICreationCollision
 from requests import HTTPError
 
 from six import iterkeys

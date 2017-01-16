@@ -14,8 +14,8 @@
 #
 
 from f5.bigip import ManagementRoot
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.asm.signatures import Signature
+from f5.sdk_exception import MissingRequiredCreationParameter
 
 import mock
 import pytest

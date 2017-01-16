@@ -19,7 +19,7 @@ from distutils.version import LooseVersion
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
 from f5.bigip.resource import UnnamedResource
-from f5.bigip.resource import UnsupportedOperation
+from f5.sdk_exception import UnsupportedOperation
 
 
 class Policies_s(Collection):

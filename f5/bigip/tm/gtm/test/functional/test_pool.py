@@ -14,7 +14,6 @@
 #
 import copy
 from distutils.version import LooseVersion
-from f5.bigip.resource import URICreationCollision
 from f5.bigip.tm.gtm.pool import A
 from f5.bigip.tm.gtm.pool import Aaaa
 from f5.bigip.tm.gtm.pool import Cname
@@ -29,6 +28,7 @@ from f5.bigip.tm.gtm.pool import Mx
 from f5.bigip.tm.gtm.pool import Naptr
 from f5.bigip.tm.gtm.pool import Pool
 from f5.bigip.tm.gtm.pool import Srv
+from f5.sdk_exception import URICreationCollision
 import mock
 import pytest
 

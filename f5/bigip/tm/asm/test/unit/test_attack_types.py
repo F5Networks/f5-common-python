@@ -14,8 +14,8 @@
 #
 
 from f5.bigip import ManagementRoot
-from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm.attack_types import Attack_Type
+from f5.sdk_exception import UnsupportedOperation
 
 import mock
 import pytest

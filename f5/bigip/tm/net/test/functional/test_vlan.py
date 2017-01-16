@@ -16,8 +16,8 @@
 from distutils.version import LooseVersion
 import pytest
 
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.net.vlan import TagModeDisallowedForTMOSVersion
+from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import MissingUpdateParameter
 from icontrol.session import iControlUnexpectedHTTPError
 from requests.exceptions import HTTPError

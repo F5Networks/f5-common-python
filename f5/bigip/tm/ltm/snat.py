@@ -28,12 +28,13 @@ REST Kind
 """
 
 from f5.bigip.resource import Collection
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import Resource
+from f5.sdk_exception import MissingRequiredCreationParameter
 
 from six import iterkeys
 
 
+# ToDo This is a prime example of duplication, needs to be removed
 class RequireOneOf(MissingRequiredCreationParameter):
     pass
 

@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm.signature_systems import Signature_System
+from f5.sdk_exception import UnsupportedOperation
 
 import mock
 import pytest

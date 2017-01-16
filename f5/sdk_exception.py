@@ -119,13 +119,13 @@ class MissingHttpHeader(F5SDKError):
     pass
 
 
-class MissingRequiredCommandParameter(F5SDKError):
-    """Various values MUST be provided to execute a command."""
+class MissingRequiredCreationParameter(F5SDKError):
+    """Various values MUST be provided to create different Resources."""
     pass
 
 
-class MissingRequiredCreationParameter(F5SDKError):
-    """Various values MUST be provided to create different Resources."""
+class MissingRequiredCommandParameter(F5SDKError):
+    """Various values MUST be provided to execute a command."""
     pass
 
 

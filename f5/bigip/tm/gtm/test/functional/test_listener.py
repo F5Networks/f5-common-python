@@ -17,10 +17,10 @@ import copy
 import pytest
 
 from distutils.version import LooseVersion
-from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.gtm.listener import Listener
+from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import MissingRequiredReadParameter
+from f5.sdk_exception import UnsupportedOperation
 from pytest import symbols
 from requests.exceptions import HTTPError
 from six import iteritems

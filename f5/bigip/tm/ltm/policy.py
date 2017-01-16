@@ -29,9 +29,9 @@ REST Kind
 
 from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import Collection
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import Resource
 from f5.sdk_exception import F5SDKError
+from f5.sdk_exception import MissingRequiredCreationParameter
 
 from distutils.version import LooseVersion
 

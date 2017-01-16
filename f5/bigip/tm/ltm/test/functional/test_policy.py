@@ -19,9 +19,9 @@ import json
 import os
 import pytest
 
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.ltm.policy import NonExtantPolicyRule
 from f5.bigip.tm.ltm.policy import OperationNotSupportedOnPublishedPolicy
+from f5.sdk_exception import MissingRequiredCreationParameter
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
 CURDIR = os.path.dirname(os.path.realpath(__file__))

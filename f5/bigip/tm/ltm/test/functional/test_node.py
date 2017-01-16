@@ -15,7 +15,7 @@
 
 import pytest
 
-from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import NodeStateModifyUnsupported
 
 

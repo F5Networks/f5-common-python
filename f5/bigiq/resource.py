@@ -22,8 +22,8 @@ from f5.bigip.resource import PathElement as BigIpPathElement
 from f5.bigip.resource import Resource as BigIpResource
 from f5.bigip.resource import ResourceBase as BigIpResourceBase
 from f5.bigip.resource import UnnamedResource as BigIpUnnamedResource
-from f5.bigip.resource import UnsupportedOperation
-from f5.bigip.resource import URICreationCollision
+from f5.sdk_exception import UnsupportedOperation
+from f5.sdk_exception import URICreationCollision
 
 
 class PathElement(BigIpPathElement):

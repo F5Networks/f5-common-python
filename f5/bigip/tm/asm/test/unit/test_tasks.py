@@ -14,12 +14,12 @@
 #
 
 from f5.bigip import ManagementRoot
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import OrganizingCollection
-from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm.tasks import Check_Signature
 from f5.bigip.tm.asm.tasks import Export_Signature
 from f5.bigip.tm.asm.tasks import Update_Signature
+from f5.sdk_exception import MissingRequiredCreationParameter
+from f5.sdk_exception import UnsupportedOperation
 
 import mock
 import pytest

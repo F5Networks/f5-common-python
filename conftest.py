@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from f5.bigip.resource import UnsupportedOperation
+from f5.sdk_exception import UnsupportedOperation
 from f5.utils.testutils.registrytools import register_device
 from icontrol.session import iControlRESTSession
 import logging
