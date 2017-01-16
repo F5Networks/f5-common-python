@@ -31,7 +31,6 @@ from f5.bigip.resource import GenerationMismatch
 from f5.bigip.resource import InvalidForceType
 from f5.bigip.resource import InvalidResource
 from f5.bigip.resource import KindTypeMismatch
-from f5.bigip.resource import MissingRequiredCommandParameter
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import MissingRequiredReadParameter
 from f5.bigip.resource import OrganizingCollection
@@ -50,6 +49,7 @@ from f5.bigip.tm.cm.sync_status import Sync_Status
 from f5.bigip.tm.ltm.virtual import Policies_s
 from f5.bigip.tm.ltm.virtual import Profiles_s
 from f5.bigip.tm.ltm.virtual import Virtual
+from f5.sdk_exception import MissingRequiredCommandParameter
 from f5.sdk_exception import UnsupportedMethod
 from icontrol.exceptions import iControlUnexpectedHTTPError
 

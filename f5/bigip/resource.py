@@ -104,17 +104,13 @@ except ImportError:
 from f5.bigip.mixins import LazyAttributeMixin
 from f5.bigip.mixins import ToDictMixin
 from f5.sdk_exception import F5SDKError
+from f5.sdk_exception import MissingRequiredCommandParameter
 from f5.sdk_exception import UnsupportedMethod
 from icontrol.exceptions import iControlUnexpectedHTTPError
 from requests.exceptions import HTTPError
 from six import iteritems
 from six import iterkeys
 from six import itervalues
-
-
-class MissingRequiredCommandParameter(F5SDKError):
-    """Various values MUST be provided to execute a command."""
-    pass
 
 
 class ExclusiveAttributesPresent(F5SDKError):
