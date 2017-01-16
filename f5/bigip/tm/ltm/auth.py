@@ -25,10 +25,10 @@ GUI Path
 REST Kind
     ``tm:ltm:auth:*``
 """
-from f5.bigip.mixins import UnsupportedMethod
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import UnsupportedMethod
 
 
 class Auth(OrganizingCollection):

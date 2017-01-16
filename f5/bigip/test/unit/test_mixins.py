@@ -23,10 +23,10 @@ import struct
 from f5.bigip.mixins import AsmFileMixin
 from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.mixins import ToDictMixin
-from f5.bigip.mixins import UnsupportedMethod
 from f5.bigip.resource import Resource
 from f5.sdk_exception import EmptyContent
 from f5.sdk_exception import MissingHttpHeader
+from f5.sdk_exception import UnsupportedMethod
 
 from requests import HTTPError
 

@@ -16,7 +16,7 @@
 import pytest
 
 from distutils.version import LooseVersion
-from f5.bigip.resource import MissingRequiredCommandParameter
+from f5.sdk_exception import MissingRequiredCommandParameter
 from icontrol.session import iControlUnexpectedHTTPError
 
 
