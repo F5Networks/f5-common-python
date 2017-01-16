@@ -86,7 +86,7 @@ class InvalidForceType(ValueError):
 
 
 class InvalidName(ValueError):
-    """Raised during creationm when a given resource name is invalid."""
+    """Raised during creation when a given resource name is invalid."""
     pass
 
 

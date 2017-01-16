@@ -14,9 +14,9 @@
 #
 
 from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.resource import MissingRequiredReadParameter
 from f5.bigip.tm.vcmp.guest import DisallowedCreationParameter
 from f5.bigip.tm.vcmp.guest import DisallowedReadParameter
+from f5.sdk_exception import MissingRequiredReadParameter
 from icontrol.session import iControlUnexpectedHTTPError
 from six import iteritems
 

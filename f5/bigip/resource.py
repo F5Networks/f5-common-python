@@ -106,10 +106,14 @@ from f5.bigip.mixins import ToDictMixin
 from f5.sdk_exception import DeviceProvidesIncompatibleKey
 from f5.sdk_exception import ExclusiveAttributesPresent
 from f5.sdk_exception import F5SDKError
+from f5.sdk_exception import GenerationMismatch
+from f5.sdk_exception import InvalidForceType
 from f5.sdk_exception import InvalidResource
 from f5.sdk_exception import KindTypeMismatch
 from f5.sdk_exception import MissingRequiredCommandParameter
+from f5.sdk_exception import MissingRequiredReadParameter
 from f5.sdk_exception import RequestParamKwargCollision
+from f5.sdk_exception import UnregisteredKind
 from f5.sdk_exception import UnsupportedMethod
 from icontrol.exceptions import iControlUnexpectedHTTPError
 from requests.exceptions import HTTPError
@@ -120,31 +124,6 @@ from six import itervalues
 
 class MissingRequiredCreationParameter(F5SDKError):
     """Various values MUST be provided to create different Resources."""
-    pass
-
-
-class MissingRequiredReadParameter(F5SDKError):
-    """Various values MUST be provided to refresh some Resources."""
-    pass
-
-
-class UnregisteredKind(F5SDKError):
-    """The returned server JSON `kind` key wasn't expected by this Resource."""
-    pass
-
-
-class GenerationMismatch(F5SDKError):
-    """The server reported BIG-IP® is not the expacted value."""
-    pass
-
-
-class InvalidForceType(ValueError):
-    """Must be of type bool."""
-    pass
-
-
-class InvalidName(ValueError):
-    """Raised during creationm when a given resource name is invalid"""
     pass
 
 

@@ -15,7 +15,7 @@
 
 from distutils.version import LooseVersion
 from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.resource import MissingRequiredReadParameter
+from f5.sdk_exception import MissingRequiredReadParameter
 from six import iteritems
 
 import copy
