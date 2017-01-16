@@ -27,10 +27,10 @@ from six import iteritems
 
 import logging
 
-from f5.sdk_exception import InvalidCommand
 from f5.sdk_exception import EmptyContent
-from f5.sdk_exception import MissingHttpHeader
+from f5.sdk_exception import InvalidCommand
 from f5.sdk_exception import LazyAttributesRequired
+from f5.sdk_exception import MissingHttpHeader
 from f5.sdk_exception import UnsupportedMethod
 from f5.sdk_exception import UnsupportedTmosVersion
 from f5.sdk_exception import UtilError
