@@ -132,7 +132,7 @@ def test_404_response():
     try:
         dwnld.download_file('fakefile.txt')
     except HTTPError as err:
-        assert err.value.response.status_code == 404
+        assert err.response.status_code == 404
 
 
 def test_zero_content_length_header():
@@ -143,11 +143,11 @@ def test_zero_content_length_header():
         'mock://test.com/fakefile.txt', headers=header,
         status_code=200)
     dwnld = FakeDownload(session)
+    msg = "Invalid Content-Length value returned: 0 ,the value " \
+          "should be greater than 0"
     with pytest.raises(EmptyContent) as err:
         dwnld.download_file('fakefile.txt')
-        msg = "Invalid Content-Length value returned: %s ,the value " \
-              "should be greater than 0"
-        assert err.value.message == msg
+    assert err.value.message == msg
 
 
 def test_no_content_length_header():
@@ -157,7 +157,7 @@ def test_no_content_length_header():
         'mock://test.com/fakefile.txt', headers=header,
         status_code=200)
     dwnld = FakeDownload(session)
+    msg = "The Content-Length header is not present."
     with pytest.raises(MissingHttpHeader) as err:
         dwnld.download_file('fakefile.txt')
-        msg = "The Content-Length header is not present."
-        assert err.value.message == msg
+    assert err.value.message == msg

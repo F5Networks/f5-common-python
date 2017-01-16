@@ -28,6 +28,8 @@ from six import iteritems
 import logging
 
 from f5.sdk_exception import InvalidCommand
+from f5.sdk_exception import EmptyContent
+from f5.sdk_exception import MissingHttpHeader
 from f5.sdk_exception import LazyAttributesRequired
 from f5.sdk_exception import UnsupportedMethod
 from f5.sdk_exception import UnsupportedTmosVersion
@@ -324,7 +326,7 @@ class AsmFileMixin(object):
                     writefh.write(response.content)
                 else:
                     error = "Invalid Content-Length value returned: %s ," \
-                            "the value should be reater than 0" % length
+                            "the value should be greater than 0" % length
                     raise EmptyContent(error)
 
     def _upload_file(self, filepathname, **kwargs):
