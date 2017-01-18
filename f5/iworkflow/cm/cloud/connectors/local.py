@@ -36,7 +36,7 @@ class Locals(Collection):
         super(Locals, self).__init__(connectors)
         self._meta_data['allowed_lazy_attributes'] = [Local]
         self._meta_data['attribute_registry'] = {
-            'cm:cloud:connectors:genericconnectorcollectionworkerstate': Local
+            'cm:cloud:connectors:cloudconnectorstate': Local
         }
 
 
