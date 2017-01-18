@@ -30,11 +30,7 @@ REST Kind
 from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
-from f5.sdk_exception import F5SDKError
-
-
-class NonExtantVirtualPolicy(F5SDKError):
-    pass
+from f5.sdk_exception import NonExtantVirtualPolicy
 
 
 class Virtuals(Collection):

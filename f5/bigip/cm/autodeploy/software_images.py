@@ -20,12 +20,7 @@ import os
 
 from f5.bigip.mixins import FileUploadMixin
 from f5.bigip.resource import PathElement
-from f5.sdk_exception import F5SDKError
-
-
-class ImageFilesMustHaveDotISOExtension(F5SDKError):
-    def __init__(self, filename):
-        super(ImageFilesMustHaveDotISOExtension, self).__init__(filename)
+from f5.sdk_exception import ImageFilesMustHaveDotISOExtension
 
 
 class Software_Image_Uploads(PathElement, FileUploadMixin):

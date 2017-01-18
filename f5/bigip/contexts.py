@@ -19,11 +19,7 @@
 import copy
 import logging
 
-from f5.sdk_exception import F5SDKError
-
-
-class TransactionSubmitException(F5SDKError):
-    pass
+from f5.sdk_exception import TransactionSubmitException
 
 
 class TransactionContextManager(object):
