@@ -14,8 +14,8 @@
 #
 
 from f5.bigip import ManagementRoot
-from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm.signature_statuses import Signature_Status
+from f5.sdk_exception import UnsupportedOperation
 
 import mock
 import pytest

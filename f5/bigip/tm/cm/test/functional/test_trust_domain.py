@@ -14,7 +14,7 @@
 #
 import pytest
 
-from f5.bigip.resource import UnsupportedOperation
+from f5.sdk_exception import UnsupportedOperation
 
 
 # Obtaining device name for tests to work

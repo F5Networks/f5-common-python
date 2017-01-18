@@ -107,36 +107,23 @@ from f5.sdk_exception import AttemptedMutationOfReadOnly
 from f5.sdk_exception import BooleansToReduceHaveSameValue
 from f5.sdk_exception import DeviceProvidesIncompatibleKey
 from f5.sdk_exception import ExclusiveAttributesPresent
-from f5.sdk_exception import F5SDKError
 from f5.sdk_exception import GenerationMismatch
 from f5.sdk_exception import InvalidForceType
 from f5.sdk_exception import InvalidResource
 from f5.sdk_exception import KindTypeMismatch
 from f5.sdk_exception import MissingRequiredCommandParameter
+from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import MissingRequiredReadParameter
 from f5.sdk_exception import RequestParamKwargCollision
 from f5.sdk_exception import UnregisteredKind
 from f5.sdk_exception import UnsupportedMethod
+from f5.sdk_exception import UnsupportedOperation
+from f5.sdk_exception import URICreationCollision
 from icontrol.exceptions import iControlUnexpectedHTTPError
 from requests.exceptions import HTTPError
 from six import iteritems
 from six import iterkeys
 from six import itervalues
-
-
-class MissingRequiredCreationParameter(F5SDKError):
-    """Various values MUST be provided to create different Resources."""
-    pass
-
-
-class URICreationCollision(F5SDKError):
-    """self._meta_data['uri'] can only be assigned once. In create or load."""
-    pass
-
-
-class UnsupportedOperation(F5SDKError):
-    """Object does not support the method that was called."""
-    pass
 
 
 def _missing_required_parameters(rqset, **kwargs):

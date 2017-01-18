@@ -16,7 +16,6 @@
 #
 
 from f5.bigip import ManagementRoot
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.resource import UnsupportedMethod
 from f5.bigip.tm.ltm.auth import Crldp_Server
 from f5.bigip.tm.ltm.auth import Kerberos_Delegation
@@ -29,6 +28,7 @@ from f5.bigip.tm.ltm.auth import Ssl_Cc_Ldap
 from f5.bigip.tm.ltm.auth import Ssl_Crldp
 from f5.bigip.tm.ltm.auth import Ssl_Ocsp
 from f5.bigip.tm.ltm.auth import Tacacs
+from f5.sdk_exception import MissingRequiredCreationParameter
 import mock
 import pytest
 from six import iterkeys

@@ -31,7 +31,7 @@ from f5.bigip.resource import AsmResource
 from f5.bigip.resource import AsmTaskResource
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
-from f5.bigip.resource import UnsupportedOperation
+from f5.sdk_exception import UnsupportedOperation
 
 
 class Tasks(OrganizingCollection):

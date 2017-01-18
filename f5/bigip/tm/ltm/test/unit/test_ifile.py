@@ -16,8 +16,8 @@
 import mock
 import pytest
 
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.ltm.ifile import Ifile
+from f5.sdk_exception import MissingRequiredCreationParameter
 
 
 @pytest.fixture

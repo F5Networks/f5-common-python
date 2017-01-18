@@ -18,14 +18,14 @@ import pytest
 from requests import HTTPError
 
 from f5.bigip import ManagementRoot
-from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.resource import URICreationCollision
 from f5.bigip.tm.sys.application import Aplscript
 from f5.bigip.tm.sys.application import Customstat
 from f5.bigip.tm.sys.application import Service
 from f5.bigip.tm.sys.application import Template
 from f5.sdk_exception import KindTypeMismatch
+from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import MissingRequiredReadParameter
+from f5.sdk_exception import URICreationCollision
 
 
 KIND_MISMATCH = {

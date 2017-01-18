@@ -18,7 +18,7 @@ import pytest
 from requests.exceptions import HTTPError
 from six import iterkeys
 
-from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.sdk_exception import MissingRequiredCreationParameter
 
 TESTDESCRIPTION = 'TESTDESCRIPTION'
 

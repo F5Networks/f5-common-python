@@ -15,9 +15,8 @@
 
 import pytest
 
-from f5.bigip.resource import MissingRequiredCreationParameter
+from f5.sdk_exception import MissingRequiredCreationParameter
 from requests.exceptions import HTTPError
-
 
 TEST_IP = '192.168.98.100'
 TEST_MAC = '02:00:00:00:00:01'

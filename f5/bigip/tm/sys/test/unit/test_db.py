@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.sys import Dbs
+from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 

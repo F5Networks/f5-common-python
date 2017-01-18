@@ -14,8 +14,6 @@
 #
 
 from f5.bigip import ManagementRoot
-from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.bigip.resource import UnsupportedOperation
 from f5.bigip.tm.asm import Asm
 from f5.bigip.tm.asm.policies import Evasion
 from f5.bigip.tm.asm.policies import Header
@@ -31,6 +29,8 @@ from f5.bigip.tm.asm.policies import UrlParametersCollection
 from f5.bigip.tm.asm.policies import UrlParametersResource
 from f5.bigip.tm.asm.policies import Violation
 from f5.bigip.tm.asm.policies import Web_Services_Security
+from f5.sdk_exception import MissingRequiredCreationParameter
+from f5.sdk_exception import UnsupportedOperation
 
 
 import mock

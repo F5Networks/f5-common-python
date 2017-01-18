@@ -30,8 +30,8 @@ REST Kind
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
-from f5.bigip.resource import UnsupportedOperation
 from f5.sdk_exception import MissingUpdateParameter
+from f5.sdk_exception import UnsupportedOperation
 
 
 class Profile(OrganizingCollection):

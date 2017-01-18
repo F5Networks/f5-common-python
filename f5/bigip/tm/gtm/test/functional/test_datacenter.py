@@ -15,8 +15,8 @@
 
 import pytest
 
-from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.gtm.datacenter import Datacenter
+from f5.sdk_exception import MissingRequiredCreationParameter
 from pytest import symbols
 from requests.exceptions import HTTPError
 

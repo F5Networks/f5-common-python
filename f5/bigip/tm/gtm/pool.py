@@ -32,7 +32,7 @@ from distutils.version import LooseVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
-from f5.bigip.resource import URICreationCollision
+from f5.sdk_exception import URICreationCollision
 from requests.exceptions import HTTPError
 
 
