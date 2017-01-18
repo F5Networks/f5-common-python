@@ -29,17 +29,8 @@ REST Kind
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
-from f5.sdk_exception import F5SDKError
-
-
-class DisallowedCreationParameter(F5SDKError):
-    """Exception when partition is passed to create for guest resource."""
-    pass
-
-
-class DisallowedReadParameter(F5SDKError):
-    """Exception when partition is passed to load for guest resource."""
-    pass
+from f5.sdk_exception import DisallowedCreationParameter
+from f5.sdk_exception import DisallowedReadParameter
 
 
 class Guests(Collection):

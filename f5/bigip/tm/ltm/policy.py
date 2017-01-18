@@ -30,20 +30,11 @@ REST Kind
 from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
-from f5.sdk_exception import F5SDKError
 from f5.sdk_exception import MissingRequiredCreationParameter
+from f5.sdk_exception import NonExtantPolicyRule
+from f5.sdk_exception import OperationNotSupportedOnPublishedPolicy
 
 from distutils.version import LooseVersion
-
-
-class OperationNotSupportedOnPublishedPolicy(F5SDKError):
-    '''Raise if update/modify attempted on published policy'''
-    pass
-
-
-class NonExtantPolicyRule(F5SDKError):
-    '''Raise if a rule does not exist on the device.'''
-    pass
 
 
 class Policys(Collection):

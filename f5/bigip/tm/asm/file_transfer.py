@@ -20,12 +20,7 @@ import os
 from f5.bigip.mixins import AsmFileMixin
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import PathElement
-from f5.sdk_exception import F5SDKError
-
-
-class FileMustNotHaveDotISOExtension(F5SDKError):
-    def __init__(self, filename):
-        super(FileMustNotHaveDotISOExtension, self).__init__(filename)
+from f5.sdk_exception import FileMustNotHaveDotISOExtension
 
 
 class File_Transfer(OrganizingCollection):
