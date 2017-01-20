@@ -31,7 +31,7 @@ setup(
     url='https://github.com/F5Networks/f5-common-python',
     keywords=['F5', 'sdk', 'api', 'icontrol', 'bigip', 'api', 'ltm'],
     install_requires=['f5-icontrol-rest >= 1.3.0, <2',
-                      'six >= 1.10, <2'],
+                      'six >= 1, <2'],
     packages=find_packages(
         exclude=["*.test", "*.test.*", "test.*", "test_*", "test", "test*"]
     ),
