@@ -91,7 +91,12 @@ Available Classes:
 try:
     from collections import OrderedDict
 except ImportError:
-    from ordereddict import OrderedDict
+    try:
+        from ordereddict import OrderedDict
+    except ImportError as exc:
+        message = ("Maybe you're using Python < 2.7 and do not have the "
+                   "orderreddict external dependency installed.")
+        raise exc(message)
 import copy
 import keyword
 import re
