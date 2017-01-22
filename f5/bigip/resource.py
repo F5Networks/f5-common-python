@@ -1067,7 +1067,7 @@ class UnnamedResource(ResourceBase):
     def create(self, **kwargs):
         """Create is not supported for unnamed resources
 
-        :raises: UnsupportedOperation
+        :raises: UnsupportedMethod
         """
         raise UnsupportedMethod(
             "%s does not support the create method" % self.__class__.__name__
@@ -1076,7 +1076,7 @@ class UnnamedResource(ResourceBase):
     def delete(self, **kwargs):
         """Delete is not supported for unnamed resources
 
-        :raises: UnsupportedOperation
+        :raises: UnsupportedMethod
         """
         raise UnsupportedMethod(
             "%s does not support the delete method" % self.__class__.__name__
@@ -1092,9 +1092,9 @@ class Stats(UnnamedResource):
     """For stats resources."""
 
     def modify(self, **kwargs):
-        """Modify is not supported for unnamed resources
+        """Modify is not supported for stats resources
 
-        :raises: UnsupportedOperation
+        :raises: UnsupportedMethod
         """
         raise UnsupportedMethod(
             "%s does not support the modify method" % self.__class__.__name__

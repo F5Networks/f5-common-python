@@ -22,10 +22,6 @@
 import urlparse
 
 
-class InvalidStatsJsonReturned(KeyError):
-    """Returned stats JSON should always contain 'entries' key"""
-    pass
-
 class BaseHandler(object):
     def __init__(self, resource):
         self.resource = resource
@@ -34,11 +30,8 @@ class BaseHandler(object):
 class Stats(BaseHandler):
     def __init__(self, stats):
         super(Stats, self).__init__(stats)
-
-    @property
-    def stats_raw(self):
-        """Provides JSON object converted to a python dictionary"""
-        return self._get_stats_raw()
+        self.rdict = self.resource.entries
+        self._update_stats()
 
     def _key_dot_replace(self, rdict):
         """Replace fullstops in returned keynames"""
@@ -49,38 +42,24 @@ class Stats(BaseHandler):
             temp_dict[key.replace('.', '_')] = value
         return temp_dict
 
-    def _get_nest_stats(self, rdict):
+    def _get_nest_stats(self):
         """Helper method to deal with nestedStats
 
         as json format changed in v12.x
         """
-        for x in rdict:
+        for x in self.rdict:
             check = urlparse.urlparse(x)
             if check.scheme:
-                nested_dict = rdict[x]['nestedStats']
+                nested_dict = self.rdict[x]['nestedStats']
                 tmp_dict = nested_dict['entries']
                 return self._key_dot_replace(tmp_dict)
 
-        return self._key_dot_replace(rdict)
+        return self._key_dot_replace(self.rdict)
 
-    def _get_stats_raw(self):
-        """Displays JSON object transformed into python dictionary"""
-        read_session = self._meta_data['bigip']._meta_data['icr_session']
-        base_uri = self._meta_data['container']._meta_data['uri'] + 'stats/'
-        response = read_session.get(base_uri)
-        rdict = response.json()
-        return rdict
-
-    def _update_stats(self, rdict):
+    def _update_stats(self):
         """Attaches stat attribute to stats object"""
-        if 'entries' not in rdict:
-            error = 'Missing "entries" key in returned JSON'
-            raise InvalidStatsJsonReturned(error)
-        sanitized = self._check_keys(rdict)
-        stat_vals = self._get_nest_stats(sanitized['entries'])
-        temp_meta = self._meta_data
+        stat_vals = self._get_nest_stats()
         self.__dict__['stat'] = DottedDict(stat_vals)
-        self._meta_data = temp_meta
 
 
 class DottedDict(dict):
