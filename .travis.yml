@@ -1,9 +1,13 @@
 language: python
 python: 2.7
-sudo: false
+sudo: true
 env:
   global:
     - DIST_REPO="f5-sdk-dist"
+    - PKG_VERSION=$(python -c "import f5; print f5.__version__")
+    - PKG_RELEASE=$(python ${DIST_REPO}/scripts/get-version-release.py --release)
+    - PKG_RELEASE_EL7=${DIST_REPO}/rpms/build/f5-sdk-${PKG_VERSION}-${PKG_RELEASE}.el7.noarch.rpm
+    - PKG_RELEASE_1404=${DIST_REPO}/deb_dist/python-f5-sdk_${PKG_VERSION}-${PKG_RELEASE}_1404_all.deb
 services:
   - docker
 python:
@@ -25,6 +29,11 @@ script:
   - ${DIST_REPO}/scripts/package.sh "ubuntu" "14.04"
   - sudo chown -R travis:travis ${DIST_REPO}/rpms/build
   - sudo chown travis:travis ${DIST_REPO}/deb_dist/*.deb
+after_success:
+  - md5sum ${PKG_RELEASE_EL7} > ${PKG_RELEASE_EL7}.md5 && md5sum --check ${PKG_RELEASE_EL7}.md5
+  - md5sum ${PKG_RELEASE_1404} > ${PKG_RELEASE_1404}.md5 && md5sum --check ${PKG_RELASE_1404}.md5
+  - f5-sdk-dist/scripts/test_install.sh "redhat" "7" ${PKG_RELASE_EL7}
+  - f5-sdk-dist/scripts/test_install.sh "ubuntu" "14.04" ${PKG_RELEASE_1404}
 
 before_deploy: PKG_VERSION=$(python -c "import f5; print(f5.__version__)")
 deploy:
@@ -41,8 +50,10 @@ deploy:
     api_key:
       secure: QrvZh1vNhoj0ZsaD72sGg86IZdrrn7BpWvO7Ex6elsK0czBGNIDWCNURU8V5wLXDE7WlqEMIcb/DzRhp6r0lVxXV8Porq/YdJjupBmfDpMP1TPwKy+o0CIfj140rwcQV/u3OSX27JaGVKJDad4bM9gdZewHX8Cr1pcxJdA4eL3aF2i8q8VmIDus9sGEsXivIFuNaEGxPrCD6OU+Ss6agxhgpcGH0YPWPIAZism1WUzi6z13CHCS40Mza89dsqbeFt0+Ydd++q/1l8lo9m2TdUj/ZjLMpqwhAuINFnTqVyJUA0i7b5hDHEKEbmbmoqd5BUfjgzdwwHPOrnu/s59kOcjcfTsqor+eGRf2d8mk0VrTGF5cfr4jqXHvr4ZjpxMpfQov+9VzcXG3YcsgEU1gTTr11WGJVIwao1CApdkyCsATdsvWW0cwo44OowgvCN+t4914CttfQzOIslnfIo3ATX7LQV7CyEksBY88VM/tlmyQsiZSBG5nTZL4hQo3oaUwO+KJMizHmBIvibBeU5AGkZXECiYSvIdN/vvZ9byidALIFdTMnIvB9HiR7UZOwljIjt11kL+rFHJFtH23I9/nKVmZoDumGaA+n2LteefbAyG0dr5ZMZbcuWI++gNS1daTSZkpOrsiQcmcS6mnDgDPC2kuRX3SH3Hy3m7NAN6CW4Ts=
     file:
-      - ${DIST_REPO}/rpms/build/f5-sdk-${PKG_VERSION}-1.el7.noarch.rpm
-      - ${DIST_REPO}/deb_dist/python-f5-sdk_${PKG_VERSION}-1_1404_all.deb
+      - ${PKG_RELEASE_EL7}
+      - ${PKG_RELEASE_EL7}.md5
+      - ${PKG_RELEASE_1404}
+      - ${PKG_RELEASE_1404}.md5
     skip_cleanup: true
     overwrite: true
     on:
