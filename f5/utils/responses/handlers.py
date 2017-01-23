@@ -28,6 +28,11 @@ class BaseHandler(object):
 
 
 class Stats(BaseHandler):
+    """Stats handler class
+
+    When this class is first instantiated, it will populate, ['stat']
+    attribute with individual stats, that can be accessed via dot notation
+    """
     def __init__(self, stats):
         super(Stats, self).__init__(stats)
         self.rdict = self.resource.entries
@@ -60,6 +65,12 @@ class Stats(BaseHandler):
         """Attaches stat attribute to stats object"""
         stat_vals = self._get_nest_stats()
         self.__dict__['stat'] = DottedDict(stat_vals)
+
+    def refresh(self, **kwargs):
+        """Refreshes stats attached to an object"""
+        self.resource.refresh(**kwargs)
+        self.rdict = self.resource.entries
+        self._update_stats()
 
 
 class DottedDict(dict):

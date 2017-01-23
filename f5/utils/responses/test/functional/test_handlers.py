@@ -15,10 +15,9 @@
 #   limitations under the License.
 #
 
-from distutils.version import LooseVersion
 from f5.utils.responses.handlers import Stats
-from requests.exceptions import HTTPError
 import pytest
+from requests.exceptions import HTTPError
 
 
 def delete_virtual_server(mgmt_root, name):
@@ -46,5 +45,19 @@ def virtual_setup(request, mgmt_root):
 
 class TestVirtualStatsHandling(object):
     def test_load(self, request, mgmt_root):
-        vs = virtual_setup(request, mgmt_root)
-        statistics = vs.stats.load()
+        vs1 = virtual_setup(request, mgmt_root)
+        vs1_stats = Stats(vs1.stats.load())
+        assert hasattr(vs1_stats, 'stat')
+        assert hasattr(vs1_stats.__dict__['stat'], 'status_availabilityState')
+        assert vs1_stats.stat.status_availabilityState.description == 'unknown'
+
+    def test_refresh(self, request, mgmt_root):
+        vs1 = virtual_setup(request, mgmt_root)
+        vs1_stats = Stats(vs1.stats.load())
+        assert hasattr(vs1_stats, 'stat')
+        assert hasattr(vs1_stats.__dict__['stat'], 'status_availabilityState')
+        assert vs1_stats.stat.status_availabilityState.description == 'unknown'
+        vs1_stats.refresh()
+        assert hasattr(vs1_stats, 'stat')
+        assert hasattr(vs1_stats.__dict__['stat'], 'status_availabilityState')
+        assert vs1_stats.stat.status_availabilityState.description == 'unknown'
