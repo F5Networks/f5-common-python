@@ -1,5 +1,3 @@
-# coding=utf-8
-#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,17 +13,17 @@
 # limitations under the License.
 #
 
-from f5.iworkflow.resource import OrganizingCollection
-from f5.iworkflow.shared.identified_devices.config.device_info \
-    import Device_Info
-from f5.iworkflow.shared.identified_devices.config.discovery import Discovery
+
+import pytest
 
 
-class Config(OrganizingCollection):
-    """An organizing collection for shared resources."""
-    def __init__(self, devices):
-        super(Config, self).__init__(devices)
-        self._meta_data['allowed_lazy_attributes'] = [
-            Device_Info,
-            Discovery
-        ]
+@pytest.fixture(scope='function')
+def discovery(mgmt_root):
+    discovery = mgmt_root.shared.identified_devices.config.discovery.load()
+    yield discovery
+
+
+class TestDiscover(object):
+    def test_load(self, discovery):
+        assert discovery.selfLink == \
+            'https://localhost/mgmt/shared/identified-devices/config/discovery'  # NOQA
