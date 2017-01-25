@@ -18,15 +18,17 @@
 import os
 
 from f5.bigip.mixins import AsmFileMixin
-from f5.bigip.resource import OrganizingCollection
+from f5.bigip.resource import Collection
 from f5.bigip.resource import PathElement
 from f5.sdk_exception import FileMustNotHaveDotISOExtension
 
 
-class File_Transfer(OrganizingCollection):
-    """BIG-IP® ASM Tasks organizing collection."""
+class File_Transfer(Collection):
+    """BIG-IP® ASM File Transfer collection."""
     def __init__(self, tm):
         super(File_Transfer, self).__init__(tm)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
         self._meta_data['allowed_lazy_attributes'] = [
             Uploads,
             Downloads,
@@ -37,6 +39,8 @@ class Uploads(PathElement, AsmFileMixin):
     """A file upload resource."""
     def __init__(self, file_transfer):
         super(Uploads, self).__init__(file_transfer)
+        self._meta_data['object_has_stats'] = False
+        self.file_bound_uri = ''
 
     def upload_file(self, filepathname, **kwargs):
         filename = os.path.basename(filepathname)
@@ -50,6 +54,8 @@ class Downloads(PathElement, AsmFileMixin):
     """A file download resource."""
     def __init__(self, file_transfer):
         super(Downloads, self).__init__(file_transfer)
+        self._meta_data['object_has_stats'] = False
+        self.file_bound_uri = ''
 
     def download_file(self, filepathname):
         filename = os.path.basename(filepathname)
