@@ -20,10 +20,11 @@ import requests_mock
 import struct
 
 from f5.bigip import ManagementRoot
-from f5.bigip.resource import OrganizingCollection
+from f5.bigip.resource import Collection
 from f5.bigip.tm.asm.file_transfer import Downloads
-from f5.bigip.tm.asm.file_transfer import FileMustNotHaveDotISOExtension
+from f5.bigip.tm.asm.file_transfer import Uploads
 from f5.sdk_exception import EmptyContent
+from f5.sdk_exception import FileMustNotHaveDotISOExtension
 from f5.sdk_exception import MissingHttpHeader
 
 from requests import HTTPError
@@ -44,17 +45,19 @@ def FakeDownload(session):
     fake_filetransfer = mock.MagicMock()
     fake_dwnld = Downloads(fake_filetransfer)
     fake_dwnld._meta_data['icr_session'] = session
+    fake_dwnld._meta_data['bigip'].tmos_version = '11.6.0'
     fake_dwnld._meta_data['uri'] = 'mock://test.com/'
     return fake_dwnld
 
 
-class TestTasksOC(object):
-    def test_OC(self, fakeicontrolsession):
+class TestFileTransferCollection(object):
+    def test_collection(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         c1 = b.tm.asm.file_transfer
-        assert isinstance(c1, OrganizingCollection)
-        assert hasattr(c1, 'downloads')
-        assert hasattr(c1, 'uploads')
+        test_meta = c1._meta_data['allowed_lazy_attributes']
+        assert isinstance(c1, Collection)
+        assert Downloads in test_meta
+        assert Uploads in test_meta
 
 
 def test_asm_file_uploads_70a(tmpdir, fakeicontrolsessionfactory):
