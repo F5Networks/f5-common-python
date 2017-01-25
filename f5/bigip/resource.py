@@ -91,7 +91,12 @@ Available Classes:
 try:
     from collections import OrderedDict
 except ImportError:
-    from ordereddict import OrderedDict
+    try:
+        from ordereddict import OrderedDict
+    except ImportError as exc:
+        message = ("Maybe you're using Python < 2.7 and do not have the "
+                   "orderreddict external dependency installed.")
+        raise exc(message)
 import copy
 import keyword
 import re
@@ -1062,7 +1067,7 @@ class UnnamedResource(ResourceBase):
     def create(self, **kwargs):
         """Create is not supported for unnamed resources
 
-        :raises: UnsupportedOperation
+        :raises: UnsupportedMethod
         """
         raise UnsupportedMethod(
             "%s does not support the create method" % self.__class__.__name__
@@ -1071,7 +1076,7 @@ class UnnamedResource(ResourceBase):
     def delete(self, **kwargs):
         """Delete is not supported for unnamed resources
 
-        :raises: UnsupportedOperation
+        :raises: UnsupportedMethod
         """
         raise UnsupportedMethod(
             "%s does not support the delete method" % self.__class__.__name__
@@ -1087,9 +1092,9 @@ class Stats(UnnamedResource):
     """For stats resources."""
 
     def modify(self, **kwargs):
-        """Modify is not supported for unnamed resources
+        """Modify is not supported for stats resources
 
-        :raises: UnsupportedOperation
+        :raises: UnsupportedMethod
         """
         raise UnsupportedMethod(
             "%s does not support the modify method" % self.__class__.__name__

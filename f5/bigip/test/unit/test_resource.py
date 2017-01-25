@@ -13,9 +13,14 @@
 #   limitations under the License.
 #
 try:
-        from collections import OrderedDict
-except ImportError:
+    from collections import OrderedDict
+except ImportError as exc:
+    try:
         from ordereddict import OrderedDict
+    except ImportError as exc:
+        message = ("Maybe you're using Python < 2.7 and do not have the "
+                   "orderreddict external dependency installed.")
+        raise exc(message)
 import mock
 import pytest
 import requests

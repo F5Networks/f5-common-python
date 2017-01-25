@@ -30,14 +30,10 @@ REST Kind
 from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
-from f5.sdk_exception import F5SDKError
 from f5.sdk_exception import MissingUpdateParameter
+from f5.sdk_exception import TagModeDisallowedForTMOSVersion
 
 from distutils.version import LooseVersion
-
-
-class TagModeDisallowedForTMOSVersion(F5SDKError):
-    pass
 
 
 class Vlans(Collection):

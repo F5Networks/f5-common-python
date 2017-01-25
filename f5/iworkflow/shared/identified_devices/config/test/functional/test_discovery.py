@@ -12,4 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-__version__ = '2.2.2'
+
+
+import pytest
+
+
+@pytest.fixture(scope='function')
+def discovery(mgmt_root):
+    discovery = mgmt_root.shared.identified_devices.config.discovery.load()
+    yield discovery
+
+
+class TestDiscover(object):
+    def test_load(self, discovery):
+        assert discovery.selfLink == \
+            'https://localhost/mgmt/shared/identified-devices/config/discovery'  # NOQA

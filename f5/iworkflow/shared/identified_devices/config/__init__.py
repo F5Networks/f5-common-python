@@ -18,6 +18,7 @@
 from f5.iworkflow.resource import OrganizingCollection
 from f5.iworkflow.shared.identified_devices.config.device_info \
     import Device_Info
+from f5.iworkflow.shared.identified_devices.config.discovery import Discovery
 
 
 class Config(OrganizingCollection):
@@ -25,5 +26,6 @@ class Config(OrganizingCollection):
     def __init__(self, devices):
         super(Config, self).__init__(devices)
         self._meta_data['allowed_lazy_attributes'] = [
-            Device_Info
+            Device_Info,
+            Discovery
         ]

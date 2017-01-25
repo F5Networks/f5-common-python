@@ -1,3 +1,5 @@
+# coding=utf-8
+#
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,4 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-__version__ = '2.2.2'
+
+"""
+REST URI
+    ``http://localhost/mgmt/shared/authz/``
+"""
+
+from f5.iworkflow.resource import OrganizingCollection
+from f5.iworkflow.shared.authz.user import Users_s
+
+
+class Authz(OrganizingCollection):
+    def __init__(self, shared):
+        super(Authz, self).__init__(shared)
+        self._meta_data['allowed_lazy_attributes'] = [
+            Users_s
+        ]
