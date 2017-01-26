@@ -40,10 +40,50 @@ class Tasks(OrganizingCollection):
         super(Tasks, self).__init__(asm)
         self._meta_data['object_has_stats'] = False
         self._meta_data['allowed_lazy_attributes'] = [
+            Apply_Policy_s,
             Check_Signatures_s,
+            Export_Policy_s,
             Export_Signatures_s,
+            Import_Policy_s,
             Update_Signatures_s,
             ]
+
+
+class Apply_Policy_s(Collection):
+    """BIG-IP® ASM Apply Policy Collection."""
+    def __init__(self, tasks):
+        super(Apply_Policy_s, self).__init__(tasks)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['allowed_lazy_attributes'] = [Apply_Policy]
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:tasks:apply-policy:apply-policy-taskstate': Apply_Policy}
+
+
+class Apply_Policy(AsmResource):
+    """BIG-IP® ASM Apply Policy Resource."""
+    def __init__(self, apply_policy_s):
+        super(Apply_Policy, self).__init__(apply_policy_s)
+        self._meta_data['required_json_kind'] =\
+            'tm:asm:tasks:apply-policy:apply-policy-taskstate'
+        self._meta_data['required_creation_parameters'] = set((
+            'policyReference',))
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Apply Policy resource
+
+                :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
+
+
+class Export_Policy_s(Collection):
+    pass
+
+
+class Import_Policy_s(Collection):
+    pass
 
 
 class Check_Signatures_s(Collection):
@@ -87,7 +127,6 @@ class Export_Signature(AsmResource):
         super(Export_Signature, self).__init__(export_signatures_s)
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:export-signatures:export-signatures-taskstate'
-        self._meta_data['required_load_parameters'] = set(('id',))
         self._meta_data['required_creation_parameters'] = set(('filename',))
 
     def modify(self, **kwargs):

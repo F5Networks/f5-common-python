@@ -17,6 +17,7 @@
 import pytest
 import time
 
+from f5.bigip.tm.asm.tasks import Apply_Policy
 from f5.bigip.tm.asm.tasks import Check_Signature
 from f5.bigip.tm.asm.tasks import Export_Signature
 from f5.bigip.tm.asm.tasks import Update_Signature
@@ -24,10 +25,13 @@ from f5.bigip.tm.asm.tasks import Update_Signature
 from requests.exceptions import HTTPError
 
 
-def delete_chksig_item(mgmt_root, id):
+F = 'fake_export.xml'
+
+
+def delete_chksig_item(mgmt_root, hashid):
     try:
         foo = mgmt_root.tm.asm.tasks.check_signatures_s.check_signature\
-            .load(id=id)
+            .load(id=hashid)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -43,10 +47,10 @@ def set_chksig_test(request, mgmt_root):
     return t1
 
 
-def delete_updsig_item(mgmt_root, id):
+def delete_updsig_item(mgmt_root, hashid):
     try:
         foo = mgmt_root.tm.asm.tasks.update_signatures_s.update_signature\
-            .load(id=id)
+            .load(id=hashid)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -62,10 +66,10 @@ def set_updsig_test(request, mgmt_root):
     return t1
 
 
-def delete_export_item(request, mgmt_root, id):
+def delete_export_item(mgmt_root, hashid):
     try:
         foo = mgmt_root.tm.asm.tasks.export_signatures_s.export_signature.load(
-            id=id)
+            id=hashid)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -75,15 +79,106 @@ def delete_export_item(request, mgmt_root, id):
 
 def set_export_basic_test(request, mgmt_root, filename):
     def teardown():
-        delete_export_item(request, mgmt_root, exp1.id)
+        delete_export_item(mgmt_root, exp1.id)
     exp1 = mgmt_root.tm.asm.tasks.export_signatures_s.export_signature\
         .create(filename=filename)
     request.addfinalizer(teardown)
     return exp1
 
 
+def delete_policy_item(mgmt_root):
+    col = mgmt_root.tm.asm.policies_s.get_collection()
+    if len(col) > 0:
+        for i in col:
+            i.delete()
+
+
+@pytest.fixture(scope='class')
+def set_policy(mgmt_root):
+    pol1 = \
+        mgmt_root.tm.asm.policies_s.policy.create(
+            name='fake_policy')
+    yield pol1.selfLink
+    delete_policy_item(mgmt_root)
+
+
+def delete_apply_policy_task(mgmt_root):
+    col = mgmt_root.tm.asm.tasks.apply_policy_s.get_collection()
+    if len(col) > 0:
+        for i in col:
+            i.delete()
+
+
+def set_apply_policy(request, mgmt_root, reference):
+    def teardown():
+        delete_apply_policy_task(mgmt_root)
+    ap = mgmt_root.tm.asm.tasks.apply_policy_s.apply_policy.create(
+        policyReference=reference)
+    request.addfinalizer(teardown)
+    return ap
+
+
+class TestApplyPolicy(object):
+    def test_create_req_arg(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        ap = set_apply_policy(request, mgmt_root, reference)
+        assert ap.status == 'NEW'
+        assert ap.kind == 'tm:asm:tasks:apply-policy:apply-policy-taskstate'
+        assert ap.policyReference == reference
+        delete_apply_policy_task(mgmt_root)
+
+    def test_refresh(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        ap = set_apply_policy(request, mgmt_root, reference)
+        hashid = str(ap.id)
+        link = ap.selfLink
+        ap.refresh()
+        assert ap.kind == 'tm:asm:tasks:apply-policy:apply-policy-taskstate'
+        assert ap.policyReference == reference
+        assert ap.id == hashid
+        assert ap.selfLink == link
+
+    def test_load_no_object(self, mgmt_root):
+        with pytest.raises(HTTPError) as err:
+            mgmt_root.tm.asm.tasks.apply_policy_s.apply_policy.load(
+                id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        ap = set_apply_policy(request, mgmt_root, reference)
+        ap2 = mgmt_root.tm.asm.tasks.apply_policy_s.apply_policy.load(id=ap.id)
+        assert ap.id == ap2.id
+        assert ap.selfLink == ap2.selfLink
+        assert ap.policyReference == ap2.policyReference
+
+    def test_exists(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        ap = set_apply_policy(request, mgmt_root, reference)
+        hashid = str(ap.id)
+        assert ap.exists(id=hashid)
+
+    def test_delete(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        ap = set_apply_policy(request, mgmt_root, reference)
+        ap.delete()
+        assert ap.__dict__['deleted']
+
+    def test_apply_policy_collection(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        ap = set_apply_policy(request, mgmt_root, reference)
+        assert ap.status == 'NEW'
+        assert ap.kind == 'tm:asm:tasks:apply-policy:apply-policy-taskstate'
+        assert ap.policyReference == reference
+
+        col = mgmt_root.tm.asm.tasks.apply_policy_s.get_collection()
+        assert isinstance(col, list)
+        assert len(col)
+        assert isinstance(col[0], Apply_Policy)
+
+
 class TestCheckSignature(object):
-    def test_fetch(self, request, mgmt_root):
+    def test_fetch(self, mgmt_root):
         chk1 = mgmt_root.tm.asm.tasks.check_signatures_s.check_signature\
             .fetch()
         endpoint = str(chk1.id)
@@ -125,13 +220,13 @@ class TestCheckSignature(object):
         assert chk1.id == hashid
         assert chk1.selfLink == link
 
-    def test_delete(self, request, mgmt_root):
+    def test_delete(self, mgmt_root):
         chk1 = \
             mgmt_root.tm.asm.tasks.check_signatures_s.check_signature.fetch()
         chk1.delete()
         assert chk1.__dict__['deleted']
 
-    def test_signature_update_collection(self, request, mgmt_root):
+    def test_signature_update_collection(self, mgmt_root):
         chk1 = \
             mgmt_root.tm.asm.tasks.check_signatures_s.check_signature.fetch()
         endpoint = str(chk1.id)
@@ -153,38 +248,35 @@ class TestCheckSignature(object):
 
 
 class TestExportSignature(object):
-    def test_create_req_arg(self, request, mgmt_root):
-        f = 'fake_export.xml'
+    def test_create_req_arg(self, mgmt_root):
         exp1 = mgmt_root.tm.asm.tasks.export_signatures_s.export_signature\
-            .create(filename=f)
+            .create(filename=F)
         endpoint = str(exp1.id)
         base_uri = 'https://localhost/mgmt/tm/asm/tasks/export-signatures/'
         final_uri = base_uri+endpoint
-        assert exp1.filename == f
+        assert exp1.filename == F
         assert exp1.selfLink.startswith(final_uri)
         assert exp1.status == 'NEW'
         assert exp1.kind == \
             'tm:asm:tasks:export-signatures:export-signatures-taskstate'
         assert exp1.inline is False
 
-    def test_create_optional_args(self, request, mgmt_root):
-        f = 'fake_export.xml'
+    def test_create_optional_args(self, mgmt_root):
         exp1 = mgmt_root.tm.asm.tasks.export_signatures_s.export_signature \
-            .create(filename=f, inline=True)
+            .create(filename=F, inline=True)
         endpoint = str(exp1.id)
         base_uri = 'https://localhost/mgmt/tm/asm/tasks/export-signatures/'
         final_uri = base_uri+endpoint
-        assert exp1.filename == f
+        assert exp1.filename == F
         assert exp1.selfLink.startswith(final_uri)
         assert exp1.status == 'NEW'
         assert exp1.kind == \
             'tm:asm:tasks:export-signatures:export-signatures-taskstate'
         assert exp1.inline is True
 
-    def test_refresh(self, request, mgmt_root):
-        f = 'fake_export.xml'
+    def test_refresh(self, mgmt_root):
         exp1 = mgmt_root.tm.asm.tasks.export_signatures_s.export_signature\
-            .create(filename=f)
+            .create(filename=F)
         exp2 = mgmt_root.tm.asm.tasks.export_signatures_s.export_signature\
             .load(id=exp1.id)
         assert exp1.selfLink == exp2.selfLink
@@ -198,16 +290,14 @@ class TestExportSignature(object):
         assert err.value.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
-        f = 'fake_export.xml'
-        exp1 = set_export_basic_test(request, mgmt_root, f)
+        exp1 = set_export_basic_test(request, mgmt_root, F)
         exp2 = mgmt_root.tm.asm.tasks.export_signatures_s.export_signature \
             .load(id=exp1.id)
         assert exp1.selfLink == exp2.selfLink
 
-    def test_delete(self, request, mgmt_root):
-        f = 'fake_export.xml'
+    def test_delete(self, mgmt_root):
         exp1 = mgmt_root.tm.asm.tasks.export_signatures_s.export_signature\
-            .create(filename=f)
+            .create(filename=F)
         hashid = str(exp1.id)
         exp1.delete()
         with pytest.raises(HTTPError) as err:
@@ -216,12 +306,11 @@ class TestExportSignature(object):
         assert err.value.response.status_code == 404
 
     def test_signature_export_collection(self, request, mgmt_root):
-        f = 'fake_export.xml'
-        exp1 = set_export_basic_test(request, mgmt_root, f)
+        exp1 = set_export_basic_test(request, mgmt_root, F)
         endpoint = str(exp1.id)
         base_uri = 'https://localhost/mgmt/tm/asm/tasks/export-signatures/'
         final_uri = base_uri+endpoint
-        assert exp1.filename == f
+        assert exp1.filename == F
         assert exp1.selfLink.startswith(final_uri)
         assert exp1.status == 'NEW'
         assert exp1.kind == \
@@ -234,7 +323,7 @@ class TestExportSignature(object):
 
 
 class TestUpdateSignature(object):
-    def test_fetch(self, request, mgmt_root):
+    def test_fetch(self, mgmt_root):
         chk1 = \
             mgmt_root.tm.asm.tasks.update_signatures_s.update_signature.fetch()
         endpoint = str(chk1.id)
@@ -277,13 +366,13 @@ class TestUpdateSignature(object):
         assert chk1.id == hashid
         assert chk1.selfLink == link
 
-    def test_delete(self, request, mgmt_root):
+    def test_delete(self, mgmt_root):
         chk1 = \
             mgmt_root.tm.asm.tasks.check_signatures_s.check_signature.fetch()
         chk1.delete()
         assert chk1.__dict__['deleted']
 
-    def test_signature_update_collection(self, request, mgmt_root):
+    def test_signature_update_collection(self, mgmt_root):
         chk1 = \
             mgmt_root.tm.asm.tasks.update_signatures_s.update_signature.fetch()
         endpoint = str(chk1.id)
