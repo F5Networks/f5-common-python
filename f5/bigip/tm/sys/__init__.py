@@ -38,6 +38,8 @@ from f5.bigip.tm.sys.file import File
 from f5.bigip.tm.sys.folder import Folders
 from f5.bigip.tm.sys.global_settings import Global_Settings
 from f5.bigip.tm.sys.httpd import Httpd
+from f5.bigip.tm.sys.management_ip import Management_Ips
+from f5.bigip.tm.sys.management_route import Management_Routes
 from f5.bigip.tm.sys.ntp import Ntp
 from f5.bigip.tm.sys.performance import Performances
 from f5.bigip.tm.sys.snmp import Snmp
@@ -59,6 +61,8 @@ class Sys(OrganizingCollection):
             Performances,
             Dbs,
             Global_Settings,
+            Management_Ips,
+            Management_Routes,
             Ntp,
             Failover,
             Dns,
