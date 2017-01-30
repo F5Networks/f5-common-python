@@ -19,6 +19,7 @@
 from f5.iworkflow.cm import Cm
 from f5.iworkflow.resource import PathElement
 from f5.iworkflow.shared import Shared
+from f5.iworkflow.tm import Tm
 from icontrol.session import iControlRESTSession
 
 
@@ -36,7 +37,7 @@ class ManagementRoot(PathElement):
                                    token=token)
         # define _meta_data
         self._meta_data = {
-            'allowed_lazy_attributes': [Cm, Shared],
+            'allowed_lazy_attributes': [Cm, Shared, Tm],
             'hostname': hostname,
             'port': port,
             'uri': 'https://%s:%s/mgmt/' % (hostname, port),
