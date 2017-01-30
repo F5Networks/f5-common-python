@@ -21,6 +21,7 @@ REST URI
 """
 
 from f5.iworkflow.resource import OrganizingCollection
+from f5.iworkflow.shared.authz.role import Roles_s
 from f5.iworkflow.shared.authz.user import Users_s
 
 
@@ -28,5 +29,6 @@ class Authz(OrganizingCollection):
     def __init__(self, shared):
         super(Authz, self).__init__(shared)
         self._meta_data['allowed_lazy_attributes'] = [
+            Roles_s,
             Users_s
         ]

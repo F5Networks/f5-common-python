@@ -35,7 +35,7 @@ def users(mgmt_root):
 
 
 class TestUser(object):
-    def test_users_collect(self, users):
+    def test_users_collection(self, users):
         # There may be 2 users (like when running in vagrant)
         # or only 1 user (like if running in openstack)
         assert len(users) >= 1
