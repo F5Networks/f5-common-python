@@ -19,6 +19,7 @@ from f5.bigip.tm.asm.tasks import Apply_Policy
 from f5.bigip.tm.asm.tasks import Check_Signature
 from f5.bigip.tm.asm.tasks import Export_Policy
 from f5.bigip.tm.asm.tasks import Export_Signature
+from f5.bigip.tm.asm.tasks import Import_Policy
 from f5.bigip.tm.asm.tasks import Update_Signature
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
@@ -58,6 +59,14 @@ def FakeExportPolicy():
     fake_exppol = Export_Policy(fake_asm)
     fake_exppol._meta_data['bigip'].tmos_version = '11.6.0'
     return fake_exppol
+
+
+@pytest.fixture
+def FakeImportPolicy():
+    fake_asm = mock.MagicMock()
+    fake_imppol = Import_Policy(fake_asm)
+    fake_imppol._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_imppol
 
 
 @pytest.fixture
@@ -196,4 +205,30 @@ class TestExportPolicy(object):
         kind = 'tm:asm:tasks:export-policy:export-policy-taskstate'
         assert kind in list(iterkeys(test_meta))
         assert Export_Policy in test_meta2
+        assert t._meta_data['object_has_stats'] is False
+
+
+class TestImportPolicy(object):
+    def test_modify_raises(self, FakeImportPolicy):
+        with pytest.raises(UnsupportedOperation):
+            FakeImportPolicy.modify()
+
+    def test_create_two(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        t1 = b.tm.asm.tasks.import_policy_s.import_policy
+        t2 = b.tm.asm.tasks.import_policy_s.import_policy
+        assert t1 is t2
+
+    def test_create_no_args(self, FakeImportPolicy):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeImportPolicy.create()
+
+    def test_collection(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        t = b.tm.asm.tasks.import_policy_s
+        test_meta = t._meta_data['attribute_registry']
+        test_meta2 = t._meta_data['allowed_lazy_attributes']
+        kind = 'tm:asm:tasks:import-policy:import-policy-taskstate'
+        assert kind in list(iterkeys(test_meta))
+        assert Import_Policy in test_meta2
         assert t._meta_data['object_has_stats'] is False

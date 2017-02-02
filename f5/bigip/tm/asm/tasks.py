@@ -91,8 +91,8 @@ class Export_Policy_s(Collection):
 
 class Export_Policy(AsmResource):
     """BIG-IP® ASM Export Policy Resource."""
-    def __init__(self, apply_policy_s):
-        super(Export_Policy, self).__init__(apply_policy_s)
+    def __init__(self, export_policy_s):
+        super(Export_Policy, self).__init__(export_policy_s)
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:export-policy:export-policy-taskstate'
         self._meta_data['required_creation_parameters'] = set((
@@ -109,7 +109,33 @@ class Export_Policy(AsmResource):
 
 
 class Import_Policy_s(Collection):
-    pass
+    """BIG-IP® ASM Import Policy Collection."""
+    def __init__(self, tasks):
+        super(Import_Policy_s, self).__init__(tasks)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['allowed_lazy_attributes'] = [Import_Policy]
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:tasks:import-policy:import-policy-taskstate':
+                Import_Policy}
+
+
+class Import_Policy(AsmResource):
+    """BIG-IP® ASM Import Policy Resource."""
+    def __init__(self, import_policy_s):
+        super(Import_Policy, self).__init__(import_policy_s)
+        self._meta_data['required_json_kind'] =\
+            'tm:asm:tasks:import-policy:import-policy-taskstate'
+        self._meta_data['required_creation_parameters'] = set((
+            'name', 'filename'))
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Apply Policy resource
+
+                :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
 
 
 class Check_Signatures_s(Collection):
