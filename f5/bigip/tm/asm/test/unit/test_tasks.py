@@ -17,6 +17,7 @@ from f5.bigip import ManagementRoot
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.asm.tasks import Apply_Policy
 from f5.bigip.tm.asm.tasks import Check_Signature
+from f5.bigip.tm.asm.tasks import Export_Policy
 from f5.bigip.tm.asm.tasks import Export_Signature
 from f5.bigip.tm.asm.tasks import Update_Signature
 from f5.sdk_exception import MissingRequiredCreationParameter
@@ -52,6 +53,14 @@ def FakeApplyPolicy():
 
 
 @pytest.fixture
+def FakeExportPolicy():
+    fake_asm = mock.MagicMock()
+    fake_exppol = Export_Policy(fake_asm)
+    fake_exppol._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_exppol
+
+
+@pytest.fixture
 def FakeUpdateSignature():
     fake_asm = mock.MagicMock()
     fake_updsig = Update_Signature(fake_asm)
@@ -67,6 +76,9 @@ class TestTasksOC(object):
         assert hasattr(t1, 'check_signatures_s')
         assert hasattr(t1, 'export_signatures_s')
         assert hasattr(t1, 'update_signatures_s')
+        assert hasattr(t1, 'apply_policy_s')
+        assert hasattr(t1, 'export_policy_s')
+        assert hasattr(t1, 'import_policy_s')
 
 
 class TestCheckSignature(object):
@@ -158,4 +170,30 @@ class TestApplyPolicy(object):
         kind = 'tm:asm:tasks:apply-policy:apply-policy-taskstate'
         assert kind in list(iterkeys(test_meta))
         assert Apply_Policy in test_meta2
+        assert t._meta_data['object_has_stats'] is False
+
+
+class TestExportPolicy(object):
+    def test_modify_raises(self, FakeExportPolicy):
+        with pytest.raises(UnsupportedOperation):
+            FakeExportPolicy.modify()
+
+    def test_create_two(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        t1 = b.tm.asm.tasks.export_policy_s.export_policy
+        t2 = b.tm.asm.tasks.export_policy_s.export_policy
+        assert t1 is t2
+
+    def test_create_no_args(self, FakeExportPolicy):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeExportPolicy.create()
+
+    def test_collection(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        t = b.tm.asm.tasks.export_policy_s
+        test_meta = t._meta_data['attribute_registry']
+        test_meta2 = t._meta_data['allowed_lazy_attributes']
+        kind = 'tm:asm:tasks:export-policy:export-policy-taskstate'
+        assert kind in list(iterkeys(test_meta))
+        assert Export_Policy in test_meta2
         assert t._meta_data['object_has_stats'] is False

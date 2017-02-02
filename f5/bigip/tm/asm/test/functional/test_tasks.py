@@ -19,6 +19,7 @@ import time
 
 from f5.bigip.tm.asm.tasks import Apply_Policy
 from f5.bigip.tm.asm.tasks import Check_Signature
+from f5.bigip.tm.asm.tasks import Export_Policy
 from f5.bigip.tm.asm.tasks import Export_Signature
 from f5.bigip.tm.asm.tasks import Update_Signature
 
@@ -118,6 +119,23 @@ def set_apply_policy(request, mgmt_root, reference):
     return ap
 
 
+def delete_export_policy(mgmt_root):
+    col = mgmt_root.tm.asm.tasks.export_policy_s.get_collection()
+    if len(col) > 0:
+        for i in col:
+            i.delete()
+
+
+def set_export_policy_test(request, mgmt_root, reference):
+    def teardown():
+        delete_export_policy(mgmt_root)
+
+    exp1 = mgmt_root.tm.asm.tasks.export_policy_s.export_policy \
+        .create(filename=F, policyReference=reference)
+    request.addfinalizer(teardown)
+    return exp1
+
+
 class TestApplyPolicy(object):
     def test_create_req_arg(self, request, mgmt_root, set_policy):
         reference = {'link': set_policy}
@@ -175,6 +193,85 @@ class TestApplyPolicy(object):
         assert isinstance(col, list)
         assert len(col)
         assert isinstance(col[0], Apply_Policy)
+
+
+class TestExportPolicy(object):
+    def test_create_req_arg(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        exp1 = set_export_policy_test(request, mgmt_root, reference)
+        endpoint = str(exp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/export-policy/'
+        final_uri = base_uri+endpoint
+        assert exp1.filename == F
+        assert exp1.selfLink.startswith(final_uri)
+        assert exp1.status == 'NEW'
+        assert exp1.kind == \
+            'tm:asm:tasks:export-policy:export-policy-taskstate'
+        assert exp1.inline is False
+
+    def test_create_optional_args(self, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        exp1 = mgmt_root.tm.asm.tasks.export_policy_s.export_policy\
+            .create(filename=F, policyReference=reference, inline=True)
+        endpoint = str(exp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/export-policy/'
+        final_uri = base_uri+endpoint
+        assert exp1.filename == F
+        assert exp1.selfLink.startswith(final_uri)
+        assert exp1.status == 'NEW'
+        assert exp1.kind == \
+            'tm:asm:tasks:export-policy:export-policy-taskstate'
+        assert exp1.inline is True
+
+    def test_refresh(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        exp1 = set_export_policy_test(request, mgmt_root, reference)
+        exp2 = mgmt_root.tm.asm.tasks.export_policy_s.export_policy\
+            .load(id=exp1.id)
+        assert exp1.selfLink == exp2.selfLink
+        exp1.refresh()
+        assert exp1.selfLink == exp2.selfLink
+
+    def test_load_no_object(self, mgmt_root):
+        with pytest.raises(HTTPError) as err:
+            mgmt_root.tm.asm.tasks.export_policy_s.export_policy \
+                .load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        exp1 = set_export_policy_test(request, mgmt_root, reference)
+        exp2 = mgmt_root.tm.asm.tasks.export_policy_s.export_policy\
+            .load(id=exp1.id)
+        assert exp1.selfLink == exp2.selfLink
+
+    def test_delete(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        exp1 = set_export_policy_test(request, mgmt_root, reference)
+        hashid = str(exp1.id)
+        exp1.delete()
+        with pytest.raises(HTTPError) as err:
+            mgmt_root.tm.asm.tasks.export_policy_s.export_policy.load(
+                id=hashid)
+        assert err.value.response.status_code == 404
+
+    def test_policy_export_collection(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        exp1 = set_export_policy_test(request, mgmt_root, reference)
+        endpoint = str(exp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/export-policy/'
+        final_uri = base_uri+endpoint
+        assert exp1.filename == F
+        assert exp1.selfLink.startswith(final_uri)
+        assert exp1.status == 'NEW'
+        assert exp1.kind == \
+            'tm:asm:tasks:export-policy:export-policy-taskstate'
+        assert exp1.inline is False
+
+        sc = mgmt_root.tm.asm.tasks.export_policy_s.get_collection()
+        assert isinstance(sc, list)
+        assert len(sc)
+        assert isinstance(sc[0], Export_Policy)
 
 
 class TestCheckSignature(object):

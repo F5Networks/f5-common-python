@@ -15,16 +15,16 @@
 # limitations under the License.
 #
 
-"""BIG-IP® Application Security Manager™ (ASM®) module.
+"""BIG-IP® Application Security Manager™ (ASM®) tasks sub-module.
 
 REST URI
-    ``http://localhost/mgmt/tm/asm/``
+    ``http://localhost/mgmt/tm/asm/tasks/``
 
 GUI Path
     ``Security``
 
 REST Kind
-    ``tm:asm:*``
+    ``tm:asm:tasks:``
 """
 
 from f5.bigip.resource import AsmResource
@@ -79,7 +79,33 @@ class Apply_Policy(AsmResource):
 
 
 class Export_Policy_s(Collection):
-    pass
+    """BIG-IP® ASM Export Policy Collection."""
+    def __init__(self, tasks):
+        super(Export_Policy_s, self).__init__(tasks)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['allowed_lazy_attributes'] = [Export_Policy]
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:tasks:export-policy:export-policy-taskstate':
+                Export_Policy}
+
+
+class Export_Policy(AsmResource):
+    """BIG-IP® ASM Export Policy Resource."""
+    def __init__(self, apply_policy_s):
+        super(Export_Policy, self).__init__(apply_policy_s)
+        self._meta_data['required_json_kind'] =\
+            'tm:asm:tasks:export-policy:export-policy-taskstate'
+        self._meta_data['required_creation_parameters'] = set((
+            'policyReference', 'filename'))
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Apply Policy resource
+
+                :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
 
 
 class Import_Policy_s(Collection):
