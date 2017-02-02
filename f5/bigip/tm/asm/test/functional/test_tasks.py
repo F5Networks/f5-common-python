@@ -21,6 +21,7 @@ from f5.bigip.tm.asm.tasks import Apply_Policy
 from f5.bigip.tm.asm.tasks import Check_Signature
 from f5.bigip.tm.asm.tasks import Export_Policy
 from f5.bigip.tm.asm.tasks import Export_Signature
+from f5.bigip.tm.asm.tasks import Import_Policy
 from f5.bigip.tm.asm.tasks import Update_Signature
 
 from requests.exceptions import HTTPError
@@ -132,6 +133,23 @@ def set_export_policy_test(request, mgmt_root, reference):
 
     exp1 = mgmt_root.tm.asm.tasks.export_policy_s.export_policy \
         .create(filename=F, policyReference=reference)
+    request.addfinalizer(teardown)
+    return exp1
+
+
+def delete_import_policy(mgmt_root):
+    col = mgmt_root.tm.asm.tasks.import_policy_s.get_collection()
+    if len(col) > 0:
+        for i in col:
+            i.delete()
+
+
+def set_import_policy_test(request, mgmt_root, name):
+    def teardown():
+        delete_import_policy(mgmt_root)
+
+    exp1 = mgmt_root.tm.asm.tasks.import_policy_s.import_policy \
+        .create(filename=F, name=name)
     request.addfinalizer(teardown)
     return exp1
 
@@ -272,6 +290,79 @@ class TestExportPolicy(object):
         assert isinstance(sc, list)
         assert len(sc)
         assert isinstance(sc[0], Export_Policy)
+
+
+class TestImportPolicy(object):
+    def test_create_req_arg(self, request, mgmt_root):
+        imp1 = set_import_policy_test(request, mgmt_root, 'fake_one')
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-policy/'
+        final_uri = base_uri+endpoint
+        assert imp1.filename == F
+        assert imp1.selfLink.startswith(final_uri)
+        assert imp1.status == 'NEW'
+        assert imp1.kind == \
+            'tm:asm:tasks:import-policy:import-policy-taskstate'
+        assert imp1.isBase64 is False
+
+    def test_create_optional_args(self, mgmt_root):
+        imp1 = mgmt_root.tm.asm.tasks.import_policy_s.import_policy\
+            .create(filename=F, isBase64=True, name='fake_one')
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-policy/'
+        final_uri = base_uri+endpoint
+        assert imp1.filename == F
+        assert imp1.selfLink.startswith(final_uri)
+        assert imp1.status == 'NEW'
+        assert imp1.kind == \
+            'tm:asm:tasks:import-policy:import-policy-taskstate'
+        assert imp1.isBase64 is True
+
+    def test_refresh(self, request, mgmt_root):
+        imp1 = set_import_policy_test(request, mgmt_root, 'fake_one')
+        imp2 = mgmt_root.tm.asm.tasks.import_policy_s.import_policy\
+            .load(id=imp1.id)
+        assert imp1.selfLink == imp2.selfLink
+        imp1.refresh()
+        assert imp1.selfLink == imp2.selfLink
+
+    def test_load_no_object(self, mgmt_root):
+        with pytest.raises(HTTPError) as err:
+            mgmt_root.tm.asm.tasks.import_policy_s.import_policy \
+                .load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, request, mgmt_root):
+        imp1 = set_import_policy_test(request, mgmt_root, 'fake_one')
+        imp2 = mgmt_root.tm.asm.tasks.import_policy_s.import_policy\
+            .load(id=imp1.id)
+        assert imp1.selfLink == imp2.selfLink
+
+    def test_delete(self, request, mgmt_root):
+        imp1 = set_import_policy_test(request, mgmt_root, 'fake_one')
+        hashid = str(imp1.id)
+        imp1.delete()
+        with pytest.raises(HTTPError) as err:
+            mgmt_root.tm.asm.tasks.import_policy_s.import_policy.load(
+                id=hashid)
+        assert err.value.response.status_code == 404
+
+    def test_policy_import_collection(self, request, mgmt_root):
+        imp1 = set_import_policy_test(request, mgmt_root, 'fake_one')
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-policy/'
+        final_uri = base_uri+endpoint
+        assert imp1.filename == F
+        assert imp1.selfLink.startswith(final_uri)
+        assert imp1.status == 'NEW'
+        assert imp1.kind == \
+            'tm:asm:tasks:import-policy:import-policy-taskstate'
+        assert imp1.isBase64 is False
+
+        sc = mgmt_root.tm.asm.tasks.import_policy_s.get_collection()
+        assert isinstance(sc, list)
+        assert len(sc)
+        assert isinstance(sc[0], Import_Policy)
 
 
 class TestCheckSignature(object):
