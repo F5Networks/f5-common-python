@@ -875,6 +875,20 @@ class TestPathElement(object):
         assert 'BAREX, FOOEX' in str(ex)
 
 
+class FakeUnnamedResource(UnnamedResource):
+    def __init__(self, container):
+        super(FakeUnnamedResource, self).__init__(container)
+        self._meta_data['required_json_kind'] = 'tm:net:fakeendpoint:fakeres'
+        self._meta_data['allowed_lazy_attributes'] = []
+        mockuri = 'https://localhost/mgmt/tm/net/fakeendpoint/fakeres'
+        self._meta_data['uri'] = mockuri
+        self._meta_data['bigip']._meta_data[
+            'icr_session'].get.return_value =\
+            MockResponse({"generation": 0, "selfLink": mockuri,
+                          "name": "fakeres",
+                          "kind": "tm:net:fakeendpoint:fakeres"})
+
+
 class TestUnnamedResource(object):
     def test_create_raises(self):
         unnamed_resource = UnnamedResource(mock.MagicMock())
@@ -906,6 +920,12 @@ class TestUnnamedResource(object):
         r.generation = 0
         x = r.load(partition='Common', name='test_load')
         assert x.selfLink == 'https://localhost:443/mgmt/tm/cm/sync-status'
+
+    def test_load_alias(self):
+        fake_res = FakeUnnamedResource(mock.MagicMock())
+        res1 = fake_res.load(name='fakeres')
+        res2 = fake_res.load(name='fakeres')
+        assert res1 is not res2
 
 
 class TestStats(object):
