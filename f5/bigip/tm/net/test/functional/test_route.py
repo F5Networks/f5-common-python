@@ -14,6 +14,7 @@
 #
 
 import pytest
+from requests import HTTPError
 
 from f5.sdk_exception import MissingRequiredCreationParameter
 
@@ -24,17 +25,52 @@ SELF_IP = "192.168.100.1/24"
 GW_IP = "192.168.100.254"
 
 
-def delete_resource(resources):
-    for resource in resources.get_collection():
-        resource.delete()
+def delete_selfip(bigip, name, partition):
+    try:
+        s = bigip.net.selfips.selfip.load(name=name, partition=partition)
+    except HTTPError as err:
+        if err.response.status_code != 404:
+            raise
+        return
+    s.delete()
+
+
+def delete_vlan(bigip, name, partition):
+    try:
+        s = bigip.net.vlans.vlan.load(name=name, partition=partition)
+    except HTTPError as err:
+        if err.response.status_code != 404:
+            raise
+        return
+    s.delete()
+
+
+def delete_routes(bigip, name, partition):
+    try:
+        s = bigip.net.routes.route.load(name=name, partition=partition)
+    except HTTPError as err:
+        if err.response.status_code != 404:
+            raise
+        return
+    s.delete()
+
+
+def delete_pools(bigip, name, partition):
+    try:
+        s = bigip.ltm.pools.pool.load(name=name, partition=partition)
+    except HTTPError as err:
+        if err.response.status_code != 404:
+            raise
+        return
+    s.delete()
 
 
 def setup_route_test(request, bigip, partition, name, network):
     def teardown():
-        delete_resource(routes)
-        delete_resource(pools)
-        delete_resource(selfips)
-        delete_resource(vlans)
+        delete_routes(bigip, name, partition)
+        delete_pools(bigip, POOL_NAME, partition)
+        delete_selfip(bigip, name, partition)
+        delete_vlan(bigip, VLAN_NAME, partition)
     request.addfinalizer(teardown)
 
     # Need to create a VLAN interface, Pool and SelfIP for testing gateways
