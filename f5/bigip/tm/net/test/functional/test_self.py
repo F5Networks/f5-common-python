@@ -12,23 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import pytest
+from requests import HTTPError
 
 from f5.sdk_exception import MissingRequiredCreationParameter
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
-def delete_resource(resources):
-    for resource in resources.get_collection():
-        resource.delete()
+def delete_selfip(bigip, name, partition):
+    try:
+        s = bigip.net.selfips.selfip.load(name=name, partition=partition)
+    except HTTPError as err:
+        if err.response.status_code != 404:
+            raise
+        return
+    s.delete()
+
+
+def delete_vlan(bigip, name, partition):
+    try:
+        s = bigip.net.vlans.vlan.load(name=name, partition=partition)
+    except HTTPError as err:
+        if err.response.status_code != 404:
+            raise
+        return
+    s.delete()
 
 
 def setup_self_test(request, bigip, partition, name,
                     vlan='v1', vlan_partition='Common'):
     def teardown():
-        delete_resource(sc1)
-        delete_resource(vc1)
+        delete_selfip(bigip, name, partition)
+        delete_vlan(bigip, 'v1', 'Common')
     request.addfinalizer(teardown)
 
     sc1 = bigip.net.selfips
@@ -73,5 +88,5 @@ class TestSelfIPCollection(object):
         setup_self_test(request, bigip, 'Common', 'self1')
         sc = bigip.net.selfips
         self_ips = sc.get_collection()
-        assert len(self_ips) == 1
+        assert len(self_ips) >= 1
         assert self_ips[0].name == 'self1'
