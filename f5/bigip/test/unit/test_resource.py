@@ -799,6 +799,25 @@ def test_ResourceBase():
     assert str(delete_EIO.value) == "Only Resources support 'delete'."
 
 
+def test_resource_base_properties():
+    MockBigIP = mock.MagicMock(name='MockBigIP')
+    MockBigIP._meta_data = {'uri': 'https://TESTDOMAIN/mgmt/tm/',
+                            'bigip': MockBigIP,
+                            'icr_session': mock.MagicMock(),
+                            'icontrol_version': ''}
+    rb = ResourceBase(MockBigIP)
+    rb.item = {'fake_key': 'fake_value'}
+    rb.item2 = {'fake_key_two': 'fake_value_two'}
+    assert hasattr(rb, '_meta_data')
+    assert hasattr(rb, 'item')
+    assert hasattr(rb, 'item2')
+    no_meta = rb.properties
+    assert type(no_meta) is dict
+    assert '_meta_data' not in no_meta.keys()
+    assert no_meta['item'] == {'fake_key': 'fake_value'}
+    assert no_meta['item2'] == {'fake_key_two': 'fake_value_two'}
+
+
 class Under_s(Collection):
     def __init__(self, container):
         super(Under_s, self).__init__(container)
@@ -817,7 +836,6 @@ def test_collection_s():
 
 
 class TestPathElement(object):
-
     def test_missing_req_param_true(self):
         rqset = set(['FOOPAR1', 'FOOPAR2'])
         fakearg = {'FOOPAR1': 'FOOVAL'}
