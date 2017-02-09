@@ -68,23 +68,49 @@ class Node(Resource):
         :param kwargs: keys and associated values to alter on the device
 
         """
-        # Is autopopulate in kwargs?
+        checked = self._check_node_parameters(**kwargs)
+        return self._update(**checked)
+
+    def _check_node_parameters(self, **kwargs):
+        """See discussion in issue #840."""
         if 'fqdn' in kwargs:
             kwargs['fqdn'].pop('autopopulate')
             kwargs['fqdn'].pop('addressFamily')
         if 'fqdn' in self.__dict__:
             self.__dict__['fqdn'].pop('autopopulate')
             self.__dict__['fqdn'].pop('addressFamily')
-        if 'state' in kwargs and kwargs['state'] == 'unchecked':
-            kwargs.pop('state')
-        if 'state' in self.__dict__ and self.__dict__['state'] == 'unchecked':
-            self.__dict__.pop('state')
-        return self._update(**kwargs)
+        if 'state' in kwargs:
+            if kwargs['state'] != 'user-up' and kwargs['state'] != \
+                    'user-down':
+                kwargs.pop('state')
+        if 'state' in self.__dict__:
+            if self.__dict__['state'] != 'user-up' and self.__dict__['state'] \
+                    != 'user-down':
+                self.__dict__.pop('state')
+        if 'session' in kwargs:
+            if kwargs['session'] != 'user-enabled' and kwargs['session'] != \
+                    'user-disabled':
+                kwargs.pop('session')
+        if 'session' in self.__dict__:
+            if self.__dict__['session'] != 'user-enabled' and \
+                    self.__dict__['session'] != 'user-disabled':
+                self.__dict__.pop('session')
+        return kwargs
 
     def _modify(self, **patch):
-        '''Override modify to check kwargs before request sent to device.'''
-        if 'state' in patch and patch['state'] == 'unchecked':
-            msg = "The node resource does not support a modify with the " \
-                "value of the 'state' attribute as 'unchecked'."
-            raise NodeStateModifyUnsupported(msg)
+        """Override modify to check kwargs before request sent to device."""
+        if 'state' in patch:
+            if patch['state'] != 'user-up' and patch['state'] != 'user-down':
+                msg = "The node resource does not support a modify with the " \
+                      "value of the 'state' attribute as %s. The accepted " \
+                      "values are 'user-up' or 'user-down'" % patch['state']
+                raise NodeStateModifyUnsupported(msg)
+        if 'session' in patch:
+            if patch['session'] != 'user-enabled' and patch['state'] != \
+                    'user-disabled':
+                msg = "The node resource does not support a modify with the " \
+                      "value of the 'session' attribute as %s. " \
+                      "The accepted values are 'user-enabled' or " \
+                      "'user-disabled'" % patch['session']
+                raise NodeStateModifyUnsupported(msg)
         super(Node, self)._modify(**patch)
