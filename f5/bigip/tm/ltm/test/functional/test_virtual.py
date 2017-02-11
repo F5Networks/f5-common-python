@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from distutils.version import LooseVersion
+from f5.bigip.tm.ltm.virtual import Policies
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import MissingRequiredReadParameter
 from six import iteritems
@@ -22,13 +21,6 @@ import copy
 import pytest
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
-
-pytestmark = pytest.mark.skipif(
-    LooseVersion(
-        pytest.config.getoption('--release')
-    ) < LooseVersion('11.6.0'),
-    reason='An error occurs on 11.5.4 devices regarding sysdb'
-)
 
 
 @pytest.fixture
@@ -73,14 +65,15 @@ def policy_setup(request, mgmt_root):
     return p1, rule
 
 
-def delete_resource(resources):
-    for resource in resources.get_collection():
-        resource.delete()
-
-
 def setup_virtual_test(request, mgmt_root, partition, name):
     def teardown():
-        delete_resource(vc1)
+        def teardown():
+            vs = mgmt_root.tm.ltm.virtuals.virtual
+            if vs.exists(name=name, partition=partition):
+                v1 = vs.load(name=name, partition=partition)
+                v1.delete()
+
+        teardown()
     request.addfinalizer(teardown)
     vc1 = mgmt_root.tm.ltm.virtuals
     virtual1 = vc1.virtual.create(name=name, partition=partition)
@@ -89,8 +82,7 @@ def setup_virtual_test(request, mgmt_root, partition, name):
 
 class TestVirtual(object):
     def test_virtual_create_refresh_update_delete_load(
-            self, request, mgmt_root, setup_device_snapshot
-    ):
+            self, request, mgmt_root):
         virtual1, vc1 = setup_virtual_test(
             request, mgmt_root, 'Common', 'vstest1'
         )
@@ -104,7 +96,7 @@ class TestVirtual(object):
         virtual2 = vc1.virtual.load(partition='Common', name='vstest1')
         assert virtual2.selfLink == virtual1.selfLink
 
-    def test_virtual_modify(self, request, mgmt_root, setup_device_snapshot):
+    def test_virtual_modify(self, request, mgmt_root):
         virtual1, vc1 = setup_virtual_test(
             request, mgmt_root, 'Common', 'modtest1'
         )
@@ -115,86 +107,83 @@ class TestVirtual(object):
             if k != desc:
                 original_dict[k] = virtual1.__dict__[k]
             elif k == desc:
-                virtual1.__dict__[k] == 'Cool mod test'
+                assert virtual1.__dict__[k] == 'Cool mod test'
 
 
-def test_profiles_CE(mgmt_root, setup_device_snapshot):
-    v1 = mgmt_root.tm.ltm.virtuals.virtual.create(
-        name="tv1", partition="Common"
-    )
-    p1 = v1.profiles_s.profiles.create(name="http", partition='Common')
-    test_profiles_s = v1.profiles_s
-    test_profiles_s.context = 'all'
-    assert '~Common~tv1/profiles/' in p1.selfLink
-    assert 'http?ver=' in p1.selfLink
+class TestProfiles(object):
+    def test_profiles_CE(self, request, mgmt_root):
+        v1, _ = setup_virtual_test(request, mgmt_root, 'Common', 'tv1')
+        p1 = v1.profiles_s.profiles.create(name="http", partition='Common')
+        test_profiles_s = v1.profiles_s
+        test_profiles_s.context = 'all'
+        assert '~Common~tv1/profiles/' in p1.selfLink
+        assert 'http?ver=' in p1.selfLink
 
-    p2 = v1.profiles_s.profiles
-    assert p2.exists(name='http', partition='Common')
+        p2 = v1.profiles_s.profiles
+        assert p2.exists(name='http', partition='Common')
 
-    v1.delete()
+    def test_profiles_CE_check_create_params(self, request, mgmt_root):
+        v1, _ = setup_virtual_test(request, mgmt_root, 'Common', 'tv2')
+        with pytest.raises(MissingRequiredCreationParameter) as ex:
+            v1.profiles_s.profiles.create(name="http")
+        assert "Missing required params: ['partition']" in ex.value.message
 
+    def test_profiles_CE_check_load_params(self, request, mgmt_root):
+        v1, _ = setup_virtual_test(request, mgmt_root, 'Common', 'tv3')
+        p1 = v1.profiles_s.profiles.create(name="http", partition="Common")
 
-def test_profiles_CE_check_create_params(mgmt_root, setup_device_snapshot):
-    v1 = mgmt_root.tm.ltm.virtuals.virtual.create(
-        name="tv2", partition="Common"
-    )
-    with pytest.raises(MissingRequiredCreationParameter) as ex:
-        v1.profiles_s.profiles.create(name="http")
-    assert "Missing required params: ['partition']" in ex.value.message
-    v1.delete()
+        with pytest.raises(MissingRequiredReadParameter) as ex:
+            assert v1.profiles_s.profiles.load(name='http')
+        assert "Missing required params: ['partition']" in ex.value.message
 
+        v1.profiles_s.profiles.load(name="http", partition="Common")
 
-def test_profiles_CE_check_load_params(mgmt_root, setup_device_snapshot):
-    v1 = mgmt_root.tm.ltm.virtuals.virtual.create(
-        name="tv3", partition="Common"
-    )
-    p1 = v1.profiles_s.profiles.create(name="http", partition="Common")
-
-    with pytest.raises(MissingRequiredReadParameter) as ex:
-        assert v1.profiles_s.profiles.load(name='http')
-    assert "Missing required params: ['partition']" in ex.value.message
-
-    v1.profiles_s.profiles.load(name="http", partition="Common")
-
-    # Check for existence with partition given
-    p1.exists(name='http', partition='Common')
-
-    v1.delete()
+        # Check for existence with partition given
+        p1.exists(name='http', partition='Common')
 
 
-def test_policies(policy_setup, virtual_setup, setup_device_snapshot):
-    pol, pc = policy_setup
-    v1 = virtual_setup
-    vs_pol = v1.policies_s.policies.create(name='pol', partition='Common')
-    loaded_pol = v1.policies_s.policies.load(name='pol', partition='Common')
-    assert vs_pol.name == pol.name == loaded_pol.name
-    pc = list(v1.policies_s.get_collection())
-    assert len(pc) == 1
-    vs_pol.delete()
-    v1.refresh()
-    # Bump to check the below call
-    assert v1.policies_s.policies.exists(name='pol', partition='Common') is \
-        False
+class TestPolicies(object):
+    def test_policies(self, policy_setup, virtual_setup):
+        pol, pc = policy_setup
+        v1 = virtual_setup
+        vs_pol = v1.policies_s.policies.create(name='pol', partition='Common')
+        loaded_pol = v1.policies_s.policies.load(name='pol',
+                                                 partition='Common')
+        assert vs_pol.name == pol.name == loaded_pol.name
+        pc = list(v1.policies_s.get_collection())
+        assert len(pc) == 1
+        vs_pol.delete()
+        v1.refresh()
+        # Bump to check the below call
+        assert v1.policies_s.policies.exists(name='pol',
+                                             partition='Common') is False
 
+    def test_policies_no_partition(self, virtual_setup):
+        v1 = virtual_setup
+        with pytest.raises(MissingRequiredCreationParameter) as ex:
+            v1.profiles_s.profiles.create(name='test_policy')
+        assert "Missing required params: ['partition']" == ex.value.message
 
-def test_policies_no_partition(virtual_setup, setup_device_snapshot):
-    v1 = virtual_setup
-    with pytest.raises(MissingRequiredCreationParameter) as ex:
-        v1.profiles_s.profiles.create(name='test_policy')
-    assert "Missing required params: ['partition']" == ex.value.message
+    def test_policies_missing_policy(self, virtual_setup):
+        v1 = virtual_setup
+        with pytest.raises(Exception) as ex:
+            v1.profiles_s.profiles.create(name='bad_pol', partition='Common')
+        assert 'The requested profile (/Common/bad_pol) was not found' in \
+            ex.value.message
 
+    def test_policies_load_missing_policy(self, virtual_setup):
+        v1 = virtual_setup
+        with pytest.raises(Exception) as ex:
+            v1.policies_s.policies.load(name='bad_pol', partition='Common')
+        assert 'The Policy named, bad_pol, does not exist on the device.' == \
+            ex.value.message
 
-def test_policies_missing_policy(virtual_setup, setup_device_snapshot):
-    v1 = virtual_setup
-    with pytest.raises(Exception) as ex:
-        v1.profiles_s.profiles.create(name='bad_pol', partition='Common')
-    assert 'The requested profile (/Common/bad_pol) was not found' in \
-        ex.value.message
-
-
-def test_policies_load_missing_policy(virtual_setup, setup_device_snapshot):
-    v1 = virtual_setup
-    with pytest.raises(Exception) as ex:
-        v1.policies_s.policies.load(name='bad_pol', partition='Common')
-    assert 'The Policy named, bad_pol, does not exist on the device.' == \
-        ex.value.message
+    def test_collection(self, virtual_setup, policy_setup):
+        _, _ = policy_setup
+        v1 = virtual_setup
+        vs_pol = v1.policies_s.policies.create(name='pol', partition='Common')
+        assert vs_pol.name == 'pol'
+        assert vs_pol.kind == 'tm:ltm:virtual:policies:policiesstate'
+        pclst = v1.policies_s.get_collection()
+        assert len(pclst) > 0
+        assert isinstance(pclst[0], Policies)

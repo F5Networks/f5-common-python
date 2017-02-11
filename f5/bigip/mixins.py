@@ -401,3 +401,10 @@ class CheckExistenceMixin(object):
             if item.name == item_name:
                 return True
         return False
+
+    def _return_object(self, container, item_name):
+        """Helper method to retrieve the object"""
+        coll = container.get_collection()
+        for item in coll:
+            if item.name == item_name:
+                return item
