@@ -31,6 +31,7 @@ from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 from f5.sdk_exception import NonExtantVirtualPolicy
+from f5.sdk_exception import UnregisteredKind
 
 
 class Virtuals(Collection):
@@ -105,3 +106,53 @@ class Policies_s(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Policies]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:virtual:policies:policiesstate': Policies}
+
+    def get_collection(self, **kwargs):
+        """We need special get collection method to address issue in 11.5.4
+
+        In 11.5.4 collection 'items' were nested under 'policiesReference'
+        key. This has caused get_collection() calls to return empty list.
+        This fix will update the list if the policiesReference key is found
+        and 'items' key do not exists in __dict__.
+
+        :raises: UnregisteredKind
+        :returns: list of reference dicts and Python ``Resource`` objects
+        """
+        list_of_contents = []
+        self.refresh(**kwargs)
+        if 'items' in self.__dict__:
+            for item in self.items:
+                # It's possible to have non-"kind" JSON returned. We just
+                # append the corresponding dict. PostProcessing is the caller's
+                # responsibility.
+                if 'kind' not in item:
+                    list_of_contents.append(item)
+                    continue
+                kind = item['kind']
+                if kind in self._meta_data['attribute_registry']:
+                    # If it has a kind, it must be registered.
+                    instance =\
+                        self._meta_data['attribute_registry'][kind](self)
+                    instance._local_update(item)
+                    instance._activate_URI(instance.selfLink)
+                    list_of_contents.append(instance)
+                else:
+                    error_message = '%r is not registered!' % kind
+                    raise UnregisteredKind(error_message)
+
+        if 'policiesReference' in self.__dict__ and 'items' not in \
+                self.__dict__:
+            for item in self.policiesReference['items']:
+                kind = item['kind']
+                if kind in self._meta_data['attribute_registry']:
+                    # If it has a kind, it must be registered.
+                    instance = \
+                        self._meta_data['attribute_registry'][kind](self)
+                    instance._local_update(item)
+                    instance._activate_URI(instance.selfLink)
+                    list_of_contents.append(instance)
+                else:
+                    error_message = '%r is not registered!' % kind
+                    raise UnregisteredKind(error_message)
+
+        return list_of_contents
