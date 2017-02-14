@@ -27,11 +27,16 @@ REST Kind
     ``tm:ltm:virtual:*``
 """
 
+from distutils.version import LooseVersion
+
 from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 from f5.sdk_exception import NonExtantVirtualPolicy
 from f5.sdk_exception import UnregisteredKind
+from f5.sdk_exception import URICreationCollision
+
+from requests import HTTPError
 
 
 class Virtuals(Collection):
@@ -84,19 +89,95 @@ class Policies(Resource, CheckExistenceMixin):
 
     def exists(self, **kwargs):
         """check existence of policy under virtual."""
-
         return self._check_existence_by_collection(
             self._meta_data['container'], kwargs['name'])
 
-    def _load(self, **kwargs):
-        """Override _load to retrieve object based on exists above."""
-
+    def load(self, **kwargs):
+        """Override load to retrieve object based on exists above."""
+        tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
         if self._check_existence_by_collection(
                 self._meta_data['container'], kwargs['name']):
-            return super(Policies, self)._load(**kwargs)
+            if LooseVersion(tmos_v) == LooseVersion('11.5.4'):
+                return self._load_11_5_4(**kwargs)
+            else:
+                return self._load(**kwargs)
         msg = 'The Policy named, {}, does not exist on the device.'.format(
             kwargs['name'])
         raise NonExtantVirtualPolicy(msg)
+
+    def _load_11_5_4(self, **kwargs):
+        """Custom _load method to accommodate for issue in 11.5.4,
+
+        where an existing object would return 404 HTTP response.
+        """
+        if 'uri' in self._meta_data:
+            error = "There was an attempt to assign a new uri to this " \
+                    "resource, the _meta_data['uri'] is %s and it should" \
+                    " not be changed." % (self._meta_data['uri'])
+            raise URICreationCollision(error)
+        requests_params = self._handle_requests_params(kwargs)
+        self._check_load_parameters(**kwargs)
+        kwargs['uri_as_parts'] = True
+        refresh_session = self._meta_data['bigip']._meta_data[
+            'icr_session']
+        base_uri = self._meta_data['container']._meta_data['uri']
+        kwargs.update(requests_params)
+        for key1, key2 in self._meta_data['reduction_forcing_pairs']:
+            kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
+        kwargs = self._check_for_python_keywords(kwargs)
+        try:
+            response = refresh_session.get(base_uri, **kwargs)
+        except HTTPError as err:
+            if err.response.status_code != 404:
+                raise
+            if err.response.status_code == 404:
+                return self._return_object(self._meta_data['container'],
+                                           kwargs['name'])
+        # Make new instance of self
+        return self._produce_instance(response)
+
+    def create(self, **kwargs):
+        """Custom _create method to accommodate for issue 11.5.4 and 12.1.1,
+
+        Where creation of an object would return 404, despite the object
+        being created.
+        """
+        tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
+        if LooseVersion(tmos_v) == LooseVersion('11.5.4') or LooseVersion(
+                tmos_v) == LooseVersion('12.1.1'):
+            if 'uri' in self._meta_data:
+                error = "There was an attempt to assign a new uri to this " \
+                        "resource, the _meta_data['uri'] is %s and it should" \
+                        " not be changed." % (self._meta_data['uri'])
+                raise URICreationCollision(error)
+            self._check_exclusive_parameters(**kwargs)
+            requests_params = self._handle_requests_params(kwargs)
+            self._check_create_parameters(**kwargs)
+
+            # Reduce boolean pairs as specified by the meta_data entry below
+            for key1, key2 in self._meta_data['reduction_forcing_pairs']:
+                kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
+
+            # Make convenience variable with short names for this method.
+            _create_uri = self._meta_data['container']._meta_data['uri']
+            session = self._meta_data['bigip']._meta_data['icr_session']
+            # We using try/except just in case some HF will fix
+            # this in 11.5.4
+
+            try:
+                response = session.post(
+                    _create_uri, json=kwargs, **requests_params)
+
+            except HTTPError as err:
+                if err.response.status_code != 404:
+                    raise
+                if err.response.status_code == 404:
+                    return self._return_object(self._meta_data['container'],
+                                               kwargs['name'])
+            # Make new instance of self
+            return self._produce_instance(response)
+        else:
+            return self._create(**kwargs)
 
 
 class Policies_s(Collection):
