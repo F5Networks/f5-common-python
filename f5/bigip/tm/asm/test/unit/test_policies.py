@@ -23,6 +23,7 @@ from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
 from f5.bigip.tm.asm.policies import Policy
+from f5.bigip.tm.asm.policies import Response_Page
 from f5.bigip.tm.asm.policies import Signature
 from f5.bigip.tm.asm.policies import Url
 from f5.bigip.tm.asm.policies import UrlParametersCollection
@@ -70,6 +71,14 @@ def FakeEvasion():
     fake_eva = Evasion(fake_policy)
     fake_eva._meta_data['bigip'].tmos_version = '11.6.0'
     return fake_eva
+
+
+@pytest.fixture
+def FakeResponsePage():
+    fake_policy = mock.MagicMock()
+    fake_resp = Response_Page(fake_policy)
+    fake_resp._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_resp
 
 
 @pytest.fixture
@@ -237,3 +246,13 @@ class TestHeader(object):
     def test_create_no_args(self, FakeHeader):
         with pytest.raises(MissingRequiredCreationParameter):
             FakeHeader.create()
+
+
+class TestResponsePages(object):
+    def test_create_raises(self, FakeResponsePage):
+        with pytest.raises(UnsupportedOperation):
+            FakeResponsePage.create()
+
+    def test_delete_raises(self, FakeResponsePage):
+        with pytest.raises(UnsupportedOperation):
+            FakeResponsePage.delete()
