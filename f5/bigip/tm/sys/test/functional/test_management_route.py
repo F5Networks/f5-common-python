@@ -46,16 +46,16 @@ class TestMgmtRoute(object):
                                           mgmt_root,
                                           'testroute',
                                           '192.168.15.0/24',
-                                          '192.168.1.1')
+                                          '10.0.2.1')
 
         assert mr1.name == 'testroute'
         assert mr1.network == '192.168.15.0/24'
-        assert mr1.gateway == '192.168.1.1'
+        assert mr1.gateway == '10.0.2.1'
 
         # Change Gateway
-        mr1.gateway = '192.168.1.2'
+        mr1.gateway = '10.0.2.2'
         mr1.update()
-        assert mr1.gateway == '192.168.1.2'
+        assert mr1.gateway == '10.0.2.2'
 
         # Add Description
         assert hasattr(mr1, 'description') is False

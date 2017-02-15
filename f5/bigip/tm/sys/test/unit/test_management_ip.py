@@ -18,6 +18,7 @@ import pytest
 
 
 from f5.bigip.tm.sys.management_ip import Management_Ip
+from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedMethod
 
 
@@ -25,6 +26,11 @@ from f5.sdk_exception import UnsupportedMethod
 def FakeMgmtIp():
     fake_sys = mock.MagicMock()
     return Management_Ip(fake_sys)
+
+
+def test_create_no_args(FakeMgmtIp):
+    with pytest.raises(MissingRequiredCreationParameter):
+        FakeMgmtIp.create()
 
 
 def test_update_raises(FakeMgmtIp):

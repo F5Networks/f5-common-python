@@ -20,19 +20,19 @@ from f5.sdk_exception import UnsupportedMethod
 from icontrol.exceptions import iControlUnexpectedHTTPError
 
 
-def setup_management_ip_test(request, mgmt_root):
-    def teardown():
-        try:
-            mgmt_root.tm.sys.management_ips.management_ip.load(
-                name=mip[0].name)
-        except iControlUnexpectedHTTPError:
-            mgmt_root.tm.sys.management_ips.management_ip.create(
-                name=mip[0].name)
-
-    request.addfinalizer(teardown)
-
-    mip = mgmt_root.tm.sys.management_ips.get_collection()
-    return mip
+# def setup_management_ip_test(request, mgmt_root):
+#     def teardown():
+#         try:
+#             mgmt_root.tm.sys.management_ips.management_ip.load(
+#                 name=mip[0].name)
+#         except iControlUnexpectedHTTPError:
+#             mgmt_root.tm.sys.management_ips.management_ip.create(
+#                 name=mip[0].name)
+#
+#     request.addfinalizer(teardown)
+#
+#     mip = mgmt_root.tm.sys.management_ips.get_collection()
+#     return mip
 
 
 def test_missing_required_params(mgmt_root):
@@ -42,7 +42,7 @@ def test_missing_required_params(mgmt_root):
 
 
 def test_missing_mask(request, mgmt_root):
-    name = '172.16.44.15'
+    name = '10.0.2.15'
     with pytest.raises(iControlUnexpectedHTTPError) as err:
         mgmt_root.tm.sys.management_ips.management_ip.create(
             name=name)
@@ -57,40 +57,53 @@ def test_invalid_addr(request, mgmt_root):
     assert 'invalid address' in str(err.value.message)
 
 
-def test_create_delete_addr(request, mgmt_root):
-    mip = setup_management_ip_test(request, mgmt_root)
-    assert mip[0].name == '172.16.44.15/24'
-
-    mip1 = mgmt_root.tm.sys.management_ips.management_ip.load(
-        name=mip[0].name)
-    assert mip1.name == mip[0].name
-    mip1.delete()
-
+def test_create_existing_addr(request, mgmt_root):
+    name = '10.0.2.15/24'
     with pytest.raises(iControlUnexpectedHTTPError) as err:
-        mgmt_root.tm.sys.management_ips.management_ip.load(
-            name=mip[0].name)
-    assert ') was not found.' in str(err.value.message)
+        mgmt_root.tm.sys.management_ips.management_ip.create(
+            name=name)
+    assert 'The requested management IP (%s) already exists.' % name in\
+           str(err.value.message)
 
-    mip2 = mgmt_root.tm.sys.management_ips.management_ip.create(
-        name='172.16.44.16/24')
-    assert mip2.name == '172.16.44.16/24'
+
+# def test_create_delete_addr(request, mgmt_root):
+#     mip = setup_management_ip_test(request, mgmt_root)
+#     assert mip[0].name == '172.16.44.15/24'
+#
+#     mip1 = mgmt_root.tm.sys.management_ips.management_ip.load(
+#         name=mip[0].name)
+#     assert mip1.name == mip[0].name
+#     mip1.delete()
+#
+#     with pytest.raises(iControlUnexpectedHTTPError) as err:
+#         mgmt_root.tm.sys.management_ips.management_ip.load(
+#             name=mip[0].name)
+#     assert ') was not found.' in str(err.value.message)
+#
+#     mip2 = mgmt_root.tm.sys.management_ips.management_ip.create(
+#         name='172.16.44.16/24')
+#     assert mip2.name == '172.16.44.16/24'
 
 
 def test_modify_addr(request, mgmt_root):
-    mip = setup_management_ip_test(request, mgmt_root)
+    # mip = setup_management_ip_test(request, mgmt_root)
+    # name = mip[0].name
+    name = '10.0.2.15/24'
     mip1 = mgmt_root.tm.sys.management_ips.management_ip.load(
-        name=mip[0].name)
-    mip1.name = '172.16.44.20/24'
+        name=name)
+    mip1.name = '10.0.2.16/24'
     with pytest.raises(UnsupportedMethod) as err:
         mip1.modify()
     assert 'Management_Ip does not support the modify method' in str(err)
 
 
 def test_update_addr(request, mgmt_root):
-    mip = setup_management_ip_test(request, mgmt_root)
+    # mip = setup_management_ip_test(request, mgmt_root)
+    # name = mip[0].name
+    name = '10.0.2.15/24'
     mip1 = mgmt_root.tm.sys.management_ips.management_ip.load(
-        name=mip[0].name)
-    mip1.name = '172.16.44.20/24'
+        name=name)
+    mip1.name = '10.0.2.16/24'
     with pytest.raises(UnsupportedMethod) as err:
         mip1.update()
     assert 'Management_Ip does not support the update method' in str(err)

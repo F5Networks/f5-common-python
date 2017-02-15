@@ -30,8 +30,7 @@ def FakeMgmtRoute():
 def test_create_no_args(FakeMgmtRoute):
     with pytest.raises(MissingRequiredCreationParameter) as EIO:
         FakeMgmtRoute.create()
-    assert EIO.value.message == "Missing required params: ['network', " \
-                                "'gateway', 'name']"
+    assert EIO.value.message == "Missing required params:"
 
 
 def test_create_missing_name(FakeMgmtRoute):
