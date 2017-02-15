@@ -687,11 +687,12 @@ class ResourceBase(PathElement, ToDictMixin):
             config_dict.pop(key2)
         return config_dict
 
-    @property
-    def properties(self):
-        no_meta_dict = {k: v for k, v in self.__dict__.iteritems()
-                        if k != '_meta_data'}
-        return no_meta_dict
+# Commenting this method for now, until we remove python 2.6 from travis
+#    @property
+#    def properties(self):
+#        no_meta_dict = {k: v for k, v in self.__dict__.iteritems()
+#                        if k != '_meta_data'}
+#        return no_meta_dict
 
 
 class OrganizingCollection(ResourceBase):

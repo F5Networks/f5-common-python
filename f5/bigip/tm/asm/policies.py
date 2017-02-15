@@ -60,7 +60,9 @@ class Policy(AsmResource):
                 Signatures_s,
             'tm:asm:policies:signature-sets:signature-setcollectionstate':
                 Signature_Sets_s,
-            'tm:asm:policies:headers:headercollectionstate': Headers_s
+            'tm:asm:policies:headers:headercollectionstate': Headers_s,
+            'tm:asm:policies:response-pages:response-pagecollectionstate':
+                Response_Pages_s
         }
         self._set_attr_reg()
 
@@ -659,3 +661,43 @@ class Header(AsmResource):
         super(Header, self).__init__(headers_s)
         self._meta_data['required_json_kind'] = \
             'tm:asm:policies:headers:headerstate'
+
+
+class Response_Pages_s(Collection):
+    """BIG-IP® ASM Response Pages sub-collection."""
+    def __init__(self, policy):
+        super(Response_Pages_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = [Response_Page]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:response-pages:response-pagecollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:response-pages:response-pagestate':
+                Response_Page}
+
+
+class Response_Page(AsmResource):
+    """BIG-IP® ASM Response Page resource."""
+    def __init__(self, response_pages_s):
+        super(Response_Page, self).__init__(response_pages_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:response-pages:response-pagestate'
+
+    def create(self, **kwargs):
+        """Create is not supported for Response Page resources
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        """Delete is not supported for Response Page resources
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the delete method" % self.__class__.__name__
+        )

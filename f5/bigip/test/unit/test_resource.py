@@ -799,6 +799,7 @@ def test_ResourceBase():
     assert str(delete_EIO.value) == "Only Resources support 'delete'."
 
 
+@pytest.mark.skip(msg='Disabling This test until we enable the method again')
 def test_resource_base_properties():
     MockBigIP = mock.MagicMock(name='MockBigIP')
     MockBigIP._meta_data = {'uri': 'https://TESTDOMAIN/mgmt/tm/',

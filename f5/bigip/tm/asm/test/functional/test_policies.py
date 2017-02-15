@@ -39,6 +39,8 @@ from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
 from f5.bigip.tm.asm.policies import Policy
+from f5.bigip.tm.asm.policies import Response_Page
+from f5.bigip.tm.asm.policies import Response_Pages_s
 from f5.bigip.tm.asm.policies import Signature
 from f5.bigip.tm.asm.policies import Signature_Set
 from f5.bigip.tm.asm.policies import Signature_Sets_s
@@ -65,18 +67,19 @@ from six import iteritems
 from six import iterkeys
 
 
-def delete_policy_item(mgmt_root):
+def delete_policy_item(mgmt_root, name):
     col = mgmt_root.tm.asm.policies_s.get_collection()
     if len(col) > 0:
         for i in col:
-            i.delete()
+            if i.name == name:
+                i.delete()
 
 
 @pytest.fixture(scope='session')
 def policy(mgmt_root):
     pol1 = mgmt_root.tm.asm.policies_s.policy.create(name='fake_policy')
     yield pol1
-    delete_policy_item(mgmt_root)
+    delete_policy_item(mgmt_root, 'fake_policy')
 
 
 @pytest.fixture(scope='session')
@@ -85,6 +88,14 @@ def signature(mgmt_root):
         requests_params={'params': '$top=2'})
     lnk = str(coll[1].selfLink)
     yield lnk
+
+
+@pytest.fixture(scope='class')
+def resp_page(policy):
+    rescol = policy.response_pages_s.get_collection()
+    for item in rescol:
+        if item.responsePageType == 'default':
+            yield item.id
 
 
 class TestPolicy(object):
@@ -109,6 +120,7 @@ class TestPolicy(object):
         assert pol1.selfLink.startswith(final_uri)
         assert pol1.kind == 'tm:asm:policies:policystate'
         assert pol1.allowedResponseCodes == codes
+        delete_policy_item(mgmt_root, 'fake_policy_opt')
 
     def test_refresh(self, policy, mgmt_root):
         pol1 = policy
@@ -173,7 +185,7 @@ class TestPolicy(object):
         obj_class = [Blocking_Settings, Cookies_s, Filetypes_s,
                      Gwt_Profiles_s, Headers_s, Host_Names_s, Json_Profiles_s,
                      Methods_s, Parameters_s, Signatures_s, Signature_Sets_s,
-                     Urls_s, Whitelist_Ips_s, Xml_Profiles_s]
+                     Urls_s, Whitelist_Ips_s, Xml_Profiles_s, Response_Pages_s]
         attributes = policy._meta_data['attribute_registry']
         assert set(obj_class) == set(attributes.values())
 
@@ -1651,3 +1663,79 @@ class TestHeaders(object):
         assert isinstance(mc, list)
         assert len(mc)
         assert isinstance(mc[0], Header)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestResponsePages(object):
+    def test_create_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.response_pages_s.response_page.create()
+
+    def test_delete_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.response_pages_s.response_page.delete()
+
+    def test_refresh(self, policy, resp_page):
+        hashid = resp_page
+        r1 = policy.response_pages_s.response_page.load(id=hashid)
+        assert r1.kind == 'tm:asm:policies:response-pages:response-pagestate'
+        assert r1.responseActionType == 'default'
+        assert r1.responsePageType == 'default'
+        r2 = policy.response_pages_s.response_page.load(id=hashid)
+        assert r1.kind == r2.kind
+        assert r1.responseActionType == r2.responseActionType
+        assert r1.responsePageType == r2.responsePageType
+        r2.responseActionType = 'redirect'
+        r2.responseRedirectUrl = 'http://fake-site.com'
+        r2.modify(responseActionType='redirect',
+                  responseRedirectUrl='http://fake-site.com')
+        assert r1.responseActionType == 'default'
+        assert r2.responseActionType == 'redirect'
+        assert not hasattr(r1, 'responseRedirectUrl')
+        assert hasattr(r2, 'responseRedirectUrl')
+        r1.refresh()
+        assert hasattr(r1, 'responseRedirectUrl')
+        assert r1.responseActionType == r2.responseActionType
+        assert r1.responseRedirectUrl == 'http://fake-site.com'
+
+    def test_modify(self, policy, resp_page):
+        hashid = resp_page
+        r1 = policy.response_pages_s.response_page.load(id=hashid)
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'responseRedirectUrl'
+        r1.modify(responseRedirectUrl='http://modified-fake.com')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == 'http://modified-fake.com'
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.response_pages_s.response_page.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, policy, resp_page):
+        hashid = resp_page
+        r1 = policy.response_pages_s.response_page.load(id=hashid)
+        assert r1.kind == 'tm:asm:policies:response-pages:response-pagestate'
+        assert r1.responsePageType == 'default'
+        assert r1.responseActionType == 'redirect'
+        assert r1.responseRedirectUrl == 'http://modified-fake.com'
+        r1.modify(responseRedirectUrl='http://loaded-fake.com')
+        assert r1.responseRedirectUrl == 'http://loaded-fake.com'
+        r2 = policy.response_pages_s.response_page.load(id=hashid)
+        assert r1.kind == r2.kind
+        assert r1.responseActionType == r2.responseActionType
+        assert r1.responsePageType == r2.responsePageType
+        assert r1.responseRedirectUrl == r2.responseRedirectUrl
+
+    def test_method_subcollection(self, policy):
+        mc = policy.response_pages_s.get_collection()
+        assert isinstance(mc, list)
+        assert len(mc)
+        assert isinstance(mc[0], Response_Page)
