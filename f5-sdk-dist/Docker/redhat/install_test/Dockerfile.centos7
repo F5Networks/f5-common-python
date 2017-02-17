@@ -6,6 +6,7 @@ RUN yum install -y python-six
 
 COPY ./fetch_and_install_deps.py /
 
-ENTRYPOINT ["/fetch_and_install_deps.py", "/var/wdir"]
+# ENTRYPOINT ["python", "-m", "pdb", "/fetch_and_install_deps.py", "/var/wdir"]
+ENTRYPOINT ["python", "/fetch_and_install_deps.py", "/var/wdir"]
 # by default, the following will be used for the last arg:
 CMD ["/var/wdir/f5-sdk-dist/rpms/build/f5-sdk-*.el7.noarch.rpm"]

@@ -15,12 +15,21 @@
 # limitations under the License.
 #
 
+import os
+
 import f5
 
+from pip.req import parse_requirements as parse_reqs
 from setuptools import find_packages
 from setuptools import setup
 
-
+if 'rpm' not in os.getcwd():
+    install_requires = map(lambda x: str(x.req),
+                           parse_reqs('./setup_requirements.txt',
+                           session='setup'))
+else:
+    install_requires = []
+print('install_requires', install_requires)
 setup(
     name='f5-sdk',
     description='F5 Networks Python SDK',
@@ -30,8 +39,7 @@ setup(
     author_email='f5_common_python@f5.com',
     url='https://github.com/F5Networks/f5-common-python',
     keywords=['F5', 'sdk', 'api', 'icontrol', 'bigip', 'api', 'ltm'],
-    install_requires=['f5-icontrol-rest >= 1.3.0, <2',
-                      'six >= 1.9, <2'],
+    install_requires=install_requires,
     packages=find_packages(
         exclude=["*.test", "*.test.*", "test.*", "test_*", "test", "test*"]
     ),
