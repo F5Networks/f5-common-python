@@ -68,7 +68,10 @@ class Policy(AsmResource):
             'history-revisioncollectionstate': History_Revisions_s,
             'tm:asm:policies:vulnerability-assessment:'
             'vulnerability-assessmentstate': Vulnerability_Assessment,
-            'tm:asm:policies:data-guard:data-guardstate': Data_Guard
+            'tm:asm:policies:data-guard:data-guardstate': Data_Guard,
+            'tm:asm:policies:geolocation-enforcement:'
+            'geolocation-enforcementstate': Geolocation_Enforcement
+
         }
         self._set_attr_reg()
 
@@ -810,6 +813,27 @@ class Data_Guard(UnnamedResource):
 
     def update(self, **kwargs):
         """Update is not supported for Data Guard resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+
+class Geolocation_Enforcement(UnnamedResource):
+    """BIG-IP® ASM Geolocation Enforcement resource."""
+    def __init__(self, policy):
+        super(Geolocation_Enforcement, self).__init__(policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:geolocation-enforcement:' \
+            'geolocation-enforcementstate'
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+
+    def update(self, **kwargs):
+        """Update is not supported for Geolocation Enforcement resource
 
         :raises: UnsupportedOperation
         """

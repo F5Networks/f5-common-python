@@ -17,6 +17,7 @@ from f5.bigip import ManagementRoot
 from f5.bigip.tm.asm import Asm
 from f5.bigip.tm.asm.policies import Data_Guard
 from f5.bigip.tm.asm.policies import Evasion
+from f5.bigip.tm.asm.policies import Geolocation_Enforcement
 from f5.bigip.tm.asm.policies import Header
 from f5.bigip.tm.asm.policies import History_Revision
 from f5.bigip.tm.asm.policies import Http_Protocol
@@ -173,6 +174,14 @@ def FakeData():
     return fake_d
 
 
+@pytest.fixture
+def FakeGeo():
+    fake_policy = mock.MagicMock()
+    fake_g = Geolocation_Enforcement(fake_policy)
+    fake_g._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_g
+
+
 class TestPolicy(object):
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
@@ -324,3 +333,9 @@ class TestDataGuard(object):
     def test_update_raises(self, FakeData):
         with pytest.raises(UnsupportedOperation):
             FakeData.update()
+
+
+class TestGeolocationEnforcement(object):
+    def test_update_raises(self, FakeGeo):
+        with pytest.raises(UnsupportedOperation):
+            FakeGeo.update()
