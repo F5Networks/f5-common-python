@@ -26,6 +26,8 @@ from f5.bigip.tm.asm.policies import Gwt_Profile
 from f5.bigip.tm.asm.policies import Gwt_Profiles_s
 from f5.bigip.tm.asm.policies import Header
 from f5.bigip.tm.asm.policies import Headers_s
+from f5.bigip.tm.asm.policies import History_Revision
+from f5.bigip.tm.asm.policies import History_Revisions_s
 from f5.bigip.tm.asm.policies import Host_Name
 from f5.bigip.tm.asm.policies import Host_Names_s
 from f5.bigip.tm.asm.policies import Http_Protocol
@@ -39,6 +41,7 @@ from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
 from f5.bigip.tm.asm.policies import Policy
+from f5.bigip.tm.asm.policies import Policy_Builder
 from f5.bigip.tm.asm.policies import Response_Page
 from f5.bigip.tm.asm.policies import Response_Pages_s
 from f5.bigip.tm.asm.policies import Signature
@@ -65,6 +68,7 @@ import pytest
 from requests.exceptions import HTTPError
 from six import iteritems
 from six import iterkeys
+import time
 
 
 def delete_policy_item(mgmt_root, name):
@@ -73,6 +77,13 @@ def delete_policy_item(mgmt_root, name):
         for i in col:
             if i.name == name:
                 i.delete()
+
+
+def delete_apply_policy_task(mgmt_root):
+    col = mgmt_root.tm.asm.tasks.apply_policy_s.get_collection()
+    if len(col) > 0:
+        for i in col:
+            i.delete()
 
 
 @pytest.fixture(scope='session')
@@ -96,6 +107,19 @@ def resp_page(policy):
     for item in rescol:
         if item.responsePageType == 'default':
             yield item.id
+
+
+@pytest.fixture(scope='class')
+def set_history(mgmt_root, policy):
+    reference = {'link': policy.selfLink}
+    mgmt_root.tm.asm.tasks.apply_policy_s.apply_policy.create(
+        policyReference=reference)
+    # We need to pause here as the history revisions take time to update
+    time.sleep(3)
+    col = policy.history_revisions_s.get_collection()
+    hashid = str(col[0].id)
+    yield hashid
+    delete_apply_policy_task(mgmt_root)
 
 
 class TestPolicy(object):
@@ -185,7 +209,8 @@ class TestPolicy(object):
         obj_class = [Blocking_Settings, Cookies_s, Filetypes_s,
                      Gwt_Profiles_s, Headers_s, Host_Names_s, Json_Profiles_s,
                      Methods_s, Parameters_s, Signatures_s, Signature_Sets_s,
-                     Urls_s, Whitelist_Ips_s, Xml_Profiles_s, Response_Pages_s]
+                     Urls_s, Whitelist_Ips_s, Xml_Profiles_s,
+                     Response_Pages_s, Policy_Builder, History_Revisions_s]
         attributes = policy._meta_data['attribute_registry']
         assert set(obj_class) == set(attributes.values())
 
@@ -1665,6 +1690,56 @@ class TestHeaders(object):
         assert isinstance(mc[0], Header)
 
 
+class TestPolicyBuilder(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.policy_builder.update()
+
+    def test_modify(self, policy):
+        r1 = policy.policy_builder.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'enablePolicyBuilder'
+        r1.modify(enablePolicyBuilder=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is True
+
+    def test_load(self, policy):
+        r1 = policy.policy_builder.load()
+        assert r1.kind == 'tm:asm:policies:policy-builder:pbconfigstate'
+        assert r1.enablePolicyBuilder is True
+        assert hasattr(r1, 'responseStatusCodes')
+        assert hasattr(r1, 'learnFromResponses')
+        r1.modify(enablePolicyBuilder=False)
+        assert r1.enablePolicyBuilder is False
+        r2 = policy.policy_builder.load()
+        assert r1.kind == r2.kind
+        assert not hasattr(r2, 'responseStatusCodes')
+        assert not hasattr(r2, 'learnFromResponses')
+
+    def test_refresh(self, policy):
+        r1 = policy.policy_builder.load()
+        assert r1.kind == 'tm:asm:policies:policy-builder:pbconfigstate'
+        assert r1.enablePolicyBuilder is False
+        assert not hasattr(r1, 'responseStatusCodes')
+        assert not hasattr(r1, 'learnFromResponses')
+        r2 = policy.policy_builder.load()
+        assert r1.kind == r2.kind
+        assert r2.enablePolicyBuilder is False
+        assert not hasattr(r2, 'responseStatusCodes')
+        assert not hasattr(r2, 'learnFromResponses')
+        r2.modify(enablePolicyBuilder=True)
+        assert r2.enablePolicyBuilder is True
+        assert hasattr(r2, 'responseStatusCodes')
+        assert hasattr(r2, 'learnFromResponses')
+        r1.refresh()
+        assert hasattr(r1, 'responseStatusCodes')
+        assert hasattr(r1, 'learnFromResponses')
+        assert r1.enablePolicyBuilder == r2.enablePolicyBuilder
+
+
 @pytest.mark.skipif(
     LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
         '11.6.0'),
@@ -1741,51 +1816,56 @@ class TestResponsePages(object):
         assert isinstance(mc[0], Response_Page)
 
 
-class TestPolicyBuilder(object):
-    def test_update_raises(self, policy):
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestHistoryRevisions(object):
+    def test_create_raises(self, policy):
         with pytest.raises(UnsupportedOperation):
-            policy.policy_builder.update()
+            policy.history_revisions_s.history_revision.create()
 
-    def test_modify(self, policy):
-        r1 = policy.policy_builder.load()
-        original_dict = copy.copy(r1.__dict__)
-        itm = 'enablePolicyBuilder'
-        r1.modify(enablePolicyBuilder=True)
-        for k, v in iteritems(original_dict):
-            if k != itm:
-                original_dict[k] = r1.__dict__[k]
-            elif k == itm:
-                assert r1.__dict__[k] is True
+    def test_delete_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.history_revisions_s.history_revision.delete()
 
-    def test_load(self, policy):
-        r1 = policy.policy_builder.load()
-        assert r1.kind == 'tm:asm:policies:policy-builder:pbconfigstate'
-        assert r1.enablePolicyBuilder is True
-        assert hasattr(r1, 'responseStatusCodes')
-        assert hasattr(r1, 'learnFromResponses')
-        r1.modify(enablePolicyBuilder=False)
-        assert r1.enablePolicyBuilder is False
-        r2 = policy.policy_builder.load()
+    def test_modify_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.history_revisions_s.history_revision.create()
+
+    def test_refresh(self, policy, set_history):
+        hashid = set_history
+        r1 = policy.history_revisions_s.history_revision.load(id=hashid)
+        assert r1.kind == 'tm:asm:policies:history-revisions:' \
+                          'history-revisionstate'
+        link = str(policy.selfLink) + '/' + 'history-revisions' + '/' + hashid
+        assert r1.selfLink == link
+        r2 = policy.history_revisions_s.history_revision.load(id=hashid)
         assert r1.kind == r2.kind
-        assert not hasattr(r2, 'responseStatusCodes')
-        assert not hasattr(r2, 'learnFromResponses')
-
-    def test_refresh(self, policy):
-        r1 = policy.policy_builder.load()
-        assert r1.kind == 'tm:asm:policies:policy-builder:pbconfigstate'
-        assert r1.enablePolicyBuilder is False
-        assert not hasattr(r1, 'responseStatusCodes')
-        assert not hasattr(r1, 'learnFromResponses')
-        r2 = policy.policy_builder.load()
-        assert r1.kind == r2.kind
-        assert r2.enablePolicyBuilder is False
-        assert not hasattr(r2, 'responseStatusCodes')
-        assert not hasattr(r2, 'learnFromResponses')
-        r2.modify(enablePolicyBuilder=True)
-        assert r2.enablePolicyBuilder is True
-        assert hasattr(r2, 'responseStatusCodes')
-        assert hasattr(r2, 'learnFromResponses')
+        assert r1.selfLink == r2.selfLink
         r1.refresh()
-        assert hasattr(r1, 'responseStatusCodes')
-        assert hasattr(r1, 'learnFromResponses')
-        assert r1.enablePolicyBuilder == r2.enablePolicyBuilder
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.history_revisions_s.history_revision.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, policy, set_history):
+        hashid = set_history
+        r1 = policy.history_revisions_s.history_revision.load(id=hashid)
+        assert r1.kind == 'tm:asm:policies:history-revisions:' \
+                          'history-revisionstate'
+        link = str(policy.selfLink) + '/'+'history-revisions' + '/' + hashid
+        assert r1.selfLink == link
+        r2 = policy.history_revisions_s.history_revision.load(id=hashid)
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+
+    def test_method_subcollection(self, policy):
+        mc = policy.history_revisions_s.get_collection()
+        assert isinstance(mc, list)
+        assert len(mc)
+        assert isinstance(mc[0], History_Revision)

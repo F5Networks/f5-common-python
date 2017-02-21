@@ -64,6 +64,8 @@ class Policy(AsmResource):
             'tm:asm:policies:response-pages:response-pagecollectionstate':
                 Response_Pages_s,
             'tm:asm:policies:policy-builder:pbconfigstate': Policy_Builder,
+            'tm:asm:policies:history-revisions:'
+            'history-revisioncollectionstate': History_Revisions_s,
         }
         self._set_attr_reg()
 
@@ -711,9 +713,59 @@ class Policy_Builder(UnnamedResource):
         self._meta_data['required_json_kind'] = \
             'tm:asm:policies:policy-builder:pbconfigstate'
         self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
 
     def update(self, **kwargs):
         """Update is not supported for Policy Builder resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the delete method" % self.__class__.__name__
+        )
+
+
+class History_Revisions_s(Collection):
+    """BIG-IP® ASM History Revisions sub-collection."""
+    def __init__(self, policy):
+        super(History_Revisions_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = [History_Revision]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:history-revisions:history-revisioncollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:history-revisions:history-revisionstate':
+                History_Revision}
+
+
+class History_Revision(AsmResource):
+    """BIG-IP® ASM History Revision resource."""
+    def __init__(self, response_pages_s):
+        super(History_Revision, self).__init__(response_pages_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:history-revisions:history-revisionstate'
+
+    def create(self, **kwargs):
+        """Create is not supported for History Revision resources
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+    def modify(self, **kwargs):
+        """Modify is not supported for History Revision resources
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        """Delete is not supported for History Revision resources
 
         :raises: UnsupportedOperation
         """
