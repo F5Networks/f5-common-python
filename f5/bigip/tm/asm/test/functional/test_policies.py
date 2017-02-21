@@ -15,51 +15,35 @@
 
 import copy
 from distutils.version import LooseVersion
-from f5.bigip.tm.asm.policies import Blocking_Settings
 from f5.bigip.tm.asm.policies import Cookie
-from f5.bigip.tm.asm.policies import Cookies_s
 from f5.bigip.tm.asm.policies import Evasion
 from f5.bigip.tm.asm.policies import Evasions_s
 from f5.bigip.tm.asm.policies import Filetype
-from f5.bigip.tm.asm.policies import Filetypes_s
 from f5.bigip.tm.asm.policies import Gwt_Profile
-from f5.bigip.tm.asm.policies import Gwt_Profiles_s
 from f5.bigip.tm.asm.policies import Header
-from f5.bigip.tm.asm.policies import Headers_s
 from f5.bigip.tm.asm.policies import History_Revision
-from f5.bigip.tm.asm.policies import History_Revisions_s
 from f5.bigip.tm.asm.policies import Host_Name
-from f5.bigip.tm.asm.policies import Host_Names_s
 from f5.bigip.tm.asm.policies import Http_Protocol
 from f5.bigip.tm.asm.policies import Http_Protocols_s
 from f5.bigip.tm.asm.policies import Json_Profile
-from f5.bigip.tm.asm.policies import Json_Profiles_s
 from f5.bigip.tm.asm.policies import Method
-from f5.bigip.tm.asm.policies import Methods_s
 from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
 from f5.bigip.tm.asm.policies import Policy
-from f5.bigip.tm.asm.policies import Policy_Builder
 from f5.bigip.tm.asm.policies import Response_Page
-from f5.bigip.tm.asm.policies import Response_Pages_s
 from f5.bigip.tm.asm.policies import Signature
 from f5.bigip.tm.asm.policies import Signature_Set
-from f5.bigip.tm.asm.policies import Signature_Sets_s
-from f5.bigip.tm.asm.policies import Signatures_s
 from f5.bigip.tm.asm.policies import Url
 from f5.bigip.tm.asm.policies import UrlParametersCollection
 from f5.bigip.tm.asm.policies import UrlParametersResource
-from f5.bigip.tm.asm.policies import Urls_s
 from f5.bigip.tm.asm.policies import Violation
 from f5.bigip.tm.asm.policies import Violations_s
 from f5.bigip.tm.asm.policies import Web_Services_Securities_s
 from f5.bigip.tm.asm.policies import Web_Services_Security
 from f5.bigip.tm.asm.policies import Whitelist_Ip
-from f5.bigip.tm.asm.policies import Whitelist_Ips_s
 from f5.bigip.tm.asm.policies import Xml_Profile
-from f5.bigip.tm.asm.policies import Xml_Profiles_s
 from f5.sdk_exception import AttemptedMutationOfReadOnly
 from f5.sdk_exception import UnsupportedMethod
 from f5.sdk_exception import UnsupportedOperation
@@ -204,15 +188,6 @@ class TestPolicy(object):
         assert isinstance(pc, list)
         assert len(pc)
         assert isinstance(pc[0], Policy)
-
-    def test_policies_attr_reg(self, policy):
-        obj_class = [Blocking_Settings, Cookies_s, Filetypes_s,
-                     Gwt_Profiles_s, Headers_s, Host_Names_s, Json_Profiles_s,
-                     Methods_s, Parameters_s, Signatures_s, Signature_Sets_s,
-                     Urls_s, Whitelist_Ips_s, Xml_Profiles_s,
-                     Response_Pages_s, Policy_Builder, History_Revisions_s]
-        attributes = policy._meta_data['attribute_registry']
-        assert set(obj_class) == set(attributes.values())
 
 
 class TestMethods(object):
@@ -1985,3 +1960,49 @@ class TestDataGuard(object):
         assert hasattr(r1, 'customPatterns')
         assert hasattr(r1, 'fileContentDetection')
         assert r1.enabled == r2.enabled
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestGeolocationEnforcement(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.geolocation_enforcement.update()
+
+    def test_modify(self, policy):
+        r1 = policy.geolocation_enforcement.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'disallowedLocations'
+        r1.modify(disallowedLocations=['Afghanistan'])
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == ['Afghanistan']
+
+    def test_load(self, policy):
+        r1 = policy.geolocation_enforcement.load()
+        assert r1.kind == 'tm:asm:policies:geolocation-' \
+                          'enforcement:geolocation-enforcementstate'
+        assert r1.disallowedLocations == ['Afghanistan']
+        r1.modify(disallowedLocations=['Poland'])
+        assert r1.disallowedLocations == ['Poland']
+        r2 = policy.geolocation_enforcement.load()
+        assert r1.kind == r2.kind
+        assert r1.disallowedLocations == r2.disallowedLocations
+
+    def test_refresh(self, policy):
+        r1 = policy.geolocation_enforcement.load()
+        assert r1.kind == 'tm:asm:policies:geolocation-' \
+                          'enforcement:geolocation-enforcementstate'
+        assert r1.disallowedLocations == ['Poland']
+        r2 = policy.geolocation_enforcement.load()
+        assert r1.kind == r2.kind
+        assert r1.disallowedLocations == r2.disallowedLocations
+        r2.modify(disallowedLocations=[])
+        assert r2.disallowedLocations == []
+        r1.refresh()
+        assert r1.disallowedLocations == r2.disallowedLocations
