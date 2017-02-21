@@ -72,8 +72,10 @@ class Policy(AsmResource):
             'tm:asm:policies:geolocation-enforcement:'
             'geolocation-enforcementstate': Geolocation_Enforcement,
             'tm:asm:policies:session-tracking:session-awareness'
-            '-settingsstate': Session_Tracking
-
+            '-settingsstate': Session_Tracking,
+            'tm:asm:policies:session-tracking-'
+            'statuses:session-tracking-statuscollectionstate':
+                Session_Tracking_Statuses_s
         }
         self._set_attr_reg()
 
@@ -861,4 +863,40 @@ class Session_Tracking(UnnamedResource):
         """
         raise UnsupportedOperation(
             "%s does not support the update method" % self.__class__.__name__
+        )
+
+
+class Session_Tracking_Statuses_s(Collection):
+    """BIG-IP® ASM Session Tracking Statuses sub-collection."""
+    def __init__(self, policy):
+        super(Session_Tracking_Statuses_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = [Session_Tracking_Status]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:session-tracking-statuses:' \
+            'session-tracking-statuscollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:session-tracking-statuses:'
+            'session-tracking-statusstate':
+                Session_Tracking_Status}
+
+
+class Session_Tracking_Status(AsmResource):
+    """BIG-IP® ASM Session TrackingStatus resource."""
+    def __init__(self, response_pages_s):
+        super(Session_Tracking_Status, self).__init__(response_pages_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:session-tracking-statuses:' \
+            'session-tracking-statusstate'
+        self._meta_data['required_creation_parameters'] = \
+            set(('action', 'scope', 'value'))
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Session Tracking resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the modify method" % self.__class__.__name__
         )

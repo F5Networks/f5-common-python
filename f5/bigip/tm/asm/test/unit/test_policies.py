@@ -29,6 +29,7 @@ from f5.bigip.tm.asm.policies import Policy
 from f5.bigip.tm.asm.policies import Policy_Builder
 from f5.bigip.tm.asm.policies import Response_Page
 from f5.bigip.tm.asm.policies import Session_Tracking
+from f5.bigip.tm.asm.policies import Session_Tracking_Status
 from f5.bigip.tm.asm.policies import Signature
 from f5.bigip.tm.asm.policies import Url
 from f5.bigip.tm.asm.policies import UrlParametersCollection
@@ -187,6 +188,14 @@ def FakeGeo():
 def FakeSessTrack():
     fake_policy = mock.MagicMock()
     fake_g = Session_Tracking(fake_policy)
+    fake_g._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_g
+
+
+@pytest.fixture
+def FakeSess():
+    fake_policy = mock.MagicMock()
+    fake_g = Session_Tracking_Status(fake_policy)
     fake_g._meta_data['bigip'].tmos_version = '11.6.0'
     return fake_g
 
@@ -354,3 +363,9 @@ class TestSessionTracking(object):
     def test_update_raises(self, FakeSessTrack):
         with pytest.raises(UnsupportedOperation):
             FakeSessTrack.update()
+
+
+class TestSessionTrackingStatuses(object):
+    def test_update_raises(self, FakeSess):
+        with pytest.raises(UnsupportedOperation):
+            FakeSess.modify()
