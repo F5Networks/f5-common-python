@@ -17,6 +17,7 @@ from f5.bigip import ManagementRoot
 from f5.bigip.tm.asm import Asm
 from f5.bigip.tm.asm.policies import Evasion
 from f5.bigip.tm.asm.policies import Header
+from f5.bigip.tm.asm.policies import History_Revision
 from f5.bigip.tm.asm.policies import Http_Protocol
 from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
@@ -146,6 +147,14 @@ def FakeBuilder():
     return fake_build
 
 
+@pytest.fixture
+def FakeHistory():
+    fake_policy = mock.MagicMock()
+    fake_history = History_Revision(fake_policy)
+    fake_history._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_history
+
+
 class TestPolicy(object):
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
@@ -271,3 +280,17 @@ class TestPolicyBuilder(object):
     def test_update_raises(self, FakeBuilder):
         with pytest.raises(UnsupportedOperation):
             FakeBuilder.update()
+
+
+class TestHistoryRevisions(object):
+    def test_create_raises(self, FakeHistory):
+        with pytest.raises(UnsupportedOperation):
+            FakeHistory.create()
+
+    def test_delete_raises(self, FakeHistory):
+        with pytest.raises(UnsupportedOperation):
+            FakeHistory.delete()
+
+    def test_modify_raises(self, FakeHistory):
+        with pytest.raises(UnsupportedOperation):
+            FakeHistory.modify()
