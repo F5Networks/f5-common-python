@@ -23,6 +23,7 @@ from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
 from f5.bigip.tm.asm.policies import Policy
+from f5.bigip.tm.asm.policies import Policy_Builder
 from f5.bigip.tm.asm.policies import Response_Page
 from f5.bigip.tm.asm.policies import Signature
 from f5.bigip.tm.asm.policies import Url
@@ -132,9 +133,17 @@ def FakeUrlParameters():
 @pytest.fixture
 def FakeHeader():
     fake_policy = mock.MagicMock()
-    fake_param = Header(fake_policy)
-    fake_param._meta_data['bigip'].tmos_version = '11.6.0'
-    return fake_param
+    fake_head = Header(fake_policy)
+    fake_head._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_head
+
+
+@pytest.fixture
+def FakeBuilder():
+    fake_policy = mock.MagicMock()
+    fake_build = Policy_Builder(fake_policy)
+    fake_build._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_build
 
 
 class TestPolicy(object):
@@ -256,3 +265,9 @@ class TestResponsePages(object):
     def test_delete_raises(self, FakeResponsePage):
         with pytest.raises(UnsupportedOperation):
             FakeResponsePage.delete()
+
+
+class TestPolicyBuilder(object):
+    def test_update_raises(self, FakeBuilder):
+        with pytest.raises(UnsupportedOperation):
+            FakeBuilder.update()

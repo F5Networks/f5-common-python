@@ -1739,3 +1739,53 @@ class TestResponsePages(object):
         assert isinstance(mc, list)
         assert len(mc)
         assert isinstance(mc[0], Response_Page)
+
+
+class TestPolicyBuilder(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.policy_builder.update()
+
+    def test_modify(self, policy):
+        r1 = policy.policy_builder.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'enablePolicyBuilder'
+        r1.modify(enablePolicyBuilder=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is True
+
+    def test_load(self, policy):
+        r1 = policy.policy_builder.load()
+        assert r1.kind == 'tm:asm:policies:policy-builder:pbconfigstate'
+        assert r1.enablePolicyBuilder is True
+        assert hasattr(r1, 'responseStatusCodes')
+        assert hasattr(r1, 'learnFromResponses')
+        r1.modify(enablePolicyBuilder=False)
+        assert r1.enablePolicyBuilder is False
+        r2 = policy.policy_builder.load()
+        assert r1.kind == r2.kind
+        assert not hasattr(r2, 'responseStatusCodes')
+        assert not hasattr(r2, 'learnFromResponses')
+
+    def test_refresh(self, policy):
+        r1 = policy.policy_builder.load()
+        assert r1.kind == 'tm:asm:policies:policy-builder:pbconfigstate'
+        assert r1.enablePolicyBuilder is False
+        assert not hasattr(r1, 'responseStatusCodes')
+        assert not hasattr(r1, 'learnFromResponses')
+        r2 = policy.policy_builder.load()
+        assert r1.kind == r2.kind
+        assert r2.enablePolicyBuilder is False
+        assert not hasattr(r2, 'responseStatusCodes')
+        assert not hasattr(r2, 'learnFromResponses')
+        r2.modify(enablePolicyBuilder=True)
+        assert r2.enablePolicyBuilder is True
+        assert hasattr(r2, 'responseStatusCodes')
+        assert hasattr(r2, 'learnFromResponses')
+        r1.refresh()
+        assert hasattr(r1, 'responseStatusCodes')
+        assert hasattr(r1, 'learnFromResponses')
+        assert r1.enablePolicyBuilder == r2.enablePolicyBuilder
