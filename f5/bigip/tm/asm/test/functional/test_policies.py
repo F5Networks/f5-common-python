@@ -33,6 +33,7 @@ from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
 from f5.bigip.tm.asm.policies import Policy
 from f5.bigip.tm.asm.policies import Response_Page
+from f5.bigip.tm.asm.policies import Session_Tracking_Status
 from f5.bigip.tm.asm.policies import Signature
 from f5.bigip.tm.asm.policies import Signature_Set
 from f5.bigip.tm.asm.policies import Url
@@ -103,6 +104,18 @@ def set_history(mgmt_root, policy):
     col = policy.history_revisions_s.get_collection()
     hashid = str(col[0].id)
     yield hashid
+    delete_apply_policy_task(mgmt_root)
+
+
+@pytest.fixture(scope='class')
+def set_policy_status(mgmt_root, policy):
+    reference = {'link': policy.selfLink}
+    mgmt_root.tm.asm.tasks.apply_policy_s.apply_policy.create(
+        policyReference=reference)
+    time.sleep(5)
+    tmp = {'enableSessionAwareness': True}
+    policy.session_tracking.modify(sessionTrackingConfiguration=tmp)
+    yield policy
     delete_apply_policy_task(mgmt_root)
 
 
@@ -2061,3 +2074,93 @@ class TestSessionTracking(object):
         r1.refresh()
         assert r1.sessionTrackingConfiguration == \
             r2.sessionTrackingConfiguration
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestSessionTrackingStatuses(object):
+    def test_create_req_arg(self, set_policy_status):
+        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
+        r1 = set_policy_status.session_tracking_statuses_s.\
+            session_tracking_status.create(**args)
+        assert r1.kind == 'tm:asm:policies:session-tracking-statuses:' \
+                          'session-tracking-statusstate'
+        assert r1.action == 'block-all'
+        assert r1.scope == 'user'
+        assert r1.value == 'fake'
+        assert hasattr(r1, 'createdDatetime')
+        r1.delete()
+
+    def test_refresh(self, set_policy_status):
+        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
+        r1 = set_policy_status.session_tracking_statuses_s.\
+            session_tracking_status.create(**args)
+        r2 = set_policy_status.session_tracking_statuses_s.\
+            session_tracking_status.load(id=r1.id)
+        assert r1.kind == 'tm:asm:policies:session-tracking-statuses:' \
+                          'session-tracking-statusstate'
+        assert r1.action == 'block-all'
+        assert r1.scope == 'user'
+        assert r1.value == 'fake'
+        assert hasattr(r1, 'createdDatetime')
+        r1.refresh()
+        assert r1.kind == r2.kind
+        assert r1.action == r2.action
+        assert r1.scope == r2.scope
+        assert r1.value == r2.value
+        r1.delete()
+
+    def test_modify_raises(self, set_policy_status):
+        with pytest.raises(UnsupportedOperation):
+            set_policy_status.session_tracking_statuses_s. \
+                session_tracking_status.modify(value='test')
+
+    def test_delete(self, set_policy_status):
+        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
+        r1 = set_policy_status.session_tracking_statuses_s.\
+            session_tracking_status.create(**args)
+        idhash = str(r1.id)
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            set_policy_status.session_tracking_statuses_s. \
+                session_tracking_status.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, set_policy_status):
+        with pytest.raises(HTTPError) as err:
+            set_policy_status.session_tracking_statuses_s. \
+                session_tracking_status.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_policy_status):
+        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
+        r1 = set_policy_status.session_tracking_statuses_s.\
+            session_tracking_status.create(**args)
+        assert r1.kind == 'tm:asm:policies:session-tracking-statuses:' \
+                          'session-tracking-statusstate'
+        assert r1.action == 'block-all'
+        assert r1.scope == 'user'
+        assert r1.value == 'fake'
+        assert hasattr(r1, 'createdDatetime')
+        r2 = set_policy_status.session_tracking_statuses_s.\
+            session_tracking_status.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.action == r2.action
+        assert r1.scope == r2.scope
+        assert r1.value == r2.value
+        r1.delete()
+
+    def test_session_tracking_subcollection(self, set_policy_status):
+        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
+        r1 = set_policy_status.session_tracking_statuses_s.\
+            session_tracking_status.create(**args)
+        assert r1.kind == 'tm:asm:policies:session-tracking-statuses:' \
+                          'session-tracking-statusstate'
+        assert r1.value == 'fake'
+        mc = set_policy_status.session_tracking_statuses_s.get_collection()
+        assert isinstance(mc, list)
+        assert len(mc)
+        assert isinstance(mc[0], Session_Tracking_Status)
