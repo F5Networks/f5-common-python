@@ -70,7 +70,9 @@ class Policy(AsmResource):
             'vulnerability-assessmentstate': Vulnerability_Assessment,
             'tm:asm:policies:data-guard:data-guardstate': Data_Guard,
             'tm:asm:policies:geolocation-enforcement:'
-            'geolocation-enforcementstate': Geolocation_Enforcement
+            'geolocation-enforcementstate': Geolocation_Enforcement,
+            'tm:asm:policies:session-tracking:session-awareness'
+            '-settingsstate': Session_Tracking
 
         }
         self._set_attr_reg()
@@ -834,6 +836,26 @@ class Geolocation_Enforcement(UnnamedResource):
 
     def update(self, **kwargs):
         """Update is not supported for Geolocation Enforcement resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+
+class Session_Tracking(UnnamedResource):
+    """BIG-IP® ASM Session Tracking resource."""
+    def __init__(self, policy):
+        super(Session_Tracking, self).__init__(policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:session-tracking:session-awareness-settingsstate'
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+
+    def update(self, **kwargs):
+        """Update is not supported for Session Tracking resource
 
         :raises: UnsupportedOperation
         """

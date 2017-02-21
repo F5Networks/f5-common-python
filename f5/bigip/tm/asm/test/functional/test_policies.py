@@ -2006,3 +2006,58 @@ class TestGeolocationEnforcement(object):
         assert r2.disallowedLocations == []
         r1.refresh()
         assert r1.disallowedLocations == r2.disallowedLocations
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestSessionTracking(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.session_tracking.update()
+
+    def test_modify(self, policy):
+        r1 = policy.session_tracking.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'sessionTrackingConfiguration'
+        tmp = {'enableSessionAwareness': True}
+        r1.modify(sessionTrackingConfiguration=tmp)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k]['enableSessionAwareness'] is True
+
+    def test_load(self, policy):
+        r1 = policy.session_tracking.load()
+        assert r1.kind == 'tm:asm:policies:session-tracking:' \
+                          'session-awareness-settingsstate'
+        assert r1.sessionTrackingConfiguration['enableSessionAwareness'] \
+            is True
+        tmp_2 = {'enableSessionAwareness': False}
+        r1.modify(sessionTrackingConfiguration=tmp_2)
+        assert r1.sessionTrackingConfiguration == tmp_2
+        r2 = policy.session_tracking.load()
+        assert r1.kind == r2.kind
+        assert r1.sessionTrackingConfiguration == \
+            r2.sessionTrackingConfiguration
+
+    def test_refresh(self, policy):
+        r1 = policy.session_tracking.load()
+        tmp = {'enableSessionAwareness': False}
+        assert r1.kind == 'tm:asm:policies:session-tracking:' \
+                          'session-awareness-settingsstate'
+        assert r1.sessionTrackingConfiguration == tmp
+        r2 = policy.session_tracking.load()
+        assert r1.kind == r2.kind
+        assert r1.sessionTrackingConfiguration == \
+            r2.sessionTrackingConfiguration
+        tmp_2 = {'enableSessionAwareness': True}
+        r2.modify(sessionTrackingConfiguration=tmp_2)
+        assert r2.sessionTrackingConfiguration['enableSessionAwareness'] \
+            is True
+        r1.refresh()
+        assert r1.sessionTrackingConfiguration == \
+            r2.sessionTrackingConfiguration
