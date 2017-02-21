@@ -1869,3 +1869,60 @@ class TestHistoryRevisions(object):
         assert isinstance(mc, list)
         assert len(mc)
         assert isinstance(mc[0], History_Revision)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestVulnerabilityAssessment(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.vulnerability_assessment.update()
+
+    def test_modify(self, policy):
+        r1 = policy.vulnerability_assessment.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'scannerType'
+        r1.modify(scannerType='cenzic-hailstorm')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == 'cenzic-hailstorm'
+
+    def test_load(self, policy):
+        r1 = policy.vulnerability_assessment.load()
+        assert r1.kind == 'tm:asm:policies:vulnerability-assessment' \
+                          ':vulnerability-assessmentstate'
+        assert r1.scannerType == 'cenzic-hailstorm'
+        assert hasattr(r1, 'learnFromResponses')
+        assert hasattr(r1, 'untrustedTrafficLoosen')
+        r1.modify(scannerType='none')
+        assert r1.scannerType == 'none'
+        r2 = policy.vulnerability_assessment.load()
+        assert r1.kind == r2.kind
+        assert not hasattr(r2, 'learnFromResponses')
+        assert not hasattr(r2, 'untrustedTrafficLoosen')
+
+    def test_refresh(self, policy):
+        r1 = policy.vulnerability_assessment.load()
+        assert r1.kind == 'tm:asm:policies:vulnerability-assessment' \
+                          ':vulnerability-assessmentstate'
+        assert r1.scannerType == 'none'
+        assert not hasattr(r1, 'learnFromResponses')
+        assert not hasattr(r1, 'untrustedTrafficLoosen')
+        r2 = policy.vulnerability_assessment.load()
+        assert r1.kind == r2.kind
+        assert r1.scannerType == r2.scannerType
+        assert not hasattr(r2, 'learnFromResponses')
+        assert not hasattr(r2, 'untrustedTrafficLoosen')
+        r2.modify(scannerType='cenzic-hailstorm')
+        assert r2.scannerType == 'cenzic-hailstorm'
+        assert hasattr(r2, 'learnFromResponses')
+        assert hasattr(r2, 'untrustedTrafficLoosen')
+        r1.refresh()
+        assert hasattr(r1, 'learnFromResponses')
+        assert hasattr(r1, 'untrustedTrafficLoosen')
+        assert r1.scannerType == r2.scannerType

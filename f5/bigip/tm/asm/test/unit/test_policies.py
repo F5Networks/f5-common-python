@@ -31,6 +31,7 @@ from f5.bigip.tm.asm.policies import Url
 from f5.bigip.tm.asm.policies import UrlParametersCollection
 from f5.bigip.tm.asm.policies import UrlParametersResource
 from f5.bigip.tm.asm.policies import Violation
+from f5.bigip.tm.asm.policies import Vulnerability_Assessment
 from f5.bigip.tm.asm.policies import Web_Services_Security
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
@@ -153,6 +154,14 @@ def FakeHistory():
     fake_history = History_Revision(fake_policy)
     fake_history._meta_data['bigip'].tmos_version = '11.6.0'
     return fake_history
+
+
+@pytest.fixture
+def FakeVulnerability():
+    fake_policy = mock.MagicMock()
+    fake_v = Vulnerability_Assessment(fake_policy)
+    fake_v._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_v
 
 
 class TestPolicy(object):
@@ -294,3 +303,9 @@ class TestHistoryRevisions(object):
     def test_modify_raises(self, FakeHistory):
         with pytest.raises(UnsupportedOperation):
             FakeHistory.modify()
+
+
+class TestVulnerabilityAssessment(object):
+    def test_update_raises(self, FakeVulnerability):
+        with pytest.raises(UnsupportedOperation):
+            FakeVulnerability.update()

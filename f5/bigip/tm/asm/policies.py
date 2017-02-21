@@ -66,6 +66,8 @@ class Policy(AsmResource):
             'tm:asm:policies:policy-builder:pbconfigstate': Policy_Builder,
             'tm:asm:policies:history-revisions:'
             'history-revisioncollectionstate': History_Revisions_s,
+            'tm:asm:policies:vulnerability-assessment:'
+            'vulnerability-assessmentstate': Vulnerability_Assessment
         }
         self._set_attr_reg()
 
@@ -721,7 +723,7 @@ class Policy_Builder(UnnamedResource):
         :raises: UnsupportedOperation
         """
         raise UnsupportedOperation(
-            "%s does not support the delete method" % self.__class__.__name__
+            "%s does not support the update method" % self.__class__.__name__
         )
 
 
@@ -771,4 +773,25 @@ class History_Revision(AsmResource):
         """
         raise UnsupportedOperation(
             "%s does not support the delete method" % self.__class__.__name__
+        )
+
+
+class Vulnerability_Assessment(UnnamedResource):
+    """BIG-IP® ASM Vulnerability Assessment resource."""
+    def __init__(self, policy):
+        super(Vulnerability_Assessment, self).__init__(policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:vulnerability-assessment:' \
+            'vulnerability-assessmentstate'
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+
+    def update(self, **kwargs):
+        """Update is not supported for Vulnerability Assessment resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
         )
