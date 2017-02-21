@@ -40,6 +40,7 @@ from f5.bigip.tm.sys.global_settings import Global_Settings
 from f5.bigip.tm.sys.httpd import Httpd
 from f5.bigip.tm.sys.ntp import Ntp
 from f5.bigip.tm.sys.performance import Performances
+from f5.bigip.tm.sys.provision import Provision
 from f5.bigip.tm.sys.snmp import Snmp
 from f5.bigip.tm.sys.software import Software
 from f5.bigip.tm.sys.sshd import Sshd
@@ -57,6 +58,7 @@ class Sys(OrganizingCollection):
             Folders,
             Application,
             Performances,
+            Provision,
             Dbs,
             Global_Settings,
             Ntp,
