@@ -270,4 +270,4 @@ class TestResponsePages(object):
 class TestPolicyBuilder(object):
     def test_update_raises(self, FakeBuilder):
         with pytest.raises(UnsupportedOperation):
-            FakeResponsePage.update()
+            FakeBuilder.update()

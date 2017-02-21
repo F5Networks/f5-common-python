@@ -705,7 +705,7 @@ class Response_Page(AsmResource):
 
 
 class Policy_Builder(UnnamedResource):
-    """BIG-IP® ASM Response Page resource."""
+    """BIG-IP® ASM Policy Builder resource."""
     def __init__(self, policy):
         super(Policy_Builder, self).__init__(policy)
         self._meta_data['required_json_kind'] = \
