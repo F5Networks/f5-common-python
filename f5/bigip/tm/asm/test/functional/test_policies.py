@@ -1926,3 +1926,62 @@ class TestVulnerabilityAssessment(object):
         assert hasattr(r1, 'learnFromResponses')
         assert hasattr(r1, 'untrustedTrafficLoosen')
         assert r1.scannerType == r2.scannerType
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestDataGuard(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.data_guard.update()
+
+    def test_modify(self, policy):
+        r1 = policy.data_guard.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'enabled'
+        itm2 = 'creditCardNumbers'
+        r1.modify(enabled=True, creditCardNumbers=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is True
+            elif k == itm2:
+                assert r1.__dict__[k] is True
+
+    def test_load(self, policy):
+        r1 = policy.data_guard.load()
+        assert r1.kind == 'tm:asm:policies:data-guard:data-guardstate'
+        assert r1.enabled is True
+        assert r1.creditCardNumbers is True
+        assert hasattr(r1, 'customPatterns')
+        assert hasattr(r1, 'fileContentDetection')
+        r1.modify(enabled=False)
+        assert r1.enabled is False
+        r2 = policy.data_guard.load()
+        assert r1.kind == r2.kind
+        assert not hasattr(r2, 'customPatterns')
+        assert not hasattr(r2, 'fileContentDetection')
+
+    def test_refresh(self, policy):
+        r1 = policy.data_guard.load()
+        assert r1.kind == 'tm:asm:policies:data-guard:data-guardstate'
+        assert r1.enabled is False
+        assert not hasattr(r1, 'customPatterns')
+        assert not hasattr(r1, 'fileContentDetection')
+        r2 = policy.data_guard.load()
+        assert r1.kind == r2.kind
+        assert r1.enabled == r2.enabled
+        assert not hasattr(r2, 'customPatterns')
+        assert not hasattr(r2, 'fileContentDetection')
+        r2.modify(enabled=True, creditCardNumbers=True)
+        assert r2.enabled is True
+        assert hasattr(r2, 'customPatterns')
+        assert hasattr(r2, 'fileContentDetection')
+        r1.refresh()
+        assert hasattr(r1, 'customPatterns')
+        assert hasattr(r1, 'fileContentDetection')
+        assert r1.enabled == r2.enabled

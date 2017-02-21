@@ -15,6 +15,7 @@
 
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.asm import Asm
+from f5.bigip.tm.asm.policies import Data_Guard
 from f5.bigip.tm.asm.policies import Evasion
 from f5.bigip.tm.asm.policies import Header
 from f5.bigip.tm.asm.policies import History_Revision
@@ -164,6 +165,14 @@ def FakeVulnerability():
     return fake_v
 
 
+@pytest.fixture
+def FakeData():
+    fake_policy = mock.MagicMock()
+    fake_d = Data_Guard(fake_policy)
+    fake_d._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_d
+
+
 class TestPolicy(object):
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
@@ -309,3 +318,9 @@ class TestVulnerabilityAssessment(object):
     def test_update_raises(self, FakeVulnerability):
         with pytest.raises(UnsupportedOperation):
             FakeVulnerability.update()
+
+
+class TestDataGuard(object):
+    def test_update_raises(self, FakeData):
+        with pytest.raises(UnsupportedOperation):
+            FakeData.update()
