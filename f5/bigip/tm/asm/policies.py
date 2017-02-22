@@ -77,7 +77,9 @@ class Policy(AsmResource):
             'statuses:session-tracking-statuscollectionstate':
                 Session_Tracking_Statuses_s,
             'tm:asm:policies:login-pages:login-pagecollectionstate':
-                Login_Pages_s
+                Login_Pages_s,
+            'tm:asm:policies:ip-intelligence:ip-intelligencestate':
+                Ip_Intelligence
         }
         self._set_attr_reg()
 
@@ -926,3 +928,23 @@ class Login_Page(AsmResource):
             'tm:asm:policies:login-pages:login-pagestate'
         self._meta_data['required_creation_parameters'] = \
             set(('accessValidation', 'urlReference',))
+
+
+class Ip_Intelligence(UnnamedResource):
+    """BIG-IP® ASM IP Intelligence resource."""
+    def __init__(self, policy):
+        super(Ip_Intelligence, self).__init__(policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:ip-intelligence:ip-intelligencestate'
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+
+    def update(self, **kwargs):
+        """Update is not supported for IP Intelligence resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
+        )

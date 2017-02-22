@@ -21,6 +21,7 @@ from f5.bigip.tm.asm.policies import Geolocation_Enforcement
 from f5.bigip.tm.asm.policies import Header
 from f5.bigip.tm.asm.policies import History_Revision
 from f5.bigip.tm.asm.policies import Http_Protocol
+from f5.bigip.tm.asm.policies import Ip_Intelligence
 from f5.bigip.tm.asm.policies import Login_Page
 from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
@@ -45,6 +46,14 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeIP():
+    fake_policy = mock.MagicMock()
+    fake_resp = Ip_Intelligence(fake_policy)
+    fake_resp._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_resp
 
 
 @pytest.fixture
@@ -384,3 +393,9 @@ class TestLoginPages(object):
     def test_create_no_args(self, FakeLogin):
         with pytest.raises(MissingRequiredCreationParameter):
             FakeLogin.create()
+
+
+class TestIPIntelligence(object):
+    def test_update_raises(self, FakeIP):
+        with pytest.raises(UnsupportedOperation):
+            FakeIP.update()
