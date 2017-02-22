@@ -34,6 +34,7 @@ from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
 from f5.bigip.tm.asm.policies import Policy
 from f5.bigip.tm.asm.policies import Response_Page
+from f5.bigip.tm.asm.policies import Sensitive_Parameter
 from f5.bigip.tm.asm.policies import Session_Tracking_Status
 from f5.bigip.tm.asm.policies import Signature
 from f5.bigip.tm.asm.policies import Signature_Set
@@ -128,6 +129,14 @@ def set_login(policy):
     login = policy.login_pages_s.login_page.create(urlReference=reference,
                                                    accessValidation=valid)
     yield login
+
+
+@pytest.fixture(scope='class')
+def set_s_par(policy):
+    r1 = policy.sensitive_parameters_s.sensitive_parameter.create(
+        name='testpass')
+    yield r1
+    r1.delete()
 
 
 class TestPolicy(object):
@@ -2258,7 +2267,7 @@ class TestLoginPages(object):
         assert r1.kind == r2.kind
         assert r1.authenticationType == r2.authenticationType
 
-    def test_urls_subcollection(self, policy):
+    def test_login_pages_subcollection(self, policy):
         cc = policy.login_pages_s.get_collection()
         assert isinstance(cc, list)
         assert len(cc)
@@ -2473,3 +2482,63 @@ class TestLoginEnforcement(object):
         assert r2.expirationTimePeriod == '600'
         r1.refresh()
         assert r1.expirationTimePeriod == '600'
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestSensitiveParameters(object):
+    def test_modify_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.sensitive_parameters_s.sensitive_parameter.modify()
+
+    def test_create_req_arg(self, policy):
+        r1 = policy.sensitive_parameters_s.sensitive_parameter.create(
+            name='fakepass')
+        assert r1.kind == \
+            'tm:asm:policies:sensitive-parameters:sensitive-parameterstate'
+        assert r1.name == 'fakepass'
+        r1.delete()
+
+    def test_refresh(self, set_s_par, policy):
+        r1 = set_s_par
+        r2 = policy.sensitive_parameters_s.sensitive_parameter.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.name == r2.name
+        assert r1.id == r2.id
+        r1.refresh()
+        assert r1.kind == r2.kind
+        assert r1.name == r2.name
+        assert r1.id == r2.id
+
+    def test_delete(self, policy):
+        r1 = policy.sensitive_parameters_s.sensitive_parameter.create(
+            name='fakepass')
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.sensitive_parameters_s.sensitive_parameter.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.sensitive_parameters_s.sensitive_parameter.load(
+                id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_s_par, policy):
+        r1 = set_s_par
+        assert r1.kind == \
+            'tm:asm:policies:sensitive-parameters:sensitive-parameterstate'
+        assert r1.name == 'testpass'
+        r2 = policy.sensitive_parameters_s.sensitive_parameter.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.name == r2.name
+
+    def test_urls_subcollection(self, policy):
+        cc = policy.sensitive_parameters_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Sensitive_Parameter)

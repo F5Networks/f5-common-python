@@ -33,6 +33,7 @@ from f5.bigip.tm.asm.policies import Policy
 from f5.bigip.tm.asm.policies import Policy_Builder
 from f5.bigip.tm.asm.policies import Redirection_Protection
 from f5.bigip.tm.asm.policies import Response_Page
+from f5.bigip.tm.asm.policies import Sensitive_Parameter
 from f5.bigip.tm.asm.policies import Session_Tracking
 from f5.bigip.tm.asm.policies import Session_Tracking_Status
 from f5.bigip.tm.asm.policies import Signature
@@ -49,6 +50,14 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeSens():
+    fake_policy = mock.MagicMock()
+    fake_resp = Sensitive_Parameter(fake_policy)
+    fake_resp._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_resp
 
 
 @pytest.fixture
@@ -444,3 +453,9 @@ class TestLoginEnforcement(object):
     def test_update_raises(self, FakeLog):
         with pytest.raises(UnsupportedOperation):
             FakeLog.update()
+
+
+class TestSensitiveParameters(object):
+    def test_modify_raises(self, FakeSens):
+        with pytest.raises(UnsupportedOperation):
+            FakeSens.modify()
