@@ -12,7 +12,6 @@ services:
   - docker
 python:
   - '2.7'
-  - '2.6'
 before_install:
   - git config --global user.email "OpenStack_TravisCI@f5.com"
   - git config --global user.name "Travis F5 Openstack"
