@@ -2314,3 +2314,54 @@ class TestIPIntelligence(object):
         r1.refresh()
         assert r1.enabled is True
         assert hasattr(r1, 'ipIntelligenceCategories')
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestCsrfProtection(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.csrf_protection.update()
+
+    def test_modify(self, policy):
+        r1 = policy.csrf_protection.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'enabled'
+        r1.modify(enabled=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is True
+
+    def test_load(self, policy):
+        r1 = policy.csrf_protection.load()
+        assert r1.kind == \
+            'tm:asm:policies:csrf-protection:csrf-protectionstate'
+        assert r1.enabled is True
+        assert hasattr(r1, 'expirationTimeInSeconds')
+        r1.modify(enabled=False)
+        assert r1.enabled is False
+        assert not hasattr(r1, 'expirationTimeInSeconds')
+        r2 = policy.csrf_protection.load()
+        assert r1.kind == r2.kind
+        assert r1.enabled == r2.enabled
+
+    def test_refresh(self, policy):
+        r1 = policy.csrf_protection.load()
+        assert r1.kind == \
+            'tm:asm:policies:csrf-protection:csrf-protectionstate'
+        assert r1.enabled is False
+        assert not hasattr(r1, 'expirationTimeInSeconds')
+        r2 = policy.csrf_protection.load()
+        assert r1.kind == r2.kind
+        assert r1.enabled == r2.enabled
+        r2.modify(enabled=True)
+        assert r2.enabled is True
+        assert hasattr(r2, 'expirationTimeInSeconds')
+        r1.refresh()
+        assert r1.enabled is True
+        assert hasattr(r1, 'expirationTimeInSeconds')

@@ -15,6 +15,7 @@
 
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.asm import Asm
+from f5.bigip.tm.asm.policies import Csrf_Protection
 from f5.bigip.tm.asm.policies import Data_Guard
 from f5.bigip.tm.asm.policies import Evasion
 from f5.bigip.tm.asm.policies import Geolocation_Enforcement
@@ -46,6 +47,14 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeCsrf():
+    fake_policy = mock.MagicMock()
+    fake_resp = Csrf_Protection(fake_policy)
+    fake_resp._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_resp
 
 
 @pytest.fixture
@@ -399,3 +408,9 @@ class TestIPIntelligence(object):
     def test_update_raises(self, FakeIP):
         with pytest.raises(UnsupportedOperation):
             FakeIP.update()
+
+
+class TestCrfProtection(object):
+    def test_update_raises(self, FakeCsrf):
+        with pytest.raises(UnsupportedOperation):
+            FakeCsrf.update()
