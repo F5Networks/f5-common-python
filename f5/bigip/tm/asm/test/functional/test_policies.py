@@ -2427,3 +2427,49 @@ class TestRedirectionProtection(object):
         r1.refresh()
         assert r1.redirectionProtectionEnabled is False
         assert not hasattr(r1, 'redirectionDomains')
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestLoginEnforcement(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.login_enforcement.update()
+
+    def test_modify(self, policy):
+        r1 = policy.login_enforcement.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'expirationTimePeriod'
+        r1.modify(expirationTimePeriod='600')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == '600'
+
+    def test_load(self, policy):
+        r1 = policy.login_enforcement.load()
+        assert r1.kind == \
+            'tm:asm:policies:login-enforcement:login-enforcementstate'
+        assert r1.expirationTimePeriod == '600'
+        r1.modify(expirationTimePeriod='disabled')
+        assert r1.expirationTimePeriod == 'disabled'
+        r2 = policy.login_enforcement.load()
+        assert r1.kind == r2.kind
+        assert r1.expirationTimePeriod == r2.expirationTimePeriod
+
+    def test_refresh(self, policy):
+        r1 = policy.login_enforcement.load()
+        assert r1.kind == \
+            'tm:asm:policies:login-enforcement:login-enforcementstate'
+        assert r1.expirationTimePeriod == 'disabled'
+        r2 = policy.login_enforcement.load()
+        assert r1.kind == r2.kind
+        assert r1.expirationTimePeriod == r2.expirationTimePeriod
+        r2.modify(expirationTimePeriod='600')
+        assert r2.expirationTimePeriod == '600'
+        r1.refresh()
+        assert r1.expirationTimePeriod == '600'
