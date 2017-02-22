@@ -26,6 +26,7 @@ from f5.bigip.tm.asm.policies import Host_Name
 from f5.bigip.tm.asm.policies import Http_Protocol
 from f5.bigip.tm.asm.policies import Http_Protocols_s
 from f5.bigip.tm.asm.policies import Json_Profile
+from f5.bigip.tm.asm.policies import Login_Page
 from f5.bigip.tm.asm.policies import Method
 from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
@@ -33,6 +34,7 @@ from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
 from f5.bigip.tm.asm.policies import Policy
 from f5.bigip.tm.asm.policies import Response_Page
+from f5.bigip.tm.asm.policies import Sensitive_Parameter
 from f5.bigip.tm.asm.policies import Session_Tracking_Status
 from f5.bigip.tm.asm.policies import Signature
 from f5.bigip.tm.asm.policies import Signature_Set
@@ -117,6 +119,24 @@ def set_policy_status(mgmt_root, policy):
     policy.session_tracking.modify(sessionTrackingConfiguration=tmp)
     yield policy
     delete_apply_policy_task(mgmt_root)
+
+
+@pytest.fixture(scope='class')
+def set_login(policy):
+    url = policy.urls_s.url.create(name='fake.com')
+    reference = {'link': url.selfLink}
+    valid = {'responseContains': '201 OK'}
+    login = policy.login_pages_s.login_page.create(urlReference=reference,
+                                                   accessValidation=valid)
+    yield login
+
+
+@pytest.fixture(scope='class')
+def set_s_par(policy):
+    r1 = policy.sensitive_parameters_s.sensitive_parameter.create(
+        name='testpass')
+    yield r1
+    r1.delete()
 
 
 class TestPolicy(object):
@@ -2164,3 +2184,361 @@ class TestSessionTrackingStatuses(object):
         assert isinstance(mc, list)
         assert len(mc)
         assert isinstance(mc[0], Session_Tracking_Status)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestLoginPages(object):
+    def test_create_req_arg(self, policy):
+        url = policy.urls_s.url.create(name='fake.com')
+        reference = {'link': url.selfLink}
+        valid = {'responseContains': '201 OK'}
+        r1 = policy.login_pages_s.login_page.create(urlReference=reference,
+                                                    accessValidation=valid)
+        assert r1.kind == 'tm:asm:policies:login-pages:login-pagestate'
+        assert r1.authenticationType == 'none'
+        assert r1.urlReference == reference
+        r1.delete()
+        url.delete()
+
+    def test_create_optional_args(self, policy):
+        url = policy.urls_s.url.create(name='fake.com')
+        reference = {'link': url.selfLink}
+        valid = {'responseContains': '201 OK'}
+        r1 = policy.login_pages_s.login_page.create(
+            urlReference=reference, accessValidation=valid,
+            authenticationType='http-basic')
+        assert r1.kind == 'tm:asm:policies:login-pages:login-pagestate'
+        assert r1.authenticationType == 'http-basic'
+        assert r1.urlReference == reference
+        r1.delete()
+        url.delete()
+
+    def test_refresh(self, set_login, policy):
+        r1 = set_login
+        r2 = policy.login_pages_s.login_page.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.authenticationType == r2.authenticationType
+        r2.modify(authenticationType='http-basic')
+        assert r1.authenticationType == 'none'
+        assert r2.authenticationType == 'http-basic'
+        r1.refresh()
+        assert r1.authenticationType == 'http-basic'
+
+    def test_modify(self, set_login):
+        r1 = set_login
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'authenticationType'
+        r1.modify(authenticationType='none')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == 'none'
+
+    def test_delete(self, policy):
+        url = policy.urls_s.url.create(name='delete.com')
+        reference = {'link': url.selfLink}
+        valid = {'responseContains': '201 OK'}
+        r1 = policy.login_pages_s.login_page.create(
+            urlReference=reference, accessValidation=valid)
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.login_pages_s.login_page.load(id=idhash)
+        assert err.value.response.status_code == 404
+        url.delete()
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.login_pages_s.login_page.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_login, policy):
+        r1 = set_login
+        assert r1.kind == 'tm:asm:policies:login-pages:login-pagestate'
+        assert r1.authenticationType == 'none'
+        r1.modify(authenticationType='http-basic')
+        assert r1.authenticationType == 'http-basic'
+        r2 = policy.login_pages_s.login_page.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.authenticationType == r2.authenticationType
+
+    def test_login_pages_subcollection(self, policy):
+        cc = policy.login_pages_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Login_Page)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestIPIntelligence(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.ip_intelligence.update()
+
+    def test_modify(self, policy):
+        r1 = policy.ip_intelligence.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'enabled'
+        r1.modify(enabled=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is True
+
+    def test_load(self, policy):
+        r1 = policy.ip_intelligence.load()
+        assert r1.kind == \
+            'tm:asm:policies:ip-intelligence:ip-intelligencestate'
+        assert r1.enabled is True
+        assert hasattr(r1, 'ipIntelligenceCategories')
+        r1.modify(enabled=False)
+        assert r1.enabled is False
+        assert not hasattr(r1, 'ipIntelligenceCategories')
+        r2 = policy.ip_intelligence.load()
+        assert r1.kind == r2.kind
+        assert r1.enabled == r2.enabled
+
+    def test_refresh(self, policy):
+        r1 = policy.ip_intelligence.load()
+        assert r1.kind == \
+            'tm:asm:policies:ip-intelligence:ip-intelligencestate'
+        assert r1.enabled is False
+        assert not hasattr(r1, 'ipIntelligenceCategories')
+        r2 = policy.ip_intelligence.load()
+        assert r1.kind == r2.kind
+        assert r1.enabled == r2.enabled
+        r2.modify(enabled=True)
+        assert r2.enabled is True
+        assert hasattr(r2, 'ipIntelligenceCategories')
+        r1.refresh()
+        assert r1.enabled is True
+        assert hasattr(r1, 'ipIntelligenceCategories')
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestCsrfProtection(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.csrf_protection.update()
+
+    def test_modify(self, policy):
+        r1 = policy.csrf_protection.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'enabled'
+        r1.modify(enabled=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is True
+
+    def test_load(self, policy):
+        r1 = policy.csrf_protection.load()
+        assert r1.kind == \
+            'tm:asm:policies:csrf-protection:csrf-protectionstate'
+        assert r1.enabled is True
+        assert hasattr(r1, 'expirationTimeInSeconds')
+        r1.modify(enabled=False)
+        assert r1.enabled is False
+        assert not hasattr(r1, 'expirationTimeInSeconds')
+        r2 = policy.csrf_protection.load()
+        assert r1.kind == r2.kind
+        assert r1.enabled == r2.enabled
+
+    def test_refresh(self, policy):
+        r1 = policy.csrf_protection.load()
+        assert r1.kind == \
+            'tm:asm:policies:csrf-protection:csrf-protectionstate'
+        assert r1.enabled is False
+        assert not hasattr(r1, 'expirationTimeInSeconds')
+        r2 = policy.csrf_protection.load()
+        assert r1.kind == r2.kind
+        assert r1.enabled == r2.enabled
+        r2.modify(enabled=True)
+        assert r2.enabled is True
+        assert hasattr(r2, 'expirationTimeInSeconds')
+        r1.refresh()
+        assert r1.enabled is True
+        assert hasattr(r1, 'expirationTimeInSeconds')
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestRedirectionProtection(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.redirection_protection.update()
+
+    def test_modify(self, policy):
+        r1 = policy.redirection_protection.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'redirectionProtectionEnabled'
+        r1.modify(redirectionProtectionEnabled=False)
+        temp_list = ['redirectionProtectionEnabled', 'selfLink', 'kind']
+        # We need to modify this as the entire __dict__ changes once we
+        # set redirectionProtectionEnabled to True or False, this is working
+        # as intended so not a bug with F5
+        assert 'redirectionDomains' in original_dict.keys()
+        assert isinstance(original_dict['redirectionDomains'], list)
+        assert not hasattr(r1.__dict__, 'redirectionDomains')
+        for k, v in iteritems(original_dict):
+            if k != itm and k in temp_list:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is False
+
+    def test_load(self, policy):
+        r1 = policy.redirection_protection.load()
+        assert r1.kind == \
+            'tm:asm:policies:redirection-protection:' \
+            'redirection-protectionstate'
+        assert r1.redirectionProtectionEnabled is False
+        assert not hasattr(r1, 'redirectionDomains')
+        r1.modify(redirectionProtectionEnabled=True)
+        assert r1.redirectionProtectionEnabled is True
+        assert hasattr(r1, 'redirectionDomains')
+        r2 = policy.redirection_protection.load()
+        assert r1.kind == r2.kind
+        assert r1.redirectionProtectionEnabled == \
+            r2.redirectionProtectionEnabled
+
+    def test_refresh(self, policy):
+        r1 = policy.redirection_protection.load()
+        assert r1.kind == \
+            'tm:asm:policies:redirection-protection:' \
+            'redirection-protectionstate'
+        assert r1.redirectionProtectionEnabled is True
+        assert hasattr(r1, 'redirectionDomains')
+        r2 = policy.redirection_protection.load()
+        assert r1.kind == r2.kind
+        assert r1.redirectionProtectionEnabled == \
+            r2.redirectionProtectionEnabled
+        r2.modify(redirectionProtectionEnabled=False)
+        assert r2.redirectionProtectionEnabled is False
+        assert not hasattr(r2, 'redirectionDomains')
+        r1.refresh()
+        assert r1.redirectionProtectionEnabled is False
+        assert not hasattr(r1, 'redirectionDomains')
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestLoginEnforcement(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.login_enforcement.update()
+
+    def test_modify(self, policy):
+        r1 = policy.login_enforcement.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'expirationTimePeriod'
+        r1.modify(expirationTimePeriod='600')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == '600'
+
+    def test_load(self, policy):
+        r1 = policy.login_enforcement.load()
+        assert r1.kind == \
+            'tm:asm:policies:login-enforcement:login-enforcementstate'
+        assert r1.expirationTimePeriod == '600'
+        r1.modify(expirationTimePeriod='disabled')
+        assert r1.expirationTimePeriod == 'disabled'
+        r2 = policy.login_enforcement.load()
+        assert r1.kind == r2.kind
+        assert r1.expirationTimePeriod == r2.expirationTimePeriod
+
+    def test_refresh(self, policy):
+        r1 = policy.login_enforcement.load()
+        assert r1.kind == \
+            'tm:asm:policies:login-enforcement:login-enforcementstate'
+        assert r1.expirationTimePeriod == 'disabled'
+        r2 = policy.login_enforcement.load()
+        assert r1.kind == r2.kind
+        assert r1.expirationTimePeriod == r2.expirationTimePeriod
+        r2.modify(expirationTimePeriod='600')
+        assert r2.expirationTimePeriod == '600'
+        r1.refresh()
+        assert r1.expirationTimePeriod == '600'
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestSensitiveParameters(object):
+    def test_modify_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.sensitive_parameters_s.sensitive_parameter.modify()
+
+    def test_create_req_arg(self, policy):
+        r1 = policy.sensitive_parameters_s.sensitive_parameter.create(
+            name='fakepass')
+        assert r1.kind == \
+            'tm:asm:policies:sensitive-parameters:sensitive-parameterstate'
+        assert r1.name == 'fakepass'
+        r1.delete()
+
+    def test_refresh(self, set_s_par, policy):
+        r1 = set_s_par
+        r2 = policy.sensitive_parameters_s.sensitive_parameter.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.name == r2.name
+        assert r1.id == r2.id
+        r1.refresh()
+        assert r1.kind == r2.kind
+        assert r1.name == r2.name
+        assert r1.id == r2.id
+
+    def test_delete(self, policy):
+        r1 = policy.sensitive_parameters_s.sensitive_parameter.create(
+            name='fakepass')
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.sensitive_parameters_s.sensitive_parameter.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.sensitive_parameters_s.sensitive_parameter.load(
+                id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_s_par, policy):
+        r1 = set_s_par
+        assert r1.kind == \
+            'tm:asm:policies:sensitive-parameters:sensitive-parameterstate'
+        assert r1.name == 'testpass'
+        r2 = policy.sensitive_parameters_s.sensitive_parameter.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.name == r2.name
+
+    def test_urls_subcollection(self, policy):
+        cc = policy.sensitive_parameters_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Sensitive_Parameter)

@@ -75,7 +75,19 @@ class Policy(AsmResource):
             '-settingsstate': Session_Tracking,
             'tm:asm:policies:session-tracking-'
             'statuses:session-tracking-statuscollectionstate':
-                Session_Tracking_Statuses_s
+                Session_Tracking_Statuses_s,
+            'tm:asm:policies:login-pages:login-pagecollectionstate':
+                Login_Pages_s,
+            'tm:asm:policies:ip-intelligence:ip-intelligencestate':
+                Ip_Intelligence,
+            'tm:asm:policies:csrf-protection:csrf-protectionstate':
+                Csrf_Protection,
+            'tm:asm:policies:redirection-protection:'
+            'redirection-protectionstate': Redirection_Protection,
+            'tm:asm:policies:login-enforcement:login-enforcementstate':
+                Login_Enforcement,
+            'tm:asm:policies:sensitive-parameters:'
+            'sensitive-parametercollectionstate': Sensitive_Parameters_s
         }
         self._set_attr_reg()
 
@@ -751,8 +763,8 @@ class History_Revisions_s(Collection):
 
 class History_Revision(AsmResource):
     """BIG-IP® ASM History Revision resource."""
-    def __init__(self, response_pages_s):
-        super(History_Revision, self).__init__(response_pages_s)
+    def __init__(self, history_revisions_s):
+        super(History_Revision, self).__init__(history_revisions_s)
         self._meta_data['required_json_kind'] = \
             'tm:asm:policies:history-revisions:history-revisionstate'
 
@@ -884,8 +896,9 @@ class Session_Tracking_Statuses_s(Collection):
 
 class Session_Tracking_Status(AsmResource):
     """BIG-IP® ASM Session TrackingStatus resource."""
-    def __init__(self, response_pages_s):
-        super(Session_Tracking_Status, self).__init__(response_pages_s)
+    def __init__(self, session_tracking_statuses_s):
+        super(Session_Tracking_Status, self).__init__(
+            session_tracking_statuses_s)
         self._meta_data['required_json_kind'] = \
             'tm:asm:policies:session-tracking-statuses:' \
             'session-tracking-statusstate'
@@ -899,4 +912,141 @@ class Session_Tracking_Status(AsmResource):
         """
         raise UnsupportedOperation(
             "%s does not support the modify method" % self.__class__.__name__
+        )
+
+
+class Login_Pages_s(Collection):
+    """BIG-IP® ASM Login Pages sub-collection."""
+    def __init__(self, policy):
+        super(Login_Pages_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = [Login_Page]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:login-pages:login-pagecollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:login-pages:login-pagestate':
+                Login_Page}
+
+
+class Login_Page(AsmResource):
+    """BIG-IP® ASM Login Page Resource."""
+    def __init__(self, login_pages_s):
+        super(Login_Page, self).__init__(login_pages_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:login-pages:login-pagestate'
+        self._meta_data['required_creation_parameters'] = \
+            set(('accessValidation', 'urlReference',))
+
+
+class Ip_Intelligence(UnnamedResource):
+    """BIG-IP® ASM IP Intelligence resource."""
+    def __init__(self, policy):
+        super(Ip_Intelligence, self).__init__(policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:ip-intelligence:ip-intelligencestate'
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+
+    def update(self, **kwargs):
+        """Update is not supported for IP Intelligence resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+
+class Csrf_Protection(UnnamedResource):
+    """BIG-IP® ASM Csrf Protection resource."""
+    def __init__(self, policy):
+        super(Csrf_Protection, self).__init__(policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:csrf-protection:csrf-protectionstate'
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+
+    def update(self, **kwargs):
+        """Update is not supported for Csrf Protection resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+
+class Redirection_Protection(UnnamedResource):
+    """BIG-IP® ASM Redirection Protection resource."""
+    def __init__(self, policy):
+        super(Redirection_Protection, self).__init__(policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:redirection-protection:' \
+            'redirection-protectionstate'
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+
+    def update(self, **kwargs):
+        """Update is not supported for Redirection Protection resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+
+class Login_Enforcement(UnnamedResource):
+    """BIG-IP® ASM Login Enforcement resource."""
+    def __init__(self, policy):
+        super(Login_Enforcement, self).__init__(policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:login-enforcement:login-enforcementstate"'
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+
+    def update(self, **kwargs):
+        """Update is not supported for Login Enforcement resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+
+class Sensitive_Parameters_s(Collection):
+    """BIG-IP® ASM Sensitive Parameters sub-collection."""
+    def __init__(self, policy):
+        super(Sensitive_Parameters_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = [Sensitive_Parameter]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:sensitive-parameters:' \
+            'sensitive-parametercollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:sensitive-parameters:sensitive-parameterstate':
+                Sensitive_Parameter}
+
+
+class Sensitive_Parameter(AsmResource):
+    """BIG-IP® ASM Sensitive Parameters Resource."""
+    def __init__(self, sensitive_parameters_s):
+        super(Sensitive_Parameter, self).__init__(sensitive_parameters_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:sensitive-parameters:sensitive-parameterstate'
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Sensitive Parameters resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
         )

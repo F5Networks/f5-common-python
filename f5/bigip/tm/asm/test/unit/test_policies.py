@@ -15,19 +15,25 @@
 
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.asm import Asm
+from f5.bigip.tm.asm.policies import Csrf_Protection
 from f5.bigip.tm.asm.policies import Data_Guard
 from f5.bigip.tm.asm.policies import Evasion
 from f5.bigip.tm.asm.policies import Geolocation_Enforcement
 from f5.bigip.tm.asm.policies import Header
 from f5.bigip.tm.asm.policies import History_Revision
 from f5.bigip.tm.asm.policies import Http_Protocol
+from f5.bigip.tm.asm.policies import Ip_Intelligence
+from f5.bigip.tm.asm.policies import Login_Enforcement
+from f5.bigip.tm.asm.policies import Login_Page
 from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
 from f5.bigip.tm.asm.policies import Policy
 from f5.bigip.tm.asm.policies import Policy_Builder
+from f5.bigip.tm.asm.policies import Redirection_Protection
 from f5.bigip.tm.asm.policies import Response_Page
+from f5.bigip.tm.asm.policies import Sensitive_Parameter
 from f5.bigip.tm.asm.policies import Session_Tracking
 from f5.bigip.tm.asm.policies import Session_Tracking_Status
 from f5.bigip.tm.asm.policies import Signature
@@ -44,6 +50,46 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeSens():
+    fake_policy = mock.MagicMock()
+    fake_resp = Sensitive_Parameter(fake_policy)
+    fake_resp._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_resp
+
+
+@pytest.fixture
+def FakeLog():
+    fake_policy = mock.MagicMock()
+    fake_resp = Login_Enforcement(fake_policy)
+    fake_resp._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_resp
+
+
+@pytest.fixture
+def FakeRedir():
+    fake_policy = mock.MagicMock()
+    fake_resp = Redirection_Protection(fake_policy)
+    fake_resp._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_resp
+
+
+@pytest.fixture
+def FakeCsrf():
+    fake_policy = mock.MagicMock()
+    fake_resp = Csrf_Protection(fake_policy)
+    fake_resp._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_resp
+
+
+@pytest.fixture
+def FakeIP():
+    fake_policy = mock.MagicMock()
+    fake_resp = Ip_Intelligence(fake_policy)
+    fake_resp._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_resp
 
 
 @pytest.fixture
@@ -196,6 +242,14 @@ def FakeSessTrack():
 def FakeSess():
     fake_policy = mock.MagicMock()
     fake_g = Session_Tracking_Status(fake_policy)
+    fake_g._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_g
+
+
+@pytest.fixture
+def FakeLogin():
+    fake_policy = mock.MagicMock()
+    fake_g = Login_Page(fake_policy)
     fake_g._meta_data['bigip'].tmos_version = '11.6.0'
     return fake_g
 
@@ -369,3 +423,39 @@ class TestSessionTrackingStatuses(object):
     def test_update_raises(self, FakeSess):
         with pytest.raises(UnsupportedOperation):
             FakeSess.modify()
+
+
+class TestLoginPages(object):
+    def test_create_no_args(self, FakeLogin):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeLogin.create()
+
+
+class TestIPIntelligence(object):
+    def test_update_raises(self, FakeIP):
+        with pytest.raises(UnsupportedOperation):
+            FakeIP.update()
+
+
+class TestCrfProtection(object):
+    def test_update_raises(self, FakeCsrf):
+        with pytest.raises(UnsupportedOperation):
+            FakeCsrf.update()
+
+
+class TestRedirectionProtection(object):
+    def test_update_raises(self, FakeRedir):
+        with pytest.raises(UnsupportedOperation):
+            FakeRedir.update()
+
+
+class TestLoginEnforcement(object):
+    def test_update_raises(self, FakeLog):
+        with pytest.raises(UnsupportedOperation):
+            FakeLog.update()
+
+
+class TestSensitiveParameters(object):
+    def test_modify_raises(self, FakeSens):
+        with pytest.raises(UnsupportedOperation):
+            FakeSens.modify()
