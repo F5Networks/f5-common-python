@@ -75,7 +75,9 @@ class Policy(AsmResource):
             '-settingsstate': Session_Tracking,
             'tm:asm:policies:session-tracking-'
             'statuses:session-tracking-statuscollectionstate':
-                Session_Tracking_Statuses_s
+                Session_Tracking_Statuses_s,
+            'tm:asm:policies:login-pages:login-pagecollectionstate':
+                Login_Pages_s
         }
         self._set_attr_reg()
 
@@ -900,3 +902,27 @@ class Session_Tracking_Status(AsmResource):
         raise UnsupportedOperation(
             "%s does not support the modify method" % self.__class__.__name__
         )
+
+
+class Login_Pages_s(Collection):
+    """BIG-IP® ASM Login Pages sub-collection."""
+    def __init__(self, policy):
+        super(Login_Pages_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = [Login_Page]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:login-pages:login-pagecollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:login-pages:login-pagestate':
+                Login_Page}
+
+
+class Login_Page(AsmResource):
+    """BIG-IP® ASM Login Page Resource."""
+    def __init__(self, host_names_s):
+        super(Login_Page, self).__init__(host_names_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:login-pages:login-pagestate'
+        self._meta_data['required_creation_parameters'] = \
+            set(('accessValidation', 'urlReference',))

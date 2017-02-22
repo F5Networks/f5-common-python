@@ -21,6 +21,7 @@ from f5.bigip.tm.asm.policies import Geolocation_Enforcement
 from f5.bigip.tm.asm.policies import Header
 from f5.bigip.tm.asm.policies import History_Revision
 from f5.bigip.tm.asm.policies import Http_Protocol
+from f5.bigip.tm.asm.policies import Login_Page
 from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
@@ -200,6 +201,14 @@ def FakeSess():
     return fake_g
 
 
+@pytest.fixture
+def FakeLogin():
+    fake_policy = mock.MagicMock()
+    fake_g = Login_Page(fake_policy)
+    fake_g._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_g
+
+
 class TestPolicy(object):
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
@@ -369,3 +378,9 @@ class TestSessionTrackingStatuses(object):
     def test_update_raises(self, FakeSess):
         with pytest.raises(UnsupportedOperation):
             FakeSess.modify()
+
+
+class TestLoginPages(object):
+    def test_create_no_args(self, FakeLogin):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeLogin.create()

@@ -26,6 +26,7 @@ from f5.bigip.tm.asm.policies import Host_Name
 from f5.bigip.tm.asm.policies import Http_Protocol
 from f5.bigip.tm.asm.policies import Http_Protocols_s
 from f5.bigip.tm.asm.policies import Json_Profile
+from f5.bigip.tm.asm.policies import Login_Page
 from f5.bigip.tm.asm.policies import Method
 from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
@@ -117,6 +118,16 @@ def set_policy_status(mgmt_root, policy):
     policy.session_tracking.modify(sessionTrackingConfiguration=tmp)
     yield policy
     delete_apply_policy_task(mgmt_root)
+
+
+@pytest.fixture(scope='class')
+def set_login(policy):
+    url = policy.urls_s.url.create(name='fake.com')
+    reference = {'link': url.selfLink}
+    valid = {'responseContains': '201 OK'}
+    login = policy.login_pages_s.login_page.create(urlReference=reference,
+                                                   accessValidation=valid)
+    yield login
 
 
 class TestPolicy(object):
@@ -2164,3 +2175,91 @@ class TestSessionTrackingStatuses(object):
         assert isinstance(mc, list)
         assert len(mc)
         assert isinstance(mc[0], Session_Tracking_Status)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestLoginPages(object):
+    def test_create_req_arg(self, policy):
+        url = policy.urls_s.url.create(name='fake.com')
+        reference = {'link': url.selfLink}
+        valid = {'responseContains': '201 OK'}
+        r1 = policy.login_pages_s.login_page.create(urlReference=reference,
+                                                    accessValidation=valid)
+        assert r1.kind == 'tm:asm:policies:login-pages:login-pagestate'
+        assert r1.authenticationType == 'none'
+        assert r1.urlReference == reference
+        r1.delete()
+        url.delete()
+
+    def test_create_optional_args(self, policy):
+        url = policy.urls_s.url.create(name='fake.com')
+        reference = {'link': url.selfLink}
+        valid = {'responseContains': '201 OK'}
+        r1 = policy.login_pages_s.login_page.create(
+            urlReference=reference, accessValidation=valid,
+            authenticationType='http-basic')
+        assert r1.kind == 'tm:asm:policies:login-pages:login-pagestate'
+        assert r1.authenticationType == 'http-basic'
+        assert r1.urlReference == reference
+        r1.delete()
+        url.delete()
+
+    def test_refresh(self, set_login, policy):
+        r1 = set_login
+        r2 = policy.login_pages_s.login_page.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.authenticationType == r2.authenticationType
+        r2.modify(authenticationType='http-basic')
+        assert r1.authenticationType == 'none'
+        assert r2.authenticationType == 'http-basic'
+        r1.refresh()
+        assert r1.authenticationType == 'http-basic'
+
+    def test_modify(self, set_login):
+        r1 = set_login
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'authenticationType'
+        r1.modify(authenticationType='none')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == 'none'
+
+    def test_delete(self, policy):
+        url = policy.urls_s.url.create(name='delete.com')
+        reference = {'link': url.selfLink}
+        valid = {'responseContains': '201 OK'}
+        r1 = policy.login_pages_s.login_page.create(
+            urlReference=reference, accessValidation=valid)
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.login_pages_s.login_page.load(id=idhash)
+        assert err.value.response.status_code == 404
+        url.delete()
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.login_pages_s.login_page.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_login, policy):
+        r1 = set_login
+        assert r1.kind == 'tm:asm:policies:login-pages:login-pagestate'
+        assert r1.authenticationType == 'none'
+        r1.modify(authenticationType='http-basic')
+        assert r1.authenticationType == 'http-basic'
+        r2 = policy.login_pages_s.login_page.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.authenticationType == r2.authenticationType
+
+    def test_urls_subcollection(self, policy):
+        cc = policy.login_pages_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Login_Page)
