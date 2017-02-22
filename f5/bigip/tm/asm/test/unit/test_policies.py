@@ -30,6 +30,7 @@ from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
 from f5.bigip.tm.asm.policies import Policy
 from f5.bigip.tm.asm.policies import Policy_Builder
+from f5.bigip.tm.asm.policies import Redirection_Protection
 from f5.bigip.tm.asm.policies import Response_Page
 from f5.bigip.tm.asm.policies import Session_Tracking
 from f5.bigip.tm.asm.policies import Session_Tracking_Status
@@ -47,6 +48,14 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeRedir():
+    fake_policy = mock.MagicMock()
+    fake_resp = Redirection_Protection(fake_policy)
+    fake_resp._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_resp
 
 
 @pytest.fixture
@@ -414,3 +423,9 @@ class TestCrfProtection(object):
     def test_update_raises(self, FakeCsrf):
         with pytest.raises(UnsupportedOperation):
             FakeCsrf.update()
+
+
+class TestRedirectionProtection(object):
+    def test_update_raises(self, FakeRedir):
+        with pytest.raises(UnsupportedOperation):
+            FakeRedir.update()

@@ -2365,3 +2365,65 @@ class TestCsrfProtection(object):
         r1.refresh()
         assert r1.enabled is True
         assert hasattr(r1, 'expirationTimeInSeconds')
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestRedirectionProtection(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.redirection_protection.update()
+
+    def test_modify(self, policy):
+        r1 = policy.redirection_protection.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'redirectionProtectionEnabled'
+        r1.modify(redirectionProtectionEnabled=False)
+        temp_list = ['redirectionProtectionEnabled', 'selfLink', 'kind']
+        # We need to modify this as the entire __dict__ changes once we
+        # set redirectionProtectionEnabled to True or False, this is working
+        # as intended so not a bug with F5
+        assert 'redirectionDomains' in original_dict.keys()
+        assert isinstance(original_dict['redirectionDomains'], list)
+        assert not hasattr(r1.__dict__, 'redirectionDomains')
+        for k, v in iteritems(original_dict):
+            if k != itm and k in temp_list:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is False
+
+    def test_load(self, policy):
+        r1 = policy.redirection_protection.load()
+        assert r1.kind == \
+            'tm:asm:policies:redirection-protection:' \
+            'redirection-protectionstate'
+        assert r1.redirectionProtectionEnabled is False
+        assert not hasattr(r1, 'redirectionDomains')
+        r1.modify(redirectionProtectionEnabled=True)
+        assert r1.redirectionProtectionEnabled is True
+        assert hasattr(r1, 'redirectionDomains')
+        r2 = policy.redirection_protection.load()
+        assert r1.kind == r2.kind
+        assert r1.redirectionProtectionEnabled == \
+            r2.redirectionProtectionEnabled
+
+    def test_refresh(self, policy):
+        r1 = policy.redirection_protection.load()
+        assert r1.kind == \
+            'tm:asm:policies:redirection-protection:' \
+            'redirection-protectionstate'
+        assert r1.redirectionProtectionEnabled is True
+        assert hasattr(r1, 'redirectionDomains')
+        r2 = policy.redirection_protection.load()
+        assert r1.kind == r2.kind
+        assert r1.redirectionProtectionEnabled == \
+            r2.redirectionProtectionEnabled
+        r2.modify(redirectionProtectionEnabled=False)
+        assert r2.redirectionProtectionEnabled is False
+        assert not hasattr(r2, 'redirectionDomains')
+        r1.refresh()
+        assert r1.redirectionProtectionEnabled is False
+        assert not hasattr(r1, 'redirectionDomains')

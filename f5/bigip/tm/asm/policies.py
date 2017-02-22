@@ -81,7 +81,9 @@ class Policy(AsmResource):
             'tm:asm:policies:ip-intelligence:ip-intelligencestate':
                 Ip_Intelligence,
             'tm:asm:policies:csrf-protection:csrf-protectionstate':
-                Csrf_Protection
+                Csrf_Protection,
+            'tm:asm:policies:redirection-protection:'
+            'redirection-protectionstate': Redirection_Protection
         }
         self._set_attr_reg()
 
@@ -964,6 +966,27 @@ class Csrf_Protection(UnnamedResource):
 
     def update(self, **kwargs):
         """Update is not supported for Csrf Protection resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+
+class Redirection_Protection(UnnamedResource):
+    """BIG-IP® ASM Redirection Protection resource."""
+    def __init__(self, policy):
+        super(Redirection_Protection, self).__init__(policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:redirection-protection:' \
+            'redirection-protectionstate'
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+
+    def update(self, **kwargs):
+        """Update is not supported for Redirection Protection resource
 
         :raises: UnsupportedOperation
         """
