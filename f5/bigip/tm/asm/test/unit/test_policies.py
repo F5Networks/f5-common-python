@@ -15,9 +15,11 @@
 
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.asm import Asm
+from f5.bigip.tm.asm.policies import Brute_Force_Attack_Prevention
 from f5.bigip.tm.asm.policies import Csrf_Protection
 from f5.bigip.tm.asm.policies import Data_Guard
 from f5.bigip.tm.asm.policies import Evasion
+from f5.bigip.tm.asm.policies import Extraction
 from f5.bigip.tm.asm.policies import Geolocation_Enforcement
 from f5.bigip.tm.asm.policies import Header
 from f5.bigip.tm.asm.policies import History_Revision
@@ -43,6 +45,7 @@ from f5.bigip.tm.asm.policies import UrlParametersResource
 from f5.bigip.tm.asm.policies import Violation
 from f5.bigip.tm.asm.policies import Vulnerability_Assessment
 from f5.bigip.tm.asm.policies import Web_Services_Security
+from f5.bigip.tm.asm.policies import Xml_Validation_File
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
 
@@ -50,6 +53,22 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeExtract():
+    fake_policy = mock.MagicMock()
+    fake_e = Extraction(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_e
+
+
+@pytest.fixture
+def FakeXmlFile():
+    fake_policy = mock.MagicMock()
+    fake_file = Xml_Validation_File(fake_policy)
+    fake_file._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_file
 
 
 @pytest.fixture
@@ -250,6 +269,14 @@ def FakeSess():
 def FakeLogin():
     fake_policy = mock.MagicMock()
     fake_g = Login_Page(fake_policy)
+    fake_g._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_g
+
+
+@pytest.fixture
+def FakeBrute():
+    fake_policy = mock.MagicMock()
+    fake_g = Brute_Force_Attack_Prevention(fake_policy)
     fake_g._meta_data['bigip'].tmos_version = '11.6.0'
     return fake_g
 
@@ -459,3 +486,29 @@ class TestSensitiveParameters(object):
     def test_modify_raises(self, FakeSens):
         with pytest.raises(UnsupportedOperation):
             FakeSens.modify()
+
+
+class TestBruteForce(object):
+    def test_create_no_args(self, FakeBrute):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeBrute.create()
+
+
+class TestXMLValidationFiles(object):
+    def test_update_raises(self, FakeXmlFile):
+        with pytest.raises(UnsupportedOperation):
+            FakeXmlFile.modify()
+
+    def test_create_no_args(self, FakeXmlFile):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeXmlFile.create()
+
+
+class TestExtractions(object):
+    def test_create_no_args(self, FakeExtract):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeExtract.create()
+
+    def test_create_missing_additional_arguments(self, FakeExtract):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeExtract.create(name='fake', extractFromAllItems=False)

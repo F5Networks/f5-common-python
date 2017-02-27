@@ -19,7 +19,9 @@ from distutils.version import LooseVersion
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
 from f5.bigip.resource import UnnamedResource
+from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
+from six import iterkeys
 
 
 class Policies_s(Collection):
@@ -87,7 +89,14 @@ class Policy(AsmResource):
             'tm:asm:policies:login-enforcement:login-enforcementstate':
                 Login_Enforcement,
             'tm:asm:policies:sensitive-parameters:'
-            'sensitive-parametercollectionstate': Sensitive_Parameters_s
+            'sensitive-parametercollectionstate': Sensitive_Parameters_s,
+            'tm:asm:policies:brute-force-attack-preventions:'
+            'brute-force-attack-preventioncollectionstate':
+                Brute_Force_Attack_Preventions_s,
+            'tm:asm:policies:xml-validation-files:'
+            'xml-validation-filecollectionstate': Xml_Validation_Files_s,
+            'tm:asm:policies:extractions:extractioncollectionstate':
+                Extractions_s
         }
         self._set_attr_reg()
 
@@ -1050,3 +1059,122 @@ class Sensitive_Parameter(AsmResource):
         raise UnsupportedOperation(
             "%s does not support the update method" % self.__class__.__name__
         )
+
+
+class Brute_Force_Attack_Preventions_s(Collection):
+    """BIG-IP® ASM Brute Force Attack Preventions sub-collection."""
+    def __init__(self, policy):
+        super(Brute_Force_Attack_Preventions_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Brute_Force_Attack_Prevention]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:brute-force-attack-preventions:' \
+            'brute-force-attack-preventioncollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:brute-force-attack-preventions:'
+            'brute-force-attack-preventionstate':
+                Brute_Force_Attack_Prevention}
+
+
+class Brute_Force_Attack_Prevention(AsmResource):
+    """BIG-IP® ASM Brute Force Attack Prevention Resource."""
+    def __init__(self, brute_force_attack_preventions_s):
+        super(Brute_Force_Attack_Prevention, self).__init__(
+            brute_force_attack_preventions_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:brute-force-attack-preventions:' \
+            'brute-force-attack-preventionstate'
+        self._meta_data['required_creation_parameters'] = {'urlReference'}
+
+
+class Xml_Validation_Files_s(Collection):
+    """BIG-IP® ASM Xml Validation Files sub-collection."""
+    def __init__(self, policy):
+        super(Xml_Validation_Files_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Xml_Validation_File]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:xml-validation-files:' \
+            'xml-validation-filecollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:xml-validation-files:xml-validation-filestate':
+                Xml_Validation_File}
+
+
+class Xml_Validation_File(AsmResource):
+    """BIG-IP® ASM Xml Validation File Resource."""
+    def __init__(self, xml_validation_files_s):
+        super(Xml_Validation_File, self).__init__(xml_validation_files_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:xml-validation-files:xml-validation-filestate'
+        self._meta_data['required_creation_parameters'] = {'contents',
+                                                           'fileName'}
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Xml Validation File resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
+
+
+class Extractions_s(Collection):
+    """BIG-IP® ASM Extractions sub-collection."""
+    def __init__(self, policy):
+        super(Extractions_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Extraction]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:extractions:extractioncollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:extractions:extractionstate':
+                Extraction}
+
+
+class Extraction(AsmResource):
+    """BIG-IP® ASM Extraction Resource."""
+    def __init__(self, extractions_s):
+        super(Extraction, self).__init__(extractions_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:extractions:extractionstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('extractFromAllItems',))
+
+    def create(self, **kwargs):
+        """Custom create method to accommodate different endpoint behavior."""
+        self._check_create_parameters(**kwargs)
+        if kwargs['extractFromAllItems'] is False:
+            self._minimum_one_is_missing(**kwargs)
+
+        return self._create(**kwargs)
+
+    def _minimum_one_is_missing(self, **kwargs):
+        """Helper method
+
+        Verify if at least one of the required parameters is present.
+        The required parameters change depending on extractFromAllItems value.
+
+        ::returns bool
+
+        Raises:
+
+             MissingRequiredCreationParameter
+        """
+
+        req_set = {'extractFromRegularExpression', 'extractUrlReferences',
+                   'extractFiletypeReferences'}
+        kwarg_set = set(iterkeys(kwargs))
+
+        if kwarg_set.isdisjoint(req_set):
+            error_message = 'This resource requires at least one of the ' \
+                            'mandatory additional ' \
+                            'parameters to be provided: %s' % req_set
+            raise MissingRequiredCreationParameter(error_message)

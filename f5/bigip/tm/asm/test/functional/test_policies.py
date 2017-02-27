@@ -15,9 +15,11 @@
 
 import copy
 from distutils.version import LooseVersion
+from f5.bigip.tm.asm.policies import Brute_Force_Attack_Prevention
 from f5.bigip.tm.asm.policies import Cookie
 from f5.bigip.tm.asm.policies import Evasion
 from f5.bigip.tm.asm.policies import Evasions_s
+from f5.bigip.tm.asm.policies import Extraction
 from f5.bigip.tm.asm.policies import Filetype
 from f5.bigip.tm.asm.policies import Gwt_Profile
 from f5.bigip.tm.asm.policies import Header
@@ -47,7 +49,9 @@ from f5.bigip.tm.asm.policies import Web_Services_Securities_s
 from f5.bigip.tm.asm.policies import Web_Services_Security
 from f5.bigip.tm.asm.policies import Whitelist_Ip
 from f5.bigip.tm.asm.policies import Xml_Profile
+from f5.bigip.tm.asm.policies import Xml_Validation_File
 from f5.sdk_exception import AttemptedMutationOfReadOnly
+from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedMethod
 from f5.sdk_exception import UnsupportedOperation
 
@@ -56,6 +60,12 @@ from requests.exceptions import HTTPError
 from six import iteritems
 from six import iterkeys
 import time
+
+XML = '<?xml version=\"1.0\" encoding=\"UTF-8\"?> <xsd:schema " \
+      "targetNamespace=\"http://www.example.org/test\" ' \
+      'xmlns=\"http://www.example.org/test\" elementFormDefault="qualified" ' \
+      'attributeFormDefault=\"unqualified\" ' \
+      'xmlns:xsd="http://www.w3.org/2001/XMLSchema\"> </xsd:schema>'
 
 
 def delete_policy_item(mgmt_root, name):
@@ -128,13 +138,41 @@ def set_login(policy):
     valid = {'responseContains': '201 OK'}
     login = policy.login_pages_s.login_page.create(urlReference=reference,
                                                    accessValidation=valid)
-    yield login
+    yield login, reference
+    login.delete()
+    url.delete()
+
+
+@pytest.fixture(scope='function')
+def set_brute(policy, set_login):
+    login, reference = set_login
+    login.modify(authenticationType='http-basic')
+    r1 = policy.brute_force_attack_preventions_s.\
+        brute_force_attack_prevention.create(urlReference=reference)
+    yield r1
+    r1.delete()
 
 
 @pytest.fixture(scope='class')
 def set_s_par(policy):
     r1 = policy.sensitive_parameters_s.sensitive_parameter.create(
         name='testpass')
+    yield r1
+    r1.delete()
+
+
+@pytest.fixture(scope='function')
+def set_xml_file(policy):
+    r1 = policy.xml_validation_files_s.xml_validation_file.create(
+        fileName='fakefile', contents=XML)
+    yield r1
+    r1.delete()
+
+
+@pytest.fixture(scope='function')
+def set_extraction(policy):
+    r1 = policy.extractions_s.extraction.create(extractFromAllItems=True,
+                                                name='fake_extract')
     yield r1
     r1.delete()
 
@@ -1026,7 +1064,7 @@ class TestUrlParameters(object):
         param1.delete()
         url.delete()
 
-    def test_urls_subcollection(self, policy):
+    def test_url_parameters_subcollection(self, policy):
         url = policy.urls_s.url.create(name='testing')
         param1 = url.parameters_s.parameter.create(name='testing_parameter')
         assert param1.kind == 'tm:asm:policies:urls:parameters:parameterstate'
@@ -2112,7 +2150,6 @@ class TestSessionTrackingStatuses(object):
         assert r1.scope == 'user'
         assert r1.value == 'fake'
         assert hasattr(r1, 'createdDatetime')
-        r1.delete()
 
     def test_refresh(self, set_policy_status):
         args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
@@ -2131,7 +2168,6 @@ class TestSessionTrackingStatuses(object):
         assert r1.action == r2.action
         assert r1.scope == r2.scope
         assert r1.value == r2.value
-        r1.delete()
 
     def test_modify_raises(self, set_policy_status):
         with pytest.raises(UnsupportedOperation):
@@ -2159,19 +2195,18 @@ class TestSessionTrackingStatuses(object):
         args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
         r1 = set_policy_status.session_tracking_statuses_s.\
             session_tracking_status.create(**args)
+        r2 = set_policy_status.session_tracking_statuses_s.\
+            session_tracking_status.load(id=r1.id)
         assert r1.kind == 'tm:asm:policies:session-tracking-statuses:' \
                           'session-tracking-statusstate'
         assert r1.action == 'block-all'
         assert r1.scope == 'user'
         assert r1.value == 'fake'
         assert hasattr(r1, 'createdDatetime')
-        r2 = set_policy_status.session_tracking_statuses_s.\
-            session_tracking_status.load(id=r1.id)
         assert r1.kind == r2.kind
         assert r1.action == r2.action
         assert r1.scope == r2.scope
         assert r1.value == r2.value
-        r1.delete()
 
     def test_session_tracking_subcollection(self, set_policy_status):
         args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
@@ -2218,7 +2253,7 @@ class TestLoginPages(object):
         url.delete()
 
     def test_refresh(self, set_login, policy):
-        r1 = set_login
+        r1, _ = set_login
         r2 = policy.login_pages_s.login_page.load(id=r1.id)
         assert r1.kind == r2.kind
         assert r1.authenticationType == r2.authenticationType
@@ -2229,7 +2264,7 @@ class TestLoginPages(object):
         assert r1.authenticationType == 'http-basic'
 
     def test_modify(self, set_login):
-        r1 = set_login
+        r1, _ = set_login
         original_dict = copy.copy(r1.__dict__)
         itm = 'authenticationType'
         r1.modify(authenticationType='none')
@@ -2258,7 +2293,7 @@ class TestLoginPages(object):
         assert err.value.response.status_code == 404
 
     def test_load(self, set_login, policy):
-        r1 = set_login
+        r1, _ = set_login
         assert r1.kind == 'tm:asm:policies:login-pages:login-pagestate'
         assert r1.authenticationType == 'none'
         r1.modify(authenticationType='http-basic')
@@ -2537,8 +2572,274 @@ class TestSensitiveParameters(object):
         assert r1.kind == r2.kind
         assert r1.name == r2.name
 
-    def test_urls_subcollection(self, policy):
+    def test_sensitive_parameters_subcollection(self, policy):
         cc = policy.sensitive_parameters_s.get_collection()
         assert isinstance(cc, list)
         assert len(cc)
         assert isinstance(cc[0], Sensitive_Parameter)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestBruteForceAttackPreventions(object):
+    def test_create_req_arg(self, policy, set_login):
+        login, reference = set_login
+        login.modify(authenticationType='http-basic')
+        bc = policy.brute_force_attack_preventions_s
+        r1 = bc.brute_force_attack_prevention.create(urlReference=reference)
+        hashid = str(r1.id)
+        main_uri = policy.selfLink + '/'+'brute-force-attack-preventions' + \
+            '/' + hashid
+        assert r1.kind == 'tm:asm:policies:brute-force-attack-preventions:' \
+                          'brute-force-attack-preventionstate'
+        assert r1.selfLink == main_uri
+        assert r1.preventionDuration == 'unlimited'
+        assert r1.reEnableLoginAfter == 600
+        r1.delete()
+
+    def test_create_optional_args(self, policy, set_login):
+        login, reference = set_login
+        login.modify(authenticationType='http-basic')
+        bc = policy.brute_force_attack_preventions_s
+        r1 = bc.brute_force_attack_prevention.create(urlReference=reference,
+                                                     preventionDuration='120',
+                                                     reEnableLoginAfter=300)
+        hashid = str(r1.id)
+        main_uri = policy.selfLink + '/' + 'brute-force-attack-preventions' + \
+            '/' + hashid
+        assert r1.kind == 'tm:asm:policies:brute-force-attack-preventions:' \
+                          'brute-force-attack-preventionstate'
+        assert r1.selfLink == main_uri
+        assert r1.preventionDuration == '120'
+        assert r1.reEnableLoginAfter == 300
+        r1.delete()
+
+    def test_refresh(self, set_brute, policy):
+        r1 = set_brute
+        bc = policy.brute_force_attack_preventions_s
+        r2 = bc.brute_force_attack_prevention.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.preventionDuration == r2.preventionDuration
+        r2.modify(preventionDuration='120')
+        assert r1.preventionDuration == 'unlimited'
+        assert r2.preventionDuration == '120'
+        r1.refresh()
+        assert r1.preventionDuration == '120'
+
+    def test_modify(self, set_brute):
+        r1 = set_brute
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'preventionDuration'
+        r1.modify(preventionDuration='220')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == '220'
+
+    def test_delete(self, policy, set_login):
+        _, reference = set_login
+        bc = policy.brute_force_attack_preventions_s
+        r1 = bc.brute_force_attack_prevention.create(urlReference=reference)
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            bc.brute_force_attack_prevention.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        bc = policy.brute_force_attack_preventions_s
+        with pytest.raises(HTTPError) as err:
+            bc.brute_force_attack_prevention.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_brute, policy):
+        r1 = set_brute
+        bc = policy.brute_force_attack_preventions_s
+        assert r1.kind == 'tm:asm:policies:brute-force-attack-preventions:' \
+                          'brute-force-attack-preventionstate'
+        assert r1.reEnableLoginAfter == 600
+        r1.modify(reEnableLoginAfter=300)
+        assert r1.reEnableLoginAfter == 300
+        r2 = bc.brute_force_attack_prevention.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.reEnableLoginAfter == r2.reEnableLoginAfter
+
+    def test_brute_force_subcollection(self, policy, set_brute):
+        r1 = set_brute
+        hashid = str(r1.id)
+        main_uri = policy.selfLink + '/'+'brute-force-attack-preventions' + \
+            '/' + hashid
+        assert r1.kind == 'tm:asm:policies:brute-force-attack-preventions:' \
+                          'brute-force-attack-preventionstate'
+        assert r1.selfLink == main_uri
+        assert r1.preventionDuration == 'unlimited'
+        assert r1.reEnableLoginAfter == 600
+        cc = policy.brute_force_attack_preventions_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Brute_Force_Attack_Prevention)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestXmlValidationFiles(object):
+    def test_modify_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.xml_validation_files_s.xml_validation_file.modify()
+
+    def test_create_req_arg(self, policy):
+        r1 = policy.xml_validation_files_s.xml_validation_file.create(
+            fileName='fakefile', contents=XML)
+        assert r1.kind == \
+            'tm:asm:policies:xml-validation-files:xml-validation-filestate'
+        assert r1.fileName == 'fakefile'
+        r1.delete()
+
+    def test_refresh(self, set_xml_file, policy):
+        r1 = set_xml_file
+        r2 = policy.xml_validation_files_s.xml_validation_file.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.fileName == r2.fileName
+        assert r1.id == r2.id
+        r1.refresh()
+        assert r1.kind == r2.kind
+        assert r1.fileName == r2.fileName
+        assert r1.id == r2.id
+
+    def test_delete(self, policy):
+        r1 = policy.xml_validation_files_s.xml_validation_file.create(
+            fileName='fakefile', contents=XML)
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.xml_validation_files_s.xml_validation_file.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.xml_validation_files_s.xml_validation_file.load(
+                id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_xml_file, policy):
+        r1 = set_xml_file
+        assert r1.kind == \
+            'tm:asm:policies:xml-validation-files:xml-validation-filestate'
+        assert r1.fileName == 'fakefile'
+        r2 = policy.xml_validation_files_s.xml_validation_file.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.fileName == r2.fileName
+
+    def test_xml_validation_files_subcollection(self, set_xml_file, policy):
+        r1 = set_xml_file
+        assert r1.kind == \
+            'tm:asm:policies:xml-validation-files:xml-validation-filestate'
+        assert r1.fileName == 'fakefile'
+        cc = policy.xml_validation_files_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Xml_Validation_File)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestExtractions(object):
+    def test_create_req_arg(self, policy):
+        r1 = policy.extractions_s.extraction.create(
+            extractFromAllItems=True, name='fake_extract')
+        tmpurl = policy.selfLink + '/' + 'extractions' + '/' + r1.id
+        assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
+        assert r1.selfLink == tmpurl
+        r1.delete()
+
+    def test_create_mandatory_arg_missing(self, policy):
+        with pytest.raises(MissingRequiredCreationParameter) as err:
+            policy.extractions_s.extraction.create(
+                extractFromAllItems=False, name='fake_extract')
+        error_message = "This resource requires at least one of the " \
+                        "mandatory additional parameters to be provided: " \
+                        "set(['extractUrlReferences', " \
+                        "'extractFromRegularExpression', " \
+                        "'extractFiletypeReferences'])"
+
+        assert err.value.message == error_message
+
+    def test_create_mandatory_arg_present(self, policy):
+        r1 = policy.extractions_s.extraction.create(
+            extractFromAllItems=False, name='fake_extract',
+            extractFromRegularExpression='["test"]')
+        tmpurl = policy.selfLink + '/' + 'extractions' + '/' + r1.id
+        assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
+        assert r1.selfLink == tmpurl
+        assert r1.extractFromRegularExpression == '["test"]'
+        assert r1.extractFromAllItems is False
+        r1.delete()
+
+    def test_refresh(self, set_extraction, policy):
+        r1 = set_extraction
+        r2 = policy.extractions_s.extraction.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.extractFromAllItems == r2.extractFromAllItems
+        assert r1.searchInXml == r2.searchInXml
+        r2.modify(searchInXml=True)
+        assert r1.searchInXml is False
+        assert r2.searchInXml is True
+        r1.refresh()
+        assert r1.searchInXml is True
+
+    def test_modify(self, set_extraction):
+        r1 = set_extraction
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'searchInXml'
+        r1.modify(searchInXml=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is True
+
+    def test_delete(self, policy):
+        r1 = policy.extractions_s.extraction.create(
+            extractFromAllItems=True, name='fake_extract')
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.extractions_s.extraction.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.extractions_s.extraction.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_extraction, policy):
+        r1 = set_extraction
+        assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
+        assert r1.searchInXml is False
+        r1.modify(searchInXml=True)
+        assert r1.searchInXml is True
+        r2 = policy.extractions_s.extraction.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.searchInXml == r2.searchInXml
+
+    def test_extractions_subcollection(self, policy, set_extraction):
+        r1 = set_extraction
+        hashid = str(r1.id)
+        main_uri = policy.selfLink + '/'+'extractions' + \
+            '/' + hashid
+        assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
+        assert r1.selfLink == main_uri
+        cc = policy.extractions_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Extraction)
