@@ -48,6 +48,7 @@ from f5.bigip.tm.asm.policies import Web_Services_Securities_s
 from f5.bigip.tm.asm.policies import Web_Services_Security
 from f5.bigip.tm.asm.policies import Whitelist_Ip
 from f5.bigip.tm.asm.policies import Xml_Profile
+from f5.bigip.tm.asm.policies import Xml_Validation_File
 from f5.sdk_exception import AttemptedMutationOfReadOnly
 from f5.sdk_exception import UnsupportedMethod
 from f5.sdk_exception import UnsupportedOperation
@@ -57,6 +58,12 @@ from requests.exceptions import HTTPError
 from six import iteritems
 from six import iterkeys
 import time
+
+XML = '<?xml version=\"1.0\" encoding=\"UTF-8\"?> <xsd:schema " \
+      "targetNamespace=\"http://www.example.org/test\" ' \
+      'xmlns=\"http://www.example.org/test\" elementFormDefault="qualified" ' \
+      'attributeFormDefault=\"unqualified\" ' \
+      'xmlns:xsd="http://www.w3.org/2001/XMLSchema\"> </xsd:schema>'
 
 
 def delete_policy_item(mgmt_root, name):
@@ -148,6 +155,14 @@ def set_brute(policy, set_login):
 def set_s_par(policy):
     r1 = policy.sensitive_parameters_s.sensitive_parameter.create(
         name='testpass')
+    yield r1
+    r1.delete()
+
+
+@pytest.fixture(scope='function')
+def set_xml_file(policy):
+    r1 = policy.xml_validation_files_s.xml_validation_file.create(
+        fileName='fakefile', contents=XML)
     yield r1
     r1.delete()
 
@@ -1039,7 +1054,7 @@ class TestUrlParameters(object):
         param1.delete()
         url.delete()
 
-    def test_urls_subcollection(self, policy):
+    def test_url_parameters_subcollection(self, policy):
         url = policy.urls_s.url.create(name='testing')
         param1 = url.parameters_s.parameter.create(name='testing_parameter')
         assert param1.kind == 'tm:asm:policies:urls:parameters:parameterstate'
@@ -2547,7 +2562,7 @@ class TestSensitiveParameters(object):
         assert r1.kind == r2.kind
         assert r1.name == r2.name
 
-    def test_urls_subcollection(self, policy):
+    def test_sensitive_parameters_subcollection(self, policy):
         cc = policy.sensitive_parameters_s.get_collection()
         assert isinstance(cc, list)
         assert len(cc)
@@ -2657,3 +2672,67 @@ class TestBruteForceAttackPreventions(object):
         assert isinstance(cc, list)
         assert len(cc)
         assert isinstance(cc[0], Brute_Force_Attack_Prevention)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestXmlValidationFiles(object):
+    def test_modify_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.xml_validation_files_s.xml_validation_file.modify()
+
+    def test_create_req_arg(self, policy):
+        r1 = policy.xml_validation_files_s.xml_validation_file.create(
+            fileName='fakefile', contents=XML)
+        assert r1.kind == \
+            'tm:asm:policies:xml-validation-files:xml-validation-filestate'
+        assert r1.fileName == 'fakefile'
+        r1.delete()
+
+    def test_refresh(self, set_xml_file, policy):
+        r1 = set_xml_file
+        r2 = policy.xml_validation_files_s.xml_validation_file.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.fileName == r2.fileName
+        assert r1.id == r2.id
+        r1.refresh()
+        assert r1.kind == r2.kind
+        assert r1.fileName == r2.fileName
+        assert r1.id == r2.id
+
+    def test_delete(self, policy):
+        r1 = policy.xml_validation_files_s.xml_validation_file.create(
+            fileName='fakefile', contents=XML)
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.xml_validation_files_s.xml_validation_file.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.xml_validation_files_s.xml_validation_file.load(
+                id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_xml_file, policy):
+        r1 = set_xml_file
+        assert r1.kind == \
+            'tm:asm:policies:xml-validation-files:xml-validation-filestate'
+        assert r1.fileName == 'fakefile'
+        r2 = policy.xml_validation_files_s.xml_validation_file.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.fileName == r2.fileName
+
+    def test_xml_validation_files_subcollection(self, set_xml_file, policy):
+        r1 = set_xml_file
+        assert r1.kind == \
+            'tm:asm:policies:xml-validation-files:xml-validation-filestate'
+        assert r1.fileName == 'fakefile'
+        cc = policy.xml_validation_files_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Xml_Validation_File)

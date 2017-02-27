@@ -44,6 +44,7 @@ from f5.bigip.tm.asm.policies import UrlParametersResource
 from f5.bigip.tm.asm.policies import Violation
 from f5.bigip.tm.asm.policies import Vulnerability_Assessment
 from f5.bigip.tm.asm.policies import Web_Services_Security
+from f5.bigip.tm.asm.policies import Xml_Validation_File
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
 
@@ -51,6 +52,14 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def XmlFile():
+    fake_policy = mock.MagicMock()
+    fake_file = Xml_Validation_File(fake_policy)
+    fake_file._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_file
 
 
 @pytest.fixture
@@ -474,3 +483,13 @@ class TestBruteForce(object):
     def test_create_no_args(self, FakeBrute):
         with pytest.raises(MissingRequiredCreationParameter):
             FakeBrute.create()
+
+
+class TestXMLValidationFiles(object):
+    def test_update_raises(self, XmlFile):
+        with pytest.raises(UnsupportedOperation):
+            XmlFile.modify()
+
+    def test_create_no_args(self, XmlFile):
+        with pytest.raises(MissingRequiredCreationParameter):
+            XmlFile.create()

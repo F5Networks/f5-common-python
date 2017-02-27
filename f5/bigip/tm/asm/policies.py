@@ -90,7 +90,9 @@ class Policy(AsmResource):
             'sensitive-parametercollectionstate': Sensitive_Parameters_s,
             'tm:asm:policies:brute-force-attack-preventions:'
             'brute-force-attack-preventioncollectionstate':
-                Brute_Force_Attack_Preventions_s
+                Brute_Force_Attack_Preventions_s,
+            'tm:asm:policies:xml-validation-files:'
+            'xml-validation-filecollectionstate': Xml_Validation_Files_s
         }
         self._set_attr_reg()
 
@@ -1080,5 +1082,39 @@ class Brute_Force_Attack_Prevention(AsmResource):
         self._meta_data['required_json_kind'] = \
             'tm:asm:policies:brute-force-attack-preventions:' \
             'brute-force-attack-preventionstate'
-        self._meta_data['required_creation_parameters'] = \
-            set(('urlReference',))
+        self._meta_data['required_creation_parameters'] = {'urlReference'}
+
+
+class Xml_Validation_Files_s(Collection):
+    """BIG-IP® ASM Xml Validation Files sub-collection."""
+    def __init__(self, policy):
+        super(Xml_Validation_Files_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Xml_Validation_File]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:xml-validation-files:' \
+            'xml-validation-filecollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:xml-validation-files:xml-validation-filestate':
+                Xml_Validation_File}
+
+
+class Xml_Validation_File(AsmResource):
+    """BIG-IP® ASM Xml Validation File Resource."""
+    def __init__(self, xml_validation_files_s):
+        super(Xml_Validation_File, self).__init__(xml_validation_files_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:xml-validation-files:xml-validation-filestate'
+        self._meta_data['required_creation_parameters'] = {'contents',
+                                                           'fileName'}
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Xml Validation File resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
