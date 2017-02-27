@@ -15,6 +15,7 @@
 
 import copy
 from distutils.version import LooseVersion
+from f5.bigip.tm.asm.policies import Brute_Force_Attack_Prevention
 from f5.bigip.tm.asm.policies import Cookie
 from f5.bigip.tm.asm.policies import Evasion
 from f5.bigip.tm.asm.policies import Evasions_s
@@ -128,7 +129,19 @@ def set_login(policy):
     valid = {'responseContains': '201 OK'}
     login = policy.login_pages_s.login_page.create(urlReference=reference,
                                                    accessValidation=valid)
-    yield login
+    yield login, reference
+    login.delete()
+    url.delete()
+
+
+@pytest.fixture(scope='function')
+def set_brute(policy, set_login):
+    login, reference = set_login
+    login.modify(authenticationType='http-basic')
+    r1 = policy.brute_force_attack_preventions_s.\
+        brute_force_attack_prevention.create(urlReference=reference)
+    yield r1
+    r1.delete()
 
 
 @pytest.fixture(scope='class')
@@ -2112,7 +2125,6 @@ class TestSessionTrackingStatuses(object):
         assert r1.scope == 'user'
         assert r1.value == 'fake'
         assert hasattr(r1, 'createdDatetime')
-        r1.delete()
 
     def test_refresh(self, set_policy_status):
         args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
@@ -2131,7 +2143,6 @@ class TestSessionTrackingStatuses(object):
         assert r1.action == r2.action
         assert r1.scope == r2.scope
         assert r1.value == r2.value
-        r1.delete()
 
     def test_modify_raises(self, set_policy_status):
         with pytest.raises(UnsupportedOperation):
@@ -2159,19 +2170,18 @@ class TestSessionTrackingStatuses(object):
         args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
         r1 = set_policy_status.session_tracking_statuses_s.\
             session_tracking_status.create(**args)
+        r2 = set_policy_status.session_tracking_statuses_s.\
+            session_tracking_status.load(id=r1.id)
         assert r1.kind == 'tm:asm:policies:session-tracking-statuses:' \
                           'session-tracking-statusstate'
         assert r1.action == 'block-all'
         assert r1.scope == 'user'
         assert r1.value == 'fake'
         assert hasattr(r1, 'createdDatetime')
-        r2 = set_policy_status.session_tracking_statuses_s.\
-            session_tracking_status.load(id=r1.id)
         assert r1.kind == r2.kind
         assert r1.action == r2.action
         assert r1.scope == r2.scope
         assert r1.value == r2.value
-        r1.delete()
 
     def test_session_tracking_subcollection(self, set_policy_status):
         args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
@@ -2218,7 +2228,7 @@ class TestLoginPages(object):
         url.delete()
 
     def test_refresh(self, set_login, policy):
-        r1 = set_login
+        r1, _ = set_login
         r2 = policy.login_pages_s.login_page.load(id=r1.id)
         assert r1.kind == r2.kind
         assert r1.authenticationType == r2.authenticationType
@@ -2229,7 +2239,7 @@ class TestLoginPages(object):
         assert r1.authenticationType == 'http-basic'
 
     def test_modify(self, set_login):
-        r1 = set_login
+        r1, _ = set_login
         original_dict = copy.copy(r1.__dict__)
         itm = 'authenticationType'
         r1.modify(authenticationType='none')
@@ -2258,7 +2268,7 @@ class TestLoginPages(object):
         assert err.value.response.status_code == 404
 
     def test_load(self, set_login, policy):
-        r1 = set_login
+        r1, _ = set_login
         assert r1.kind == 'tm:asm:policies:login-pages:login-pagestate'
         assert r1.authenticationType == 'none'
         r1.modify(authenticationType='http-basic')
@@ -2542,3 +2552,108 @@ class TestSensitiveParameters(object):
         assert isinstance(cc, list)
         assert len(cc)
         assert isinstance(cc[0], Sensitive_Parameter)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestBruteForceAttackPreventions(object):
+    def test_create_req_arg(self, policy, set_login):
+        login, reference = set_login
+        login.modify(authenticationType='http-basic')
+        bc = policy.brute_force_attack_preventions_s
+        r1 = bc.brute_force_attack_prevention.create(urlReference=reference)
+        hashid = str(r1.id)
+        main_uri = policy.selfLink + '/'+'brute-force-attack-preventions' + \
+            '/' + hashid
+        assert r1.kind == 'tm:asm:policies:brute-force-attack-preventions:' \
+                          'brute-force-attack-preventionstate'
+        assert r1.selfLink == main_uri
+        assert r1.preventionDuration == 'unlimited'
+        assert r1.reEnableLoginAfter == 600
+        r1.delete()
+
+    def test_create_optional_args(self, policy, set_login):
+        login, reference = set_login
+        login.modify(authenticationType='http-basic')
+        bc = policy.brute_force_attack_preventions_s
+        r1 = bc.brute_force_attack_prevention.create(urlReference=reference,
+                                                     preventionDuration='120',
+                                                     reEnableLoginAfter=300)
+        hashid = str(r1.id)
+        main_uri = policy.selfLink + '/' + 'brute-force-attack-preventions' + \
+            '/' + hashid
+        assert r1.kind == 'tm:asm:policies:brute-force-attack-preventions:' \
+                          'brute-force-attack-preventionstate'
+        assert r1.selfLink == main_uri
+        assert r1.preventionDuration == '120'
+        assert r1.reEnableLoginAfter == 300
+        r1.delete()
+
+    def test_refresh(self, set_brute, policy):
+        r1 = set_brute
+        bc = policy.brute_force_attack_preventions_s
+        r2 = bc.brute_force_attack_prevention.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.preventionDuration == r2.preventionDuration
+        r2.modify(preventionDuration='120')
+        assert r1.preventionDuration == 'unlimited'
+        assert r2.preventionDuration == '120'
+        r1.refresh()
+        assert r1.preventionDuration == '120'
+
+    def test_modify(self, set_brute):
+        r1 = set_brute
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'preventionDuration'
+        r1.modify(preventionDuration='220')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == '220'
+
+    def test_delete(self, policy, set_login):
+        _, reference = set_login
+        bc = policy.brute_force_attack_preventions_s
+        r1 = bc.brute_force_attack_prevention.create(urlReference=reference)
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            bc.brute_force_attack_prevention.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        bc = policy.brute_force_attack_preventions_s
+        with pytest.raises(HTTPError) as err:
+            bc.brute_force_attack_prevention.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_brute, policy):
+        r1 = set_brute
+        bc = policy.brute_force_attack_preventions_s
+        assert r1.kind == 'tm:asm:policies:brute-force-attack-preventions:' \
+                          'brute-force-attack-preventionstate'
+        assert r1.reEnableLoginAfter == 600
+        r1.modify(reEnableLoginAfter=300)
+        assert r1.reEnableLoginAfter == 300
+        r2 = bc.brute_force_attack_prevention.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.reEnableLoginAfter == r2.reEnableLoginAfter
+
+    def test_brute_force_subcollection(self, policy, set_brute):
+        r1 = set_brute
+        hashid = str(r1.id)
+        main_uri = policy.selfLink + '/'+'brute-force-attack-preventions' + \
+            '/' + hashid
+        assert r1.kind == 'tm:asm:policies:brute-force-attack-preventions:' \
+                          'brute-force-attack-preventionstate'
+        assert r1.selfLink == main_uri
+        assert r1.preventionDuration == 'unlimited'
+        assert r1.reEnableLoginAfter == 600
+        cc = policy.brute_force_attack_preventions_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Brute_Force_Attack_Prevention)

@@ -15,6 +15,7 @@
 
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.asm import Asm
+from f5.bigip.tm.asm.policies import Brute_Force_Attack_Prevention
 from f5.bigip.tm.asm.policies import Csrf_Protection
 from f5.bigip.tm.asm.policies import Data_Guard
 from f5.bigip.tm.asm.policies import Evasion
@@ -254,6 +255,14 @@ def FakeLogin():
     return fake_g
 
 
+@pytest.fixture
+def FakeBrute():
+    fake_policy = mock.MagicMock()
+    fake_g = Brute_Force_Attack_Prevention(fake_policy)
+    fake_g._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_g
+
+
 class TestPolicy(object):
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
@@ -459,3 +468,9 @@ class TestSensitiveParameters(object):
     def test_modify_raises(self, FakeSens):
         with pytest.raises(UnsupportedOperation):
             FakeSens.modify()
+
+
+class TestBruteForce(object):
+    def test_create_no_args(self, FakeBrute):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeBrute.create()

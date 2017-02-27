@@ -87,7 +87,10 @@ class Policy(AsmResource):
             'tm:asm:policies:login-enforcement:login-enforcementstate':
                 Login_Enforcement,
             'tm:asm:policies:sensitive-parameters:'
-            'sensitive-parametercollectionstate': Sensitive_Parameters_s
+            'sensitive-parametercollectionstate': Sensitive_Parameters_s,
+            'tm:asm:policies:brute-force-attack-preventions:'
+            'brute-force-attack-preventioncollectionstate':
+                Brute_Force_Attack_Preventions_s
         }
         self._set_attr_reg()
 
@@ -1050,3 +1053,32 @@ class Sensitive_Parameter(AsmResource):
         raise UnsupportedOperation(
             "%s does not support the update method" % self.__class__.__name__
         )
+
+
+class Brute_Force_Attack_Preventions_s(Collection):
+    """BIG-IP® ASM Brute Force Attack Preventions sub-collection."""
+    def __init__(self, policy):
+        super(Brute_Force_Attack_Preventions_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Brute_Force_Attack_Prevention]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:brute-force-attack-preventions:' \
+            'brute-force-attack-preventioncollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:brute-force-attack-preventions:'
+            'brute-force-attack-preventionstate':
+                Brute_Force_Attack_Prevention}
+
+
+class Brute_Force_Attack_Prevention(AsmResource):
+    """BIG-IP® ASM Brute Force Attack Prevention Resource."""
+    def __init__(self, brute_force_attack_preventions_s):
+        super(Brute_Force_Attack_Prevention, self).__init__(
+            brute_force_attack_preventions_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:brute-force-attack-preventions:' \
+            'brute-force-attack-preventionstate'
+        self._meta_data['required_creation_parameters'] = \
+            set(('urlReference',))
