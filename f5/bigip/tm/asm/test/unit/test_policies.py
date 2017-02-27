@@ -511,4 +511,4 @@ class TestExtractions(object):
 
     def test_create_missing_additional_arguments(self, FakeExtract):
         with pytest.raises(MissingRequiredCreationParameter):
-            FakeExtract.create(name='fake', extractFromAllItems=True)
+            FakeExtract.create(name='fake', extractFromAllItems=False)
