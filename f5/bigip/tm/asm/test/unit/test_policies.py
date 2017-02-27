@@ -19,6 +19,7 @@ from f5.bigip.tm.asm.policies import Brute_Force_Attack_Prevention
 from f5.bigip.tm.asm.policies import Csrf_Protection
 from f5.bigip.tm.asm.policies import Data_Guard
 from f5.bigip.tm.asm.policies import Evasion
+from f5.bigip.tm.asm.policies import Extraction
 from f5.bigip.tm.asm.policies import Geolocation_Enforcement
 from f5.bigip.tm.asm.policies import Header
 from f5.bigip.tm.asm.policies import History_Revision
@@ -55,7 +56,15 @@ from six import iterkeys
 
 
 @pytest.fixture
-def XmlFile():
+def FakeExtract():
+    fake_policy = mock.MagicMock()
+    fake_e = Extraction(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_e
+
+
+@pytest.fixture
+def FakeXmlFile():
     fake_policy = mock.MagicMock()
     fake_file = Xml_Validation_File(fake_policy)
     fake_file._meta_data['bigip'].tmos_version = '11.6.0'
@@ -486,10 +495,20 @@ class TestBruteForce(object):
 
 
 class TestXMLValidationFiles(object):
-    def test_update_raises(self, XmlFile):
+    def test_update_raises(self, FakeXmlFile):
         with pytest.raises(UnsupportedOperation):
-            XmlFile.modify()
+            FakeXmlFile.modify()
 
-    def test_create_no_args(self, XmlFile):
+    def test_create_no_args(self, FakeXmlFile):
         with pytest.raises(MissingRequiredCreationParameter):
-            XmlFile.create()
+            FakeXmlFile.create()
+
+
+class TestExtractions(object):
+    def test_create_no_args(self, FakeExtract):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeExtract.create()
+
+    def test_create_missing_additional_arguments(self, FakeExtract):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeExtract.create(name='fake', extractFromAllItems=True)

@@ -19,6 +19,7 @@ from f5.bigip.tm.asm.policies import Brute_Force_Attack_Prevention
 from f5.bigip.tm.asm.policies import Cookie
 from f5.bigip.tm.asm.policies import Evasion
 from f5.bigip.tm.asm.policies import Evasions_s
+from f5.bigip.tm.asm.policies import Extraction
 from f5.bigip.tm.asm.policies import Filetype
 from f5.bigip.tm.asm.policies import Gwt_Profile
 from f5.bigip.tm.asm.policies import Header
@@ -50,6 +51,7 @@ from f5.bigip.tm.asm.policies import Whitelist_Ip
 from f5.bigip.tm.asm.policies import Xml_Profile
 from f5.bigip.tm.asm.policies import Xml_Validation_File
 from f5.sdk_exception import AttemptedMutationOfReadOnly
+from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedMethod
 from f5.sdk_exception import UnsupportedOperation
 
@@ -163,6 +165,14 @@ def set_s_par(policy):
 def set_xml_file(policy):
     r1 = policy.xml_validation_files_s.xml_validation_file.create(
         fileName='fakefile', contents=XML)
+    yield r1
+    r1.delete()
+
+
+@pytest.fixture(scope='function')
+def set_extraction(policy):
+    r1 = policy.extractions_s.extraction.create(extractFromAllItems=True,
+                                                name='fake_extract')
     yield r1
     r1.delete()
 
@@ -2736,3 +2746,100 @@ class TestXmlValidationFiles(object):
         assert isinstance(cc, list)
         assert len(cc)
         assert isinstance(cc[0], Xml_Validation_File)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestExtractions(object):
+    def test_create_req_arg(self, policy):
+        r1 = policy.extractions_s.extraction.create(
+            extractFromAllItems=True, name='fake_extract')
+        tmpurl = policy.selfLink + '/' + 'extractions' + '/' + r1.id
+        assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
+        assert r1.selfLink == tmpurl
+        r1.delete()
+
+    def test_create_mandatory_arg_missing(self, policy):
+        with pytest.raises(MissingRequiredCreationParameter) as err:
+            policy.extractions_s.extraction.create(
+                extractFromAllItems=False, name='fake_extract')
+        error_message = "This resource requires at least one of the " \
+                        "mandatory additional parameters to be provided: " \
+                        "set(['extractUrlReferences', " \
+                        "'extractFromRegularExpression', " \
+                        "'extractFiletypeReferences'])"
+
+        assert err.value.message == error_message
+
+    def test_create_mandatory_arg_present(self, policy):
+        r1 = policy.extractions_s.extraction.create(
+            extractFromAllItems=False, name='fake_extract',
+            extractFromRegularExpression='["test"]')
+        tmpurl = policy.selfLink + '/' + 'extractions' + '/' + r1.id
+        assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
+        assert r1.selfLink == tmpurl
+        assert r1.extractFromRegularExpression == '["test"]'
+        assert r1.extractFromAllItems is False
+        r1.delete()
+
+    def test_refresh(self, set_extraction, policy):
+        r1 = set_extraction
+        r2 = policy.extractions_s.extraction.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.extractFromAllItems == r2.extractFromAllItems
+        assert r1.searchInXml == r2.searchInXml
+        r2.modify(searchInXml=True)
+        assert r1.searchInXml is False
+        assert r2.searchInXml is True
+        r1.refresh()
+        assert r1.searchInXml is True
+
+    def test_modify(self, set_extraction):
+        r1 = set_extraction
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'searchInXml'
+        r1.modify(searchInXml=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is True
+
+    def test_delete(self, policy):
+        r1 = policy.extractions_s.extraction.create(
+            extractFromAllItems=True, name='fake_extract')
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.extractions_s.extraction.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.extractions_s.extraction.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_extraction, policy):
+        r1 = set_extraction
+        assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
+        assert r1.searchInXml is False
+        r1.modify(searchInXml=True)
+        assert r1.searchInXml is True
+        r2 = policy.extractions_s.extraction.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.searchInXml == r2.searchInXml
+
+    def test_extractions_subcollection(self, policy, set_extraction):
+        r1 = set_extraction
+        hashid = str(r1.id)
+        main_uri = policy.selfLink + '/'+'extractions' + \
+            '/' + hashid
+        assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
+        assert r1.selfLink == main_uri
+        cc = policy.extractions_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Extraction)

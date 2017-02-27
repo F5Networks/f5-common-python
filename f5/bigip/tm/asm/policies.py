@@ -19,7 +19,9 @@ from distutils.version import LooseVersion
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
 from f5.bigip.resource import UnnamedResource
+from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
+from six import iterkeys
 
 
 class Policies_s(Collection):
@@ -92,7 +94,9 @@ class Policy(AsmResource):
             'brute-force-attack-preventioncollectionstate':
                 Brute_Force_Attack_Preventions_s,
             'tm:asm:policies:xml-validation-files:'
-            'xml-validation-filecollectionstate': Xml_Validation_Files_s
+            'xml-validation-filecollectionstate': Xml_Validation_Files_s,
+            'tm:asm:policies:extractions:extractioncollectionstate':
+                Extractions_s
         }
         self._set_attr_reg()
 
@@ -1118,3 +1122,59 @@ class Xml_Validation_File(AsmResource):
         raise UnsupportedOperation(
             "%s does not support the modify method" % self.__class__.__name__
         )
+
+
+class Extractions_s(Collection):
+    """BIG-IP® ASM Extractions sub-collection."""
+    def __init__(self, policy):
+        super(Extractions_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Extraction]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:extractions:extractioncollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:extractions:extractionstate':
+                Extraction}
+
+
+class Extraction(AsmResource):
+    """BIG-IP® ASM Extraction Resource."""
+    def __init__(self, extractions_s):
+        super(Extraction, self).__init__(extractions_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:extractions:extractionstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('extractFromAllItems',))
+
+    def create(self, **kwargs):
+        """Custom create method to accommodate different endpoint behavior."""
+        self._check_create_parameters(**kwargs)
+        if kwargs['extractFromAllItems'] is False:
+            self._minimum_one_is_missing(**kwargs)
+
+        return self._create(**kwargs)
+
+    def _minimum_one_is_missing(self, **kwargs):
+        """Helper method
+
+        Verify if at least one of the required parameters is present.
+        The required parameters change depending on extractFromAllItems value.
+
+        ::returns bool
+
+        Raises:
+
+             MissingRequiredCreationParameter
+        """
+
+        req_set = {'extractFromRegularExpression', 'extractUrlReferences',
+                   'extractFiletypeReferences'}
+        kwarg_set = set(iterkeys(kwargs))
+
+        if kwarg_set.isdisjoint(req_set):
+            error_message = 'This resource requires at least one of the ' \
+                            'mandatory additional ' \
+                            'parameters to be provided: %s' % req_set
+            raise MissingRequiredCreationParameter(error_message)
