@@ -45,6 +45,7 @@ from f5.bigip.tm.asm.policies import UrlParametersCollection
 from f5.bigip.tm.asm.policies import UrlParametersResource
 from f5.bigip.tm.asm.policies import Violation
 from f5.bigip.tm.asm.policies import Violations_s
+from f5.bigip.tm.asm.policies import Vulnerabilities
 from f5.bigip.tm.asm.policies import Web_Services_Securities_s
 from f5.bigip.tm.asm.policies import Web_Services_Security
 from f5.bigip.tm.asm.policies import Whitelist_Ip
@@ -55,6 +56,7 @@ from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedMethod
 from f5.sdk_exception import UnsupportedOperation
 
+import os
 import pytest
 from requests.exceptions import HTTPError
 from six import iteritems
@@ -78,6 +80,13 @@ def delete_policy_item(mgmt_root, name):
 
 def delete_apply_policy_task(mgmt_root):
     col = mgmt_root.tm.asm.tasks.apply_policy_s.get_collection()
+    if len(col) > 0:
+        for i in col:
+            i.delete()
+
+
+def delete_import_vuln_task(mgmt_root):
+    col = mgmt_root.tm.asm.tasks.import_vulnerabilities_s.get_collection()
     if len(col) > 0:
         for i in col:
             i.delete()
@@ -175,6 +184,26 @@ def set_extraction(policy):
                                                 name='fake_extract')
     yield r1
     r1.delete()
+
+
+@pytest.fixture(scope='class')
+def set_vulnerability(mgmt_root, policy):
+    reference = {'link': policy.selfLink}
+    policy.vulnerability_assessment.modify(scannerType='qualys-guard')
+    dirpath = os.path.dirname(__file__)
+    path = os.path.join(dirpath, 'test_files')
+    fake_report = os.path.join(path, 'fake_scan.xml')
+    mgmt_root.tm.asm.file_transfer.uploads.upload_file(fake_report)
+    time.sleep(1)
+    rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+    rc.import_vulnerabilities.create(filename='fake_scan.xml',
+                                     policyReference=reference,
+                                     importAllDomainNames=True)
+    time.sleep(1)
+    col = policy.vulnerabilities_s.get_collection()
+    hashid = str(col[0].id)
+    yield hashid
+    delete_import_vuln_task(mgmt_root)
 
 
 class TestPolicy(object):
@@ -2843,3 +2872,56 @@ class TestExtractions(object):
         assert isinstance(cc, list)
         assert len(cc)
         assert isinstance(cc[0], Extraction)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestVulnerabilities(object):
+    def test_create_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.vulnerabilities_s.vulnerabilities.create()
+
+    def test_delete_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.vulnerabilities_s.vulnerabilities.delete()
+
+    def test_modify_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.vulnerabilities_s.vulnerabilities.create()
+
+    def test_refresh(self, policy, set_vulnerability):
+        hashid = set_vulnerability
+        r1 = policy.vulnerabilities_s.vulnerabilities.load(id=hashid)
+        assert r1.kind == 'tm:asm:policies:vulnerabilities:vulnerabilitystate'
+        link = str(policy.selfLink) + '/' + 'vulnerabilities' + '/' + hashid
+        assert r1.selfLink == link
+        r2 = policy.vulnerabilities_s.vulnerabilities.load(id=hashid)
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+        r1.refresh()
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.vulnerabilities_s.vulnerabilities.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, policy, set_vulnerability):
+        hashid = set_vulnerability
+        r1 = policy.vulnerabilities_s.vulnerabilities.load(id=hashid)
+        assert r1.kind == 'tm:asm:policies:vulnerabilities:vulnerabilitystate'
+        link = str(policy.selfLink) + '/' + 'vulnerabilities' + '/' + hashid
+        assert r1.selfLink == link
+        r2 = policy.vulnerabilities_s.vulnerabilities.load(id=hashid)
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+
+    def test_method_subcollection(self, policy):
+        mc = policy.vulnerabilities_s.get_collection()
+        assert isinstance(mc, list)
+        assert len(mc)
+        assert isinstance(mc[0], Vulnerabilities)
