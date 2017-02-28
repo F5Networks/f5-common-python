@@ -146,6 +146,28 @@ def _missing_required_parameters(rqset, **kwargs):
         return list(required_minus_received)
 
 
+def _minimum_one_is_missing(rqset, **kwargs):
+    """Helper function to do operation on sets
+
+    Verify if at least one of the elements
+    is present in **kwargs. If no items of rqset
+    are contained in **kwargs  the function
+    raises exception.
+
+    Raises:
+
+         MissingRequiredCreationParameter
+    """
+
+    kwarg_set = set(iterkeys(kwargs))
+
+    if kwarg_set.isdisjoint(rqset):
+        error_message = 'This resource requires at least one of the ' \
+                        'mandatory additional ' \
+                        'parameters to be provided: %s' % rqset
+        raise MissingRequiredCreationParameter(error_message)
+
+
 class PathElement(LazyAttributeMixin):
     """Base class to represent a URI path element that does not contain data.
 

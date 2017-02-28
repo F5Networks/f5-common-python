@@ -20,6 +20,7 @@ from f5.bigip.tm.asm.tasks import Check_Signature
 from f5.bigip.tm.asm.tasks import Export_Policy
 from f5.bigip.tm.asm.tasks import Export_Signature
 from f5.bigip.tm.asm.tasks import Import_Policy
+from f5.bigip.tm.asm.tasks import Import_Vulnerabilities
 from f5.bigip.tm.asm.tasks import Update_Signature
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
@@ -75,6 +76,14 @@ def FakeUpdateSignature():
     fake_updsig = Update_Signature(fake_asm)
     fake_updsig._meta_data['bigip'].tmos_version = '11.6.0'
     return fake_updsig
+
+
+@pytest.fixture
+def FakeImportVuln():
+    fake_asm = mock.MagicMock()
+    fake_imppol = Import_Vulnerabilities(fake_asm)
+    fake_imppol._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_imppol
 
 
 class TestTasksOC(object):
@@ -231,4 +240,36 @@ class TestImportPolicy(object):
         kind = 'tm:asm:tasks:import-policy:import-policy-taskstate'
         assert kind in list(iterkeys(test_meta))
         assert Import_Policy in test_meta2
+        assert t._meta_data['object_has_stats'] is False
+
+
+class TestImportVulnerabilities(object):
+    def test_modify_raises(self, FakeImportVuln):
+        with pytest.raises(UnsupportedOperation):
+            FakeImportVuln.modify()
+
+    def test_create_two(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        t1 = b.tm.asm.tasks.import_vulnerabilities_s.import_vulnerabilities
+        t2 = b.tm.asm.tasks.import_vulnerabilities_s.import_vulnerabilities
+        assert t1 is t2
+
+    def test_create_no_args(self, FakeImportVuln):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeImportVuln.create()
+
+    def test_create_missing_additional_arguments(self, FakeImportVuln):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeImportVuln.create(filename='fake.xml',
+                                  policyReference={'link': 'http://fake'})
+
+    def test_collection(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        t = b.tm.asm.tasks.import_vulnerabilities_s
+        test_meta = t._meta_data['attribute_registry']
+        test_meta2 = t._meta_data['allowed_lazy_attributes']
+        kind = 'tm:asm:tasks:import-vulnerabilities:' \
+               'import-vulnerabilities-taskstate'
+        assert kind in list(iterkeys(test_meta))
+        assert Import_Vulnerabilities in test_meta2
         assert t._meta_data['object_has_stats'] is False

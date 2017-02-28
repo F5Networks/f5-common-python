@@ -16,12 +16,11 @@
 #
 
 from distutils.version import LooseVersion
+from f5.bigip.resource import _minimum_one_is_missing
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
 from f5.bigip.resource import UnnamedResource
-from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
-from six import iterkeys
 
 
 class Policies_s(Collection):
@@ -1152,29 +1151,8 @@ class Extraction(AsmResource):
         """Custom create method to accommodate different endpoint behavior."""
         self._check_create_parameters(**kwargs)
         if kwargs['extractFromAllItems'] is False:
-            self._minimum_one_is_missing(**kwargs)
+            req_set = {'extractFromRegularExpression', 'extractUrlReferences',
+                       'extractFiletypeReferences'}
+            _minimum_one_is_missing(req_set, **kwargs)
 
         return self._create(**kwargs)
-
-    def _minimum_one_is_missing(self, **kwargs):
-        """Helper method
-
-        Verify if at least one of the required parameters is present.
-        The required parameters change depending on extractFromAllItems value.
-
-        ::returns bool
-
-        Raises:
-
-             MissingRequiredCreationParameter
-        """
-
-        req_set = {'extractFromRegularExpression', 'extractUrlReferences',
-                   'extractFiletypeReferences'}
-        kwarg_set = set(iterkeys(kwargs))
-
-        if kwarg_set.isdisjoint(req_set):
-            error_message = 'This resource requires at least one of the ' \
-                            'mandatory additional ' \
-                            'parameters to be provided: %s' % req_set
-            raise MissingRequiredCreationParameter(error_message)

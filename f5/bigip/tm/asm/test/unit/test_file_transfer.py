@@ -20,7 +20,7 @@ import requests_mock
 import struct
 
 from f5.bigip import ManagementRoot
-from f5.bigip.resource import Collection
+from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.asm.file_transfer import Downloads
 from f5.bigip.tm.asm.file_transfer import Uploads
 from f5.sdk_exception import EmptyContent
@@ -55,7 +55,7 @@ class TestFileTransferCollection(object):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         c1 = b.tm.asm.file_transfer
         test_meta = c1._meta_data['allowed_lazy_attributes']
-        assert isinstance(c1, Collection)
+        assert isinstance(c1, OrganizingCollection)
         assert Downloads in test_meta
         assert Uploads in test_meta
 
