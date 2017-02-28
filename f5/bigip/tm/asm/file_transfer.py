@@ -18,12 +18,12 @@
 import os
 
 from f5.bigip.mixins import AsmFileMixin
-from f5.bigip.resource import Collection
+from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import PathElement
 from f5.sdk_exception import FileMustNotHaveDotISOExtension
 
 
-class File_Transfer(Collection):
+class File_Transfer(OrganizingCollection):
     """BIG-IP® ASM File Transfer collection."""
     def __init__(self, tm):
         super(File_Transfer, self).__init__(tm)

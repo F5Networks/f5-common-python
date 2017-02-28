@@ -26,7 +26,7 @@ GUI Path
 REST Kind
     ``tm:asm:tasks:``
 """
-
+from f5.bigip.resource import _minimum_one_is_missing
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import AsmTaskResource
 from f5.bigip.resource import Collection
@@ -45,6 +45,7 @@ class Tasks(OrganizingCollection):
             Export_Policy_s,
             Export_Signatures_s,
             Import_Policy_s,
+            Import_Vulnerabilities_s,
             Update_Signatures_s,
             ]
 
@@ -65,8 +66,7 @@ class Apply_Policy(AsmResource):
         super(Apply_Policy, self).__init__(apply_policy_s)
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:apply-policy:apply-policy-taskstate'
-        self._meta_data['required_creation_parameters'] = set((
-            'policyReference',))
+        self._meta_data['required_creation_parameters'] = {'policyReference', }
 
     def modify(self, **kwargs):
         """Modify is not supported for Apply Policy resource
@@ -95,8 +95,8 @@ class Export_Policy(AsmResource):
         super(Export_Policy, self).__init__(export_policy_s)
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:export-policy:export-policy-taskstate'
-        self._meta_data['required_creation_parameters'] = set((
-            'policyReference', 'filename'))
+        self._meta_data['required_creation_parameters'] = {
+            'policyReference', 'filename'}
 
     def modify(self, **kwargs):
         """Modify is not supported for Apply Policy resource
@@ -125,8 +125,8 @@ class Import_Policy(AsmResource):
         super(Import_Policy, self).__init__(import_policy_s)
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:import-policy:import-policy-taskstate'
-        self._meta_data['required_creation_parameters'] = set((
-            'name', 'filename'))
+        self._meta_data['required_creation_parameters'] = {
+            'name', 'filename'}
 
     def modify(self, **kwargs):
         """Modify is not supported for Apply Policy resource
@@ -179,7 +179,7 @@ class Export_Signature(AsmResource):
         super(Export_Signature, self).__init__(export_signatures_s)
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:export-signatures:export-signatures-taskstate'
-        self._meta_data['required_creation_parameters'] = set(('filename',))
+        self._meta_data['required_creation_parameters'] = {'filename', }
 
     def modify(self, **kwargs):
         """Modify is not supported for Export Signature resource
@@ -205,7 +205,6 @@ class Update_Signatures_s(Collection):
 class Update_Signature(AsmTaskResource):
     """BIG-IP® ASM Tasks Update Signature Resource resource
 
-
         To create this resource on the ASM, one must utilize fetch() method
         from AsmTaskResource class, create() is not supported.
     """
@@ -213,3 +212,41 @@ class Update_Signature(AsmTaskResource):
         super(Update_Signature, self).__init__(update_signatures_s)
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:update-signatures:update-signatures-taskstate'
+
+
+class Import_Vulnerabilities_s(Collection):
+    """BIG-IP® ASM Import Vulnerabilities Collection."""
+    def __init__(self, tasks):
+        super(Import_Vulnerabilities_s, self).__init__(tasks)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['allowed_lazy_attributes'] = [Import_Vulnerabilities]
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:tasks:import-vulnerabilities:'
+            'import-vulnerabilities-taskstate': Import_Vulnerabilities}
+
+
+class Import_Vulnerabilities(AsmResource):
+    """BIG-IP® ASM Import Vulnerabilities Resource."""
+    def __init__(self, import_vulnerabilities_s):
+        super(Import_Vulnerabilities, self).__init__(import_vulnerabilities_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:tasks:import-vulnerabilities:' \
+            'import-vulnerabilities-taskstate'
+        self._meta_data['required_creation_parameters'] = {
+            'policyReference', 'filename'}
+
+    def create(self, **kwargs):
+        """We check if one of the 3 mandatory attributes is present."""
+        rq_set = {'onlyGetDomainNames', 'importAllDomainNames', 'domainNames'}
+        _minimum_one_is_missing(rq_set, **kwargs)
+
+        return self._create(**kwargs)
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Import Vulnerabilities resource
+
+                :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the modify method" % self.__class__.__name__
+        )

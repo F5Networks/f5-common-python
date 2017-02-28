@@ -22,8 +22,10 @@ from f5.bigip.tm.asm.tasks import Check_Signature
 from f5.bigip.tm.asm.tasks import Export_Policy
 from f5.bigip.tm.asm.tasks import Export_Signature
 from f5.bigip.tm.asm.tasks import Import_Policy
+from f5.bigip.tm.asm.tasks import Import_Vulnerabilities
 from f5.bigip.tm.asm.tasks import Update_Signature
-
+from f5.sdk_exception import MissingRequiredCreationParameter
+from f5.sdk_exception import UnsupportedOperation
 from requests.exceptions import HTTPError
 
 
@@ -100,6 +102,7 @@ def set_policy(mgmt_root):
     pol1 = \
         mgmt_root.tm.asm.policies_s.policy.create(
             name='fake_policy')
+    pol1.vulnerability_assessment.modify(scannerType='cenzic-hailstorm')
     yield pol1.selfLink
     delete_policy_item(mgmt_root)
 
@@ -114,6 +117,7 @@ def delete_apply_policy_task(mgmt_root):
 def set_apply_policy(request, mgmt_root, reference):
     def teardown():
         delete_apply_policy_task(mgmt_root)
+
     ap = mgmt_root.tm.asm.tasks.apply_policy_s.apply_policy.create(
         policyReference=reference)
     request.addfinalizer(teardown)
@@ -152,6 +156,24 @@ def set_import_policy_test(request, mgmt_root, name):
         .create(filename=F, name=name)
     request.addfinalizer(teardown)
     return exp1
+
+
+def delete_import_vuln(mgmt_root):
+    col = mgmt_root.tm.asm.tasks.import_vulnerabilities_s.get_collection()
+    if len(col) > 0:
+        for i in col:
+            i.delete()
+
+
+def set_import_vuln_test(request, mgmt_root, reference):
+    def teardown():
+        delete_import_vuln(mgmt_root)
+
+    imp1 = mgmt_root.tm.asm.tasks.import_vulnerabilities_s.\
+        import_vulnerabilities.create(filename=F, policyReference=reference,
+                                      importAllDomainNames=True)
+    request.addfinalizer(teardown)
+    return imp1
 
 
 class TestApplyPolicy(object):
@@ -579,3 +601,94 @@ class TestUpdateSignature(object):
         assert isinstance(sc, list)
         assert len(sc)
         assert isinstance(sc[0], Update_Signature)
+
+
+class TestImportVulnerabilities(object):
+    def test_modify_raises(self, mgmt_root):
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        with pytest.raises(UnsupportedOperation):
+            rc.import_vulnerabilities.modify()
+
+    def test_create_mandatory_arg_missing(self, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        with pytest.raises(MissingRequiredCreationParameter) as err:
+            rc.import_vulnerabilities.create(filename=F,
+                                             policyReference=reference)
+        error_message = "This resource requires at least one of the " \
+                        "mandatory additional parameters to be provided: " \
+                        "set(['onlyGetDomainNames', " \
+                        "'importAllDomainNames', " \
+                        "'domainNames'])"
+
+        assert err.value.message == error_message
+
+    def test_create_req_arg(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        imp1 = set_import_vuln_test(request, mgmt_root, reference)
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/' \
+                   'tasks/import-vulnerabilities/'
+        final_uri = base_uri+endpoint
+        assert imp1.filename == F
+        assert imp1.selfLink.startswith(final_uri)
+        assert imp1.status == 'NEW'
+        assert imp1.kind == \
+            'tm:asm:tasks:import-vulnerabilities:' \
+            'import-vulnerabilities-taskstate'
+        assert imp1.importAllDomainNames is True
+
+    def test_refresh(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        imp1 = set_import_vuln_test(request, mgmt_root, reference)
+        imp2 = rc.import_vulnerabilities.load(id=imp1.id)
+        assert imp1.selfLink == imp2.selfLink
+        assert imp1.importAllDomainNames == imp2.importAllDomainNames
+        imp1.refresh()
+        assert imp1.selfLink == imp2.selfLink
+        assert imp1.importAllDomainNames == imp2.importAllDomainNames
+
+    def test_load_no_object(self, mgmt_root):
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        with pytest.raises(HTTPError) as err:
+            rc.import_vulnerabilities.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        imp1 = set_import_vuln_test(request, mgmt_root, reference)
+        imp2 = rc.import_vulnerabilities.load(id=imp1.id)
+        assert imp1.selfLink == imp2.selfLink
+        assert imp1.importAllDomainNames == imp2.importAllDomainNames
+
+    def test_delete(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        imp1 = set_import_vuln_test(request, mgmt_root, reference)
+        hashid = str(imp1.id)
+        imp1.delete()
+        with pytest.raises(HTTPError) as err:
+            rc.import_vulnerabilities.load(id=hashid)
+        assert err.value.response.status_code == 404
+
+    def test_import_vuln_collection(self, request, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        imp1 = set_import_vuln_test(request, mgmt_root, reference)
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/' \
+                   'tasks/import-vulnerabilities/'
+        final_uri = base_uri+endpoint
+        assert imp1.filename == F
+        assert imp1.selfLink.startswith(final_uri)
+        assert imp1.status == 'NEW'
+        assert imp1.kind == \
+            'tm:asm:tasks:import-vulnerabilities:' \
+            'import-vulnerabilities-taskstate'
+        assert imp1.importAllDomainNames is True
+
+        sc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s.get_collection()
+        assert isinstance(sc, list)
+        assert len(sc)
+        assert isinstance(sc[0], Import_Vulnerabilities)
