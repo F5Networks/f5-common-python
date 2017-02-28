@@ -47,6 +47,7 @@ from f5.bigip.tm.asm.policies import UrlParametersResource
 from f5.bigip.tm.asm.policies import Violation
 from f5.bigip.tm.asm.policies import Vulnerabilities
 from f5.bigip.tm.asm.policies import Vulnerability_Assessment
+from f5.bigip.tm.asm.policies import Web_Scraping
 from f5.bigip.tm.asm.policies import Web_Services_Security
 from f5.bigip.tm.asm.policies import Xml_Validation_File
 from f5.sdk_exception import MissingRequiredCreationParameter
@@ -56,6 +57,14 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeWebscrape():
+    fake_policy = mock.MagicMock()
+    fake_e = Web_Scraping(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '12.0.0'
+    return fake_e
 
 
 @pytest.fixture
@@ -474,7 +483,7 @@ class TestSessionTracking(object):
 
 
 class TestSessionTrackingStatuses(object):
-    def test_update_raises(self, FakeSess):
+    def test_modify_raises(self, FakeSess):
         with pytest.raises(UnsupportedOperation):
             FakeSess.modify()
 
@@ -522,7 +531,7 @@ class TestBruteForce(object):
 
 
 class TestXMLValidationFiles(object):
-    def test_update_raises(self, FakeXmlFile):
+    def test_modify_raises(self, FakeXmlFile):
         with pytest.raises(UnsupportedOperation):
             FakeXmlFile.modify()
 
@@ -569,3 +578,9 @@ class TestCharacterSets(object):
     def test_delete_raises(self, FakeChar):
         with pytest.raises(UnsupportedOperation):
             FakeChar.delete()
+
+
+class TestWebScraping(object):
+    def test_update_raises(self, FakeWebscrape):
+        with pytest.raises(UnsupportedOperation):
+            FakeWebscrape.update()

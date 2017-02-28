@@ -101,7 +101,8 @@ class Policy(AsmResource):
             'tm:asm:policies:navigation-parameters:'
             'navigation-parametercollectionstate': Navigation_Parameters_s,
             'tm:asm:policies:character-sets:character-setcollectionstate':
-            Character_Sets_s
+            Character_Sets_s,
+            'tm:asm:policies:web-scraping:web-scrapingstate': Web_Scraping
         }
         self._set_attr_reg()
 
@@ -1019,7 +1020,7 @@ class Login_Enforcement(UnnamedResource):
     def __init__(self, policy):
         super(Login_Enforcement, self).__init__(policy)
         self._meta_data['required_json_kind'] = \
-            'tm:asm:policies:login-enforcement:login-enforcementstate"'
+            'tm:asm:policies:login-enforcement:login-enforcementstate'
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['object_has_stats'] = False
         self._meta_data['minimum_version'] = '11.6.0'
@@ -1285,4 +1286,24 @@ class Character_Sets(AsmResource):
         """
         raise UnsupportedOperation(
             "%s does not support the delete method" % self.__class__.__name__
+        )
+
+
+class Web_Scraping(UnnamedResource):
+    """BIG-IP® ASM Web Scraping resource."""
+    def __init__(self, policy):
+        super(Web_Scraping, self).__init__(policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:web-scraping:web-scrapingstate'
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '12.0.0'
+
+    def update(self, **kwargs):
+        """Update is not supported for Login Enforcement resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
         )

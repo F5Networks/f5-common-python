@@ -3073,3 +3073,49 @@ class TestCharacterSets(object):
         assert isinstance(coll, list)
         assert len(coll)
         assert isinstance(coll[0], Character_Sets)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '12.0.0'),
+    reason='This collection is fully implemented on 12.0.0 or greater.'
+)
+class TestWebScraping(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.web_scraping.update()
+
+    def test_modify(self, policy):
+        r1 = policy.web_scraping.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'enableFingerprinting'
+        r1.modify(enableFingerprinting=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is True
+
+    def test_load(self, policy):
+        r1 = policy.web_scraping.load()
+        assert r1.kind == \
+            'tm:asm:policies:web-scraping:web-scrapingstate'
+        assert r1.enableFingerprinting is True
+        r1.modify(enableFingerprinting=False)
+        assert r1.enableFingerprinting is False
+        r2 = policy.web_scraping.load()
+        assert r1.kind == r2.kind
+        assert r1.enableFingerprinting == r2.enableFingerprinting
+
+    def test_refresh(self, policy):
+        r1 = policy.web_scraping.load()
+        assert r1.kind == \
+            'tm:asm:policies:web-scraping:web-scrapingstate'
+        assert r1.enableFingerprinting is False
+        r2 = policy.web_scraping.load()
+        assert r1.kind == r2.kind
+        assert r1.enableFingerprinting == r2.enableFingerprinting
+        r2.modify(enableFingerprinting=True)
+        assert r2.enableFingerprinting is True
+        r1.refresh()
+        assert r1.enableFingerprinting is True
