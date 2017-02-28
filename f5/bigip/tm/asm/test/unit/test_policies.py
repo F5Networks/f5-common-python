@@ -43,6 +43,7 @@ from f5.bigip.tm.asm.policies import Url
 from f5.bigip.tm.asm.policies import UrlParametersCollection
 from f5.bigip.tm.asm.policies import UrlParametersResource
 from f5.bigip.tm.asm.policies import Violation
+from f5.bigip.tm.asm.policies import Vulnerabilities
 from f5.bigip.tm.asm.policies import Vulnerability_Assessment
 from f5.bigip.tm.asm.policies import Web_Services_Security
 from f5.bigip.tm.asm.policies import Xml_Validation_File
@@ -53,6 +54,14 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeVuln():
+    fake_policy = mock.MagicMock()
+    fake_e = Vulnerabilities(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_e
 
 
 @pytest.fixture
@@ -512,3 +521,17 @@ class TestExtractions(object):
     def test_create_missing_additional_arguments(self, FakeExtract):
         with pytest.raises(MissingRequiredCreationParameter):
             FakeExtract.create(name='fake', extractFromAllItems=False)
+
+
+class TestVulnerabilities(object):
+    def test_create_raises(self, FakeVuln):
+        with pytest.raises(UnsupportedOperation):
+            FakeVuln.create()
+
+    def test_delete_raises(self, FakeVuln):
+        with pytest.raises(UnsupportedOperation):
+            FakeVuln.delete()
+
+    def test_modify_raises(self, FakeVuln):
+        with pytest.raises(UnsupportedOperation):
+            FakeVuln.modify()

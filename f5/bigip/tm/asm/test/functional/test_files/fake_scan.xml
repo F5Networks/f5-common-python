@@ -1,0 +1,719 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE WEB_APPLICATION_SCAN SYSTEM "https://qualysguard.qualys.com/webapp_scan.dtd">
+<!-- This report was generated with an evaluation version of QualysGuard //-->
+<WEB_APPLICATION_SCAN>
+  <HEADER>
+    <NAME><![CDATA[Web Application Vulnerability Scan Results]]></NAME>
+    <GENERATION_DATETIME>2011-08-18T13:24:57Z</GENERATION_DATETIME>
+    <COMPANY_INFO>
+      <NAME><![CDATA[F5]]></NAME>
+      <ADDRESS><![CDATA[24 Habarzel St.]]></ADDRESS>
+      <CITY><![CDATA[Tel Aviv]]></CITY>
+      <STATE><![CDATA[]]></STATE>
+      <COUNTRY><![CDATA[Israel]]></COUNTRY>
+      <ZIP_CODE><![CDATA[69710]]></ZIP_CODE>
+    </COMPANY_INFO>
+    <USER_INFO>
+      <NAME><![CDATA[Herzel Levy]]></NAME>
+      <USERNAME>kaksi_hl</USERNAME>
+      <ROLE>Manager</ROLE>
+    </USER_INFO>
+  </HEADER>
+  <SUMMARY>
+    <SCAN_SUMMARY>
+      <SCAN_INFO>
+        <KEY>Date</KEY>
+        <VALUE><![CDATA[08/18/2011 at 15:11:35 (GMT+0300)]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Mode</KEY>
+        <VALUE><![CDATA[Vulnerability]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Type</KEY>
+        <VALUE><![CDATA[On demand]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Status</KEY>
+        <VALUE><![CDATA[Finished]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Reference</KEY>
+        <VALUE><![CDATA[was/1313669559.14999]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Scanner Appliance</KEY>
+        <VALUE><![CDATA[is_wesli_db (Scanner 5.17.56-1, WAS 2.8.57-1, Web 6.21.49-1, Vulnerability Signatures 1.28.192-2)]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Duration</KEY>
+        <VALUE><![CDATA[00:19:05]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Title</KEY>
+        <VALUE><![CDATA[CrackmeBank - all vulns]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Web Application</KEY>
+        <VALUE><![CDATA[CrackmeBank]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Virtual Host</KEY>
+        <VALUE><![CDATA[172.29.43.63]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Starting Port</KEY>
+        <VALUE><![CDATA[80]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Starting URI</KEY>
+        <VALUE><![CDATA[/]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Authentication</KEY>
+        <VALUE><![CDATA[CrackmeBank - Authentication]]></VALUE>
+      </SCAN_INFO>
+      <SCAN_INFO>
+        <KEY>Web Application Profile</KEY>
+        <VALUE><![CDATA[Herzel - Testing Profile]]></VALUE>
+      </SCAN_INFO>
+    </SCAN_SUMMARY>
+    <VULN_SUMMARY>
+      <VULN_GROUP>
+        <TITLE>XSS</TITLE>
+        <SEVERITY_5>1</SEVERITY_5>
+        <SEVERITY_4>0</SEVERITY_4>
+        <SEVERITY_3>0</SEVERITY_3>
+        <SEVERITY_2>0</SEVERITY_2>
+        <SEVERITY_1>1</SEVERITY_1>
+        <TOTAL>2</TOTAL>
+      </VULN_GROUP>
+      <VULN_GROUP>
+        <TITLE>SQL</TITLE>
+        <SEVERITY_5>0</SEVERITY_5>
+        <SEVERITY_4>0</SEVERITY_4>
+        <SEVERITY_3>0</SEVERITY_3>
+        <SEVERITY_2>0</SEVERITY_2>
+        <SEVERITY_1>0</SEVERITY_1>
+        <TOTAL>0</TOTAL>
+      </VULN_GROUP>
+      <VULN_GROUP>
+        <TITLE>PATH</TITLE>
+        <SEVERITY_5>0</SEVERITY_5>
+        <SEVERITY_4>0</SEVERITY_4>
+        <SEVERITY_3>0</SEVERITY_3>
+        <SEVERITY_2>4</SEVERITY_2>
+        <SEVERITY_1>0</SEVERITY_1>
+        <TOTAL>4</TOTAL>
+      </VULN_GROUP>
+      <VULN_GROUP>
+        <TITLE>INFO</TITLE>
+        <SEVERITY_5>0</SEVERITY_5>
+        <SEVERITY_4>0</SEVERITY_4>
+        <SEVERITY_3>1</SEVERITY_3>
+        <SEVERITY_2>0</SEVERITY_2>
+        <SEVERITY_1>10</SEVERITY_1>
+        <TOTAL>11</TOTAL>
+      </VULN_GROUP>
+    </VULN_SUMMARY>
+    <SENSITIVE_CONTENT_SUMMARY />
+  </SUMMARY>
+  <RESULTS>
+    <VULN_LIST>
+      <VULN>
+        <GROUP><![CDATA[XSS]]></GROUP>
+        <QID>150001</QID>
+        <TITLE><![CDATA[Reflected Cross-Site Scripting (XSS) Vulnerabilities]]></TITLE>
+        <VULN_INSTANCES>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/register/register.php]]></URI>
+            <FORM_ENTRY_POINT><![CDATA[http://172.29.43.63/Kelev/register/register.php]]></FORM_ENTRY_POINT>
+            <PARAMS><![CDATA[UserId]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[FirstName=John&LastName=John&UserId=%3cIMG%20SRC%3djavascript%3aqss%3d777%3e&Password=password&DOB=1&Address=123 Main St.&txtCity=Sunnydale&drpState=Alabama&TelephoneNo=8000000000&Email=was@qualys.com&submit.x=1&submit.y=1]]></PAYLOAD>
+                <RESULT><![CDATA[register.php" id="frm" method="post">
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" ID="Table1">
+				<tr>
+					<td> </td>
+					<td class="title1">New User Registration <Font color="Red">(You Can now Login As <IMG SRC=javascript:qss=777>)</Font></td>
+				</tr>
+				<tr>
+					<td width="10"> </td>
+					<td width="75%">
+						<table width="98%" border="0" cellpadding="0" cellspacing="0" class="Sectionwrapper02" ID="Table2">
+							<tr align="left" valign="top">]]></RESULT>
+              </FINDING>
+              <FINDING>
+                <PAYLOAD><![CDATA[FirstName=John&LastName=John&UserId=%22%3e%3cqss%3e&Password=password&DOB=1&Address=123 Main St.&txtCity=Sunnydale&drpState=Alabama&TelephoneNo=8000000000&Email=was@qualys.com&submit.x=1&submit.y=1]]></PAYLOAD>
+                <RESULT><![CDATA[register.php" id="frm" method="post">
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" ID="Table1">
+				<tr>
+					<td> </td>
+					<td class="title1">New User Registration <Font color="Red">Kindly select another UserID. \"><qss> already exists</Font></td>
+				</tr>
+				<tr>
+					<td width="10"> </td>
+					<td width="75%">
+						<table width="98%" border="0" cellpadding="0" cellspacing="0" class="Sectionwrapper02" ID="Table2">
+							<tr align="left" valign="top]]></RESULT>
+              </FINDING>
+              <FINDING>
+                <PAYLOAD><![CDATA[FirstName=John&LastName=John&UserId=%22'%3e%3cqss%3e&Password=password&DOB=1&Address=123 Main St.&txtCity=Sunnydale&drpState=Alabama&TelephoneNo=8000000000&Email=was@qualys.com&submit.x=1&submit.y=1]]></PAYLOAD>
+                <RESULT><![CDATA[gister.php" id="frm" method="post">
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" ID="Table1">
+				<tr>
+					<td> </td>
+					<td class="title1">New User Registration <Font color="Red">Kindly select another UserID. \"\'><qss> already exists</Font></td>
+				</tr>
+				<tr>
+					<td width="10"> </td>
+					<td width="75%">
+						<table width="98%" border="0" cellpadding="0" cellspacing="0" class="Sectionwrapper02" ID="Table2">
+							<tr align="left" valign="top]]></RESULT>
+              </FINDING>
+              <FINDING>
+                <PAYLOAD><![CDATA[FirstName=John&LastName=John&UserId=%22'%3e%3cqqs%20%60%3b!--%3d%26%7b()%7d%3e&Password=password&DOB=1&Address=123 Main St.&txtCity=Sunnydale&drpState=Alabama&TelephoneNo=8000000000&Email=was@qualys.com&submit.x=1&submit.y=1]]></PAYLOAD>
+                <RESULT><![CDATA[gister.php" id="frm" method="post">
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" ID="Table1">
+				<tr>
+					<td> </td>
+					<td class="title1">New User Registration <Font color="Red">Kindly select another UserID. \"\'><qqs `;!--=&{()}> already exists</Font></td>
+				</tr>
+				<tr>
+					<td width="10"> </td>
+					<td width="75%">
+						<table width="98%" border="0" cellpadding="0" cellspacing="0" class="Sectionwrapper02" ID="Table2">
+							<tr align="left"]]></RESULT>
+              </FINDING>
+              <FINDING>
+                <PAYLOAD><![CDATA[FirstName=John&LastName=John&UserId=%3cscript%20a%3d1%3e_q_q%3drandom()%3c%2fscript%3e&Password=password&DOB=1&Address=123 Main St.&txtCity=Sunnydale&drpState=Alabama&TelephoneNo=8000000000&Email=was@qualys.com&submit.x=1&submit.y=1]]></PAYLOAD>
+                <RESULT><![CDATA[ister.php" id="frm" method="post">
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" ID="Table1">
+				<tr>
+					<td> </td>
+					<td class="title1">New User Registration <Font color="Red">(You Can now Login As <script a=1>_q_q=random()</script>)</Font></td>
+				</tr>
+				<tr>
+					<td width="10"> </td>
+					<td width="75%">
+						<table width="98%" border="0" cellpadding="0" cellspacing="0" class="Sectionwrapper02" ID="Table2">
+							<tr align="left" valign="to]]></RESULT>
+              </FINDING>
+              <FINDING>
+                <PAYLOAD><![CDATA[FirstName=John&LastName=John&UserId=%3cscript%20src%3d%2f%2flocalhost%2fj%3e&Password=password&DOB=1&Address=123 Main St.&txtCity=Sunnydale&drpState=Alabama&TelephoneNo=8000000000&Email=was@qualys.com&submit.x=1&submit.y=1]]></PAYLOAD>
+                <RESULT><![CDATA["register.php" id="frm" method="post">
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" ID="Table1">
+				<tr>
+					<td> </td>
+					<td class="title1">New User Registration <Font color="Red">(You Can now Login As <script src=//localhost/j>)</Font></td>
+				</tr>
+				<tr>
+					<td width="10"> </td>
+					<td width="75%">
+						<table width="98%" border="0" cellpadding="0" cellspacing="0" class="Sectionwrapper02" ID="Table2">
+							<tr align="left" valign="top">]]></RESULT>
+              </FINDING>
+              <FINDING>
+                <PAYLOAD><![CDATA[FirstName=John&LastName=John&UserId=%3cSCRIPT%2fQSS%20SRC%3d%2f%2flocalhost%2fj%3e&Password=password&DOB=1&Address=123 Main St.&txtCity=Sunnydale&drpState=Alabama&TelephoneNo=8000000000&Email=was@qualys.com&submit.x=1&submit.y=1]]></PAYLOAD>
+                <RESULT><![CDATA[egister.php" id="frm" method="post">
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" ID="Table1">
+				<tr>
+					<td> </td>
+					<td class="title1">New User Registration <Font color="Red">(You Can now Login As <SCRIPT/QSS SRC=//localhost/j>)</Font></td>
+				</tr>
+				<tr>
+					<td width="10"> </td>
+					<td width="75%">
+						<table width="98%" border="0" cellpadding="0" cellspacing="0" class="Sectionwrapper02" ID="Table2">
+							<tr align="left" valign="top"]]></RESULT>
+              </FINDING>
+              <FINDING>
+                <PAYLOAD><![CDATA[FirstName=John&LastName=John&UserId=%3cEMBED%20SRC%3d%2f%2flocalhost%2fq.swf%20AllowScriptAccess%3dalways%3e%3c%2fEMBED%3e&Password=password&DOB=1&Address=123 Main St.&txtCity=Sunnydale&drpState=Alabama&TelephoneNo=8000000000&Email=was@qualys.com&submit.x=1&submit.y=1]]></PAYLOAD>
+                <RESULT><![CDATA["frm" method="post">
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" ID="Table1">
+				<tr>
+					<td> </td>
+					<td class="title1">New User Registration <Font color="Red">(You Can now Login As <EMBED SRC=//localhost/q.swf AllowScriptAccess=always></EMBED>)</Font></td>
+				</tr>
+				<tr>
+					<td width="10"> </td>
+					<td width="75%">
+						<table width="98%" border="0" cellpadding="0" cellspacing="0" class="Sectionwrapper02" ID="Table2">
+							<tr align="le]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+        </VULN_INSTANCES>
+      </VULN>
+      <VULN>
+        <GROUP><![CDATA[XSS]]></GROUP>
+        <QID>150084</QID>
+        <TITLE><![CDATA[Unencoded characters ]]></TITLE>
+        <VULN_INSTANCES>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/register/register.php]]></URI>
+            <FORM_ENTRY_POINT><![CDATA[http://172.29.43.63/Kelev/register/register.php]]></FORM_ENTRY_POINT>
+            <PARAMS><![CDATA[UserId]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[FirstName=John&LastName=John&UserId=%3c%0bscript%20a%3d4%3eqss%3d777%3c%0b%2fscript%3e&Password=password&DOB=1&Address=123 Main St.&txtCity=Sunnydale&drpState=Alabama&TelephoneNo=8000000000&Email=was@qualys.com&submit.x=1&submit.y=1]]></PAYLOAD>
+                <RESULT><![CDATA[comment: A significant portion of the XSS test payload appeared in the web page, but the page's DOM was not modified as expected for a successful exploit. This result should be manually verified to determine its accuracy.
+
+egister.php" id="frm" method="post">
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" ID="Table1">
+				<tr>
+					<td> </td>
+					<td class="title1">New User Registration <Font color="Red">(You Can now Login As <script a=4>qss=777</script>)</Font></td>
+				</tr>
+				<tr>
+					<td width="10"> </td>
+					<td width="75%">
+						<table width="98%" border="0" cellpadding="0" cellspacing="0" class="Sectionwrapper02" ID="Table2">
+							<tr align="left" valign="top"]]></RESULT>
+              </FINDING>
+              <FINDING>
+                <PAYLOAD><![CDATA[FirstName=John&LastName=John&UserId=%22'%3e%3c%3cSCRIPT%20a%3d2%3eqss%3d777%3b%2f%2f%3c%3c%2fSCRIPT%3e&Password=password&DOB=1&Address=123 Main St.&txtCity=Sunnydale&drpState=Alabama&TelephoneNo=8000000000&Email=was@qualys.com&submit.x=1&submit.y=1]]></PAYLOAD>
+                <RESULT><![CDATA[comment: A significant portion of the XSS test payload appeared in the web page, but the page's DOM was not modified as expected for a successful exploit. This result should be manually verified to determine its accuracy.
+
+.php" id="frm" method="post">
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" ID="Table1">
+				<tr>
+					<td> </td>
+					<td class="title1">New User Registration <Font color="Red">(You Can now Login As \"\'><<SCRIPT a=2>qss=777;//<</SCRIPT>)</Font></td>
+				</tr>
+				<tr>
+					<td width="10"> </td>
+					<td width="75%">
+						<table width="98%" border="0" cellpadding="0" cellspacing="0" class="Sectionwrapper02" ID="Table2">
+							<tr align="left" valign="top]]></RESULT>
+              </FINDING>
+              <FINDING>
+                <PAYLOAD><![CDATA[FirstName=John&LastName=John&UserId=%3cBODY%20ONLOAD%3dqss%3e&Password=password&DOB=1&Address=123 Main St.&txtCity=Sunnydale&drpState=Alabama&TelephoneNo=8000000000&Email=was@qualys.com&submit.x=1&submit.y=1]]></PAYLOAD>
+                <RESULT><![CDATA[comment: A significant portion of the XSS test payload appeared in the web page, but the page's DOM was not modified as expected for a successful exploit. This result should be manually verified to determine its accuracy.
+
+ister.php" id="frm" method="post">
+			<table width="95%" border="0" cellspacing="0" cellpadding="0" ID="Table1">
+				<tr>
+					<td> </td>
+					<td class="title1">New User Registration <Font color="Red">Kindly select another UserID. <BODY ONLOAD=qss> already exists</Font></td>
+				</tr>
+				<tr>
+					<td width="10"> </td>
+					<td width="75%">
+						<table width="98%" border="0" cellpadding="0" cellspacing="0" class="Sectionwrapper02" ID="Table2">
+							<tr align="left" valig]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+        </VULN_INSTANCES>
+      </VULN>
+      <VULN>
+        <GROUP><![CDATA[PATH]]></GROUP>
+        <QID>150004</QID>
+        <TITLE><![CDATA[Path-Based Vulnerability]]></TITLE>
+        <VULN_INSTANCES>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/include/]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[@PATH@include/]]></PAYLOAD>
+                <RESULT><![CDATA[HTTP/1.1 200 OK]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/loans/.]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[-]]></PAYLOAD>
+                <RESULT><![CDATA[comment: This directory was discovered during the crawl phase.
+
+DTD HTML 3.2 Final//EN">
+<html>
+ <head>
+  <title>Index of /Kelev/loans</title>
+ </head>
+ <body>
+<h1>Index of /Kelev/loans</h1>
+<pre><img src="/icons/blank.gif" alt="Icon "> <a href="?C=N;O=D">Name</a>                    <a href="?C=M;O=A">Last modified</a>      <a href="?C=S;O=A">Size</a>  <a href="?C=D;O=A">Description</a><hr><img src="/icons/back.gif" alt="[DIR]"> <a href="/Kelev/">Parent Directory</a>                             -   
+<img src="/icons/unknown.gif" alt="[   ]"> <a href="carloan]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/php/]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[@PATH@php/]]></PAYLOAD>
+                <RESULT><![CDATA[HTTP/1.1 200 OK]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+        </VULN_INSTANCES>
+      </VULN>
+      <VULN>
+        <GROUP><![CDATA[PATH]]></GROUP>
+        <QID>150023</QID>
+        <TITLE><![CDATA[Directory Listing]]></TITLE>
+        <VULN_INSTANCES>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/images/.]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[@PATH@.]]></PAYLOAD>
+                <RESULT><![CDATA[TD HTML 3.2 Final//EN">
+<html>
+ <head>
+  <title>Index of /Kelev/images</title>
+ </head>
+ <body>
+<h1>Index of /Kelev/images</h1>
+<pre><img src="/icons/blank.gif" alt="Icon "> <a href="?C=N;O=D">Name</a>                    <a href="?C=M;O=A">Last modified</a>      <a href="?C=S;O=A">Size</a>  <a href="?C=D;O=A">Description</a><hr><img src="/icons/back.gif" alt="[DIR]"> <a href="/Kelev/">Parent Directory</a>                             -   
+<img src="/icons/image2.gif" alt="[IMG]"> <a href="ButtonL]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+        </VULN_INSTANCES>
+      </VULN>
+      <VULN>
+        <GROUP><![CDATA[INFO]]></GROUP>
+        <QID>150085</QID>
+        <TITLE><![CDATA[Slow HTTP POST vulnerability]]></TITLE>
+        <VULN_INSTANCES>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[N/A]]></PAYLOAD>
+                <RESULT><![CDATA[Vulnerable to slow HTTP POST attack
+	Connection with partial POST body remained open for: 306081 milliseconds]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+        </VULN_INSTANCES>
+      </VULN>
+      <VULN>
+        <GROUP><![CDATA[INFO]]></GROUP>
+        <QID>150081</QID>
+        <TITLE><![CDATA[Possible Clickjacking vulnerability]]></TITLE>
+        <VULN_INSTANCES>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[N/A]]></PAYLOAD>
+                <RESULT><![CDATA[The response for this request did not have "X-FRAME-OPTIONS" header set.
+]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/kelev.css]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[N/A]]></PAYLOAD>
+                <RESULT><![CDATA[The response for this request did not have "X-FRAME-OPTIONS" header set.
+]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/scripts/kelevcommon.js]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[N/A]]></PAYLOAD>
+                <RESULT><![CDATA[The response for this request did not have "X-FRAME-OPTIONS" header set.
+]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/view/contact.php]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[N/A]]></PAYLOAD>
+                <RESULT><![CDATA[The response for this request did not have "X-FRAME-OPTIONS" header set.
+]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/view/credit.php]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[N/A]]></PAYLOAD>
+                <RESULT><![CDATA[The response for this request did not have "X-FRAME-OPTIONS" header set.
+]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/view/feedback.php]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[N/A]]></PAYLOAD>
+                <RESULT><![CDATA[The response for this request did not have "X-FRAME-OPTIONS" header set.
+]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/view/home.php]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[N/A]]></PAYLOAD>
+                <RESULT><![CDATA[The response for this request did not have "X-FRAME-OPTIONS" header set.
+]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/view/kelev2.php]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[N/A]]></PAYLOAD>
+                <RESULT><![CDATA[The response for this request did not have "X-FRAME-OPTIONS" header set.
+]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/view/netbanking.php]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[N/A]]></PAYLOAD>
+                <RESULT><![CDATA[The response for this request did not have "X-FRAME-OPTIONS" header set.
+]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+          <VULN_INSTANCE>
+            <HOST><![CDATA[172.29.43.63]]></HOST>
+            <PORT>80</PORT>
+            <URI><![CDATA[http://172.29.43.63/Kelev/view/trade.php]]></URI>
+            <PARAMS><![CDATA[]]></PARAMS>
+            <FINDINGS>
+              <FINDING>
+                <PAYLOAD><![CDATA[N/A]]></PAYLOAD>
+                <RESULT><![CDATA[The response for this request did not have "X-FRAME-OPTIONS" header set.
+]]></RESULT>
+              </FINDING>
+            </FINDINGS>
+          </VULN_INSTANCE>
+        </VULN_INSTANCES>
+      </VULN>
+    </VULN_LIST>
+    <SENSITIVE_CONTENT_LIST />
+    <INFO_LIST>
+      <INFO>
+        <QID>150044</QID>
+        <TITLE><![CDATA[Login Form Is Not Submitted Via HTTPS]]></TITLE>
+        <RESULT><![CDATA[Default form action does not submit via SSL: http://172.29.43.63/Kelev/register/register.php
+]]></RESULT>
+      </INFO>
+      <INFO>
+        <QID>150067</QID>
+        <TITLE><![CDATA[Links Discovered During User-Agent and Mobile Site Checks]]></TITLE>
+        <RESULT><![CDATA[Unique content discovered during user-agent and common mobile device specific subdomains and paths manipulation: User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)
+http://172.29.43.63/
+User-Agent: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)
+http://172.29.43.63/
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.1.249.1064 Safari/532.5
+http://172.29.43.63/
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/531.22.7 (KHTML, like Gecko) Version/4.0.5 Safari/531.22.7
+http://172.29.43.63/
+User-Agent: Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_1_2 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7D11 Safari/528.16
+http://172.29.43.63/
+User-Agent: Opera/9.80 (IPhone; Opera Mini/5.0.019802/886; U; en) Presto/2.4.15
+http://172.29.43.63/
+User-Agent: BlackBerry9700/5.0.0.405 Profile/MIDP-2.1 Configuration/CLDC-1.1 VendorID/102
+http://172.29.43.63/
+]]></RESULT>
+      </INFO>
+      <INFO>
+        <QID>150086</QID>
+        <TITLE><![CDATA[Server accepts unnecessarily large POST request body]]></TITLE>
+        <RESULT><![CDATA[Server responded 200 to unnecessarily large random request body(over 64 KB) for URL http://172.29.43.63/, significantly increasing attacker's chances to prolonge slow HTTP POST attack]]></RESULT>
+      </INFO>
+      <INFO>
+        <QID>150008</QID>
+        <TITLE><![CDATA[Web Application Authentication Failed]]></TITLE>
+        <RESULT><![CDATA[Auth failed against form: http://172.29.43.63/Kelev/register/register.php
+Web Application Authentication Record: CrackmeBank - Authentication: Form Record
+User Name: Custom form values were used
+]]></RESULT>
+      </INFO>
+      <INFO>
+        <QID>150009</QID>
+        <TITLE><![CDATA[Links Crawled]]></TITLE>
+        <RESULT><![CDATA[Duration of crawl phase (seconds): 174.00
+Number of links: 40
+(This number excludes form requests and links re-requested during authentication.)
+
+http://172.29.43.63/
+http://172.29.43.63/Kelev/
+http://172.29.43.63/Kelev/contact.php
+http://172.29.43.63/Kelev/kelev.css
+http://172.29.43.63/Kelev/loans/carloanmain.php
+http://172.29.43.63/Kelev/loans/homeloan.php
+http://172.29.43.63/Kelev/loans/studentloan.php
+http://172.29.43.63/Kelev/php/login.php
+http://172.29.43.63/Kelev/php/loginbm.php
+http://172.29.43.63/Kelev/register/register.php
+http://172.29.43.63/Kelev/scripts/kelevcommon.js
+http://172.29.43.63/Kelev/terms.php
+http://172.29.43.63/Kelev/view/billsonline.php
+http://172.29.43.63/Kelev/view/contact.php
+http://172.29.43.63/Kelev/view/credit.php
+http://172.29.43.63/Kelev/view/feedback.php
+http://172.29.43.63/Kelev/view/home.php
+http://172.29.43.63/Kelev/view/kelev2.php
+http://172.29.43.63/Kelev/view/loanrequest.php
+http://172.29.43.63/Kelev/view/netbanking.php
+http://172.29.43.63/Kelev/view/privacy.php
+http://172.29.43.63/Kelev/view/rate.php
+http://172.29.43.63/Kelev/view/terms.php
+http://172.29.43.63/Kelev/view/trade.php
+http://172.29.43.63/contact.php
+http://172.29.43.63/kelev.css
+http://172.29.43.63/php/login.php
+http://172.29.43.63/register/register.php
+http://172.29.43.63/scripts/kelevcommon.js
+http://172.29.43.63/terms.php
+http://172.29.43.63/view/billsonline.php
+http://172.29.43.63/view/contact.php
+http://172.29.43.63/view/credit.php
+http://172.29.43.63/view/feedback.php
+http://172.29.43.63/view/home.php
+http://172.29.43.63/view/kelev2.php
+http://172.29.43.63/view/netbanking.php
+http://172.29.43.63/view/privacy.php
+http://172.29.43.63/view/terms.php
+http://172.29.43.63/view/trade.php
+]]></RESULT>
+      </INFO>
+      <INFO>
+        <QID>150010</QID>
+        <TITLE><![CDATA[External Links Discovered]]></TITLE>
+        <RESULT><![CDATA[Number of links: 2
+mailto:info@CrackMeBank.biz
+mailto:info@Kelev.biz
+]]></RESULT>
+      </INFO>
+      <INFO>
+        <QID>150021</QID>
+        <TITLE><![CDATA[Scan Diagnostics]]></TITLE>
+        <RESULT><![CDATA[Collected 40 links overall.
+Path manipulation: estimated time < 10 minutes (72 tests, 43 inputs)
+Path manipulation: 72 vulnsigs tests, completed 1315 requests, 77 seconds. All tests completed.
+Batch #0 WS enumeration: estimated time < 1 minute (10 tests, 0 inputs)
+WS enumeration: 10 vulnsigs tests, completed 80 requests, 7 seconds. All tests completed.
+Batch #1 URI parameter manipulation: estimated time < 1 minute (37 tests, 0 inputs)
+Batch #1 URI parameter manipulation: 37 vulnsigs tests, completed 0 requests, 0 seconds. No tests to execute.
+Batch #1 Login form parameter manipulation (no auth): estimated time < 1 minute (37 tests, 0 inputs)
+Batch #1 Login form parameter manipulation (no auth): 37 vulnsigs tests, completed 370 requests, 91 seconds. No tests to execute.
+Batch #1 URI blind SQL manipulation: estimated time < 1 minute (19 tests, 0 inputs)
+Batch #1 URI blind SQL manipulation: 19 vulnsigs tests, completed 0 requests, 0 seconds. No tests to execute.
+Batch #1 Login form blind SQL manipulation (no auth): estimated time < 1 minute (19 tests, 0 inputs)
+Batch #1 Login form blind SQL manipulation (no auth): 19 vulnsigs tests, completed 190 requests, 105 seconds. All tests completed.
+Batch #2 URI parameter manipulation: estimated time < 1 minute (37 tests, 0 inputs)
+Batch #2 URI parameter manipulation: 37 vulnsigs tests, completed 0 requests, 0 seconds. No tests to execute.
+Batch #2 URI blind SQL manipulation: estimated time < 1 minute (19 tests, 0 inputs)
+Batch #2 URI blind SQL manipulation: 19 vulnsigs tests, completed 0 requests, 0 seconds. No tests to execute.
+Batch #3 URI parameter manipulation: estimated time < 1 minute (37 tests, 0 inputs)
+Batch #3 URI parameter manipulation: 37 vulnsigs tests, completed 0 requests, 1 seconds. No tests to execute.
+Batch #3 URI blind SQL manipulation: estimated time < 1 minute (19 tests, 0 inputs)
+Batch #3 URI blind SQL manipulation: 19 vulnsigs tests, completed 0 requests, 0 seconds. No tests to execute.
+HTTP call manipulation estimated time: no tests enabled
+Batch #4 Open Redirect analysis: estimated time < 1 minute (1 tests, 0 inputs)
+Batch #4 Open Redirect analysis: 1 vulnsigs tests, completed 0 requests, 1 seconds. No tests to execute.
+Batch #4 CSRF: estimated time < 1 minute (2 tests, 19 inputs)
+Batch #4 CSRF: 2 vulnsigs tests, completed 0 requests, 1 seconds. No tests to execute.
+Cookie manipulation: estimated time < 10 minutes (30 tests, 1 inputs)
+Cookie manipulation: 30 vulnsigs tests, completed 533 requests, 57 seconds. XSS optimization removed 697 links. Completed 533 requests of 1230 estimated requests (43%). All tests completed.
+Header manipulation: estimated time < 10 minutes (30 tests, 41 inputs)
+Header manipulation: 30 vulnsigs tests, completed 984 requests, 112 seconds. XSS optimization removed 697 links. Completed 984 requests of 2460 estimated requests (40%). All tests completed.
+Login Brute Force manipulation estimated time: no tests enabled
+Total requests made: 3730
+Average server response time: 0.80 seconds
+Most recent links:
+200 http://172.29.43.63/Kelev/view/terms.php
+200 http://172.29.43.63/Kelev/register/register.php
+200 http://172.29.43.63/Kelev/loans/carloanmain.php
+404 http://172.29.43.63/Kelev/contact.php
+200 http://172.29.43.63/Kelev/loans/homeloan.php
+404 http://172.29.43.63/Kelev/terms.php
+200 http://172.29.43.63/Kelev/php/loginbm.php
+200 http://172.29.43.63/Kelev/view/loanrequest.php
+200 http://172.29.43.63/Kelev/view/rate.php
+200 http://172.29.43.63/Kelev/register/register.php
+]]></RESULT>
+      </INFO>
+      <INFO>
+        <QID>150028</QID>
+        <TITLE><![CDATA[Cookies Collected]]></TITLE>
+        <RESULT><![CDATA[Total cookies: 1
+TS5d36f1=0ec9c542790bc91b82dbdb37a5c066a3f2bbb8c81dfb19ff4e4d2b82; path=/; domain=172.29.43.63
+]]></RESULT>
+      </INFO>
+      <INFO>
+        <QID>150054</QID>
+        <TITLE><![CDATA[Email Addresses Collected]]></TITLE>
+        <RESULT><![CDATA[Number of emails: 3
+info@crackmebank.biz
+info@kelev.biz
+john@crackmebank.com
+]]></RESULT>
+      </INFO>
+    </INFO_LIST>
+  </RESULTS>
+</WEB_APPLICATION_SCAN>
+<!-- This report was generated with an evaluation version of QualysGuard //-->
+<!-- CONFIDENTIAL AND PROPRIETARY INFORMATION. Qualys provides the QualysGuard Service "As Is," without any warranty of any kind. Qualys makes no warranty that the information contained in this report is complete or error-free. Copyright 2011, Qualys, Inc. //--> 

@@ -95,7 +95,9 @@ class Policy(AsmResource):
             'tm:asm:policies:xml-validation-files:'
             'xml-validation-filecollectionstate': Xml_Validation_Files_s,
             'tm:asm:policies:extractions:extractioncollectionstate':
-                Extractions_s
+                Extractions_s,
+            'tm:asm:policies:vulnerabilities:vulnerabilitycollectionstate':
+                Vulnerabilities_s
         }
         self._set_attr_reg()
 
@@ -1156,3 +1158,53 @@ class Extraction(AsmResource):
             _minimum_one_is_missing(req_set, **kwargs)
 
         return self._create(**kwargs)
+
+
+class Vulnerabilities_s(Collection):
+    """BIG-IP® ASM Vulnerabilities sub-collection."""
+    def __init__(self, policy):
+        super(Vulnerabilities_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Vulnerabilities]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:vulnerabilities:vulnerabilitycollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:vulnerabilities:vulnerabilitystate':
+                Vulnerabilities}
+
+
+class Vulnerabilities(AsmResource):
+    """BIG-IP® ASM Vulnerabilities Resource."""
+    def __init__(self, vulnerabilities_s):
+        super(Vulnerabilities, self).__init__(vulnerabilities_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:vulnerabilities:vulnerabilitystate'
+
+    def create(self, **kwargs):
+        """Modify is not supported for Vulnerabilities resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Vulnerabilities resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        """Modify is not supported for Vulnerabilities resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the delete method" % self.__class__.__name__
+        )
