@@ -16,6 +16,7 @@
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.asm import Asm
 from f5.bigip.tm.asm.policies import Brute_Force_Attack_Prevention
+from f5.bigip.tm.asm.policies import Character_Sets
 from f5.bigip.tm.asm.policies import Csrf_Protection
 from f5.bigip.tm.asm.policies import Data_Guard
 from f5.bigip.tm.asm.policies import Evasion
@@ -55,6 +56,14 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeChar():
+    fake_policy = mock.MagicMock()
+    fake_e = Character_Sets(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_e
 
 
 @pytest.fixture
@@ -550,3 +559,13 @@ class TestNavigationParameters(object):
     def test_modify_raises(self, FakeNav):
         with pytest.raises(UnsupportedOperation):
             FakeNav.modify()
+
+
+class TestCharacterSets(object):
+    def test_create_raises(self, FakeChar):
+        with pytest.raises(UnsupportedOperation):
+            FakeChar.create()
+
+    def test_delete_raises(self, FakeChar):
+        with pytest.raises(UnsupportedOperation):
+            FakeChar.delete()

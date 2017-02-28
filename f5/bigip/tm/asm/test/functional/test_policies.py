@@ -16,6 +16,7 @@
 import copy
 from distutils.version import LooseVersion
 from f5.bigip.tm.asm.policies import Brute_Force_Attack_Prevention
+from f5.bigip.tm.asm.policies import Character_Sets
 from f5.bigip.tm.asm.policies import Cookie
 from f5.bigip.tm.asm.policies import Evasion
 from f5.bigip.tm.asm.policies import Evasions_s
@@ -3010,3 +3011,65 @@ class TestNavigationParameters(object):
         assert isinstance(cc, list)
         assert len(cc)
         assert isinstance(cc[0], Navigation_Parameter)
+
+
+class TestCharacterSets(object):
+    def test_create_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.character_sets_s.character_sets.create()
+
+    def test_delete_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.character_sets_s.character_sets.delete()
+
+    def test_refresh(self, policy):
+        coll = policy.character_sets_s.get_collection()
+        hashid = str(coll[0].id)
+        char1 = policy.character_sets_s.character_sets.load(id=hashid)
+        char2 = policy.character_sets_s.character_sets.load(id=hashid)
+        assert char1.kind == char2.kind
+        assert char1.characterSetType == char2.characterSetType
+        assert char1.characterSet == char2.characterSet
+        char2.modify(characterSet=[{'metachar': '0x1', 'isAllowed': True}])
+        assert char1.characterSet != char2.characterSet
+        char1.refresh()
+        assert char1.characterSet == char2.characterSet
+
+    def test_modify(self, policy):
+        coll = policy.character_sets_s.get_collection()
+        hashid = str(coll[0].id)
+        char1 = policy.character_sets_s.character_sets.load(id=hashid)
+        original_dict = copy.copy(char1.__dict__)
+        itm = 'characterSet'
+        char1.modify(characterSet=[{'metachar': '0x1', 'isAllowed': True}])
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = char1.__dict__[k]
+            elif k == itm:
+                assert char1.__dict__[k][1] == {'metachar': '0x1',
+                                                'isAllowed': True}
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.character_sets_s.character_sets.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, policy):
+        coll = policy.character_sets_s.get_collection()
+        hashid = str(coll[0].id)
+        char1 = policy.character_sets_s.character_sets.load(id=hashid)
+        assert char1.kind == \
+            'tm:asm:policies:character-sets:character-setstate'
+        assert char1.characterSet[1] == {'metachar': '0x1', 'isAllowed': True}
+        char1.modify(characterSet=[{'metachar': '0x1', 'isAllowed': False}])
+        assert char1.characterSet[1] == {'metachar': '0x1', 'isAllowed': False}
+        char2 = policy.character_sets_s.character_sets.load(id=char1.id)
+        assert char1.selfLink == char2.selfLink
+        assert char1.kind == char2.kind
+        assert char1.characterSet == char2.characterSet
+
+    def test_evasions_subcollection(self, policy):
+        coll = policy.character_sets_s.get_collection()
+        assert isinstance(coll, list)
+        assert len(coll)
+        assert isinstance(coll[0], Character_Sets)

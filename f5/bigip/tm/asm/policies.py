@@ -99,7 +99,9 @@ class Policy(AsmResource):
             'tm:asm:policies:vulnerabilities:vulnerabilitycollectionstate':
                 Vulnerabilities_s,
             'tm:asm:policies:navigation-parameters:'
-            'navigation-parametercollectionstate': Navigation_Parameters_s
+            'navigation-parametercollectionstate': Navigation_Parameters_s,
+            'tm:asm:policies:character-sets:character-setcollectionstate':
+            Character_Sets_s
         }
         self._set_attr_reg()
 
@@ -1242,4 +1244,45 @@ class Navigation_Parameter(AsmResource):
         """
         raise UnsupportedOperation(
             "%s does not support the modify method" % self.__class__.__name__
+        )
+
+
+class Character_Sets_s(Collection):
+    """BIG-IP® ASM Character Sets sub-collection."""
+    def __init__(self, policy):
+        super(Character_Sets_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Character_Sets]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:character-sets:character-setcollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:character-sets:character-setstate':
+                Character_Sets}
+
+
+class Character_Sets(AsmResource):
+    """BIG-IP® ASM Character Sets Resource."""
+    def __init__(self, character_sets_s):
+        super(Character_Sets, self).__init__(character_sets_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:character-sets:character-setstate'
+
+    def create(self, **kwargs):
+        """Modify is not supported for Character Sets resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        """Modify is not supported for Character Sets resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the delete method" % self.__class__.__name__
         )
