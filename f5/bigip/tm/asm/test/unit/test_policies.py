@@ -27,6 +27,7 @@ from f5.bigip.tm.asm.policies import Http_Protocol
 from f5.bigip.tm.asm.policies import Ip_Intelligence
 from f5.bigip.tm.asm.policies import Login_Enforcement
 from f5.bigip.tm.asm.policies import Login_Page
+from f5.bigip.tm.asm.policies import Navigation_Parameter
 from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
@@ -60,6 +61,14 @@ from six import iterkeys
 def FakeVuln():
     fake_policy = mock.MagicMock()
     fake_e = Vulnerabilities(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_e
+
+
+@pytest.fixture
+def FakeNav():
+    fake_policy = mock.MagicMock()
+    fake_e = Navigation_Parameter(fake_policy)
     fake_e._meta_data['bigip'].tmos_version = '11.6.0'
     return fake_e
 
@@ -535,3 +544,9 @@ class TestVulnerabilities(object):
     def test_modify_raises(self, FakeVuln):
         with pytest.raises(UnsupportedOperation):
             FakeVuln.modify()
+
+
+class TestNavigationParameters(object):
+    def test_modify_raises(self, FakeNav):
+        with pytest.raises(UnsupportedOperation):
+            FakeNav.modify()

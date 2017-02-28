@@ -97,7 +97,9 @@ class Policy(AsmResource):
             'tm:asm:policies:extractions:extractioncollectionstate':
                 Extractions_s,
             'tm:asm:policies:vulnerabilities:vulnerabilitycollectionstate':
-                Vulnerabilities_s
+                Vulnerabilities_s,
+            'tm:asm:policies:navigation-parameters:'
+            'navigation-parametercollectionstate': Navigation_Parameters_s
         }
         self._set_attr_reg()
 
@@ -1207,4 +1209,37 @@ class Vulnerabilities(AsmResource):
         """
         raise UnsupportedOperation(
             "%s does not support the delete method" % self.__class__.__name__
+        )
+
+
+class Navigation_Parameters_s(Collection):
+    """BIG-IP® ASM Navigation Parameters sub-collection."""
+    def __init__(self, policy):
+        super(Navigation_Parameters_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Navigation_Parameter]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:navigation-parameters:' \
+            'navigation-parametercollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:navigation-parameters:navigation-parameterstate':
+                Navigation_Parameter}
+
+
+class Navigation_Parameter(AsmResource):
+    """BIG-IP® ASM Navigation Parameter Resource."""
+    def __init__(self, navigation_parameters_s):
+        super(Navigation_Parameter, self).__init__(navigation_parameters_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:navigation-parameters:navigation-parameterstate'
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Navigation Parameter resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the modify method" % self.__class__.__name__
         )

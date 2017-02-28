@@ -30,6 +30,7 @@ from f5.bigip.tm.asm.policies import Http_Protocols_s
 from f5.bigip.tm.asm.policies import Json_Profile
 from f5.bigip.tm.asm.policies import Login_Page
 from f5.bigip.tm.asm.policies import Method
+from f5.bigip.tm.asm.policies import Navigation_Parameter
 from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
@@ -174,6 +175,14 @@ def set_s_par(policy):
 def set_xml_file(policy):
     r1 = policy.xml_validation_files_s.xml_validation_file.create(
         fileName='fakefile', contents=XML)
+    yield r1
+    r1.delete()
+
+
+@pytest.fixture(scope='function')
+def set_navi_par(policy):
+    r1 = policy.navigation_parameters_s.navigation_parameter.create(
+        name='naviparam')
     yield r1
     r1.delete()
 
@@ -2925,3 +2934,79 @@ class TestVulnerabilities(object):
         assert isinstance(mc, list)
         assert len(mc)
         assert isinstance(mc[0], Vulnerabilities)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestNavigationParameters(object):
+    def test_modify_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.navigation_parameters_s.navigation_parameter.modify()
+
+    def test_create_req_arg(self, policy):
+        r1 = policy.navigation_parameters_s.navigation_parameter.create(
+            name='naviparam')
+        assert r1.kind == \
+            'tm:asm:policies:navigation-parameters:navigation-parameterstate'
+        assert r1.name == 'naviparam'
+        assert r1.urlName == ''
+        r1.delete()
+
+    def test_create_opt_arg(self, policy):
+        r1 = policy.navigation_parameters_s.navigation_parameter.create(
+            name='naviparam', urlName='/fakeurl')
+        assert r1.kind == \
+            'tm:asm:policies:navigation-parameters:navigation-parameterstate'
+        assert r1.name == 'naviparam'
+        assert r1.urlName == '/fakeurl'
+        r1.delete()
+
+    def test_refresh(self, set_navi_par, policy):
+        r1 = set_navi_par
+        r2 = policy.navigation_parameters_s.navigation_parameter.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.urlName == r2.urlName
+        assert r1.id == r2.id
+        r1.refresh()
+        assert r1.kind == r2.kind
+        assert r1.urlName == r2.urlName
+        assert r1.id == r2.id
+
+    def test_delete(self, policy):
+        r1 = policy.navigation_parameters_s.navigation_parameter.create(
+            name='fakeparam')
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.navigation_parameters_s.navigation_parameter.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.navigation_parameters_s.navigation_parameter.load(
+                id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_navi_par, policy):
+        r1 = set_navi_par
+        assert r1.kind == \
+            'tm:asm:policies:navigation-parameters:navigation-parameterstate'
+        assert r1.name == 'naviparam'
+        assert r1.urlName == ''
+        r2 = policy.navigation_parameters_s.navigation_parameter.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.name == r2.name
+        assert r1.urlName == r2.urlName
+
+    def test_navigation_parameters_subcollection(self, set_navi_par, policy):
+        r1 = set_navi_par
+        assert r1.kind == \
+            'tm:asm:policies:navigation-parameters:navigation-parameterstate'
+        assert r1.name == 'naviparam'
+        cc = policy.navigation_parameters_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Navigation_Parameter)
