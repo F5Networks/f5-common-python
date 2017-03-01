@@ -15,6 +15,7 @@
 
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.asm import Asm
+from f5.bigip.tm.asm.policies import Audit_Log
 from f5.bigip.tm.asm.policies import Brute_Force_Attack_Prevention
 from f5.bigip.tm.asm.policies import Character_Sets
 from f5.bigip.tm.asm.policies import Csrf_Protection
@@ -33,6 +34,7 @@ from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
+from f5.bigip.tm.asm.policies import Plain_Text_Profile
 from f5.bigip.tm.asm.policies import Policy
 from f5.bigip.tm.asm.policies import Policy_Builder
 from f5.bigip.tm.asm.policies import Redirection_Protection
@@ -41,13 +43,16 @@ from f5.bigip.tm.asm.policies import Sensitive_Parameter
 from f5.bigip.tm.asm.policies import Session_Tracking
 from f5.bigip.tm.asm.policies import Session_Tracking_Status
 from f5.bigip.tm.asm.policies import Signature
+from f5.bigip.tm.asm.policies import Suggestion
 from f5.bigip.tm.asm.policies import Url
 from f5.bigip.tm.asm.policies import UrlParametersCollection
 from f5.bigip.tm.asm.policies import UrlParametersResource
 from f5.bigip.tm.asm.policies import Violation
 from f5.bigip.tm.asm.policies import Vulnerabilities
 from f5.bigip.tm.asm.policies import Vulnerability_Assessment
+from f5.bigip.tm.asm.policies import Web_Scraping
 from f5.bigip.tm.asm.policies import Web_Services_Security
+from f5.bigip.tm.asm.policies import Websocket_Url
 from f5.bigip.tm.asm.policies import Xml_Validation_File
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
@@ -56,6 +61,46 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeWebsock():
+    fake_policy = mock.MagicMock()
+    fake_e = Websocket_Url(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '12.1.0'
+    return fake_e
+
+
+@pytest.fixture
+def FakePlain():
+    fake_policy = mock.MagicMock()
+    fake_e = Plain_Text_Profile(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '12.1.0'
+    return fake_e
+
+
+@pytest.fixture
+def FakeSugg():
+    fake_policy = mock.MagicMock()
+    fake_e = Suggestion(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '12.0.0'
+    return fake_e
+
+
+@pytest.fixture
+def FakeWebscrape():
+    fake_policy = mock.MagicMock()
+    fake_e = Web_Scraping(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '12.0.0'
+    return fake_e
+
+
+@pytest.fixture
+def FakeAudit():
+    fake_policy = mock.MagicMock()
+    fake_e = Audit_Log(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '12.0.0'
+    return fake_e
 
 
 @pytest.fixture
@@ -474,7 +519,7 @@ class TestSessionTracking(object):
 
 
 class TestSessionTrackingStatuses(object):
-    def test_update_raises(self, FakeSess):
+    def test_modify_raises(self, FakeSess):
         with pytest.raises(UnsupportedOperation):
             FakeSess.modify()
 
@@ -522,7 +567,7 @@ class TestBruteForce(object):
 
 
 class TestXMLValidationFiles(object):
-    def test_update_raises(self, FakeXmlFile):
+    def test_modify_raises(self, FakeXmlFile):
         with pytest.raises(UnsupportedOperation):
             FakeXmlFile.modify()
 
@@ -569,3 +614,50 @@ class TestCharacterSets(object):
     def test_delete_raises(self, FakeChar):
         with pytest.raises(UnsupportedOperation):
             FakeChar.delete()
+
+
+class TestWebScraping(object):
+    def test_update_raises(self, FakeWebscrape):
+        with pytest.raises(UnsupportedOperation):
+            FakeWebscrape.update()
+
+
+class TestAuditLogs(object):
+    def test_create_raises(self, FakeAudit):
+        with pytest.raises(UnsupportedOperation):
+            FakeAudit.create()
+
+    def test_delete_raises(self, FakeAudit):
+        with pytest.raises(UnsupportedOperation):
+            FakeAudit.delete()
+
+    def test_modify_raises(self, FakeAudit):
+        with pytest.raises(UnsupportedOperation):
+            FakeAudit.modify()
+
+
+class TestSuggestions(object):
+    def test_create_raises(self, FakeSugg):
+        with pytest.raises(UnsupportedOperation):
+            FakeSugg.create()
+
+
+class TestPlainTextProfiles(object):
+    def test_create_no_args(self, FakePlain):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakePlain.create()
+
+
+class TestWebSocketUrls(object):
+    def test_create_no_args(self, FakeWebsock):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeWebsock.create()
+
+    def test_create_missing_additional_arguments(self, FakeWebsock):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeWebsock.create(name='fake', checkPayload=True)
+
+    def test_create_additional_arguments_missing_profiles(self, FakeWebsock):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeWebsock.create(name='fake', checkPayload=True,
+                               allowTextMessage=True, allowJsonMessage=True)

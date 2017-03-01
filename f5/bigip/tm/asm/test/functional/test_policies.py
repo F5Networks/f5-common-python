@@ -15,6 +15,7 @@
 
 import copy
 from distutils.version import LooseVersion
+from f5.bigip.tm.asm.policies import Audit_Log
 from f5.bigip.tm.asm.policies import Brute_Force_Attack_Prevention
 from f5.bigip.tm.asm.policies import Character_Sets
 from f5.bigip.tm.asm.policies import Cookie
@@ -36,12 +37,14 @@ from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
+from f5.bigip.tm.asm.policies import Plain_Text_Profile
 from f5.bigip.tm.asm.policies import Policy
 from f5.bigip.tm.asm.policies import Response_Page
 from f5.bigip.tm.asm.policies import Sensitive_Parameter
 from f5.bigip.tm.asm.policies import Session_Tracking_Status
 from f5.bigip.tm.asm.policies import Signature
 from f5.bigip.tm.asm.policies import Signature_Set
+from f5.bigip.tm.asm.policies import Suggestion
 from f5.bigip.tm.asm.policies import Url
 from f5.bigip.tm.asm.policies import UrlParametersCollection
 from f5.bigip.tm.asm.policies import UrlParametersResource
@@ -50,6 +53,7 @@ from f5.bigip.tm.asm.policies import Violations_s
 from f5.bigip.tm.asm.policies import Vulnerabilities
 from f5.bigip.tm.asm.policies import Web_Services_Securities_s
 from f5.bigip.tm.asm.policies import Web_Services_Security
+from f5.bigip.tm.asm.policies import Websocket_Url
 from f5.bigip.tm.asm.policies import Whitelist_Ip
 from f5.bigip.tm.asm.policies import Xml_Profile
 from f5.bigip.tm.asm.policies import Xml_Validation_File
@@ -214,6 +218,33 @@ def set_vulnerability(mgmt_root, policy):
     hashid = str(col[0].id)
     yield hashid
     delete_import_vuln_task(mgmt_root)
+
+
+@pytest.fixture(scope='class')
+def set_audit_logs(policy):
+    # Audit logs fill up quickly, doing a get_collection() would return
+    # first 500 entries by default (as this is how BIGIP returns it),
+    # it faster to have it limited to 2
+    rc = policy.audit_logs_s.get_collection(
+        requests_params={'params': '$top=2'})
+    hashid = str(rc[0].id)
+    yield hashid
+
+
+@pytest.fixture(scope='function')
+def set_plaintext(policy):
+    r1 = policy.plain_text_profiles_s.plain_text_profile.create(
+        name='fake_txt')
+    yield r1
+    r1.delete()
+
+
+@pytest.fixture(scope='function')
+def set_websock(policy):
+    r1 = policy.websocket_urls_s.websocket_url.create(
+        name='fakewebsock', checkPayload=False)
+    yield r1
+    r1.delete()
 
 
 class TestPolicy(object):
@@ -592,7 +623,7 @@ class TestHostNames(object):
         assert host1.includeSubdomains == host2.includeSubdomains
         host1.delete()
 
-    def test_cookies_subcollection(self, policy):
+    def test_hostnames_subcollection(self, policy):
         host1 = policy.host_names_s.host_name.create(name='fake-domain.com')
         assert host1.kind == 'tm:asm:policies:host-names:host-namestate'
         assert host1.name == 'fake-domain.com'
@@ -757,7 +788,7 @@ class TestViolations(object):
         assert isinstance(coll[0], Violation)
 
 
-class TestHTTPProtoccols(object):
+class TestHTTPProtocols(object):
     def test_create_raises(self, policy):
         with pytest.raises(UnsupportedOperation):
             policy.blocking_settings.http_protocols_s.http_protocol.create()
@@ -1768,7 +1799,7 @@ class TestHeaders(object):
         assert h1.base64Decoding == h2.base64Decoding
         h1.delete()
 
-    def test_method_subcollection(self, policy):
+    def test_headers_subcollection(self, policy):
         mc = policy.headers_s.get_collection()
         assert isinstance(mc, list)
         assert len(mc)
@@ -1894,7 +1925,7 @@ class TestResponsePages(object):
         assert r1.responsePageType == r2.responsePageType
         assert r1.responseRedirectUrl == r2.responseRedirectUrl
 
-    def test_method_subcollection(self, policy):
+    def test_responsepages_subcollection(self, policy):
         mc = policy.response_pages_s.get_collection()
         assert isinstance(mc, list)
         assert len(mc)
@@ -1949,7 +1980,7 @@ class TestHistoryRevisions(object):
         assert r1.kind == r2.kind
         assert r1.selfLink == r2.selfLink
 
-    def test_method_subcollection(self, policy):
+    def test_historyrevisions_subcollection(self, policy):
         mc = policy.history_revisions_s.get_collection()
         assert isinstance(mc, list)
         assert len(mc)
@@ -2930,7 +2961,7 @@ class TestVulnerabilities(object):
         assert r1.kind == r2.kind
         assert r1.selfLink == r2.selfLink
 
-    def test_method_subcollection(self, policy):
+    def test_vulnerabilities_subcollection(self, policy):
         mc = policy.vulnerabilities_s.get_collection()
         assert isinstance(mc, list)
         assert len(mc)
@@ -3068,8 +3099,309 @@ class TestCharacterSets(object):
         assert char1.kind == char2.kind
         assert char1.characterSet == char2.characterSet
 
-    def test_evasions_subcollection(self, policy):
+    def test_charactersets_subcollection(self, policy):
         coll = policy.character_sets_s.get_collection()
         assert isinstance(coll, list)
         assert len(coll)
         assert isinstance(coll[0], Character_Sets)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '12.0.0'),
+    reason='This collection is fully implemented on 12.0.0 or greater.'
+)
+class TestWebScraping(object):
+    def test_update_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.web_scraping.update()
+
+    def test_modify(self, policy):
+        r1 = policy.web_scraping.load()
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'enableFingerprinting'
+        r1.modify(enableFingerprinting=True)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] is True
+
+    def test_load(self, policy):
+        r1 = policy.web_scraping.load()
+        assert r1.kind == \
+            'tm:asm:policies:web-scraping:web-scrapingstate'
+        assert r1.enableFingerprinting is True
+        r1.modify(enableFingerprinting=False)
+        assert r1.enableFingerprinting is False
+        r2 = policy.web_scraping.load()
+        assert r1.kind == r2.kind
+        assert r1.enableFingerprinting == r2.enableFingerprinting
+
+    def test_refresh(self, policy):
+        r1 = policy.web_scraping.load()
+        assert r1.kind == \
+            'tm:asm:policies:web-scraping:web-scrapingstate'
+        assert r1.enableFingerprinting is False
+        r2 = policy.web_scraping.load()
+        assert r1.kind == r2.kind
+        assert r1.enableFingerprinting == r2.enableFingerprinting
+        r2.modify(enableFingerprinting=True)
+        assert r2.enableFingerprinting is True
+        r1.refresh()
+        assert r1.enableFingerprinting is True
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '12.0.0'),
+    reason='This collection is fully implemented on 12.0.0 or greater.'
+)
+class TestAuditLogs(object):
+    def test_create_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.audit_logs_s.audit_log.create()
+
+    def test_delete_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.audit_logs_s.audit_log.delete()
+
+    def test_modify_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.audit_logs_s.audit_log.create()
+
+    def test_refresh(self, policy, set_audit_logs):
+        hashid = set_audit_logs
+        r1 = policy.audit_logs_s.audit_log.load(id=hashid)
+        assert r1.kind == 'tm:asm:policies:audit-logs:audit-logstate'
+        r2 = policy.audit_logs_s.audit_log.load(id=hashid)
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+        r1.refresh()
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.audit_logs_s.audit_log.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, policy, set_audit_logs):
+        hashid = set_audit_logs
+        r1 = policy.audit_logs_s.audit_log.load(id=hashid)
+        assert r1.kind == 'tm:asm:policies:audit-logs:audit-logstate'
+        r2 = policy.audit_logs_s.audit_log.load(id=hashid)
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+
+    def test_auditlog_subcollection(self, policy):
+        mc = policy.audit_logs_s.get_collection(
+            requests_params={'params': '$top=2'})
+        assert isinstance(mc, list)
+        assert len(mc)
+        assert isinstance(mc[0], Audit_Log)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '12.0.0'),
+    reason='This collection is fully implemented on 12.0.0 or greater.'
+)
+class TestSuggestions(object):
+    def test_create_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.suggestions_s.suggestion.create()
+
+    def test_suggestions_subcollection(self, policy):
+        mc = policy.suggestions_s.get_collection(
+            requests_params={'params': '$top=2'})
+        m = policy.suggestions_s
+        # Same situation where the BIGIP will return 500 entries by default.
+        # This list is populated when policy is in learning mode. Very
+        # limited testing can be performed
+        assert Suggestion in m._meta_data['allowed_lazy_attributes']
+        assert isinstance(mc, list)
+        assert not len(mc)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '12.1.0'),
+    reason='This collection is fully implemented on 12.1.0 or greater.'
+)
+class TestPlainTextProfiles(object):
+    def test_create_req_arg(self, set_plaintext):
+        r1 = set_plaintext
+        assert r1.kind == \
+            'tm:asm:policies:plain-text-profiles:plain-text-profilestate'
+        assert r1.name == 'fake_txt'
+        assert r1.description == ''
+
+    def test_create_optional_args(self, policy):
+        r1 = policy.plain_text_profiles_s.plain_text_profile.create(
+            name='fake_txt', description='fake_profile_text')
+        assert r1.kind == \
+            'tm:asm:policies:plain-text-profiles:plain-text-profilestate'
+        assert r1.name == 'fake_txt'
+        assert r1.description == 'fake_profile_text'
+        r1.delete()
+
+    def test_refresh(self, set_plaintext, policy):
+        r1 = set_plaintext
+        r2 = policy.plain_text_profiles_s.plain_text_profile.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r1.selfLink
+        assert r1.description == r2.description
+        r2.modify(description='changed_this')
+        assert r1.description == ''
+        assert r2.description == 'changed_this'
+        r1.refresh()
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+        assert r1.description == 'changed_this'
+
+    def test_modify(self, set_plaintext):
+        r1 = set_plaintext
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'description'
+        r1.modify(description='modified_this')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == 'modified_this'
+
+    def test_delete(self, policy):
+        r1 = policy.plain_text_profiles_s.plain_text_profile.create(
+            name='fake_txt')
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.plain_text_profiles_s.plain_text_profile.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.plain_text_profiles_s.plain_text_profile.load(
+                id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_plaintext, policy):
+        r1 = set_plaintext
+        assert r1.kind == 'tm:asm:policies:plain-text-profiles:' \
+                          'plain-text-profilestate'
+        assert r1.description == ''
+        r1.modify(description='load_this')
+        assert r1.description == 'load_this'
+        r2 = policy.plain_text_profiles_s.plain_text_profile.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+        assert r1.description == r2.description
+
+    def test_plaintextprofiles_subcollection(self, policy):
+        cc = policy.plain_text_profiles_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Plain_Text_Profile)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '12.1.0'),
+    reason='This collection is fully implemented on 12.1.0 or greater.'
+)
+class TestWebsocketUrls(object):
+    def test_create_req_arg(self, set_websock):
+        r1 = set_websock
+        assert r1.kind == \
+            'tm:asm:policies:websocket-urls:websocket-urlstate'
+        assert r1.name == 'fakewebsock'
+        assert r1.description == ''
+
+    def test_create_optional_args(self, policy):
+        r1 = policy.websocket_urls_s.websocket_url.create(
+            name='fakewebsock', checkPayload=False,
+            description='fake_websock_text')
+        assert r1.kind == \
+            'tm:asm:policies:websocket-urls:websocket-urlstate'
+        assert r1.name == 'fakewebsock'
+        assert r1.description == 'fake_websock_text'
+        r1.delete()
+
+    def test_create_mandatory_arg_missing(self, policy):
+        error_message = "This resource requires at least one of the " \
+                        "mandatory additional parameters to be provided: " \
+                        "set(['allowJsonMessage', " \
+                        "'allowTextMessage', " \
+                        "'allowBinaryMessage'])"
+        with pytest.raises(MissingRequiredCreationParameter) as err:
+            policy.websocket_urls_s.websocket_url.create(name='fakewebsock',
+                                                         checkPayload=True)
+        assert err.value.message == error_message
+
+    def test_create_profile_ref_missing(self, policy):
+        error_message = "Missing required params: [" \
+                        "'jsonProfileReference', 'plainTextProfileReference']"
+        with pytest.raises(MissingRequiredCreationParameter) as err:
+            policy.websocket_urls_s.websocket_url.create(
+                name='fakewebsock', allowTextMessage=True,
+                allowJsonMessage=True, checkPayload=True)
+        assert err.value.message == error_message
+
+    def test_refresh(self, set_websock, policy):
+        r1 = set_websock
+        r2 = policy.websocket_urls_s.websocket_url.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r1.selfLink
+        assert r1.description == r2.description
+        r2.modify(description='changed_this')
+        assert r1.description == ''
+        assert r2.description == 'changed_this'
+        r1.refresh()
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+        assert r1.description == 'changed_this'
+
+    def test_modify(self, set_websock):
+        r1 = set_websock
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'description'
+        r1.modify(description='modified_this')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == 'modified_this'
+
+    def test_delete(self, policy):
+        r1 = policy.websocket_urls_s.websocket_url.create(
+            name='fakewebsock', checkPayload=False)
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.websocket_urls_s.websocket_url.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.websocket_urls_s.websocket_url.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_websock, policy):
+        r1 = set_websock
+        assert r1.kind == \
+            'tm:asm:policies:websocket-urls:websocket-urlstate'
+        assert r1.name == 'fakewebsock'
+        assert r1.description == ''
+        r1.modify(description='load_this')
+        assert r1.description == 'load_this'
+        r2 = policy.websocket_urls_s.websocket_url.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+        assert r1.description == r2.description
+
+    def test_websocketurls_subcollection(self, policy):
+        cc = policy.websocket_urls_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Websocket_Url)

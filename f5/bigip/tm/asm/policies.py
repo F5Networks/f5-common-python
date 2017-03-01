@@ -101,7 +101,16 @@ class Policy(AsmResource):
             'tm:asm:policies:navigation-parameters:'
             'navigation-parametercollectionstate': Navigation_Parameters_s,
             'tm:asm:policies:character-sets:character-setcollectionstate':
-            Character_Sets_s
+                Character_Sets_s,
+            'tm:asm:policies:web-scraping:web-scrapingstate': Web_Scraping,
+            'tm:asm:policies:audit-logs:audit-logcollectionstate':
+                Audit_Logs_s,
+            'tm:asm:policies:suggestions:suggestioncollectionstate':
+                Suggestions_s,
+            'tm:asm:policies:plain-text-profiles:'
+            'plain-text-profilecollectionstate': Plain_Text_Profiles_s,
+            'tm:asm:policies:websocket-urls:websocket-urlcollectionstate':
+                Websocket_Urls_s
         }
         self._set_attr_reg()
 
@@ -1019,7 +1028,7 @@ class Login_Enforcement(UnnamedResource):
     def __init__(self, policy):
         super(Login_Enforcement, self).__init__(policy)
         self._meta_data['required_json_kind'] = \
-            'tm:asm:policies:login-enforcement:login-enforcementstate"'
+            'tm:asm:policies:login-enforcement:login-enforcementstate'
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['object_has_stats'] = False
         self._meta_data['minimum_version'] = '11.6.0'
@@ -1286,3 +1295,169 @@ class Character_Sets(AsmResource):
         raise UnsupportedOperation(
             "%s does not support the delete method" % self.__class__.__name__
         )
+
+
+class Web_Scraping(UnnamedResource):
+    """BIG-IP® ASM Web Scraping resource."""
+    def __init__(self, policy):
+        super(Web_Scraping, self).__init__(policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:web-scraping:web-scrapingstate'
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '12.0.0'
+
+    def update(self, **kwargs):
+        """Update is not supported for Login Enforcement resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+
+class Audit_Logs_s(Collection):
+    """BIG-IP® ASM Audit Logs sub-collection."""
+    def __init__(self, policy):
+        super(Audit_Logs_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '12.0.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Audit_Log]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:audit-logs:audit-logcollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:audit-logs:audit-logstate':
+                Audit_Log}
+
+
+class Audit_Log(AsmResource):
+    """BIG-IP® ASM Audit Logs Resource."""
+    def __init__(self, audit_logs_s):
+        super(Audit_Log, self).__init__(audit_logs_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:audit-logs:audit-logstate'
+
+    def create(self, **kwargs):
+        """Modify is not supported for Audit Logs resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+    def modify(self, **kwargs):
+        """Modify is not supported for Audit Logs resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the modify method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        """Modify is not supported for Audit Logs resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the delete method" % self.__class__.__name__
+        )
+
+
+class Suggestions_s(Collection):
+    """BIG-IP® ASM Suggestions sub-collection."""
+    def __init__(self, policy):
+        super(Suggestions_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '12.0.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Suggestion]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:suggestions:suggestioncollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:suggestions:suggestionstate':
+                Suggestion}
+
+
+class Suggestion(AsmResource):
+    """BIG-IP® ASM Suggestions Resource."""
+    def __init__(self, suggestions_s):
+        super(Suggestion, self).__init__(suggestions_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:suggestions:suggestionstate'
+
+    def create(self, **kwargs):
+        """Modify is not supported for Suggestions resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the create method" % self.__class__.__name__
+        )
+
+
+class Plain_Text_Profiles_s(Collection):
+    """BIG-IP® ASM Plain Text Profiles sub-collection."""
+    def __init__(self, policy):
+        super(Plain_Text_Profiles_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '12.1.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Plain_Text_Profile]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:plain-text-profiles:' \
+            'plain-text-profilecollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:plain-text-profiles:plain-text-profilestate':
+                Plain_Text_Profile}
+
+
+class Plain_Text_Profile(AsmResource):
+    """BIG-IP® ASM Plain Text Profile Resource."""
+    def __init__(self, plain_text_profiles_s):
+        super(Plain_Text_Profile, self).__init__(plain_text_profiles_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:plain-text-profiles:plain-text-profilestate'
+
+
+class Websocket_Urls_s(Collection):
+    """BIG-IP® ASM Websocket Urls sub-collection."""
+    def __init__(self, policy):
+        super(Websocket_Urls_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '12.1.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Websocket_Url]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:websocket-urls:websocket-urlcollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:websocket-urls:websocket-urlstate':
+                Websocket_Url}
+
+
+class Websocket_Url(AsmResource):
+    """BIG-IP® ASM Websocket UrlResource."""
+    def __init__(self, websocket_urls_s):
+        super(Websocket_Url, self).__init__(websocket_urls_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:websocket-urls:websocket-urlstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('checkPayload',))
+
+    def create(self, **kwargs):
+        """Custom create method to accommodate different endpoint behavior."""
+        self._check_create_parameters(**kwargs)
+        if kwargs['checkPayload'] is True:
+            req_set = {'allowTextMessage', 'allowJsonMessage',
+                       'allowBinaryMessage'}
+            _minimum_one_is_missing(req_set, **kwargs)
+        if 'allowTextMessage' in kwargs:
+            self._meta_data['required_creation_parameters'].update((
+                'plainTextProfileReference',))
+        if 'allowJsonMessage' in kwargs:
+            self._meta_data['required_creation_parameters'].update((
+                'jsonProfileReference',))
+        return self._create(**kwargs)
