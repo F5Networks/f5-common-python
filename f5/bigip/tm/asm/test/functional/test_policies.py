@@ -43,6 +43,7 @@ from f5.bigip.tm.asm.policies import Sensitive_Parameter
 from f5.bigip.tm.asm.policies import Session_Tracking_Status
 from f5.bigip.tm.asm.policies import Signature
 from f5.bigip.tm.asm.policies import Signature_Set
+from f5.bigip.tm.asm.policies import Suggestion
 from f5.bigip.tm.asm.policies import Url
 from f5.bigip.tm.asm.policies import UrlParametersCollection
 from f5.bigip.tm.asm.policies import UrlParametersResource
@@ -604,7 +605,7 @@ class TestHostNames(object):
         assert host1.includeSubdomains == host2.includeSubdomains
         host1.delete()
 
-    def test_cookies_subcollection(self, policy):
+    def test_hostnames_subcollection(self, policy):
         host1 = policy.host_names_s.host_name.create(name='fake-domain.com')
         assert host1.kind == 'tm:asm:policies:host-names:host-namestate'
         assert host1.name == 'fake-domain.com'
@@ -769,7 +770,7 @@ class TestViolations(object):
         assert isinstance(coll[0], Violation)
 
 
-class TestHTTPProtoccols(object):
+class TestHTTPProtocols(object):
     def test_create_raises(self, policy):
         with pytest.raises(UnsupportedOperation):
             policy.blocking_settings.http_protocols_s.http_protocol.create()
@@ -1780,7 +1781,7 @@ class TestHeaders(object):
         assert h1.base64Decoding == h2.base64Decoding
         h1.delete()
 
-    def test_method_subcollection(self, policy):
+    def test_headers_subcollection(self, policy):
         mc = policy.headers_s.get_collection()
         assert isinstance(mc, list)
         assert len(mc)
@@ -1906,7 +1907,7 @@ class TestResponsePages(object):
         assert r1.responsePageType == r2.responsePageType
         assert r1.responseRedirectUrl == r2.responseRedirectUrl
 
-    def test_method_subcollection(self, policy):
+    def test_responsepages_subcollection(self, policy):
         mc = policy.response_pages_s.get_collection()
         assert isinstance(mc, list)
         assert len(mc)
@@ -1961,7 +1962,7 @@ class TestHistoryRevisions(object):
         assert r1.kind == r2.kind
         assert r1.selfLink == r2.selfLink
 
-    def test_method_subcollection(self, policy):
+    def test_historyrevisions_subcollection(self, policy):
         mc = policy.history_revisions_s.get_collection()
         assert isinstance(mc, list)
         assert len(mc)
@@ -2942,7 +2943,7 @@ class TestVulnerabilities(object):
         assert r1.kind == r2.kind
         assert r1.selfLink == r2.selfLink
 
-    def test_method_subcollection(self, policy):
+    def test_vulnerabilities_subcollection(self, policy):
         mc = policy.vulnerabilities_s.get_collection()
         assert isinstance(mc, list)
         assert len(mc)
@@ -3080,7 +3081,7 @@ class TestCharacterSets(object):
         assert char1.kind == char2.kind
         assert char1.characterSet == char2.characterSet
 
-    def test_evasions_subcollection(self, policy):
+    def test_charactersets_subcollection(self, policy):
         coll = policy.character_sets_s.get_collection()
         assert isinstance(coll, list)
         assert len(coll)
@@ -3175,9 +3176,31 @@ class TestAuditLogs(object):
         assert r1.kind == r2.kind
         assert r1.selfLink == r2.selfLink
 
-    def test_method_subcollection(self, policy):
+    def test_auditlog_subcollection(self, policy):
         mc = policy.audit_logs_s.get_collection(
             requests_params={'params': '$top=2'})
         assert isinstance(mc, list)
         assert len(mc)
         assert isinstance(mc[0], Audit_Log)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '12.0.0'),
+    reason='This collection is fully implemented on 12.0.0 or greater.'
+)
+class TestSuggestions(object):
+    def test_create_raises(self, policy):
+        with pytest.raises(UnsupportedOperation):
+            policy.suggestions_s.suggestion.create()
+
+    def test_suggestions_subcollection(self, policy):
+        mc = policy.suggestions_s.get_collection(
+            requests_params={'params': '$top=2'})
+        m = policy.suggestions_s
+        # Same situation where the BIGIP will return 500 entries by default.
+        # This list is populated when policy is in learning mode. Very
+        # limited testing can be performed
+        assert Suggestion in m._meta_data['allowed_lazy_attributes']
+        assert isinstance(mc, list)
+        assert not len(mc)

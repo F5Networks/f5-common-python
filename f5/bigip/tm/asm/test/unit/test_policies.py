@@ -42,6 +42,7 @@ from f5.bigip.tm.asm.policies import Sensitive_Parameter
 from f5.bigip.tm.asm.policies import Session_Tracking
 from f5.bigip.tm.asm.policies import Session_Tracking_Status
 from f5.bigip.tm.asm.policies import Signature
+from f5.bigip.tm.asm.policies import Suggestion
 from f5.bigip.tm.asm.policies import Url
 from f5.bigip.tm.asm.policies import UrlParametersCollection
 from f5.bigip.tm.asm.policies import UrlParametersResource
@@ -58,6 +59,14 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeSugg():
+    fake_policy = mock.MagicMock()
+    fake_e = Suggestion(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '12.0.0'
+    return fake_e
 
 
 @pytest.fixture
@@ -607,3 +616,9 @@ class TestAuditLogs(object):
     def test_modify_raises(self, FakeAudit):
         with pytest.raises(UnsupportedOperation):
             FakeAudit.modify()
+
+
+class TestSuggestions(object):
+    def test_create_raises(self, FakeSugg):
+        with pytest.raises(UnsupportedOperation):
+            FakeSugg.create()

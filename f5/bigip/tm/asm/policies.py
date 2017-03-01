@@ -103,7 +103,10 @@ class Policy(AsmResource):
             'tm:asm:policies:character-sets:character-setcollectionstate':
             Character_Sets_s,
             'tm:asm:policies:web-scraping:web-scrapingstate': Web_Scraping,
-            'tm:asm:policies:audit-logs:audit-logcollectionstate': Audit_Logs_s
+            'tm:asm:policies:audit-logs:audit-logcollectionstate':
+                Audit_Logs_s,
+            'tm:asm:policies:suggestions:suggestioncollectionstate':
+                Suggestions_s
         }
         self._set_attr_reg()
 
@@ -1357,4 +1360,36 @@ class Audit_Log(AsmResource):
         """
         raise UnsupportedOperation(
             "%s does not support the delete method" % self.__class__.__name__
+        )
+
+
+class Suggestions_s(Collection):
+    """BIG-IP® ASM Suggestions sub-collection."""
+    def __init__(self, policy):
+        super(Suggestions_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '12.0.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Suggestion]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:suggestions:suggestioncollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:suggestions:suggestionstate':
+                Suggestion}
+
+
+class Suggestion(AsmResource):
+    """BIG-IP® ASM Suggestions Resource."""
+    def __init__(self, suggestions_s):
+        super(Suggestion, self).__init__(suggestions_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:suggestions:suggestionstate'
+
+    def create(self, **kwargs):
+        """Modify is not supported for Suggestions resource
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the create method" % self.__class__.__name__
         )
