@@ -15,6 +15,7 @@
 
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.asm import Asm
+from f5.bigip.tm.asm.policies import Audit_Log
 from f5.bigip.tm.asm.policies import Brute_Force_Attack_Prevention
 from f5.bigip.tm.asm.policies import Character_Sets
 from f5.bigip.tm.asm.policies import Csrf_Protection
@@ -63,6 +64,14 @@ from six import iterkeys
 def FakeWebscrape():
     fake_policy = mock.MagicMock()
     fake_e = Web_Scraping(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '12.0.0'
+    return fake_e
+
+
+@pytest.fixture
+def FakeAudit():
+    fake_policy = mock.MagicMock()
+    fake_e = Audit_Log(fake_policy)
     fake_e._meta_data['bigip'].tmos_version = '12.0.0'
     return fake_e
 
@@ -584,3 +593,17 @@ class TestWebScraping(object):
     def test_update_raises(self, FakeWebscrape):
         with pytest.raises(UnsupportedOperation):
             FakeWebscrape.update()
+
+
+class TestAuditLogs(object):
+    def test_create_raises(self, FakeAudit):
+        with pytest.raises(UnsupportedOperation):
+            FakeAudit.create()
+
+    def test_delete_raises(self, FakeAudit):
+        with pytest.raises(UnsupportedOperation):
+            FakeAudit.delete()
+
+    def test_modify_raises(self, FakeAudit):
+        with pytest.raises(UnsupportedOperation):
+            FakeAudit.modify()
