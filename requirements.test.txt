@@ -1,6 +1,5 @@
 # Install this directory (will use setup.py and therefore install_requires).
 -e .
--r requirements.py26.txt
 # Test Requirements
 hacking==0.13.0
 mock==2.0.0
