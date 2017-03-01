@@ -53,6 +53,7 @@ from f5.bigip.tm.asm.policies import Violations_s
 from f5.bigip.tm.asm.policies import Vulnerabilities
 from f5.bigip.tm.asm.policies import Web_Services_Securities_s
 from f5.bigip.tm.asm.policies import Web_Services_Security
+from f5.bigip.tm.asm.policies import Websocket_Url
 from f5.bigip.tm.asm.policies import Whitelist_Ip
 from f5.bigip.tm.asm.policies import Xml_Profile
 from f5.bigip.tm.asm.policies import Xml_Validation_File
@@ -234,6 +235,14 @@ def set_audit_logs(policy):
 def set_plaintext(policy):
     r1 = policy.plain_text_profiles_s.plain_text_profile.create(
         name='fake_txt')
+    yield r1
+    r1.delete()
+
+
+@pytest.fixture(scope='function')
+def set_websock(policy):
+    r1 = policy.websocket_urls_s.websocket_url.create(
+        name='fakewebsock', checkPayload=False)
     yield r1
     r1.delete()
 
@@ -3294,3 +3303,105 @@ class TestPlainTextProfiles(object):
         assert isinstance(cc, list)
         assert len(cc)
         assert isinstance(cc[0], Plain_Text_Profile)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '12.1.0'),
+    reason='This collection is fully implemented on 12.1.0 or greater.'
+)
+class TestWebsocketUrls(object):
+    def test_create_req_arg(self, set_websock):
+        r1 = set_websock
+        assert r1.kind == \
+            'tm:asm:policies:websocket-urls:websocket-urlstate'
+        assert r1.name == 'fakewebsock'
+        assert r1.description == ''
+
+    def test_create_optional_args(self, policy):
+        r1 = policy.websocket_urls_s.websocket_url.create(
+            name='fakewebsock', checkPayload=False,
+            description='fake_websock_text')
+        assert r1.kind == \
+            'tm:asm:policies:websocket-urls:websocket-urlstate'
+        assert r1.name == 'fakewebsock'
+        assert r1.description == 'fake_websock_text'
+        r1.delete()
+
+    def test_create_mandatory_arg_missing(self, policy):
+        error_message = "This resource requires at least one of the " \
+                        "mandatory additional parameters to be provided: " \
+                        "set(['allowJsonMessage', " \
+                        "'allowTextMessage', " \
+                        "'allowBinaryMessage'])"
+        with pytest.raises(MissingRequiredCreationParameter) as err:
+            policy.websocket_urls_s.websocket_url.create(name='fakewebsock',
+                                                         checkPayload=True)
+        assert err.value.message == error_message
+
+    def test_create_profile_ref_missing(self, policy):
+        error_message = "Missing required params: [" \
+                        "'jsonProfileReference', 'plainTextProfileReference']"
+        with pytest.raises(MissingRequiredCreationParameter) as err:
+            policy.websocket_urls_s.websocket_url.create(
+                name='fakewebsock', allowTextMessage=True,
+                allowJsonMessage=True, checkPayload=True)
+        assert err.value.message == error_message
+
+    def test_refresh(self, set_websock, policy):
+        r1 = set_websock
+        r2 = policy.websocket_urls_s.websocket_url.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r1.selfLink
+        assert r1.description == r2.description
+        r2.modify(description='changed_this')
+        assert r1.description == ''
+        assert r2.description == 'changed_this'
+        r1.refresh()
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+        assert r1.description == 'changed_this'
+
+    def test_modify(self, set_websock):
+        r1 = set_websock
+        original_dict = copy.copy(r1.__dict__)
+        itm = 'description'
+        r1.modify(description='modified_this')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == 'modified_this'
+
+    def test_delete(self, policy):
+        r1 = policy.websocket_urls_s.websocket_url.create(
+            name='fakewebsock', checkPayload=False)
+        idhash = r1.id
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            policy.websocket_urls_s.websocket_url.load(id=idhash)
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, policy):
+        with pytest.raises(HTTPError) as err:
+            policy.websocket_urls_s.websocket_url.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, set_websock, policy):
+        r1 = set_websock
+        assert r1.kind == \
+            'tm:asm:policies:websocket-urls:websocket-urlstate'
+        assert r1.name == 'fakewebsock'
+        assert r1.description == ''
+        r1.modify(description='load_this')
+        assert r1.description == 'load_this'
+        r2 = policy.websocket_urls_s.websocket_url.load(id=r1.id)
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+        assert r1.description == r2.description
+
+    def test_websocketurls_subcollection(self, policy):
+        cc = policy.websocket_urls_s.get_collection()
+        assert isinstance(cc, list)
+        assert len(cc)
+        assert isinstance(cc[0], Websocket_Url)

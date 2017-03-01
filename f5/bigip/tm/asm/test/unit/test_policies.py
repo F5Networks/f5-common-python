@@ -52,6 +52,7 @@ from f5.bigip.tm.asm.policies import Vulnerabilities
 from f5.bigip.tm.asm.policies import Vulnerability_Assessment
 from f5.bigip.tm.asm.policies import Web_Scraping
 from f5.bigip.tm.asm.policies import Web_Services_Security
+from f5.bigip.tm.asm.policies import Websocket_Url
 from f5.bigip.tm.asm.policies import Xml_Validation_File
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
@@ -60,6 +61,14 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeWebsock():
+    fake_policy = mock.MagicMock()
+    fake_e = Websocket_Url(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '12.1.0'
+    return fake_e
 
 
 @pytest.fixture
@@ -637,3 +646,18 @@ class TestPlainTextProfiles(object):
     def test_create_no_args(self, FakePlain):
         with pytest.raises(MissingRequiredCreationParameter):
             FakePlain.create()
+
+
+class TestWebSocketUrls(object):
+    def test_create_no_args(self, FakeWebsock):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeWebsock.create()
+
+    def test_create_missing_additional_arguments(self, FakeWebsock):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeWebsock.create(name='fake', checkPayload=True)
+
+    def test_create_additional_arguments_missing_profiles(self, FakeWebsock):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeWebsock.create(name='fake', checkPayload=True,
+                               allowTextMessage=True, allowJsonMessage=True)

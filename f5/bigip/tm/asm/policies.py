@@ -101,14 +101,16 @@ class Policy(AsmResource):
             'tm:asm:policies:navigation-parameters:'
             'navigation-parametercollectionstate': Navigation_Parameters_s,
             'tm:asm:policies:character-sets:character-setcollectionstate':
-            Character_Sets_s,
+                Character_Sets_s,
             'tm:asm:policies:web-scraping:web-scrapingstate': Web_Scraping,
             'tm:asm:policies:audit-logs:audit-logcollectionstate':
                 Audit_Logs_s,
             'tm:asm:policies:suggestions:suggestioncollectionstate':
                 Suggestions_s,
             'tm:asm:policies:plain-text-profiles:'
-            'plain-text-profilecollectionstate': Plain_Text_Profiles_s
+            'plain-text-profilecollectionstate': Plain_Text_Profiles_s,
+            'tm:asm:policies:websocket-urls:websocket-urlcollectionstate':
+                Websocket_Urls_s
         }
         self._set_attr_reg()
 
@@ -1419,3 +1421,43 @@ class Plain_Text_Profile(AsmResource):
         super(Plain_Text_Profile, self).__init__(plain_text_profiles_s)
         self._meta_data['required_json_kind'] = \
             'tm:asm:policies:plain-text-profiles:plain-text-profilestate'
+
+
+class Websocket_Urls_s(Collection):
+    """BIG-IP® ASM Websocket Urls sub-collection."""
+    def __init__(self, policy):
+        super(Websocket_Urls_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '12.1.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Websocket_Url]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:websocket-urls:websocket-urlcollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:websocket-urls:websocket-urlstate':
+                Websocket_Url}
+
+
+class Websocket_Url(AsmResource):
+    """BIG-IP® ASM Websocket UrlResource."""
+    def __init__(self, websocket_urls_s):
+        super(Websocket_Url, self).__init__(websocket_urls_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:websocket-urls:websocket-urlstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('checkPayload',))
+
+    def create(self, **kwargs):
+        """Custom create method to accommodate different endpoint behavior."""
+        self._check_create_parameters(**kwargs)
+        if kwargs['checkPayload'] is True:
+            req_set = {'allowTextMessage', 'allowJsonMessage',
+                       'allowBinaryMessage'}
+            _minimum_one_is_missing(req_set, **kwargs)
+        if 'allowTextMessage' in kwargs:
+            self._meta_data['required_creation_parameters'].update((
+                'plainTextProfileReference',))
+        if 'allowJsonMessage' in kwargs:
+            self._meta_data['required_creation_parameters'].update((
+                'jsonProfileReference',))
+        return self._create(**kwargs)
