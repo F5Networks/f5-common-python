@@ -34,6 +34,7 @@ from f5.bigip.tm.asm.policies import Parameter
 from f5.bigip.tm.asm.policies import Parameters_s
 from f5.bigip.tm.asm.policies import ParametersCollection
 from f5.bigip.tm.asm.policies import ParametersResource
+from f5.bigip.tm.asm.policies import Plain_Text_Profile
 from f5.bigip.tm.asm.policies import Policy
 from f5.bigip.tm.asm.policies import Policy_Builder
 from f5.bigip.tm.asm.policies import Redirection_Protection
@@ -59,6 +60,14 @@ from f5.sdk_exception import UnsupportedOperation
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakePlain():
+    fake_policy = mock.MagicMock()
+    fake_e = Plain_Text_Profile(fake_policy)
+    fake_e._meta_data['bigip'].tmos_version = '12.1.0'
+    return fake_e
 
 
 @pytest.fixture
@@ -622,3 +631,9 @@ class TestSuggestions(object):
     def test_create_raises(self, FakeSugg):
         with pytest.raises(UnsupportedOperation):
             FakeSugg.create()
+
+
+class TestPlainTextProfiles(object):
+    def test_create_no_args(self, FakePlain):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakePlain.create()

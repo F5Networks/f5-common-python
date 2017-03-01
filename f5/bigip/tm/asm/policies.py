@@ -106,7 +106,9 @@ class Policy(AsmResource):
             'tm:asm:policies:audit-logs:audit-logcollectionstate':
                 Audit_Logs_s,
             'tm:asm:policies:suggestions:suggestioncollectionstate':
-                Suggestions_s
+                Suggestions_s,
+            'tm:asm:policies:plain-text-profiles:'
+            'plain-text-profilecollectionstate': Plain_Text_Profiles_s
         }
         self._set_attr_reg()
 
@@ -1393,3 +1395,27 @@ class Suggestion(AsmResource):
         raise UnsupportedOperation(
             "%s does not support the create method" % self.__class__.__name__
         )
+
+
+class Plain_Text_Profiles_s(Collection):
+    """BIG-IP® ASM Plain Text Profiles sub-collection."""
+    def __init__(self, policy):
+        super(Plain_Text_Profiles_s, self).__init__(policy)
+        self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '12.1.0'
+        self._meta_data['allowed_lazy_attributes'] = \
+            [Plain_Text_Profile]
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:plain-text-profiles:' \
+            'plain-text-profilecollectionstate'
+        self._meta_data['attribute_registry'] = {
+            'tm:asm:policies:plain-text-profiles:plain-text-profilestate':
+                Plain_Text_Profile}
+
+
+class Plain_Text_Profile(AsmResource):
+    """BIG-IP® ASM Plain Text Profile Resource."""
+    def __init__(self, plain_text_profiles_s):
+        super(Plain_Text_Profile, self).__init__(plain_text_profiles_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:asm:policies:plain-text-profiles:plain-text-profilestate'
