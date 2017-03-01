@@ -16,7 +16,7 @@
 import mock
 import pytest
 
-
+from f5.bigip import ManagementRoot
 from f5.bigip.tm.sys.management_route import Management_Route
 from f5.sdk_exception import MissingRequiredCreationParameter
 
@@ -49,3 +49,10 @@ def test_create_missing_gateway(FakeMgmtRoute):
     with pytest.raises(MissingRequiredCreationParameter) as EIO:
         FakeMgmtRoute.create(name='testnet', network='172.16.15.0/24')
     assert EIO.value.message == "Missing required params: ['gateway']"
+
+
+def test_create_mgmtroute(fakeicontrolsession):
+    b = ManagementRoot('192.168.1.1.', 'admin', 'admin')
+    mr1 = b.tm.sys.management_routes.management_route
+    mr2 = b.tm.sys.management_routes.management_route
+    assert mr1 is not mr2

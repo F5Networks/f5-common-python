@@ -45,6 +45,6 @@ class Management_Route(Resource):
     def __init__(self, Management_Routes):
         super(Management_Route, self).__init__(Management_Routes)
         self._meta_data['required_creation_parameters'].update(
-            ('name', 'network', 'gateway'))
+            ('network', 'gateway'))
         self._meta_data['required_json_kind'] = \
             'tm:sys:management-route:management-routestate'

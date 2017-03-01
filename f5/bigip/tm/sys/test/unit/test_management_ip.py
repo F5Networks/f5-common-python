@@ -17,9 +17,9 @@ import mock
 import pytest
 
 
+from f5.bigip import ManagementRoot
 from f5.bigip.tm.sys.management_ip import Management_Ip
 from f5.sdk_exception import MissingRequiredCreationParameter
-from f5.sdk_exception import UnsupportedMethod
 
 
 @pytest.fixture
@@ -33,15 +33,8 @@ def test_create_no_args(FakeMgmtIp):
         FakeMgmtIp.create()
 
 
-def test_update_raises(FakeMgmtIp):
-    with pytest.raises(UnsupportedMethod) as EIO:
-        FakeMgmtIp.update()
-    assert EIO.value.message == "Management_Ip does not support the update " \
-                                "method"
-
-
-def test_modify_raises(FakeMgmtIp):
-    with pytest.raises(UnsupportedMethod) as EIO:
-        FakeMgmtIp.modify()
-    assert EIO.value.message == "Management_Ip does not support the modify " \
-                                "method"
+def test_create_mgmtip(fakeicontrolsession):
+    b = ManagementRoot('192.168.1.1.', 'admin', 'admin')
+    mip1 = b.tm.sys.management_ips.management_ip
+    mip2 = b.tm.sys.management_ips.management_ip
+    assert mip1 is not mip2

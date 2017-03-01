@@ -16,23 +16,7 @@
 import pytest
 
 from f5.bigip.resource import MissingRequiredCreationParameter
-from f5.sdk_exception import UnsupportedMethod
 from icontrol.exceptions import iControlUnexpectedHTTPError
-
-
-# def setup_management_ip_test(request, mgmt_root):
-#     def teardown():
-#         try:
-#             mgmt_root.tm.sys.management_ips.management_ip.load(
-#                 name=mip[0].name)
-#         except iControlUnexpectedHTTPError:
-#             mgmt_root.tm.sys.management_ips.management_ip.create(
-#                 name=mip[0].name)
-#
-#     request.addfinalizer(teardown)
-#
-#     mip = mgmt_root.tm.sys.management_ips.get_collection()
-#     return mip
 
 
 def test_missing_required_params(mgmt_root):
@@ -62,48 +46,39 @@ def test_create_existing_addr(request, mgmt_root):
     with pytest.raises(iControlUnexpectedHTTPError) as err:
         mgmt_root.tm.sys.management_ips.management_ip.create(
             name=name)
-    assert 'The requested management IP (%s) already exists.' % name in\
+    assert 'The requested management IP (10.0.2.15) already exists.' in\
            str(err.value.message)
 
 
-# def test_create_delete_addr(request, mgmt_root):
-#     mip = setup_management_ip_test(request, mgmt_root)
-#     assert mip[0].name == '172.16.44.15/24'
-#
-#     mip1 = mgmt_root.tm.sys.management_ips.management_ip.load(
-#         name=mip[0].name)
-#     assert mip1.name == mip[0].name
-#     mip1.delete()
-#
-#     with pytest.raises(iControlUnexpectedHTTPError) as err:
-#         mgmt_root.tm.sys.management_ips.management_ip.load(
-#             name=mip[0].name)
-#     assert ') was not found.' in str(err.value.message)
-#
-#     mip2 = mgmt_root.tm.sys.management_ips.management_ip.create(
-#         name='172.16.44.16/24')
-#     assert mip2.name == '172.16.44.16/24'
-
-
 def test_modify_addr(request, mgmt_root):
-    # mip = setup_management_ip_test(request, mgmt_root)
-    # name = mip[0].name
     name = '10.0.2.15/24'
     mip1 = mgmt_root.tm.sys.management_ips.management_ip.load(
         name=name)
-    mip1.name = '10.0.2.16/24'
-    with pytest.raises(UnsupportedMethod) as err:
-        mip1.modify()
-    assert 'Management_Ip does not support the modify method' in str(err)
+    assert hasattr(mip1, 'description') is False
+    # Add a description and update
+    mip1.modify(description='adding a description')
+    # Assert description is now present
+    assert mip1.description == 'adding a description'
+    # Remove description
+    mip1.modify(description='')
+    assert hasattr(mip1, 'description') is False
 
 
 def test_update_addr(request, mgmt_root):
-    # mip = setup_management_ip_test(request, mgmt_root)
-    # name = mip[0].name
     name = '10.0.2.15/24'
-    mip1 = mgmt_root.tm.sys.management_ips.management_ip.load(
+    mip3 = mgmt_root.tm.sys.management_ips.management_ip.load(
         name=name)
-    mip1.name = '10.0.2.16/24'
-    with pytest.raises(UnsupportedMethod) as err:
-        mip1.update()
-    assert 'Management_Ip does not support the update method' in str(err)
+    mip3.name = '10.0.2.16/24'
+    mip3.update()
+    # Prove name doesn't actually update
+    assert mip3.name == '10.0.2.15/24'
+    # Shouldn't be a description currently
+    assert hasattr(mip3, 'description') is False
+    # Add a description and update
+    mip3.description = 'adding a description'
+    mip3.update()
+    # Assert description is now present
+    assert mip3.description == 'adding a description'
+    # Remove description
+    delattr(mip3, 'description')
+    mip3.update()

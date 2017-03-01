@@ -29,7 +29,6 @@ REST Kind
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
-from f5.sdk_exception import UnsupportedMethod
 
 
 class Management_Ips(Collection):
@@ -47,16 +46,7 @@ class Management_Ip(Resource):
         super(Management_Ip, self).__init__(Management_Ips)
         self._meta_data['required_json_kind'] = \
             'tm:sys:management-ip:management-ipstate'
-        self._meta_data['required_creation_parameters'].update(('name',))
 
     def load(self, **kwargs):
         kwargs['transform_name'] = True
         return self._load(**kwargs)
-
-    def modify(self, **kwargs):
-        raise UnsupportedMethod(
-            "%s does not support the modify method" % self.__class__.__name__)
-
-    def update(self, **kwargs):
-        raise UnsupportedMethod(
-            "%s does not support the update method" % self.__class__.__name__)
