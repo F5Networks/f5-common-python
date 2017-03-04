@@ -18,6 +18,7 @@
 
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.shared.file_transfer import File_Transfer
+from f5.bigip.shared.iapp import Iapp
 
 
 class Shared(OrganizingCollection):
@@ -25,5 +26,6 @@ class Shared(OrganizingCollection):
     def __init__(self, mgmt):
         super(Shared, self).__init__(mgmt)
         self._meta_data['allowed_lazy_attributes'] = [
-            File_Transfer
+            File_Transfer,
+            Iapp
         ]
