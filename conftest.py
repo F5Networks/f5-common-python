@@ -13,8 +13,6 @@
 # limitations under the License.
 #
 
-from f5.sdk_exception import UnsupportedOperation
-from f5.utils.testutils.registrytools import register_device
 from icontrol.session import iControlRESTSession
 import logging
 import mock
@@ -135,28 +133,6 @@ def pool_factory():
         request.addfinalizer(deleter)
         return pool_registry, members_registry
     return _setup_boilerplate
-
-
-@pytest.fixture(scope='module')
-def setup_device_snapshot(request, mgmt_root):
-    '''Snapshot the device to manage objects created by tests.
-
-    Snapshot the device before a test runs and after, then remove objects
-    that persist after suite runs.
-    '''
-
-    before_snapshot = register_device(mgmt_root)
-
-    def teardown():
-        after_snapshot = register_device(mgmt_root)
-        diff = set(after_snapshot) - set(before_snapshot)
-        for item in diff:
-            try:
-                after_snapshot[item].delete()
-            except UnsupportedOperation:
-                pass
-    request.addfinalizer(teardown)
-    return before_snapshot
 
 
 @pytest.fixture
