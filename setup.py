@@ -50,5 +50,4 @@ setup(
         'Programming Language :: Python',
         'Intended Audience :: System Administrators',
     ],
-    entry_points={'pytest11': ['f5sdk_fixtures = f5sdk_plugins.fixtures']}
 )
