@@ -58,4 +58,4 @@ class Device(Resource):
             'shared:resolver:device-groups:restdeviceresolverdevicestate'
         self._meta_data['required_creation_parameters'] = {
             'address', 'password', 'userName'}
-        self._meta_data['required_load_parameters'] = {'uuid',}
+        self._meta_data['required_load_parameters'] = {'uuid', }
