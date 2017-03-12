@@ -42,10 +42,10 @@ class Users_s(Collection):
 class User(Resource):
     def __init__(self, users_s):
         super(User, self).__init__(users_s)
-        self._meta_data['required_load_parameters'] = set(('name',))
+        self._meta_data['required_load_parameters'] = {'name', }
         # There's a confirmation password parameter here (password2) but it is
         # not needed by the API. The web UI, however, requires it.
         self._meta_data['required_creation_parameters'] = \
-            set(('name', 'password'))
+            {'name', 'password'}
         self._meta_data['required_json_kind'] = \
             'shared:authz:users:usersworkerstate'

@@ -45,7 +45,7 @@ class Tenants_s(Collection):
 class Tenant(Resource):
     def __init__(self, tenants_s):
         super(Tenant, self).__init__(tenants_s)
-        self._meta_data['required_creation_parameters'] = set(('name',))
-        self._meta_data['required_load_parameters'] = set(('name',))
+        self._meta_data['required_creation_parameters'] = {'name', }
+        self._meta_data['required_load_parameters'] = {'name', }
         self._meta_data['required_json_kind'] = \
             'cm:cloud:tenants:tenantworkerstate'

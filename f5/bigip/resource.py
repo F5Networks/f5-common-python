@@ -827,9 +827,9 @@ class Resource(ResourceBase):
         super(Resource, self).__init__(container)
         self._meta_data.pop('uri')
         # Creation fails without these.
-        self._meta_data['required_creation_parameters'] = set(('name',))
+        self._meta_data['required_creation_parameters'] = {'name', }
         # Refresh fails without these.
-        self._meta_data['required_load_parameters'] = set(('name',))
+        self._meta_data['required_load_parameters'] = {'name', }
         # You can't set these attributes, only 'read' them.
         self._meta_data['read_only_attributes'] = []
         self._meta_data['reduction_forcing_pairs'] = \
@@ -1154,7 +1154,7 @@ class AsmResource(Resource):
         super(AsmResource, self).__init__(container)
         # Asm endpoints require object 'id' which is a hash created by BIGIP
         # when object is created.
-        self._meta_data['required_load_parameters'] = set(('id',))
+        self._meta_data['required_load_parameters'] = {'id', }
         # No ASM endpoint supports Stats
         self._meta_data['object_has_stats'] = False
 
@@ -1348,7 +1348,7 @@ class TaskResource(Resource):
         super(TaskResource, self).__init__(container)
         # Asm endpoints require object 'id' which is a hash created by BIGIP
         # when object is created.
-        self._meta_data['required_load_parameters'] = set(('id',))
+        self._meta_data['required_load_parameters'] = {'id', }
         # No ASM endpoint supports Stats
         self._meta_data['object_has_stats'] = False
 

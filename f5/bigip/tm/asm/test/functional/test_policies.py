@@ -3044,6 +3044,11 @@ class TestNavigationParameters(object):
         assert isinstance(cc[0], Navigation_Parameter)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
 class TestCharacterSets(object):
     def test_create_raises(self, policy):
         with pytest.raises(UnsupportedOperation):

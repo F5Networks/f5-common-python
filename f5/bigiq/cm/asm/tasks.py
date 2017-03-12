@@ -55,4 +55,4 @@ class Declare_Mgmt_Authority(TaskResource):
         super(Declare_Mgmt_Authority, self).__init__(authorities)
         self._meta_data['required_json_kind'] = \
             'cm:asm:tasks:declare-mgmt-authority:dmataskitemstate'
-        self._meta_data['required_load_parameters'] = set(('id',))
+        self._meta_data['required_load_parameters'] = {'id', }

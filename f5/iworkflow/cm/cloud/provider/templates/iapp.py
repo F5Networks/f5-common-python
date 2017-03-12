@@ -43,7 +43,7 @@ class Iapp(Resource):
     def __init__(self, templates):
         super(Iapp, self).__init__(templates)
         self._meta_data['required_creation_parameters'] = \
-            set(('templateName',))
-        self._meta_data['required_load_parameters'] = set(('templateName',))
+            {'templateName', }
+        self._meta_data['required_load_parameters'] = {'templateName', }
         self._meta_data['required_json_kind'] = \
             'cm:cloud:provider:templates:iapp:provideriapptemplateworkerstate'

@@ -553,7 +553,7 @@ class Whitelist_Ip(AsmResource):
         self._meta_data['required_json_kind'] = \
             'tm:asm:policies:whitelist-ips:whitelist-ipstate'
         self._meta_data['read_only_attributes'] = ['ipMask']
-        self._meta_data['required_creation_parameters'] = set(('ipAddress',))
+        self._meta_data['required_creation_parameters'] = {'ipAddress', }
 
 
 class Gwt_Profiles_s(Collection):
@@ -686,8 +686,8 @@ class Signature_Set(AsmResource):
         super(Signature_Set, self).__init__(signature_sets_s)
         self._meta_data['required_json_kind'] = \
             'tm:asm:policies:signature-sets:signature-setstate'
-        self._meta_data['required_creation_parameters'] = \
-            set(('signatureSetReference',))
+        self._meta_data['required_creation_parameters'] = {
+            'signatureSetReference', }
 
 
 class Headers_s(Collection):
@@ -925,8 +925,8 @@ class Session_Tracking_Status(AsmResource):
         self._meta_data['required_json_kind'] = \
             'tm:asm:policies:session-tracking-statuses:' \
             'session-tracking-statusstate'
-        self._meta_data['required_creation_parameters'] = \
-            set(('action', 'scope', 'value'))
+        self._meta_data['required_creation_parameters'] = {'action', 'scope',
+                                                           'value'}
 
     def modify(self, **kwargs):
         """Modify is not supported for Session Tracking resource
@@ -958,8 +958,8 @@ class Login_Page(AsmResource):
         super(Login_Page, self).__init__(login_pages_s)
         self._meta_data['required_json_kind'] = \
             'tm:asm:policies:login-pages:login-pagestate'
-        self._meta_data['required_creation_parameters'] = \
-            set(('accessValidation', 'urlReference',))
+        self._meta_data['required_creation_parameters'] = {'accessValidation',
+                                                           'urlReference'}
 
 
 class Ip_Intelligence(UnnamedResource):

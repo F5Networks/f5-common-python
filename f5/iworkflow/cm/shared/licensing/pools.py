@@ -46,7 +46,7 @@ class Pool(Resource):
     """iWorkflow® License pool resource"""
     def __init__(self, pool_s):
         super(Pool, self).__init__(pool_s)
-        self._meta_data['required_creation_parameters'] = set(('baseRegKey',))
+        self._meta_data['required_creation_parameters'] = {'baseRegKey', }
         self._meta_data['required_json_kind'] = \
             'cm:shared:licensing:pools:licensepoolworkerstate'
         self._meta_data['allowed_lazy_attributes'] = [
