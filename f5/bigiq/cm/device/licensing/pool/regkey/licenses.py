@@ -44,7 +44,7 @@ class Licenses_s(Collection):
 class License(Resource):
     def __init__(self, licenses_s):
         super(License, self).__init__(licenses_s)
-        self._meta_data['required_creation_parameters'] = set(('name',))
+        self._meta_data['required_creation_parameters'] = {'name', }
         self._meta_data['required_json_kind'] = \
             'cm:device:licensing:pool:regkey:licenses:regkeypoollicensestate'
         self._meta_data['allowed_lazy_attributes'] = [
@@ -69,7 +69,7 @@ class Offerings_s(Collection):
 class Offering(Resource):
     def __init__(self, offerings_s):
         super(Offering, self).__init__(offerings_s)
-        self._meta_data['required_creation_parameters'] = set(('regKey',))
+        self._meta_data['required_creation_parameters'] = {'regKey', }
         self._meta_data['required_json_kind'] = \
             'cm:device:licensing:pool:regkey:licenses:item:offerings:regkeypoollicenseofferingstate'  # NOQA
         self._meta_data['attribute_registry'] = {

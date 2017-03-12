@@ -45,7 +45,7 @@ class Local(Resource):
         super(Local, self).__init__(locals)
         self._meta_data['required_json_kind'] = \
             'cm:cloud:connectors:cloudconnectorstate'
-        self._meta_data['required_creation_parameters'] = set(('name',))
+        self._meta_data['required_creation_parameters'] = {'name', }
 
         # TODO(Implement device attribute registry)
         #

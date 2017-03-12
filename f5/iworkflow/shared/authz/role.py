@@ -42,7 +42,7 @@ class Roles_s(Collection):
 class Role(Resource):
     def __init__(self, roles_s):
         super(Role, self).__init__(roles_s)
-        self._meta_data['required_load_parameters'] = set(('name',))
-        self._meta_data['required_creation_parameters'] = set(('name',))
+        self._meta_data['required_load_parameters'] = {'name', }
+        self._meta_data['required_creation_parameters'] = {'name', }
         self._meta_data['required_json_kind'] = \
             'shared:authz:roles:rolesworkerstate'

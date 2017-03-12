@@ -68,7 +68,7 @@ class Providers_s(Collection):
 class Providers(Resource):
     def __init__(self, providers_s):
         super(Providers, self).__init__(providers_s)
-        self._meta_data['required_load_parameters'] = set(('name',))
+        self._meta_data['required_load_parameters'] = {'name', }
         self._meta_data['object_has_stats'] = False
         self._meta_data['required_json_kind'] = \
             'cm:cloud:provider:templates:iapp:provideriapptemplateworkerstate'

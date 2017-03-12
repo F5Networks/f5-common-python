@@ -55,7 +55,7 @@ class Configure_Device_Node(TaskResource):
         super(Configure_Device_Node, self).__init__(nodes)
         self._meta_data['required_json_kind'] = \
             'cm:cloud:tasks:configure-device-node:configdevicenodetaskstate'
-        self._meta_data['required_load_parameters'] = set(('id',))
+        self._meta_data['required_load_parameters'] = {'id', }
 
 
 class Reset_Devices(Collection):
@@ -75,5 +75,5 @@ class Reset_Device(TaskResource):
         super(Reset_Device, self).__init__(resets)
         self._meta_data['required_json_kind'] = \
             'cm:cloud:tasks:reset-device:resetdeviceconfigtaskstate'
-        self._meta_data['required_load_parameters'] = set(('id',))
-        self._meta_data['required_creation_parameters'] = set(('deviceUUID',))
+        self._meta_data['required_load_parameters'] = {'id', }
+        self._meta_data['required_creation_parameters'] = {'deviceUUID', }

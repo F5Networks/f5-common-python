@@ -46,8 +46,7 @@ class Package_Management_Task(TaskResource):
         super(Package_Management_Task, self).__init__(package_management_tasks)
         self._meta_data['required_json_kind'] = \
             'shared:iapp:package-management-tasks:iapppackagemanagementtaskstate'  # NOQA
-        self._meta_data['required_creation_parameters'] = \
-            set(('operation', 'packageFilePath'))
+        self._meta_data['required_creation_parameters'] = {'operation', 'packageFilePath'}
 
     def update(self, **kwargs):
         raise UnsupportedOperation(

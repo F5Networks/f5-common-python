@@ -56,7 +56,6 @@ class Device(Resource):
         super(Device, self).__init__(devices_s)
         self._meta_data['required_json_kind'] = \
             'shared:resolver:device-groups:restdeviceresolverdevicestate'
-        self._meta_data['required_creation_parameters'] = set(
-            ('address', 'password', 'userName')
-        )
-        self._meta_data['required_load_parameters'] = set(('uuid',))
+        self._meta_data['required_creation_parameters'] = {
+            'address', 'password', 'userName'}
+        self._meta_data['required_load_parameters'] = {'uuid',}

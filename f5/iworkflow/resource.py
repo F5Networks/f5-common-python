@@ -40,7 +40,7 @@ class PathElement(BigIpPathElement):
 class Resource(BigIpResource, PathElement):
     def __init__(self, container):
         super(Resource, self).__init__(container)
-        self._meta_data['required_load_parameters'] = set(('uuid',))
+        self._meta_data['required_load_parameters'] = {'uuid', }
 
 
 class ResourceBase(BigIpResourceBase, PathElement):
