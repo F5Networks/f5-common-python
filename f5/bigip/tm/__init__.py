@@ -24,6 +24,7 @@ from f5.bigip.tm.cm import Cm
 from f5.bigip.tm.gtm import Gtm
 from f5.bigip.tm.ltm import Ltm
 from f5.bigip.tm.net import Net
+from f5.bigip.tm.security import Security
 from f5.bigip.tm.shared import Shared
 from f5.bigip.tm.sys import Sys
 from f5.bigip.tm.transaction import Transactions
@@ -42,6 +43,7 @@ class Tm(OrganizingCollection):
             Gtm,
             Ltm,
             Net,
+            Security,
             Shared,
             Sys,
             Transactions,
