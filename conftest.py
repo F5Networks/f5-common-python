@@ -87,6 +87,52 @@ def fakeicontrolsession_v12(monkeypatch):
 
 
 @pytest.fixture
+def fakeiwficontrolsession(monkeypatch):
+    class Response(object):
+
+        def json(self):
+            return {
+                'version': '2.1.0',
+                'selfLink': 'https://localhost/shared/identified-devices/config/device-info'  # NOQA
+            }
+
+    fakesessionclass = mock.create_autospec(iControlRESTSession, spec_set=True)
+    fakesessioninstance = mock.create_autospec(iControlRESTSession('A', 'B'),
+                                               spec_set=True)
+    fakesessioninstance.get = \
+        mock.MagicMock(return_value=Response())
+    fakesessionclass.return_value = fakesessioninstance
+    monkeypatch.setattr('f5.iworkflow.iControlRESTSession', fakesessionclass)
+
+
+@pytest.fixture
+def fakeiwficontrolsessionfactory(monkeypatch):
+    class Response(object):
+        def __init__(self, **json_keys):
+            if 'selfLink' not in json_keys:
+                json_keys['selfLink'] = \
+                    'https://localhost/shared/identified-devices/config/device-info'  # NOQA
+            self.params = json_keys
+
+        def json(self):
+            return self.params
+
+    def _session_factory(**json_keys):
+        fakesessionclass = mock.create_autospec(iControlRESTSession,
+                                                spec_set=True)
+        fakesessioninstance = \
+            mock.create_autospec(iControlRESTSession('A', 'B'), spec_set=True)
+        fakesessioninstance.get = \
+            mock.MagicMock(return_value=Response(**json_keys))
+        fakesessionclass.return_value = fakesessioninstance
+        monkeypatch.setattr(
+            'f5.iworkflow.iControlRESTSession', fakesessionclass
+        )
+
+    return _session_factory
+
+
+@pytest.fixture
 def NAT(bigip):
     n = bigip.ltm.nats.nat
     return n
