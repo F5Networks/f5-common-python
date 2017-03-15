@@ -37,34 +37,67 @@ from f5.bigip.tm import Tm
 from f5.bigip.tm.transaction import Transactions
 
 
-class ManagementRoot(PathElement):
-    """An interface to a single BIG-IP"""
+class BaseManagement(PathElement):
     def __init__(self, hostname, username, password, **kwargs):
-        timeout = kwargs.pop('timeout', 30)
-        port = kwargs.pop('port', 443)
-        icontrol_version = kwargs.pop('icontrol_version', '')
-        token = kwargs.pop('token', False)
+        self.args = self.parse_arguments(
+            hostname, username, password, **kwargs
+        )
+        self.icrs = self._get_icr_session(**self.args)
+        self.configure_meta_data(**self.args)
+        self.set_icr_metadata(self.icrs)
+
+    def parse_arguments(self, *args, **kwargs):
+        result = dict(
+            timeout=kwargs.pop('timeout', 30),
+            port=kwargs.pop('port', 443),
+            icontrol_version=kwargs.pop('icontrol_version', ''),
+            token=kwargs.pop('token', False)
+        )
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
-        # _meta_data variable values
-        iCRS = iControlRESTSession(username, password, timeout=timeout,
-                                   token=token)
-        # define _meta_data
+        result.update(dict(
+            hostname=args[0],
+            username=args[1],
+            password=args[2]
+        ))
+        return result
+
+    def _get_icr_session(self, *args, **kwargs):
+        return iControlRESTSession(
+            username=kwargs['username'],
+            password=kwargs['password'],
+            timeout=kwargs['timeout'],
+            token=kwargs['token']
+        )
+
+    def configure_meta_data(self, *args, **kwargs):
         self._meta_data = {
             'allowed_lazy_attributes': [Tm, Cm, Shared],
-            'hostname': hostname,
-            'port': port,
-            'uri': 'https://%s:%s/mgmt/' % (hostname, port),
-            'icr_session': iCRS,
+            'hostname': kwargs['hostname'],
+            'port': kwargs['port'],
             'device_name': None,
             'local_ip': None,
             'bigip': self,
-            'icontrol_version': icontrol_version,
-            'username': username,
-            'password': password,
+            'icontrol_version': kwargs['icontrol_version'],
+            'username': kwargs['username'],
+            'password': kwargs['password'],
             'tmos_version': None,
         }
+
+    def set_icr_metadata(self, icrs):
+        self._meta_data['icr_session'] = icrs
+
+    def post_configuration_setup(self):
         self._get_tmos_version()
+
+    def _get_tmos_version(self):
+        connect = self._meta_data['bigip']._meta_data['icr_session']
+        base_uri = self._meta_data['uri'] + 'tm/sys/'
+        response = connect.get(base_uri)
+        ver = response.json()
+        version = urlparse.parse_qs(
+            urlparse.urlparse(ver['selfLink']).query)['ver'][0]
+        self._meta_data['tmos_version'] = version
 
     @property
     def hostname(self):
@@ -78,14 +111,20 @@ class ManagementRoot(PathElement):
     def tmos_version(self):
         return self._meta_data['tmos_version']
 
-    def _get_tmos_version(self):
-        connect = self._meta_data['bigip']._meta_data['icr_session']
-        base_uri = self._meta_data['uri'] + 'tm/sys/'
-        response = connect.get(base_uri)
-        ver = response.json()
-        version = urlparse.parse_qs(
-            urlparse.urlparse(ver['selfLink']).query)['ver'][0]
-        self._meta_data['tmos_version'] = version
+
+class ManagementRoot(BaseManagement):
+    """An interface to a single BIG-IP"""
+    def __init__(self, hostname, username, password, **kwargs):
+        super(ManagementRoot, self).__init__(
+            hostname, username, password, **kwargs
+        )
+        self.set_metadata_uri(**self.args)
+        self.post_configuration_setup()
+
+    def set_metadata_uri(self, *args, **kwargs):
+        self._meta_data['uri'] = 'https://{0}:{1}/mgmt/'.format(
+            kwargs['hostname'], kwargs['port']
+        )
 
 
 class BigIP(ManagementRoot):
