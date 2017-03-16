@@ -37,10 +37,7 @@ from distutils.version import LooseVersion
 
 
 class Dos(OrganizingCollection):
-    """BIG-IP® Advanced Firewall Manager (AFM) DOS
-
-    organizing collection.
-    """
+    """BIG-IP® DOS organizing collection."""
 
     def __init__(self, security):
         super(Dos, self).__init__(security)
@@ -48,7 +45,7 @@ class Dos(OrganizingCollection):
 
 
 class Profiles(Collection):
-    """BIG-IP® AFM Dos Profile collection"""
+    """BIG-IP® Dos Profile collection"""
     def __init__(self, dos):
         super(Profiles, self).__init__(dos)
         self._meta_data['allowed_lazy_attributes'] = [Profile]
@@ -57,7 +54,7 @@ class Profiles(Collection):
 
 
 class Profile(Resource):
-    """BIG-IP® AFM Dos Profile resource"""
+    """BIG-IP® Dos Profile resource"""
     def __init__(self, profile_s):
         super(Profile, self).__init__(profile_s)
         self._meta_data['required_json_kind'] = \
@@ -75,7 +72,7 @@ class Profile(Resource):
 
 
 class Applications(Collection):
-    """BIG-IP® AFM Dos Application sub-collection"""
+    """BIG-IP® Dos Profile Application sub-collection"""
     def __init__(self, profile):
         super(Applications, self).__init__(profile)
         self._meta_data['required_json_kind'] = \
@@ -87,7 +84,7 @@ class Applications(Collection):
 
 
 class Application(Resource, CheckExistenceMixin):
-    """BIG-IP® AFM Dos Application resource"""
+    """BIG-IP® Dos Profile Application resource"""
     def __init__(self, applications):
         super(Application, self).__init__(applications)
         self._meta_data['required_json_kind'] = \
@@ -132,7 +129,7 @@ class Application(Resource, CheckExistenceMixin):
 
 
 class Dos_Networks(Collection):
-    """BIG-IP® AFM Dos Networks sub-collection"""
+    """BIG-IP® Dos Profile Dos Networks sub-collection"""
     def __init__(self, profile):
         super(Dos_Networks, self).__init__(profile)
         self._meta_data['required_json_kind'] = \
@@ -144,7 +141,7 @@ class Dos_Networks(Collection):
 
 
 class Dos_Network(Resource, CheckExistenceMixin):
-    """BIG-IP® AFM Dos Network resource"""
+    """BIG-IP® Dos Profile Dos Network resource"""
     def __init__(self, dos_networks):
         super(Dos_Network, self).__init__(dos_networks)
         self._meta_data['required_json_kind'] = \
@@ -189,7 +186,7 @@ class Dos_Network(Resource, CheckExistenceMixin):
 
 
 class Protocol_Dns_s(Collection):
-    """BIG-IP® AFM Protocol Dns sub-collection"""
+    """BIG-IP® Dos Profile Protocol Dns sub-collection"""
     def __init__(self, profile):
         super(Protocol_Dns_s, self).__init__(profile)
         self._meta_data['required_json_kind'] = \
@@ -201,7 +198,7 @@ class Protocol_Dns_s(Collection):
 
 
 class Protocol_Dns(Resource, CheckExistenceMixin):
-    """BIG-IP® AFM Protocol Dns resource"""
+    """BIG-IP® Dos Profile Protocol Dns resource"""
     def __init__(self, protocol_dns_s):
         super(Protocol_Dns, self).__init__(protocol_dns_s)
         self._meta_data['required_json_kind'] = \
@@ -246,7 +243,7 @@ class Protocol_Dns(Resource, CheckExistenceMixin):
 
 
 class Protocol_Sips(Collection):
-    """BIG-IP® AFM Protocol Sip sub-collection"""
+    """BIG-IP® Dos Profile Protocol Sip sub-collection"""
     def __init__(self, profile):
         super(Protocol_Sips, self).__init__(profile)
         self._meta_data['required_json_kind'] = \
@@ -258,7 +255,7 @@ class Protocol_Sips(Collection):
 
 
 class Protocol_Sip(Resource, CheckExistenceMixin):
-    """BIG-IP® AFM Protocol Sip resource"""
+    """BIG-IP® Dos Profile Protocol Sip resource"""
     def __init__(self, protocol_sips):
         super(Protocol_Sip, self).__init__(protocol_sips)
         self._meta_data['required_json_kind'] = \

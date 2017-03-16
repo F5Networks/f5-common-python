@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP® Advanced Firewall Manager™ (AFM®) module.
+"""BIG-IP® Security module.
 
 REST URI
     ``http://localhost/mgmt/tm/security``
@@ -29,14 +29,12 @@ REST Kind
 
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.security.dos import Dos
+from f5.bigip.tm.security.firewall import Firewall
 
 
 class Security(OrganizingCollection):
-    """BIG-IP® Advanced Firewall Manager (AFM) organizing
-
-    collection.
-    """
+    """BIG-IP® Security organizing collection."""
 
     def __init__(self, tm):
         super(Security, self).__init__(tm)
-        self._meta_data['allowed_lazy_attributes'] = [Dos, ]
+        self._meta_data['allowed_lazy_attributes'] = [Dos, Firewall]
