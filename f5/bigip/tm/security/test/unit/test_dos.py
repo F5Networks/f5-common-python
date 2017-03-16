@@ -17,8 +17,12 @@ import mock
 import pytest
 
 from f5.bigip import ManagementRoot
+from f5.bigip.tm.security.dos import Application
+from f5.bigip.tm.security.dos import Applications
 from f5.bigip.tm.security.dos import Profile
 from f5.sdk_exception import MissingRequiredCreationParameter
+
+from six import iterkeys
 
 
 @pytest.fixture
@@ -28,13 +32,45 @@ def FakeProfile():
     return fake_profile
 
 
-class TestCreate(object):
+def Makeprofile(fakeicontrolsession):
+    b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+    p = b.tm.security.dos.profiles.profile
+    p._meta_data['uri'] = \
+        'https://192.168.1.1:443/mgmt/tm/security/dos/profile/~Common' \
+        '~testprofile/'
+    return p
+
+
+class TestDosProfile(object):
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
-        n1 = b.tm.security.dos.profiles.profile
-        n2 = b.tm.security.dos.profiles.profile
-        assert n1 is not n2
+        r1 = b.tm.security.dos.profiles.profile
+        r2 = b.tm.security.dos.profiles.profile
+        assert r1 is not r2
 
     def test_create_no_args(self, FakeProfile):
         with pytest.raises(MissingRequiredCreationParameter):
             FakeProfile.create()
+
+
+class TestApplicationSubcollection(object):
+    def test_app_subcollection(self, fakeicontrolsession):
+        pc = Applications(Makeprofile(fakeicontrolsession))
+        kind = 'tm:security:dos:profile:application:applicationstate'
+        test_meta = pc._meta_data['attribute_registry']
+        test_meta2 = pc._meta_data['allowed_lazy_attributes']
+        assert isinstance(pc, Applications)
+        assert kind in list(iterkeys(test_meta))
+        assert Application in test_meta2
+
+    def test_app_create(self, fakeicontrolsession):
+        pc = Applications(Makeprofile(fakeicontrolsession))
+        pc2 = Applications(Makeprofile(fakeicontrolsession))
+        r1 = pc.application
+        r2 = pc2.application
+        assert r1 is not r2
+
+    def test_member_create_no_args_v11(self, fakeicontrolsession):
+        pc = Applications(Makeprofile(fakeicontrolsession))
+        with pytest.raises(MissingRequiredCreationParameter):
+            pc.application.create()
