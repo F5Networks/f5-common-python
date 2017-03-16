@@ -67,7 +67,9 @@ class Profile(Resource):
             {'tm:security:dos:profile:application:applicationcollectionstate':
                 Applications,
              'tm:security:dos:profile:dos-network:dos-networkcollectionstate':
-                 Dos_Networks}
+                 Dos_Networks,
+             'tm:security:dos:profile:protocol-dns:'
+             'protocol-dnscollectionstate': Protocol_Dns_s}
 
 
 class Applications(Collection):
@@ -176,6 +178,63 @@ class Dos_Network(Resource, CheckExistenceMixin):
             return self._exists_11_6(**kwargs)
         else:
             return super(Dos_Network, self)._load(**kwargs)
+
+    def _exists_11_6(self, **kwargs):
+        """Check rule existence on device."""
+
+        return self._check_existence_by_collection(
+            self._meta_data['container'], kwargs['name'])
+
+
+class Protocol_Dns_s(Collection):
+    """BIG-IP® AFM Protocol Dns sub-collection"""
+    def __init__(self, profile):
+        super(Protocol_Dns_s, self).__init__(profile)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:dos:profile:protocol-dns:protocol-dnscollectionstate'
+        self._meta_data['allowed_lazy_attributes'] = [Protocol_Dns]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:dos:profile:protocol-dns:protocol-dnsstate':
+                Protocol_Dns}
+
+
+class Protocol_Dns(Resource, CheckExistenceMixin):
+    """BIG-IP® AFM Protocol Dns resource"""
+    def __init__(self, protocol_dns_s):
+        super(Protocol_Dns, self).__init__(protocol_dns_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:dos:profile:protocol-dns:protocol-dnsstate'
+        self.tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
+
+    def load(self, **kwargs):
+        """Custom load method to address issue in 11.6.0 Final,
+
+        where non existing objects would be True.
+        """
+        if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
+            return self._load_11_6(**kwargs)
+        else:
+            return super(Protocol_Dns, self)._load(**kwargs)
+
+    def _load_11_6(self, **kwargs):
+        """Must check if rule actually exists before proceeding with load."""
+        if self._check_existence_by_collection(self._meta_data['container'],
+                                               kwargs['name']):
+            return super(Protocol_Dns, self)._load(**kwargs)
+        msg = 'The application resource named, {}, does not exist on the ' \
+              'device.'.format(kwargs['name'])
+        raise NonExtantApplication(msg)
+
+    def exists(self, **kwargs):
+        """Some objects when deleted still return when called by their
+
+        direct URI, this is a known issue in 11.6.0.
+        """
+
+        if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
+            return self._exists_11_6(**kwargs)
+        else:
+            return super(Protocol_Dns, self)._load(**kwargs)
 
     def _exists_11_6(self, **kwargs):
         """Check rule existence on device."""

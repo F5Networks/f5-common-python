@@ -22,6 +22,9 @@ from f5.bigip.tm.security.dos import Applications
 from f5.bigip.tm.security.dos import Dos_Network
 from f5.bigip.tm.security.dos import Dos_Networks
 from f5.bigip.tm.security.dos import Profile
+from f5.bigip.tm.security.dos import Protocol_Dns
+from f5.bigip.tm.security.dos import Protocol_Dns_s
+
 from f5.sdk_exception import MissingRequiredCreationParameter
 
 from six import iterkeys
@@ -99,3 +102,26 @@ class TestDosNetworksSubcollection(object):
         pc = Dos_Networks(Makeprofile(fakeicontrolsession))
         with pytest.raises(MissingRequiredCreationParameter):
             pc.dos_network.create()
+
+
+class TestProtocolDnsSubcollection(object):
+    def test_dns_subcollection(self, fakeicontrolsession):
+        pc = Protocol_Dns_s(Makeprofile(fakeicontrolsession))
+        kind = 'tm:security:dos:profile:protocol-dns:protocol-dnsstate'
+        test_meta = pc._meta_data['attribute_registry']
+        test_meta2 = pc._meta_data['allowed_lazy_attributes']
+        assert isinstance(pc, Protocol_Dns_s)
+        assert kind in list(iterkeys(test_meta))
+        assert Protocol_Dns in test_meta2
+
+    def test_dns_create(self, fakeicontrolsession):
+        pc = Protocol_Dns_s(Makeprofile(fakeicontrolsession))
+        pc2 = Protocol_Dns_s(Makeprofile(fakeicontrolsession))
+        r1 = pc.protocol_dns
+        r2 = pc2.protocol_dns
+        assert r1 is not r2
+
+    def test_dns_create_no_args_v11(self, fakeicontrolsession):
+        pc = Protocol_Dns_s(Makeprofile(fakeicontrolsession))
+        with pytest.raises(MissingRequiredCreationParameter):
+            pc.protocol_dns.create()
