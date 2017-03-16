@@ -30,6 +30,7 @@ REST Kind
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 from f5.sdk_exception import UnsupportedOperation
+from icontrol.exceptions import iControlUnexpectedHTTPError
 
 
 class Listeners(Collection):
@@ -51,6 +52,19 @@ class Listener(Resource):
             'tm:gtm:listener:profiles:profilescollectionstate':
                 Profiles_s
         }
+
+    def exists(self, **kwargs):
+        # This endpoint does not return status 404 if the GET request
+        # does not find the resource. On one installation it returned
+        # 400, and on another it returned 500
+        try:
+            result = super(Listener, self).exists(**kwargs)
+        except iControlUnexpectedHTTPError as ex:
+            if 'listener does not exist' in str(ex):
+                return False
+            else:
+                raise
+        return result
 
 
 class Profiles_s(Collection):

@@ -145,6 +145,24 @@ class TestLoad(object):
         assert r2.description == 'NewListener'
 
 
+class TestExists(object):
+    def test_not_exists(self, request, mgmt_root):
+        result = mgmt_root.tm.gtm.listeners.listener.exists(
+            name='my_listener', partition='Common'
+        )
+        assert result is False
+
+    def test_exists(self, request, mgmt_root):
+        r1 = setup_basic_test(
+            request, mgmt_root, 'fake_listener', '10.10.10.10', 'Common'
+        )
+        result = mgmt_root.tm.gtm.listeners.listener.exists(
+            name='fake_listener', partition='Common'
+        )
+        assert r1.name == 'fake_listener'
+        assert result is True
+
+
 class TestUpdate(object):
     def test_update(self, request, mgmt_root):
         r1 = setup_basic_test(request, mgmt_root, 'fake_listener',
