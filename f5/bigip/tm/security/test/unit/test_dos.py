@@ -19,6 +19,8 @@ import pytest
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.security.dos import Application
 from f5.bigip.tm.security.dos import Applications
+from f5.bigip.tm.security.dos import Dos_Network
+from f5.bigip.tm.security.dos import Dos_Networks
 from f5.bigip.tm.security.dos import Profile
 from f5.sdk_exception import MissingRequiredCreationParameter
 
@@ -70,7 +72,30 @@ class TestApplicationSubcollection(object):
         r2 = pc2.application
         assert r1 is not r2
 
-    def test_member_create_no_args_v11(self, fakeicontrolsession):
+    def test_app_create_no_args_v11(self, fakeicontrolsession):
         pc = Applications(Makeprofile(fakeicontrolsession))
         with pytest.raises(MissingRequiredCreationParameter):
             pc.application.create()
+
+
+class TestDosNetworksSubcollection(object):
+    def test_dosnet_subcollection(self, fakeicontrolsession):
+        pc = Dos_Networks(Makeprofile(fakeicontrolsession))
+        kind = 'tm:security:dos:profile:dos-network:dos-networkstate'
+        test_meta = pc._meta_data['attribute_registry']
+        test_meta2 = pc._meta_data['allowed_lazy_attributes']
+        assert isinstance(pc, Dos_Networks)
+        assert kind in list(iterkeys(test_meta))
+        assert Dos_Network in test_meta2
+
+    def test_dosnet_create(self, fakeicontrolsession):
+        pc = Dos_Networks(Makeprofile(fakeicontrolsession))
+        pc2 = Dos_Networks(Makeprofile(fakeicontrolsession))
+        r1 = pc.dos_network
+        r2 = pc2.dos_network
+        assert r1 is not r2
+
+    def test_dosnet_create_no_args_v11(self, fakeicontrolsession):
+        pc = Dos_Networks(Makeprofile(fakeicontrolsession))
+        with pytest.raises(MissingRequiredCreationParameter):
+            pc.dos_network.create()
