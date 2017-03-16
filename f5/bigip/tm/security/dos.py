@@ -65,7 +65,9 @@ class Profile(Resource):
         self._meta_data['required_creation_parameters'].update(('partition',))
         self._meta_data['attribute_registry'] = \
             {'tm:security:dos:profile:application:applicationcollectionstate':
-                Applications}
+                Applications,
+             'tm:security:dos:profile:dos-network:dos-networkcollectionstate':
+                 Dos_Networks}
 
 
 class Applications(Collection):
@@ -81,7 +83,7 @@ class Applications(Collection):
 
 
 class Application(Resource, CheckExistenceMixin):
-    """BIG-IP® AFM Dos Application sub-collection resource"""
+    """BIG-IP® AFM Dos Application resource"""
     def __init__(self, applications):
         super(Application, self).__init__(applications)
         self._meta_data['required_json_kind'] = \
@@ -93,7 +95,7 @@ class Application(Resource, CheckExistenceMixin):
 
         where non existing objects would be True.
         """
-        if LooseVersion(self.tmos_ver) < LooseVersion('11.6.0'):
+        if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
             return self._load_11_6(**kwargs)
         else:
             return super(Application, self)._load(**kwargs)
@@ -113,10 +115,67 @@ class Application(Resource, CheckExistenceMixin):
         direct URI, this is a known issue in 11.6.0.
         """
 
-        if LooseVersion(self.tmos_ver) < LooseVersion('11.6.0'):
+        if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
             return self._exists_11_6(**kwargs)
         else:
             return super(Application, self)._load(**kwargs)
+
+    def _exists_11_6(self, **kwargs):
+        """Check rule existence on device."""
+
+        return self._check_existence_by_collection(
+            self._meta_data['container'], kwargs['name'])
+
+
+class Dos_Networks(Collection):
+    """BIG-IP® AFM Dos Networks sub-collection"""
+    def __init__(self, profile):
+        super(Dos_Networks, self).__init__(profile)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:dos:profile:dos-network:dos-networkcollectionstate'
+        self._meta_data['allowed_lazy_attributes'] = [Dos_Network]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:dos:profile:dos-network:dos-networkstate':
+                Dos_Network}
+
+
+class Dos_Network(Resource, CheckExistenceMixin):
+    """BIG-IP® AFM Dos Network resource"""
+    def __init__(self, dos_networks):
+        super(Dos_Network, self).__init__(dos_networks)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:dos:profile:dos-network:dos-networkstate'
+        self.tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
+
+    def load(self, **kwargs):
+        """Custom load method to address issue in 11.6.0 Final,
+
+        where non existing objects would be True.
+        """
+        if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
+            return self._load_11_6(**kwargs)
+        else:
+            return super(Dos_Network, self)._load(**kwargs)
+
+    def _load_11_6(self, **kwargs):
+        """Must check if rule actually exists before proceeding with load."""
+        if self._check_existence_by_collection(self._meta_data['container'],
+                                               kwargs['name']):
+            return super(Dos_Network, self)._load(**kwargs)
+        msg = 'The application resource named, {}, does not exist on the ' \
+              'device.'.format(kwargs['name'])
+        raise NonExtantApplication(msg)
+
+    def exists(self, **kwargs):
+        """Some objects when deleted still return when called by their
+
+        direct URI, this is a known issue in 11.6.0.
+        """
+
+        if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
+            return self._exists_11_6(**kwargs)
+        else:
+            return super(Dos_Network, self)._load(**kwargs)
 
     def _exists_11_6(self, **kwargs):
         """Check rule existence on device."""
