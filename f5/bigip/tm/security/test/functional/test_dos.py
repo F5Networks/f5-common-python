@@ -19,6 +19,7 @@ from f5.bigip.tm.security.dos import Application
 from f5.bigip.tm.security.dos import Dos_Network
 from f5.bigip.tm.security.dos import Profile
 from f5.bigip.tm.security.dos import Protocol_Dns
+from f5.bigip.tm.security.dos import Protocol_Sip
 from f5.sdk_exception import NonExtantApplication
 from requests.exceptions import HTTPError
 from six import iteritems
@@ -513,7 +514,7 @@ class TestProtocolDns(object):
         assert r1.selfLink == r2.selfLink
         assert r1.protErrAttackDetection == r2.protErrAttackDetection
 
-    def test_app_subcollection(self, dos_profile):
+    def test_dns_subcollection(self, dos_profile):
         r1 = dos_profile.protocol_dns_s.protocol_dns.create(name='fake_app')
         URI = 'https://localhost/mgmt/tm/security/dos/profile/~Common' \
               '~fake_dos/protocol-dns/fake_app'
@@ -525,3 +526,134 @@ class TestProtocolDns(object):
         assert isinstance(rc, list)
         assert len(rc)
         assert isinstance(rc[0], Protocol_Dns)
+
+
+class TestProtocolSip(object):
+    def test_create_req_arg(self, dos_profile):
+        r1 = dos_profile.protocol_sips.protocol_sip.create(name='fake_app')
+        URI = 'https://localhost/mgmt/tm/security/dos/profile/~Common' \
+              '~fake_dos/protocol-sip/fake_app'
+        assert r1.name == 'fake_app'
+        assert r1.selfLink.startswith(URI)
+        assert r1.protErrAttackDetection == 'disabled'
+
+    def test_create_optional_args(self, dos_profile):
+        r1 = dos_profile.protocol_sips.protocol_sip.create(
+            name='fake_app', protErrAttackDetection='enabled')
+        URI = 'https://localhost/mgmt/tm/security/dos/profile/~Common' \
+              '~fake_dos/protocol-sip/fake_app'
+        assert r1.name == 'fake_app'
+        assert r1.selfLink.startswith(URI)
+        assert r1.protErrAttackDetection == 'enabled'
+
+    def test_refresh(self, dos_profile):
+        r1 = dos_profile.protocol_sips.protocol_sip.create(name='fake_app')
+        r2 = dos_profile.protocol_sips.protocol_sip.load(name='fake_app')
+        assert r1.name == r2.name
+        assert r1.selfLink == r2.selfLink
+        assert r1.protErrAttackDetection == r2.protErrAttackDetection
+        r2.protErrAttackDetection = 'enabled'
+        r2.update()
+        assert r1.selfLink == r2.selfLink
+        assert r1.name == r2.name
+        assert r2.protErrAttackDetection == 'enabled'
+        assert r1.protErrAttackDetection != r2.protErrAttackDetection
+        r1.refresh()
+        assert r1.protErrAttackDetection == r2.protErrAttackDetection
+
+    def test_modify(self, dos_profile):
+        r1 = dos_profile.protocol_sips.protocol_sip.create(name='fake_app')
+        original_dict = copy.deepcopy(r1.__dict__)
+        itm = 'protErrAttackDetection'
+        r1.modify(protErrAttackDetection='enabled')
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == 'enabled'
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) == LooseVersion('11.6.0'),
+        reason='This test will fail on 11.6.0 due to a known bug.'
+    )
+    def test_delete(self, dos_profile):
+        r1 = dos_profile.protocol_sips.protocol_sip.create(name='fake_app')
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            dos_profile.protocol_sips.protocol_sip.load(name='fake_app')
+        assert err.value.response.status_code == 404
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) == LooseVersion('11.6.0'),
+        reason='This test will fail on 11.6.0 due to a known bug.'
+    )
+    def test_load_no_object(self, dos_profile):
+        with pytest.raises(HTTPError) as err:
+            dos_profile.protocol_sips.protocol_sip.load(name='not_exist')
+        assert err.value.response.status_code == 404
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) != LooseVersion('11.6.0'),
+        reason='This test is for 11.6.0 TMOS only, due to a known bug.'
+    )
+    def test_delete_11_6_0(self, dos_profile):
+        r1 = dos_profile.protocol_sips.protocol_sip.create(name='fake_app')
+        r1.delete()
+        try:
+            dos_profile.protocol_sips.protocol_sip.load(name='fake_app')
+
+        except NonExtantApplication as err:
+            msg = 'The application resource named, fake_app, does not exist ' \
+                  'on the device.'
+
+            assert err.message == msg
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) != LooseVersion('11.6.0'),
+        reason='This test is for 11.6.0 TMOS only, due to a known bug.'
+    )
+    def test_load_no_object_11_6_0(self, dos_profile):
+        try:
+            dos_profile.protocol_sips.protocol_sip.load(name='not_exists')
+
+        except NonExtantApplication as err:
+            msg = 'The application resource named, not_exists, ' \
+                  'does not exist on the device.'
+
+            assert err.message == msg
+
+    def test_load_and_update(self, dos_profile):
+        r1 = dos_profile.protocol_sips.protocol_sip.create(name='fake_app')
+        URI = 'https://localhost/mgmt/tm/security/dos/profile/~Common' \
+              '~fake_dos/protocol-sip/fake_app'
+        assert r1.name == 'fake_app'
+        assert r1.selfLink.startswith(URI)
+        assert r1.protErrAttackDetection == 'disabled'
+        r1.protErrAttackDetection = 'enabled'
+        r1.update()
+        assert r1.protErrAttackDetection == 'enabled'
+        r2 = dos_profile.protocol_sips.protocol_sip.load(name='fake_app')
+        assert r1.name == r2.name
+        assert r1.selfLink == r2.selfLink
+        assert r1.protErrAttackDetection == r2.protErrAttackDetection
+
+    def test_sip_subcollection(self, dos_profile):
+        r1 = dos_profile.protocol_sips.protocol_sip.create(name='fake_app')
+        URI = 'https://localhost/mgmt/tm/security/dos/profile/~Common' \
+              '~fake_dos/protocol-sip/fake_app'
+        assert r1.name == 'fake_app'
+        assert r1.selfLink.startswith(URI)
+        assert r1.protErrAttackDetection == 'disabled'
+
+        rc = dos_profile.protocol_sips.get_collection()
+        assert isinstance(rc, list)
+        assert len(rc)
+        assert isinstance(rc[0], Protocol_Sip)

@@ -24,6 +24,8 @@ from f5.bigip.tm.security.dos import Dos_Networks
 from f5.bigip.tm.security.dos import Profile
 from f5.bigip.tm.security.dos import Protocol_Dns
 from f5.bigip.tm.security.dos import Protocol_Dns_s
+from f5.bigip.tm.security.dos import Protocol_Sip
+from f5.bigip.tm.security.dos import Protocol_Sips
 
 from f5.sdk_exception import MissingRequiredCreationParameter
 
@@ -125,3 +127,26 @@ class TestProtocolDnsSubcollection(object):
         pc = Protocol_Dns_s(Makeprofile(fakeicontrolsession))
         with pytest.raises(MissingRequiredCreationParameter):
             pc.protocol_dns.create()
+
+
+class TestProtocolSipSubcollection(object):
+    def test_sip_subcollection(self, fakeicontrolsession):
+        pc = Protocol_Sips(Makeprofile(fakeicontrolsession))
+        kind = 'tm:security:dos:profile:protocol-sip:protocol-sipstate'
+        test_meta = pc._meta_data['attribute_registry']
+        test_meta2 = pc._meta_data['allowed_lazy_attributes']
+        assert isinstance(pc, Protocol_Sips)
+        assert kind in list(iterkeys(test_meta))
+        assert Protocol_Sip in test_meta2
+
+    def test_sip_create(self, fakeicontrolsession):
+        pc = Protocol_Sips(Makeprofile(fakeicontrolsession))
+        pc2 = Protocol_Sips(Makeprofile(fakeicontrolsession))
+        r1 = pc.protocol_sip
+        r2 = pc2.protocol_sip
+        assert r1 is not r2
+
+    def test_sip_create_no_args_v11(self, fakeicontrolsession):
+        pc = Protocol_Sips(Makeprofile(fakeicontrolsession))
+        with pytest.raises(MissingRequiredCreationParameter):
+            pc.protocol_sip.create()
