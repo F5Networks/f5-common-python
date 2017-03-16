@@ -1214,7 +1214,7 @@ class Vulnerabilities(AsmResource):
         )
 
     def delete(self, **kwargs):
-        """Modify is not supported for Vulnerabilities resource
+        """Delete is not supported for Vulnerabilities resource
 
         :raises: UnsupportedOperation
         """
@@ -1288,7 +1288,7 @@ class Character_Sets(AsmResource):
         )
 
     def delete(self, **kwargs):
-        """Modify is not supported for Character Sets resource
+        """Delete is not supported for Character Sets resource
 
         :raises: UnsupportedOperation
         """
@@ -1358,7 +1358,7 @@ class Audit_Log(AsmResource):
         )
 
     def delete(self, **kwargs):
-        """Modify is not supported for Audit Logs resource
+        """Delete is not supported for Audit Logs resource
 
         :raises: UnsupportedOperation
         """

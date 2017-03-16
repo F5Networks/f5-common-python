@@ -149,6 +149,14 @@ class NonExtantVirtualPolicy(F5SDKError):
     pass
 
 
+class NonExtantApplication(F5SDKError):
+    """Raise if the dos profile application sub-collection
+
+    resource does not exist on the device.
+    """
+    pass
+
+
 class NonExtantPolicyRule(F5SDKError):
     """Raise if a rule does not exist on the device."""
     pass

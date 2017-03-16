@@ -27,9 +27,13 @@ REST Kind
     ``tm:security:dos*``
 """
 
+from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import NonExtantApplication
+
+from distutils.version import LooseVersion
 
 
 class Dos(OrganizingCollection):
@@ -59,3 +63,63 @@ class Profile(Resource):
         self._meta_data['required_json_kind'] = \
             'tm:security:dos:profile:profilestate'
         self._meta_data['required_creation_parameters'].update(('partition',))
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:dos:profile:application:applicationcollectionstate':
+                Applications}
+
+
+class Applications(Collection):
+    """BIG-IP® AFM Dos Application sub-collection"""
+    def __init__(self, profile):
+        super(Applications, self).__init__(profile)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:dos:profile:application:applicationcollectionstate'
+        self._meta_data['allowed_lazy_attributes'] = [Application]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:dos:profile:application:applicationstate':
+                Application}
+
+
+class Application(Resource, CheckExistenceMixin):
+    """BIG-IP® AFM Dos Application sub-collection resource"""
+    def __init__(self, applications):
+        super(Application, self).__init__(applications)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:dos:profile:application:applicationstate'
+        self.tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
+
+    def load(self, **kwargs):
+        """Custom load method to address issue in 11.6.0 Final,
+
+        where non existing objects would be True.
+        """
+        if LooseVersion(self.tmos_ver) < LooseVersion('11.6.0'):
+            return self._load_11_6(**kwargs)
+        else:
+            return super(Application, self)._load(**kwargs)
+
+    def _load_11_6(self, **kwargs):
+        """Must check if rule actually exists before proceeding with load."""
+        if self._check_existence_by_collection(self._meta_data['container'],
+                                               kwargs['name']):
+            return super(Application, self)._load(**kwargs)
+        msg = 'The application resource named, {}, does not exist on the ' \
+              'device.'.format(kwargs['name'])
+        raise NonExtantApplication(msg)
+
+    def exists(self, **kwargs):
+        """Some objects when deleted still return when called by their
+
+        direct URI, this is a known issue in 11.6.0.
+        """
+
+        if LooseVersion(self.tmos_ver) < LooseVersion('11.6.0'):
+            return self._exists_11_6(**kwargs)
+        else:
+            return super(Application, self)._load(**kwargs)
+
+    def _exists_11_6(self, **kwargs):
+        """Check rule existence on device."""
+
+        return self._check_existence_by_collection(
+            self._meta_data['container'], kwargs['name'])
