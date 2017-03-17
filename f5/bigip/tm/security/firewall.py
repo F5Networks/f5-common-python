@@ -41,7 +41,8 @@ class Firewall(OrganizingCollection):
         super(Firewall, self).__init__(security)
         self._meta_data['allowed_lazy_attributes'] = [
             Address_Lists,
-            Port_Lists]
+            Port_Lists,
+            Rule_Lists]
 
 
 class Address_Lists(Collection):
@@ -101,3 +102,47 @@ class Port_List(Resource):
 
         _minimum_one_is_missing(req_set, **kwargs)
         return self._create(**kwargs)
+
+
+class Rule_Lists(Collection):
+    """BIG-IP® AFM® Rule List collection"""
+    def __init__(self, firewall):
+        super(Rule_Lists, self).__init__(firewall)
+        self._meta_data['allowed_lazy_attributes'] = [Rule_List]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:firewall:rule-list:rule-liststate':
+                Rule_List}
+
+
+class Rule_List(Resource):
+    """BIG-IP® Rule List resource"""
+    def __init__(self, rule_lists):
+        super(Rule_List, self).__init__(rule_lists)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:firewall:rule-list:rule-liststate'
+        self._meta_data['required_creation_parameters'].update(('partition',))
+        self._meta_data['required_load_parameters'].update(('partition',))
+        self._meta_data['allowed_lazy_attributes'] = [Rules_s]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:firewall:rule-list:rules:rulescollectionstate':
+                Rules_s}
+
+
+class Rules_s(Collection):
+    """BIG-IP® AFM® Rules sub-collection"""
+    def __init__(self, rule_list):
+        super(Rules_s, self).__init__(rule_list)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:firewall:rule-list:rules:rulescollectionstate'
+        self._meta_data['allowed_lazy_attributes'] = [Rule]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:firewall:rule-list:rules:rulesstate':
+                Rule}
+
+
+class Rule(Resource):
+    """BIG-IP® AFM® Rule resource"""
+    def __init__(self, rules_s):
+        super(Rule, self).__init__(rules_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:firewall:rule-list:rules:rulesstate'

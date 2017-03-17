@@ -18,6 +18,8 @@ import pytest
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.security.firewall import Address_List
 from f5.bigip.tm.security.firewall import Port_List
+from f5.bigip.tm.security.firewall import Rule_List
+from f5.bigip.tm.security.firewall import Rules
 
 from requests.exceptions import HTTPError
 from six import iteritems
@@ -40,6 +42,14 @@ def addrlst(mgmt_root):
 def portlst(mgmt_root):
     r1 = mgmt_root.tm.security.firewall.port_lists.port_list.create(
         name='fake_port', partition='Common', ports=[{'name': '80'}])
+    yield r1
+    r1.delete()
+
+
+@pytest.fixture(scope='function')
+def rulelst(mgmt_root):
+    r1 = mgmt_root.tm.security.firewall.rule_lists.rule_list.create(
+        name='fake_rule_list', partition='Common')
     yield r1
     r1.delete()
 
@@ -263,3 +273,93 @@ class TestPortList(object):
         assert isinstance(rc, list)
         assert len(rc)
         assert isinstance(rc[0], Port_List)
+
+
+class TestRuleList(object):
+    def test_create_req_args(self, rulelst):
+        r1 = rulelst
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/rule-list/~Common~fake_rule_list'
+        assert r1.name == 'fake_rule_list'
+        assert r1.partition == 'Common'
+        assert r1.selfLink.startswith(URI)
+        assert not hasattr(r1, 'description')
+
+    def test_create_opt_args(self, mgmt_root):
+        r1 = mgmt_root.tm.security.firewall.rule_lists.rule_list.create(
+            name='fake_rule_list', partition='Common', description=DESC)
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/rule-list/~Common~fake_rule_list'
+        assert r1.name == 'fake_rule_list'
+        assert r1.partition == 'Common'
+        assert r1.selfLink.startswith(URI)
+        assert hasattr(r1, 'description')
+        assert r1.description == DESC
+        r1.delete()
+
+    def test_refresh(self, mgmt_root, rulelst):
+        rc = mgmt_root.tm.security.firewall.rule_lists
+        r1 = rulelst
+        r2 = rc.rule_list.load(name='fake_rule_list', partition='Common')
+        assert r1.name == r2.name
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+        assert not hasattr(r1, 'description')
+        assert not hasattr(r2, 'description')
+        r2.modify(description=DESC)
+        assert hasattr(r2, 'description')
+        assert r2.description == DESC
+        r1.refresh()
+        assert r1.selfLink == r2.selfLink
+        assert hasattr(r1, 'description')
+        assert r1.description == r2.description
+
+    def test_modify(self, rulelst):
+        original_dict = copy.copy(rulelst.__dict__)
+        itm = 'description'
+        rulelst.modify(description=DESC)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = rulelst.__dict__[k]
+            elif k == itm:
+                assert rulelst.__dict__[k] == DESC
+
+    def test_delete(self, mgmt_root):
+        rc = mgmt_root.tm.security.firewall.rule_lists
+        r1 = rc.rule_list.create(name='delete_me', partition='Common')
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            rc.rule_list.load(name='delete_me', partition='Common')
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, mgmt_root):
+        rc = mgmt_root.tm.security.firewall.rule_lists
+        with pytest.raises(HTTPError) as err:
+            rc.rule_list.load(name='not_exists', partition='Common')
+        assert err.value.response.status_code == 404
+
+    def test_load_and_update(self, mgmt_root, rulelst):
+        r1 = rulelst
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/rule-list/~Common~fake_rule_list'
+        assert r1.name == 'fake_rule_list'
+        assert r1.partition == 'Common'
+        assert r1.selfLink.startswith(URI)
+        assert not hasattr(r1, 'description')
+        r1.description = DESC
+        r1.update()
+        assert hasattr(r1, 'description')
+        assert r1.description == DESC
+        rc = mgmt_root.tm.security.firewall.rule_lists
+        r2 = rc.rule_list.load(name='fake_rule_list', partition='Common')
+        assert r1.name == r2.name
+        assert r1.partition == r2.partition
+        assert r1.selfLink == r2.selfLink
+        assert hasattr(r2, 'description')
+        assert r1.description == r2.description
+
+    def test_portlist_collection(self, mgmt_root):
+        rc = mgmt_root.tm.security.firewall.rule_lists.get_collection()
+        assert isinstance(rc, list)
+        assert len(rc)
+        assert isinstance(rc[0], Rule_List)
