@@ -144,11 +144,6 @@ class NodeStateModifyUnsupported(F5SDKError):
     pass
 
 
-class NonExtantVirtualPolicy(F5SDKError):
-    """Raise if the policy does not exist on the device."""
-    pass
-
-
 class NonExtantApplication(F5SDKError):
     """Raise if the dos profile application sub-collection
 
@@ -159,6 +154,16 @@ class NonExtantApplication(F5SDKError):
 
 class NonExtantPolicyRule(F5SDKError):
     """Raise if a rule does not exist on the device."""
+    pass
+
+
+class NonExtantFirewallRule(F5SDKError):
+    """Raise if the policy does not exist on the device."""
+    pass
+
+
+class NonExtantVirtualPolicy(F5SDKError):
+    """Raise if the policy does not exist on the device."""
     pass
 
 
