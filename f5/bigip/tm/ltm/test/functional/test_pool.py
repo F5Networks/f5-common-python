@@ -15,10 +15,11 @@
 
 import pytest
 
+from f5.sdk_exception import MemberStateModifyUnsupported
+from f5.sdk_exception import MissingRequiredCreationParameter
+
 from requests.exceptions import HTTPError
 from six import iterkeys
-
-from f5.sdk_exception import MissingRequiredCreationParameter
 
 TESTDESCRIPTION = 'TESTDESCRIPTION'
 
@@ -86,20 +87,6 @@ class TestPoolMembersCollection(object):
         remaining = pre_del - delta
         assert 'members_s' not in remaining
 
-
-class TestPoolMembers(object):
-    def test_create_member(self, request, bigip):
-        member, _ = setup_member_test(request, bigip, 'membertestpool1',
-                                      'Common')
-
-    def test_update_member(self, request, bigip):
-        member, _ = setup_member_test(request, bigip, 'membertestpool1',
-                                      'Common')
-        member.update(description=TESTDESCRIPTION, state=None)
-        assert member.__dict__.pop('description') == TESTDESCRIPTION
-        member.delete()
-        assert member.__dict__ == {'deleted': True}
-
     def test_refresh_member(self, request, bigip):
         member, _ = setup_member_test(request, bigip, 'membertestpool1',
                                       'Common')
@@ -130,6 +117,136 @@ class TestPoolMembers(object):
             member1.exists(partition="Common", name="192.168.15.15:80") is True
         assert\
             member1.exists(partition="Common", name="19.168.15.15:80") is False
+
+    def test_state_update(self, request, bigip):
+        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+                                     'Common')
+        assert m1.state == 'unchecked'
+        m1.state = 'user-down'
+        m1.update()
+        m2 = pool.members_s.members.load(
+            name='192.168.15.15:80', partition='Common')
+        assert m2.state == 'user-down'
+        assert m2.state == m1.state
+
+    def test_state_update_with_kwargs(self, request, bigip):
+        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+                                     'Common')
+        assert m1.state == 'unchecked'
+        m1.update(state='user-down')
+        m2 = pool.members_s.members.load(
+            name='192.168.15.15:80', partition='Common')
+        assert m2.state == 'user-down'
+        assert m2.state == m1.state
+
+    def test_state_update_invalid_value_with_kwargs(self, request, bigip):
+        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+                                     'Common')
+        assert m1.state == 'unchecked'
+        m1.update(state='down')
+        m2 = pool.members_s.members.load(
+            name='192.168.15.15:80', partition='Common')
+        assert m2.state == 'unchecked'
+        assert m2.state == m1.state
+
+    def test_state_update_invalid_value(self, request, bigip):
+        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+                                     'Common')
+        assert m1.state == 'unchecked'
+        m1.state = 'down'
+        m1.update()
+        m2 = pool.members_s.members.load(
+            name='192.168.15.15:80', partition='Common')
+        assert m2.state == 'unchecked'
+        assert m2.state == m1.state
+
+    def test_session_update_with_kwargs(self, request, bigip):
+        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+                                     'Common')
+        assert m1.session == 'user-enabled'
+        m1.update(session='user-disabled')
+        m2 = pool.members_s.members.load(
+            name='192.168.15.15:80', partition='Common')
+        assert m2.session == 'user-disabled'
+        assert m2.session == m1.session
+
+    def test_session_update_invalid_value_with_kwargs(self, request, bigip):
+        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+                                     'Common')
+        assert m1.session == 'user-enabled'
+        m1.update(session='monitor-enabled')
+        m2 = pool.members_s.members.load(
+            name='192.168.15.15:80', partition='Common')
+        assert m2.session == 'user-enabled'
+        assert m2.session == m1.session
+
+    def test_session_update_invalid_value(self, request, bigip):
+        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+                                     'Common')
+        assert m1.session == 'user-enabled'
+        m1.session = 'monitor-enabled'
+        m1.update()
+        m2 = pool.members_s.members.load(
+            name='192.168.15.15:80', partition='Common')
+        assert m2.session == 'user-enabled'
+        assert m2.session == m1.session
+
+    def test_update_session_state(self, request, bigip):
+        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+                                     'Common')
+        assert m1.session == 'user-enabled'
+        assert m1.state == 'unchecked'
+        m1.session = 'user-disabled'
+        m1.state = 'user-down'
+        m1.update()
+        m2 = pool.members_s.members.load(
+            name='192.168.15.15:80', partition='Common')
+        m2.session = 'user-disabled'
+        m2.state = 'user-down'
+        m2.session = m1.session
+        m2.state = m1.state
+
+    def test_update_session_state_kwargs(self, request, bigip):
+        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+                                     'Common')
+        assert m1.session == 'user-enabled'
+        assert m1.state == 'unchecked'
+        m1.update(session='user-disabled', state='user-down')
+        m2 = pool.members_s.members.load(
+            name='192.168.15.15:80', partition='Common')
+        m2.session = 'user-disabled'
+        m2.state = 'user-down'
+        m2.session = m1.session
+        m2.state = m1.state
+
+    def test_state_modify(self, request, bigip):
+        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+                                     'Common')
+        assert m1.state == 'unchecked'
+        m1.modify(state='user-down')
+        m2 = pool.members_s.members.load(
+            name='192.168.15.15:80', partition='Common')
+        assert m2.state == 'user-down'
+        assert m1.state == m2.state
+
+    def test_state_modify_error(self, request, bigip):
+        m1, _ = setup_member_test(request, bigip, 'membertestpool1', 'Common')
+        with pytest.raises(MemberStateModifyUnsupported) as ex:
+            m1.modify(state='down')
+        assert ex.value.message == "The members resource does not support a " \
+                                   "modify with the value of the 'state' " \
+                                   "attribute as down. The accepted values " \
+                                   "are 'user-up' or 'user-down'"
+
+    def test_session_modify_error(self, request, bigip):
+        m1, _ = setup_member_test(request, bigip, 'membertestpool1', 'Common')
+        with pytest.raises(MemberStateModifyUnsupported) as ex:
+            m1.modify(state='monitor-enabled')
+        assert ex.value.message == "The members resource does not support a " \
+                                   "modify with the value of the 'state' " \
+                                   "attribute as monitor-enabled. " \
+                                   "The accepted values are " \
+                                   "'user-up' or 'user-down'"
 
 
 class TestPool(object):

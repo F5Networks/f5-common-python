@@ -31,7 +31,7 @@ from requests.exceptions import HTTPError
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
-from f5.sdk_exception import MemberStateAlwaysRequiredOnUpdate
+from f5.sdk_exception import MemberStateModifyUnsupported
 
 
 class Pools(Collection):
@@ -71,6 +71,37 @@ class Members(Resource):
         self._meta_data['required_json_kind'] =\
             'tm:ltm:pool:members:membersstate'
         self._meta_data['required_creation_parameters'].update(('partition',))
+        self._meta_data['read_only_attributes'].append('ephemeral')
+        self._meta_data['read_only_attributes'].append('address')
+
+    def _check_member_parameters(self, **kwargs):
+        """See discussion in issue #985."""
+        if 'fqdn' in kwargs:
+            kwargs['fqdn'].pop('autopopulate', '')
+            kwargs['fqdn'].pop('addressFamily', '')
+        if 'fqdn' in self.__dict__:
+            self.__dict__['fqdn'].pop('autopopulate', '')
+            self.__dict__['fqdn'].pop('addressFamily', '')
+        if 'state' in kwargs:
+            if kwargs['state'] != 'user-up' and kwargs['state'] != \
+                    'user-down':
+                kwargs.pop('state')
+        if 'state' in self.__dict__:
+            if self.__dict__['state'] != 'user-up' and self.__dict__['state'] \
+                    != 'user-down':
+                self.__dict__.pop('state')
+        if 'session' in kwargs:
+            if kwargs['session'] != 'user-enabled' and kwargs['session'] != \
+                    'user-disabled':
+                kwargs.pop('session')
+        if 'session' in self.__dict__:
+            if self.__dict__['session'] != 'user-enabled' and \
+                    self.__dict__['session'] != 'user-disabled':
+                self.__dict__.pop('session')
+        # Until we implement sanity checks for __dict__ this needs to stay here
+        self.__dict__.pop('ephemeral', '')
+        self.__dict__.pop('address', '')
+        return kwargs
 
     def update(self, **kwargs):
         """Call this to change the configuration of the service on the device.
@@ -85,25 +116,10 @@ class Members(Resource):
         * If ``fqdn`` is in the kwargs or set as an attribute, removes the
           ``autopopulate`` and ``addressFamily`` keys from it.
 
-        :param state=: state value or :obj:`None` required.
         :param kwargs: keys and associated values to alter on the device
         """
-
-        try:
-            state = kwargs.pop('state')
-        except KeyError:
-            error_message = 'You must supply a value to the "state"' +\
-                ' parameter if you do not wish to change the state then' +\
-                ' pass "state=None".'
-            raise MemberStateAlwaysRequiredOnUpdate(error_message)
-        if state is None:
-            self.__dict__.pop('state', '')
-        else:
-            self.state = state
-        # This is an example implementation of read-only params
-        self.__dict__.pop('ephemeral', '')
-        self.__dict__.pop('address', '')
-        self._update(**kwargs)
+        checked = self._check_member_parameters(**kwargs)
+        return super(Members, self)._update(**checked)
 
     def exists(self, **kwargs):
         """Check for the existence of the named object on the BigIP
@@ -150,3 +166,22 @@ class Members(Resource):
             return False
         # Only after all conditions are met...
         return True
+
+    def _modify(self, **patch):
+        """Override modify to check kwargs before request sent to device."""
+        if 'state' in patch:
+            if patch['state'] != 'user-up' and patch['state'] != 'user-down':
+                msg = "The members resource does not support a modify with " \
+                      "the value of the 'state' attribute as %s. " \
+                      "The accepted values are 'user-up' or " \
+                      "'user-down'" % patch['state']
+                raise MemberStateModifyUnsupported(msg)
+        if 'session' in patch:
+            if patch['session'] != 'user-enabled' and patch['state'] != \
+                    'user-disabled':
+                msg = "The members resource does not support a modify with " \
+                      "the value of the 'session' attribute as %s. " \
+                      "The accepted values are 'user-enabled' or " \
+                      "'user-disabled'" % patch['session']
+                raise MemberStateModifyUnsupported(msg)
+        super(Members, self)._modify(**patch)

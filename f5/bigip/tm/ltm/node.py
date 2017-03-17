@@ -74,11 +74,11 @@ class Node(Resource):
     def _check_node_parameters(self, **kwargs):
         """See discussion in issue #840."""
         if 'fqdn' in kwargs:
-            kwargs['fqdn'].pop('autopopulate')
-            kwargs['fqdn'].pop('addressFamily')
+            kwargs['fqdn'].pop('autopopulate', '')
+            kwargs['fqdn'].pop('addressFamily', '')
         if 'fqdn' in self.__dict__:
-            self.__dict__['fqdn'].pop('autopopulate')
-            self.__dict__['fqdn'].pop('addressFamily')
+            self.__dict__['fqdn'].pop('autopopulate', '')
+            self.__dict__['fqdn'].pop('addressFamily', '')
         if 'state' in kwargs:
             if kwargs['state'] != 'user-up' and kwargs['state'] != \
                     'user-down':
@@ -95,6 +95,9 @@ class Node(Resource):
             if self.__dict__['session'] != 'user-enabled' and \
                     self.__dict__['session'] != 'user-disabled':
                 self.__dict__.pop('session')
+        # Until we implement sanity checks for __dict__ this needs to stay here
+        self.__dict__.pop('ephemeral', '')
+        self.__dict__.pop('address', '')
         return kwargs
 
     def _modify(self, **patch):
