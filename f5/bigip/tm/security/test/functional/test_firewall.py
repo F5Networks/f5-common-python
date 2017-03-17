@@ -18,6 +18,10 @@ import pytest
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.security.firewall import Address_List
 from f5.bigip.tm.security.firewall import Port_List
+from f5.bigip.tm.security.firewall import Rule
+from f5.bigip.tm.security.firewall import Rule_List
+from f5.sdk_exception import ExclusiveAttributesPresent
+from f5.sdk_exception import NonExtantFirewallRule
 
 from requests.exceptions import HTTPError
 from six import iteritems
@@ -40,6 +44,23 @@ def addrlst(mgmt_root):
 def portlst(mgmt_root):
     r1 = mgmt_root.tm.security.firewall.port_lists.port_list.create(
         name='fake_port', partition='Common', ports=[{'name': '80'}])
+    yield r1
+    r1.delete()
+
+
+@pytest.fixture(scope='function')
+def rulelst(mgmt_root):
+    r1 = mgmt_root.tm.security.firewall.rule_lists.rule_list.create(
+        name='fake_rule_list', partition='Common')
+    yield r1
+    r1.delete()
+
+
+@pytest.fixture(scope='function')
+def rule(rulelst):
+    param_set = {'name': 'fake_rule', 'place-after': 'first',
+                 'action': 'reject'}
+    r1 = rulelst.rules_s.rule.create(**param_set)
     yield r1
     r1.delete()
 
@@ -263,3 +284,253 @@ class TestPortList(object):
         assert isinstance(rc, list)
         assert len(rc)
         assert isinstance(rc[0], Port_List)
+
+
+class TestRuleList(object):
+    def test_create_req_args(self, rulelst):
+        r1 = rulelst
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/rule-list/~Common~fake_rule_list'
+        assert r1.name == 'fake_rule_list'
+        assert r1.partition == 'Common'
+        assert r1.selfLink.startswith(URI)
+        assert not hasattr(r1, 'description')
+
+    def test_create_opt_args(self, mgmt_root):
+        r1 = mgmt_root.tm.security.firewall.rule_lists.rule_list.create(
+            name='fake_rule_list', partition='Common', description=DESC)
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/rule-list/~Common~fake_rule_list'
+        assert r1.name == 'fake_rule_list'
+        assert r1.partition == 'Common'
+        assert r1.selfLink.startswith(URI)
+        assert hasattr(r1, 'description')
+        assert r1.description == DESC
+        r1.delete()
+
+    def test_refresh(self, mgmt_root, rulelst):
+        rc = mgmt_root.tm.security.firewall.rule_lists
+        r1 = rulelst
+        r2 = rc.rule_list.load(name='fake_rule_list', partition='Common')
+        assert r1.name == r2.name
+        assert r1.kind == r2.kind
+        assert r1.selfLink == r2.selfLink
+        assert not hasattr(r1, 'description')
+        assert not hasattr(r2, 'description')
+        r2.modify(description=DESC)
+        assert hasattr(r2, 'description')
+        assert r2.description == DESC
+        r1.refresh()
+        assert r1.selfLink == r2.selfLink
+        assert hasattr(r1, 'description')
+        assert r1.description == r2.description
+
+    def test_modify(self, rulelst):
+        original_dict = copy.copy(rulelst.__dict__)
+        itm = 'description'
+        rulelst.modify(description=DESC)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = rulelst.__dict__[k]
+            elif k == itm:
+                assert rulelst.__dict__[k] == DESC
+
+    def test_delete(self, mgmt_root):
+        rc = mgmt_root.tm.security.firewall.rule_lists
+        r1 = rc.rule_list.create(name='delete_me', partition='Common')
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            rc.rule_list.load(name='delete_me', partition='Common')
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, mgmt_root):
+        rc = mgmt_root.tm.security.firewall.rule_lists
+        with pytest.raises(HTTPError) as err:
+            rc.rule_list.load(name='not_exists', partition='Common')
+        assert err.value.response.status_code == 404
+
+    def test_load_and_update(self, mgmt_root, rulelst):
+        r1 = rulelst
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/rule-list/~Common~fake_rule_list'
+        assert r1.name == 'fake_rule_list'
+        assert r1.partition == 'Common'
+        assert r1.selfLink.startswith(URI)
+        assert not hasattr(r1, 'description')
+        r1.description = DESC
+        r1.update()
+        assert hasattr(r1, 'description')
+        assert r1.description == DESC
+        rc = mgmt_root.tm.security.firewall.rule_lists
+        r2 = rc.rule_list.load(name='fake_rule_list', partition='Common')
+        assert r1.name == r2.name
+        assert r1.partition == r2.partition
+        assert r1.selfLink == r2.selfLink
+        assert hasattr(r2, 'description')
+        assert r1.description == r2.description
+
+    def test_portlist_collection(self, mgmt_root):
+        rc = mgmt_root.tm.security.firewall.rule_lists.get_collection()
+        assert isinstance(rc, list)
+        assert len(rc)
+        assert isinstance(rc[0], Rule_List)
+
+
+class TestRules(object):
+    def test_mutually_exclusive_raises(self, rulelst):
+        param_set = {'name': 'fake_rule', 'place-after': 'first',
+                     'action': 'reject', 'place-before': 'last'}
+        ERR = 'Mutually exclusive arguments submitted. ' \
+              'The following arguments cannot be set together: ' \
+              '"place-after, place-before".'
+        with pytest.raises(ExclusiveAttributesPresent) as err:
+            rulelst.rules_s.rule.create(**param_set)
+        assert err.value.message == ERR
+
+    def test_mandatory_attribute_missing(self, rulelst):
+        param_set = {'name': 'fake_rule', 'action': 'reject'}
+        ERR = "This resource requires at least one of the mandatory " \
+              "additional parameters to be provided: " \
+              "set(['place-before', 'place-after'])"
+        with pytest.raises(MissingRequiredCreationParameter) as err:
+            rulelst.rules_s.rule.create(**param_set)
+        assert err.value.message == ERR
+
+    def test_create_req_arg(self, rule):
+        r1 = rule
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/rule-list/~Common~fake_rule_list/rules/fake_rule'
+        assert r1.name == 'fake_rule'
+        assert r1.selfLink.startswith(URI)
+        assert not hasattr(r1, 'description')
+
+    def test_create_optional_args(self, rulelst):
+        param_set = {'name': 'fake_rule', 'place-after': 'first',
+                     'action': 'reject', 'description': DESC}
+        r1 = rulelst.rules_s.rule.create(**param_set)
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/rule-list/~Common~fake_rule_list/rules/fake_rule'
+        assert r1.name == 'fake_rule'
+        assert r1.selfLink.startswith(URI)
+        assert hasattr(r1, 'description')
+        assert r1.description == DESC
+
+    def test_refresh(self, rulelst, rule):
+        r1 = rule
+        r2 = rulelst.rules_s.rule.load(name='fake_rule')
+        assert r1.name == r2.name
+        assert r1.selfLink == r2.selfLink
+        assert r1.kind == r2.kind
+        assert not hasattr(r1, 'description')
+        assert not hasattr(r2, 'description')
+        r2.modify(description=DESC)
+        assert r1.selfLink == r2.selfLink
+        assert r1.name == r2.name
+        assert r1.kind == r2.kind
+        assert hasattr(r2, 'description')
+        assert r2.description == DESC
+        r1.refresh()
+        assert r1.description == r2.description
+
+    def test_modify(self, rule):
+        r1 = rule
+        original_dict = copy.deepcopy(r1.__dict__)
+        itm = 'description'
+        r1.modify(description=DESC)
+        for k, v in iteritems(original_dict):
+            if k != itm:
+                original_dict[k] = r1.__dict__[k]
+            elif k == itm:
+                assert r1.__dict__[k] == DESC
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) == LooseVersion('11.6.0'),
+        reason='This test will fail on 11.6.0 due to a known bug.'
+    )
+    def test_delete(self, rulelst):
+        param_set = {'name': 'delete_me', 'place-after': 'first',
+                     'action': 'reject'}
+        r1 = rulelst.rules_s.rule.create(**param_set)
+        r1.delete()
+        with pytest.raises(HTTPError) as err:
+            rulelst.rules_s.rule.load(name='delete_me')
+        assert err.value.response.status_code == 404
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) == LooseVersion('11.6.0'),
+        reason='This test will fail on 11.6.0 due to a known bug.'
+    )
+    def test_load_no_object(self, rulelst):
+        with pytest.raises(HTTPError) as err:
+            rulelst.rules_s.rule.load(name='not_exist')
+        assert err.value.response.status_code == 404
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) != LooseVersion('11.6.0'),
+        reason='This test is for 11.6.0 TMOS only, due to a known bug.'
+    )
+    def test_delete_11_6_0(self, rulelst):
+        param_set = {'name': 'delete_me', 'place-after': 'first',
+                     'action': 'reject'}
+        r1 = rulelst.rules_s.rule.create(**param_set)
+        r1.delete()
+        try:
+            rulelst.rules_s.rule.load(name='delete_me')
+
+        except NonExtantFirewallRule as err:
+            msg = 'The application resource named, delete_me, ' \
+                  'does not exist on the device.'
+
+            assert err.message == msg
+
+    @pytest.mark.skipif(
+        LooseVersion(
+            pytest.config.getoption('--release')
+        ) != LooseVersion('11.6.0'),
+        reason='This test is for 11.6.0 TMOS only, due to a known bug.'
+    )
+    def test_load_no_object_11_6_0(self, rulelst):
+        try:
+            rulelst.rules_s.rule.load(name='not_exist')
+
+        except NonExtantFirewallRule as err:
+            msg = 'The application resource named, not_exist, ' \
+                  'does not exist on the device.'
+
+            assert err.message == msg
+
+    def test_load_and_update(self, rulelst, rule):
+        r1 = rule
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/rule-list/~Common~fake_rule_list/rules/fake_rule'
+        assert r1.name == 'fake_rule'
+        assert r1.selfLink.startswith(URI)
+        assert not hasattr(r1, 'description')
+        r1.description = DESC
+        r1.update()
+        assert hasattr(r1, 'description')
+        assert r1.description == DESC
+        r2 = rulelst.rules_s.rule.load(name='fake_rule')
+        assert r1.name == r2.name
+        assert r1.selfLink == r2.selfLink
+        assert hasattr(r2, 'description')
+        assert r1.description == r2.description
+
+    def test_rules_subcollection(self, rulelst, rule):
+        r1 = rule
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/rule-list/~Common~fake_rule_list/rules/fake_rule'
+        assert r1.name == 'fake_rule'
+        assert r1.selfLink.startswith(URI)
+        assert not hasattr(r1, 'description')
+
+        rc = rulelst.rules_s.get_collection()
+        assert isinstance(rc, list)
+        assert len(rc)
+        assert isinstance(rc[0], Rule)

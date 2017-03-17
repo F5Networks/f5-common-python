@@ -26,10 +26,12 @@ GUI Path
 REST Kind
     ``tm:security:firewall:*``
 """
+from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import _minimum_one_is_missing
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import NonExtantFirewallRule
 
 from distutils.version import LooseVersion
 
@@ -41,7 +43,8 @@ class Firewall(OrganizingCollection):
         super(Firewall, self).__init__(security)
         self._meta_data['allowed_lazy_attributes'] = [
             Address_Lists,
-            Port_Lists]
+            Port_Lists,
+            Rule_Lists]
 
 
 class Address_Lists(Collection):
@@ -101,3 +104,123 @@ class Port_List(Resource):
 
         _minimum_one_is_missing(req_set, **kwargs)
         return self._create(**kwargs)
+
+
+class Rule_Lists(Collection):
+    """BIG-IP® AFM® Rule List collection"""
+    def __init__(self, firewall):
+        super(Rule_Lists, self).__init__(firewall)
+        self._meta_data['allowed_lazy_attributes'] = [Rule_List]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:firewall:rule-list:rule-liststate':
+                Rule_List}
+
+
+class Rule_List(Resource):
+    """BIG-IP® Rule List resource"""
+    def __init__(self, rule_lists):
+        super(Rule_List, self).__init__(rule_lists)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:firewall:rule-list:rule-liststate'
+        self._meta_data['required_creation_parameters'].update(('partition',))
+        self._meta_data['required_load_parameters'].update(('partition',))
+        self._meta_data['allowed_lazy_attributes'] = [Rules_s]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:firewall:rule-list:rules:rulescollectionstate':
+                Rules_s}
+
+
+class Rules_s(Collection):
+    """BIG-IP® AFM® Rules sub-collection."""
+    def __init__(self, rule_list):
+        super(Rules_s, self).__init__(rule_list)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:firewall:rule-list:rules:rulescollectionstate'
+        self._meta_data['allowed_lazy_attributes'] = [Rule]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:firewall:rule-list:rules:rulesstate':
+                Rule}
+
+
+class Rule(Resource, CheckExistenceMixin):
+    """BIG-IP® AFM® Rule resource.
+
+
+    NOTE:: The 'place-before' and 'place-after' attribute are
+        mandatory but cannot be present with one another. Those attributes
+        will not be visible when the class is created, they exist for the
+        sole purpose of rule ordering in the BIGIP. The ordering of the
+        rules corresponds to the index in the 'items' of the Rules_s
+        sub-collection.
+    """
+    def __init__(self, rules_s):
+        super(Rule, self).__init__(rules_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:firewall:rule-list:rules:rulesstate'
+        self._meta_data['required_creation_parameters'].update(('action',))
+        self._meta_data['exclusive_attributes'].append(
+            ('place-after', 'place-before'))
+        self.tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
+
+    def create(self, **kwargs):
+        """Custom create method to accommodate different endpoint behavior.
+
+        WARNING: Some parameters are hyphenated therefore the function
+                 will need to utilize variable keyword argument syntax.
+                 eg.
+
+                 param_set ={'name': 'rule', 'place-before': 'first',
+                 'action': 'reject'}
+
+                 rule_lst.rules_s.rule.create(**param_set)
+        """
+        self._check_create_parameters(**kwargs)
+        req_set = {'place-before', 'place-after'}
+        _minimum_one_is_missing(req_set, **kwargs)
+        return self._create(**kwargs)
+
+    def update(self, **kwargs):
+        """We need to implement the custom exclusive parameter check."""
+        self._check_exclusive_parameters(**kwargs)
+        return super(Rule, self)._update(**kwargs)
+
+    def modify(self, **kwargs):
+        """We need to implement the custom exclusive parameter check."""
+        self._check_exclusive_parameters(**kwargs)
+        return super(Rule, self)._modify(**kwargs)
+
+    def load(self, **kwargs):
+        """Custom load method to address issue in 11.6.0 Final,
+
+        where non existing objects would be True.
+        """
+        if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
+            return self._load_11_6(**kwargs)
+        else:
+            return super(Rule, self)._load(**kwargs)
+
+    def _load_11_6(self, **kwargs):
+        """Must check if rule actually exists before proceeding with load."""
+        if self._check_existence_by_collection(self._meta_data['container'],
+                                               kwargs['name']):
+            return super(Rule, self)._load(**kwargs)
+        msg = 'The application resource named, {}, does not exist on the ' \
+              'device.'.format(kwargs['name'])
+        raise NonExtantFirewallRule(msg)
+
+    def exists(self, **kwargs):
+        """Some objects when deleted still return when called by their
+
+        direct URI, this is a known issue in 11.6.0.
+        """
+
+        if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
+            return self._exists_11_6(**kwargs)
+        else:
+            return super(Rule, self)._load(**kwargs)
+
+    def _exists_11_6(self, **kwargs):
+        """Check rule existence on device."""
+
+        return self._check_existence_by_collection(
+            self._meta_data['container'], kwargs['name'])
