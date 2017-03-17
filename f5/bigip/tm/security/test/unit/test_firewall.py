@@ -18,6 +18,7 @@ import pytest
 
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.security.firewall import Address_List
+from f5.bigip.tm.security.firewall import Port_List
 
 from f5.sdk_exception import MissingRequiredCreationParameter
 
@@ -29,7 +30,14 @@ def FakeAddrLst():
     return fake_addrlst
 
 
-class TestAddrLst(object):
+@pytest.fixture
+def FakePortLst():
+    fake_col = mock.MagicMock()
+    fake_portlst = Port_List(fake_col)
+    return fake_portlst
+
+
+class TestAddressList(object):
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         r1 = b.tm.security.firewall.address_lists.address_list
@@ -44,4 +52,22 @@ class TestAddrLst(object):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         with pytest.raises(MissingRequiredCreationParameter):
             b.tm.security.firewall.address_lists.address_list.create(
+                name='destined_to_fail', partition='Fake')
+
+
+class TestPortList(object):
+    def test_create_two(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        r1 = b.tm.security.firewall.port_lists.port_list
+        r2 = b.tm.security.firewall.port_lists.port_list
+        assert r1 is not r2
+
+    def test_create_no_args(self, FakePortLst):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakePortLst.create()
+
+    def test_create_mandatory_args_missing(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        with pytest.raises(MissingRequiredCreationParameter):
+            b.tm.security.firewall.port_lists.port_list.create(
                 name='destined_to_fail', partition='Fake')

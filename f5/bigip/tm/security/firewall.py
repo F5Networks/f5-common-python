@@ -39,7 +39,9 @@ class Firewall(OrganizingCollection):
 
     def __init__(self, security):
         super(Firewall, self).__init__(security)
-        self._meta_data['allowed_lazy_attributes'] = [Address_Lists]
+        self._meta_data['allowed_lazy_attributes'] = [
+            Address_Lists,
+            Port_Lists]
 
 
 class Address_Lists(Collection):
@@ -69,5 +71,33 @@ class Address_List(Resource):
             req_set = {'addressLists', 'addresses', 'geo'}
         else:
             req_set = {'addressLists', 'addresses', 'geo', 'fqdns'}
+        _minimum_one_is_missing(req_set, **kwargs)
+        return self._create(**kwargs)
+
+
+class Port_Lists(Collection):
+    """BIG-IP® AFM® Port List collection"""
+    def __init__(self, firewall):
+        super(Port_Lists, self).__init__(firewall)
+        self._meta_data['allowed_lazy_attributes'] = [Port_List]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:firewall:port-list:port-liststate':
+                Port_List}
+
+
+class Port_List(Resource):
+    """BIG-IP® Port List resource"""
+    def __init__(self, port_lists):
+        super(Port_List, self).__init__(port_lists)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:firewall:port-list:port-liststate'
+        self._meta_data['required_creation_parameters'].update(('partition',))
+        self._meta_data['required_load_parameters'].update(('partition',))
+
+    def create(self, **kwargs):
+        """Custom create method to accommodate different endpoint behavior."""
+        self._check_create_parameters(**kwargs)
+        req_set = {'ports', 'portLists'}
+
         _minimum_one_is_missing(req_set, **kwargs)
         return self._create(**kwargs)
