@@ -109,8 +109,8 @@ class LazyAttributesRequired(F5SDKError):
     pass
 
 
-class MemberStateAlwaysRequiredOnUpdate(F5SDKError):
-    """Raise this is a pool member state is not passed on update."""
+class MemberStateModifyUnsupported(F5SDKError):
+    """Modify of node with state=unchecked is unsupported."""
     pass
 
 
