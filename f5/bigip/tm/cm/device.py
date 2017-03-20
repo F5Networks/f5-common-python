@@ -27,11 +27,12 @@ REST Kind
 """
 
 
+from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class Devices(Collection):
+class Devices(Collection, CommandExecutionMixin):
     """BIG-IP® cluster devices collection.
 
     """
@@ -40,6 +41,7 @@ class Devices(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Device]
         self._meta_data['attribute_registry'] =\
             {'tm:cm:device:devicestate': Device}
+        self._meta_data['allowed_commands'].append('mv')
 
 
 class Device(Resource):

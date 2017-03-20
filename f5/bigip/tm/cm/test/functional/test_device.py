@@ -64,3 +64,34 @@ class TestDevice(object):
         d2.refresh()
         assert d2.description == TEST_DESCR
         assert d1.generation == d2.generation
+
+
+class TestDeviceMoving(object):
+    def test_device_mv(self, request, mgmt_root):
+        d1 = mgmt_root.tm.cm.devices.device.load(
+            name='bigip1', partition='Common'
+        )
+
+        # Move it
+        mgmt_root.tm.cm.devices.exec_cmd(
+            'mv', name='bigip1', target='bigip2'
+        )
+
+        # Load
+        d2 = mgmt_root.tm.cm.devices.device.load(
+            name='bigip2', partition=d1.partition
+        )
+        assert d1.name != d2.name
+        assert d1.generation == d2.generation
+        assert d1.hostname == 'bigip1'
+        assert d2.hostname == 'bigip1'
+
+        # Refresh
+        d2.refresh()
+        assert d1.name != d2.name
+        assert d1.generation == d2.generation
+
+        # Move it back
+        mgmt_root.tm.cm.devices.exec_cmd(
+            'mv', name='bigip2', target='bigip1'
+        )
