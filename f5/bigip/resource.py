@@ -710,7 +710,7 @@ class ResourceBase(PathElement, ToDictMixin):
         return config_dict
 
     @property
-    def properties(self):
+    def attrs(self):
         no_meta_dict = {k: v for k, v in self.__dict__.iteritems()
                         if k != '_meta_data'}
         return no_meta_dict

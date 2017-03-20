@@ -799,7 +799,7 @@ def test_ResourceBase():
     assert str(delete_EIO.value) == "Only Resources support 'delete'."
 
 
-def test_resource_base_properties():
+def test_resource_base_attrs():
     MockBigIP = mock.MagicMock(name='MockBigIP')
     MockBigIP._meta_data = {'uri': 'https://TESTDOMAIN/mgmt/tm/',
                             'bigip': MockBigIP,
@@ -811,7 +811,7 @@ def test_resource_base_properties():
     assert hasattr(rb, '_meta_data')
     assert hasattr(rb, 'item')
     assert hasattr(rb, 'item2')
-    no_meta = rb.properties
+    no_meta = rb.attrs
     assert type(no_meta) is dict
     assert '_meta_data' not in no_meta.keys()
     assert no_meta['item'] == {'fake_key': 'fake_value'}
