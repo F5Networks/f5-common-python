@@ -52,15 +52,39 @@ class Device_Group(Resource):
             'tm:cm:device-group:devices:devicescollectionstate': Devices_s
         }
 
-    def sync(self):
-        '''Sync the configuration of the device-group
+    def sync_to(self):
+        """Wrapper method that synchronizes configuration to DG.
 
-        Executes the containing object's cm :meth:`~f5.bigip.cm.Cm.sync`
-        method to sync the configuration of the device-group.
-        '''
+
+        Executes the containing object's cm :meth:`~f5.bigip.cm.Cm.exec_cmd`
+        method to sync the configuration TO the device-group.
+
+        :note:: Both sync_to, and sync_from methods are convenience
+                methods which usually are not what this SDK offers.
+                It is best to execute config-sync with the use of
+                exec_cmd() method on the cm endpoint.
+        """
         device_group_collection = self._meta_data['container']
         cm = device_group_collection._meta_data['container']
-        cm.sync(self.name)
+        sync_cmd = 'config-sync to-group %s' % self.name
+        cm.exec_cmd('run', utilCmdArgs=sync_cmd)
+
+    def sync_from(self):
+        """Wrapper method that synchronizes configuration from DG.
+
+
+        Executes the containing object's cm :meth:`~f5.bigip.cm.Cm.exec_cmd`
+        method to sync the configuration FROM the device-group.
+
+        :note:: Both sync_to, and sync_from methods are convenience
+                methods which usually are not what this SDK offers.
+                It is best to execute config-sync with the use of
+                exec_cmd() method on the cm endpoint.
+        """
+        device_group_collection = self._meta_data['container']
+        cm = device_group_collection._meta_data['container']
+        sync_cmd = 'config-sync from-group %s' % self.name
+        cm.exec_cmd('run', utilCmdArgs=sync_cmd)
 
 
 class Devices_s(Collection):
