@@ -33,12 +33,12 @@ class Iapps(Collection):
         super(Iapps, self).__init__(templates)
         self._meta_data['object_has_stats'] = False
         self._meta_data['required_json_kind'] = \
-            'cm:cloud:templates:iapp:templatesiappcollectionworkerstate'
+            'cm:cloud:templates:iapp:iapptemplatecollectionworkerstate'
         self._meta_data['allowed_lazy_attributes'] = [
             Iapp
         ]
         self._meta_data['attribute_registry'] = {
-            'cm:cloud:templates:iapp:templatesiappitemstate': Iapp
+            'cm:cloud:templates:iapp:iapptemplateitemstate': Iapp
         }
 
 
@@ -46,29 +46,5 @@ class Iapp(Resource):
     def __init__(self, iapps):
         super(Iapp, self).__init__(iapps)
         self._meta_data['required_json_kind'] = \
-            'cm:cloud:templates:iapp:templatesiappitemstate'
-        self._meta_data['allowed_lazy_attributes'] = [Providers_s]
-        self._meta_data['attribute_registry'] = {
-            'cm:cloud:provider:templates:iapp:provideriapptemplatecollectionworkerstate': Providers_s  # NOQA
-        }
-
-
-class Providers_s(Collection):
-    def __init__(self, iapp):
-        super(Providers_s, self).__init__(iapp)
-        self._meta_data['object_has_stats'] = False
-        self._meta_data['required_json_kind'] = \
-            'cm:cloud:templates:iapp:templatesiappcollectionworkerstate'
-        self._meta_data['allowed_lazy_attributes'] = [Providers]
-        self._meta_data['attribute_registry'] = {
-            'cm:cloud:provider:templates:iapp:provideriapptemplateworkerstate': Providers  # NOQA
-        }
-
-
-class Providers(Resource):
-    def __init__(self, providers_s):
-        super(Providers, self).__init__(providers_s)
+            'cm:cloud:templates:iapp:iapptemplateitemstate'
         self._meta_data['required_load_parameters'] = {'name', }
-        self._meta_data['object_has_stats'] = False
-        self._meta_data['required_json_kind'] = \
-            'cm:cloud:provider:templates:iapp:provideriapptemplateworkerstate'

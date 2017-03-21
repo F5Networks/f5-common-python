@@ -13,6 +13,8 @@
 # limitations under the License.
 #
 
+import json
+import os
 import pytest
 import time
 
@@ -31,6 +33,30 @@ pytestmark = pytest.mark.skipif(
            "To run them, set the symbols variable "
            "'run_iwf_cloud_managed_devices_tests: True'"
 )
+
+
+fixture_path = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), 'fixtures'
+)
+fixture_data = {}
+
+
+def load_fixture(name):
+    path = os.path.join(fixture_path, name)
+
+    if path in fixture_data:
+        return fixture_data[path]
+
+    with open(path) as f:
+        data = f.read()
+
+    try:
+        data = json.loads(data)
+    except Exception:
+        pass
+
+    fixture_data[path] = data
+    return data
 
 
 def wait_for_state(obj, state):
@@ -55,50 +81,26 @@ def managed_device(mgmt_root):
     device.delete()
 
 
-@pytest.mark.parametrize("template", [
-    ('f5.bea_weblogic'),
-    ('f5.cifs'),
-    ('f5.citrix_presentation_server'),
-    ('f5.citrix_xen_app'),
-    ('f5.diameter'),
-    ('f5.dns'),
-    ('f5.ftp'),
-    ('f5.http'),
-    ('f5.ip_forwarding'),
-    ('f5.ldap'),
-    ('f5.microsoft_exchange_2010'),
-    ('f5.microsoft_exchange_owa_2007'),
-    ('f5.microsoft_iis'),
-    ('f5.microsoft_lync_server_2010'),
-    ('f5.microsoft_ocs_2007_r2'),
-    ('f5.microsoft_sharepoint_2007'),
-    ('f5.microsoft_sharepoint_2010'),
-    ('f5.npath'),
-    ('f5.oracle_as_10g'),
-    ('f5.oracle_ebs'),
-    ('f5.peoplesoft_9'),
-    ('f5.radius'),
-    ('f5.replication'),
-    ('f5.sap_enterprise_portal'),
-    ('f5.sap_erp'),
-    ('f5.vmware_view'),
-    ('f5.vmware_vmotion')
-])
+@pytest.fixture(scope="function")
+def template(mgmt_root, managed_device):
+    iapp = mgmt_root.cm.cloud.templates.iapps.iapp.create(
+        name='f5.http.v1.2.0rc4',
+        deviceForJSONTransformation=dict(
+            link=str(managed_device.selfLink)
+        ),
+        templateContent=load_fixture('f5.http.v1.2.0rc4.tmpl')
+    )
+    yield iapp
+    iapp.delete()
+
+
 class TestBigIpCommonTemplates(object):
     def test_count_collection(self, template, mgmt_root):
-        iapps = mgmt_root.cm.cloud.templates.iapps.get_collection(
-            requests_params=dict(
-                params="$filter=name+eq+'{0}'".format(template)
-            )
-        )
+        iapps = mgmt_root.cm.cloud.templates.iapps.get_collection()
         assert len(iapps) == 1
 
     def test_load_example(self, template, mgmt_root):
-        iapps = mgmt_root.cm.cloud.templates.iapps.get_collection(
-            requests_params=dict(
-                params="$filter=name+eq+'{0}'".format(template)
-            )
+        iapp = mgmt_root.cm.cloud.templates.iapps.iapp.load(
+            name='f5.http.v1.2.0rc4'
         )
-        iapp = iapps.pop()
-        example = iapp.providers_s.providers.load(name='example')
-        assert example.templateName == template + '-example'
+        assert iapp.name == 'f5.http.v1.2.0rc4'
