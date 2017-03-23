@@ -20,6 +20,7 @@ from f5.bigip.resource import OrganizingCollection as BigIpOrganizingCollection
 from f5.bigip.resource import PathElement as BigIpPathElement
 from f5.bigip.resource import Resource as BigIpResource
 from f5.bigip.resource import ResourceBase as BigIpResourceBase
+from f5.bigip.resource import Stats as BigIpStats
 from f5.bigip.resource import UnnamedResource as BigIpUnnamedResource
 
 
@@ -42,6 +43,11 @@ class Resource(BigIpResource, PathElement):
         super(Resource, self).__init__(container)
         self._meta_data['required_load_parameters'] = {'uuid', }
 
+    def _assign_stats(self, attrs):
+        if self._meta_data['object_has_stats']:
+            attrs.append(Stats)
+        return attrs
+
 
 class ResourceBase(BigIpResourceBase, PathElement):
     pass
@@ -56,4 +62,8 @@ class UnnamedResource(BigIpUnnamedResource, ResourceBase):
 
 
 class Collection(BigIpCollection, ResourceBase):
+    pass
+
+
+class Stats(BigIpStats, UnnamedResource):
     pass

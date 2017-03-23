@@ -620,8 +620,16 @@ class ResourceBase(PathElement, ToDictMixin):
         """wrapped by `refresh` override that in a subclass to customize"""
         requests_params = self._handle_requests_params(kwargs)
         refresh_session = self._meta_data['bigip']._meta_data['icr_session']
-        response = refresh_session.get(self._meta_data['uri'],
-                                       **requests_params)
+        if self._meta_data['uri'].endswith('/stats/'):
+            # Slicing off the trailing slash here for Stats enpoints because
+            # iWorkflow doesn't consider those `stats` URLs valid if they
+            # include the trailing slash.
+            #
+            # Other than that, functionality does not change
+            uri = self._meta_data['uri'][0:-1]
+        else:
+            uri = self._meta_data['uri']
+        response = refresh_session.get(uri, **requests_params)
         self._local_update(response.json())
 
     def refresh(self, **kwargs):
@@ -878,8 +886,7 @@ class Resource(ResourceBase):
         # attrs local alias
         attribute_reg = self._meta_data.get('attribute_registry', {})
         attrs = list(itervalues(attribute_reg))
-        if self._meta_data['object_has_stats']:
-            attrs.append(Stats)
+        attrs = self._assign_stats(attrs)
 
         (scheme, domain, path, qarg, frag) = urlparse.urlsplit(selfLinkuri)
         path_uri = urlparse.urlunsplit((scheme, uri.netloc, path, '', ''))
@@ -890,6 +897,11 @@ class Resource(ResourceBase):
                                 'creation_uri_qargs': qargs,
                                 'creation_uri_frag': frag,
                                 'allowed_lazy_attributes': attrs})
+
+    def _assign_stats(self, attrs):
+        if self._meta_data['object_has_stats']:
+            attrs.append(Stats)
+        return attrs
 
     def _check_create_parameters(self, **kwargs):
         """Params given to create should satisfy required params.

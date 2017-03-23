@@ -31,7 +31,6 @@ from f5.iworkflow.resource import Resource
 class Iapps(Collection):
     def __init__(self, templates):
         super(Iapps, self).__init__(templates)
-        self._meta_data['object_has_stats'] = False
         self._meta_data['required_json_kind'] = \
             'cm:cloud:templates:iapp:iapptemplatecollectionworkerstate'
         self._meta_data['allowed_lazy_attributes'] = [
