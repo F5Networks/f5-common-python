@@ -28,6 +28,7 @@ REST Kind
 """
 
 from f5.iworkflow.resource import Collection
+from f5.iworkflow.resource import OrganizingCollection
 from f5.iworkflow.resource import Resource
 
 
@@ -49,3 +50,31 @@ class Tenant(Resource):
         self._meta_data['required_load_parameters'] = {'name', }
         self._meta_data['required_json_kind'] = \
             'cm:cloud:tenants:tenantworkerstate'
+        self._meta_data['allowed_lazy_attributes'] = [Services]
+        self._meta_data['attribute_registry'] = {'': Services}
+
+
+class Services(OrganizingCollection):
+    def __init__(self, tenant):
+        super(Services, self).__init__(tenant)
+        self._meta_data['allowed_lazy_attributes'] = [Iapps]
+
+
+class Iapps(Collection):
+    def __init__(self, services):
+        super(Iapps, self).__init__(services)
+        self._meta_data['required_json_kind'] = \
+            'cm:cloud:tenants:tenantservicecollectionstate'
+        self._meta_data['allowed_lazy_attributes'] = [Iapp]
+        self._meta_data['attribute_registry'] = {
+            'cm:cloud:tenants:tenantserviceinstance': Iapp
+        }
+
+
+class Iapp(Resource):
+    def __init__(self, iapps):
+        super(Iapp, self).__init__(iapps)
+        self._meta_data['required_creation_parameters'] = {'name', }
+        self._meta_data['required_load_parameters'] = {'name', }
+        self._meta_data['required_json_kind'] = \
+            'cm:cloud:tenants:tenantserviceinstance'
