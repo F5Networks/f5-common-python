@@ -22,6 +22,7 @@ try:
 except ImportError:
     from io import StringIO
 
+from f5.bigip.mixins import FileDownloadMixin
 from f5.bigip.mixins import FileUploadMixin
 from f5.bigip.resource import PathElement
 from f5.sdk_exception import FileMustNotHaveDotISOExtension
@@ -32,6 +33,7 @@ class File_Transfer(PathElement):
     def __init__(self, shared):
         super(File_Transfer, self).__init__(shared)
         self._meta_data['allowed_lazy_attributes'] = [
+            Bulk,
             Uploads
         ]
 
@@ -55,3 +57,14 @@ class Uploads(PathElement, FileUploadMixin):
     def upload_bytes(self, bytestring, target, **kwargs):
         self.file_bound_uri = self._meta_data['uri'] + target
         self._upload(StringIO(bytestring), **kwargs)
+
+
+class Bulk(PathElement, FileUploadMixin, FileDownloadMixin):
+    """A file upload resource."""
+    def __init__(self, file_transfer):
+        super(Bulk, self).__init__(file_transfer)
+
+    def download_file(self, src, dest, **kwargs):
+        filename = os.path.basename(src)
+        self.file_bound_uri = self._meta_data['uri'] + filename
+        self._download_file(src, dest, **kwargs)
