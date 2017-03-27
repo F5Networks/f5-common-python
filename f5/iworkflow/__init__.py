@@ -24,7 +24,6 @@ from f5.iworkflow.tm import Tm
 from f5.sdk_exception import F5SDKError
 from icontrol.session import iControlRESTSession
 
-import copy
 import re
 
 
@@ -79,10 +78,9 @@ class BaseManagement(object):
         self._meta_data['icr_session'] = icrs
 
 
-class ManagementRoot(BaseManagement, PathElement):
-    """An interface to a single BIG-IP"""
+class RegularManagementRoot(BaseManagement, PathElement):
     def __init__(self, hostname, username, password, **kwargs):
-        super(ManagementRoot, self).__init__(
+        super(RegularManagementRoot, self).__init__(
             hostname, username, password, **kwargs
         )
         self.set_metadata_uri(**self.args)
@@ -106,6 +104,8 @@ class ManagementRoot(BaseManagement, PathElement):
 
     @property
     def tmos_version(self):
+        if self._meta_data['tmos_version'] is None:
+            self._get_os_version()
         return self._meta_data['tmos_version']
 
     def _get_os_version(self):
@@ -119,44 +119,30 @@ class ManagementRoot(BaseManagement, PathElement):
 
 class ManagementProxy(object):
     def __new__(cls, *args, **kwargs):
+        proxy_to = kwargs.pop('proxy_to', None)
         device_group = kwargs.pop('device_group', 'cm-cloud-managed-devices')
-        hostname = kwargs.pop('hostname', None)
-        uuid = kwargs.pop('uuid', None)
-        rest_proxy = kwargs.pop('rest_proxy', None)
-        if not uuid and not hostname:
-            raise F5SDKError(
-                "One of either 'uuid' or 'hostname must be specified."
-            )
-        elif uuid is not None and hostname is not None:
-            raise F5SDKError(
-                "The 'uuid' and 'hostname' parameters are mutually exclusive. "
-                "You may specify one or the other, but not both."
-            )
-        if not rest_proxy:
-            raise F5SDKError(
-                "You must provide a device to proxy REST requests through"
-            )
-        proxy = copy.deepcopy(rest_proxy)
-        uuid = cls._get_identifier(proxy, hostname=hostname, uuid=uuid)
+
+        mgmt = ManagementRoot(args[0], args[1], args[2], **kwargs)
+        uuid = cls._get_identifier(mgmt, proxy_to)
         if uuid is None:
             raise F5SDKError(
                 "The specified device was missing a UUID. "
                 "This should not happen!"
             )
         bigip = BigipBaseManagement(
-            proxy.args['hostname'],
-            proxy.args['username'],
-            proxy.args['password'],
-            port=proxy.args['port']
+            mgmt.args['hostname'],
+            mgmt.args['username'],
+            mgmt.args['password'],
+            port=mgmt.args['port']
         )
-        bigip.icrs = proxy.icrs
+        bigip.icrs = mgmt.icrs
         uri = ''.join([
             'https://{0}:{1}/mgmt/shared/resolver/device-groups/',
             '{2}/devices/{3}/rest-proxy/mgmt/'
         ])
         bigip._meta_data['uri'] = uri.format(
-            proxy.args['hostname'],
-            proxy.args['port'],
+            mgmt.args['hostname'],
+            mgmt.args['port'],
             device_group,
             uuid
         )
@@ -164,18 +150,24 @@ class ManagementProxy(object):
         return bigip
 
     @staticmethod
-    def _get_identifier(proxy, hostname=None, uuid=None):
-        if uuid is not None:
-            if re.search(r'([0-9-a-z]+\-){4}[0-9-a-z]+', uuid, re.I):
-                return uuid
-        return ManagementProxy._get_device_uuid(proxy, hostname)
+    def _get_identifier(mgmt, proxy_to):
+        if proxy_to is None:
+            raise F5SDKError(
+                "An identifier to a device to proxy to must be provided."
+            )
+
+        if re.search(r'([0-9-a-z]+\-){4}[0-9-a-z]+', proxy_to, re.I):
+            return proxy_to
+        return ManagementProxy._get_device_uuid(mgmt, proxy_to)
 
     @staticmethod
-    def _get_device_uuid(proxy, name):
-        dg = proxy.shared.resolver.device_groups
+    def _get_device_uuid(mgmt, proxy_to):
+        dg = mgmt.shared.resolver.device_groups
         collection = dg.cm_cloud_managed_devices.devices_s.get_collection(
             requests_params=dict(
-                params="$filter=hostname+eq+'{0}'&$select=uuid".format(name)
+                params="$filter=hostname+eq+'{0}'&$select=uuid".format(
+                    proxy_to
+                )
             )
         )
         if len(collection) > 1:
@@ -190,3 +182,16 @@ class ManagementProxy(object):
         else:
             resource = collection.pop()
             return resource.pop('uuid', None)
+
+
+class ManagementRoot(BaseManagement, PathElement):
+    """An interface to a single BIG-IP"""
+    def __new__(cls, *args, **kwargs):
+        proxy_to = kwargs.pop('proxy_to', None)
+        device_group = kwargs.pop('device_group', 'cm-cloud-managed-devices')
+        if proxy_to:
+            return ManagementProxy(
+                proxy_to=proxy_to, device_group=device_group, *args, **kwargs
+            )
+        else:
+            return RegularManagementRoot(*args, **kwargs)

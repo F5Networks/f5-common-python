@@ -109,6 +109,8 @@ class BaseManagement(PathElement):
 
     @property
     def tmos_version(self):
+        if self._meta_data['tmos_version'] is None:
+            self._meta_data['tmos_version'] = self._get_tmos_version()
         return self._meta_data['tmos_version']
 
 
