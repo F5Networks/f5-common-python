@@ -97,6 +97,11 @@ Methods
 | |update|  | PUT           | | submits a new configuration to the device resource; sets the    |
 |           |               | | Resource attributes to the state reported by the device         |
 +-----------+---------------+-------------------------------------------------------------------+
+| |modify|  | PATCH         | | submits a new configuration to the device resource; sets only   |
+|           |               | | the attributes specified in `modify` method. This is different  |
+|           |               | | from `update` because update will change all the attributes, not|
+|           |               | | only the ones that you specify.                                 |
++-----------+---------------+-------------------------------------------------------------------+
 | |refresh| | GET           | | obtains the state of a device resource; sets the representing   |
 |           |               | | Python Resource Object; tracks device state via its attributes  |
 +-----------+---------------+-------------------------------------------------------------------+

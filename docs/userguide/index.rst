@@ -13,4 +13,5 @@ using the configuration utility (the GUI). More useful still would be if you are
    object_path
    ltm_pools_members_code_example
    odata_queries
+   rest_proxies
    further_reading
