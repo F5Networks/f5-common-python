@@ -290,14 +290,76 @@ class FileUploadMixin(object):
                                                end - 1,
                                                size),
                 'Content-Type': 'application/octet-stream'}
-            data = {'data': file_slice,
-                    'headers': headers,
-                    'verify': False}
+            data = {
+                'data': file_slice,
+                'headers': headers,
+                'verify': False
+            }
             logging.debug(data)
             requests_params.update(data)
             session.post(self.file_bound_uri,
                          **requests_params)
             start += current_bytes
+
+
+class FileDownloadMixin(object):
+    def _download_file(self, src, dest, **kwargs):
+        with open(dest, 'wb') as fileobj:
+            self._download(src, fileobj, **kwargs)
+
+    def _download(self, src, fileinterface, **kwargs):
+        requests_params = self._handle_requests_params(kwargs)
+        session = self._meta_data['icr_session']
+        chunk_size = kwargs.pop('chunk_size', 512 * 1024)
+        self.file_bound_uri = self._meta_data['uri'] + src
+        start = 0
+        end = chunk_size - 1
+        size = 0
+        current_bytes = 0
+
+        while True:
+            content_range = "%s-%s/%s" % (start, end, size)
+            headers = {
+                'Content-Range': content_range,
+                'Content-Type': 'application/octet-stream'
+            }
+            data = {
+                'headers': headers,
+                'verify': False,
+                'stream': True
+            }
+            logging.debug(data)
+            requests_params.update(data)
+            response = session.get(self.file_bound_uri,
+                                   **requests_params)
+            if response.status_code == 200:
+                # If the size is zero, then this is the first time through
+                # the loop and we don't want to write data because we
+                # haven't yet figured out the total size of the file.
+                if size > 0:
+                    current_bytes += chunk_size
+                    for chunk in response.iter_content(chunk_size):
+                        fileinterface.write(chunk)
+            # Once we've downloaded the entire file, we can break out of
+            # the loop
+            if end == size:
+                break
+            crange = response.headers['Content-Range']
+            # Determine the total number of bytes to read.
+            if size == 0:
+                size = int(crange.split('/')[-1]) - 1
+                # If the file is smaller than the chunk_size, the BigIP
+                # will return an HTTP 400. Adjust the chunk_size down to
+                # the total file size...
+                if chunk_size > size:
+                    end = size
+                # ...and pass on the rest of the code.
+                continue
+            start += chunk_size
+            if (current_bytes + chunk_size) > size:
+                end = size
+            else:
+                end = start + chunk_size - 1
 
 
 class AsmFileMixin(object):

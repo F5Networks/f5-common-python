@@ -18,6 +18,7 @@
 
 import os
 
+from f5.bigip.mixins import FileDownloadMixin
 from f5.bigip.mixins import FileUploadMixin
 from f5.bigip.resource import PathElement
 from f5.sdk_exception import ImageFilesMustHaveDotISOExtension
@@ -34,65 +35,17 @@ class Software_Image_Uploads(PathElement, FileUploadMixin):
             raise ImageFilesMustHaveDotISOExtension(filename)
         self.file_bound_uri = self._meta_data['uri'] + filename
         self._upload_file(filepathname, **kwargs)
-#
-#
-# class Software_Image_Downloads(PathElement):
-#    """Software image download resource."""
-#    def __init__(self, autodeploy):
-#        super(Software_Image_Downloads, self).__init__(autodeploy)
-#
-#    def download_image(self, filepathname, **kwargs):
-#        filename = os.path.basename(filepathname)
-#        session = self._meta_data['icr_session']
-#        chunk_size = kwargs.pop('chunk_size', 512 * 1024)
-#        self.file_bound_uri = self._meta_data['uri'] + filename
-#        with open(filepathname, 'wb') as writefh:
-#            start = 0
-#            end = chunk_size - 1
-#            size = 0
-#            current_bytes = 0
-#
-#            while True:
-#                content_range = "%s-%s/%s" % (start, end, size)
-#                headers = {'Content-Range': content_range,
-#                           'Content-Type': 'application/octet-stream'}
-#                req_params = {'headers': headers,
-#                              'verify': False,
-#                              'stream': True}
-#                response = session.get(self.file_bound_uri,
-#                                       requests_params=req_params)
-#                if response.status_code == 200:
-#                    # If the size is zero, then this is the first time through
-#                    # the loop and we don't want to write data because we
-#                    # haven't yet figured out the total size of the file.
-#                    if size > 0:
-#                        current_bytes += chunk_size
-#                        for chunk in response.iter_content(chunk_size):
-#                            writefh.write(chunk)
-#
-#                # Once we've downloaded the entire file, we can break out of
-#                # the loop
-#                if end == size:
-#                    break
-#
-#                crange = response.headers['Content-Range']
-#
-#                #Determine the total number of bytes to read.
-#                if size == 0:
-#                    size = int(crange.split('/')[-1]) - 1
-#
-#                    # If the file is smaller than the chunk_size, the BigIP
-#                    # will return an HTTP 400. Adjust the chunk_size down to
-#                    # the total file size...
-#                    if chunk_size > size:
-#                        end = size
-#
-#                    # ...and pass on the rest of the code.
-#                    continue
-#
-#                start += chunk_size
-#
-#                if (current_bytes + chunk_size) > size:
-#                    end = size
-#                else:
-#                    end = start + chunk_size - 1
+
+
+class Software_Image_Downloads(PathElement, FileDownloadMixin):
+    """Software image download resource."""
+    def __init__(self, autodeploy):
+        super(Software_Image_Downloads, self).__init__(autodeploy)
+
+    def download_image(self, src, dest, **kwargs):
+        filename = os.path.basename(src)
+        self.file_bound_uri = self._meta_data['uri'] + filename
+        self._download_file(filename, dest, **kwargs)
+
+    def download_file(self, src, dest, **kwargs):
+        self.download_image(src, dest, **kwargs)
