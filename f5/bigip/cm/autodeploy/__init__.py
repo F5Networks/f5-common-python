@@ -16,7 +16,8 @@
 # limitations under the License.
 #
 
-# from f5.bigip.cm.autodeploy.software_images import Software_Image_Downloads
+
+from f5.bigip.cm.autodeploy.software_images import Software_Image_Downloads
 from f5.bigip.cm.autodeploy.software_images import Software_Image_Uploads
 from f5.bigip.resource import OrganizingCollection
 
@@ -26,6 +27,6 @@ class Autodeploy(OrganizingCollection):
     def __init__(self, cm):
         super(Autodeploy, self).__init__(cm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Software_Image_Uploads,
-            # Software_Image_Downloads
+            Software_Image_Downloads,
+            Software_Image_Uploads
         ]
