@@ -34,6 +34,7 @@ class File_Transfer(PathElement):
         super(File_Transfer, self).__init__(shared)
         self._meta_data['allowed_lazy_attributes'] = [
             Bulk,
+            Madm,
             Uploads
         ]
 
@@ -63,6 +64,18 @@ class Bulk(PathElement, FileUploadMixin, FileDownloadMixin):
     """A file upload resource."""
     def __init__(self, file_transfer):
         super(Bulk, self).__init__(file_transfer)
+        self._meta_data['minimum_version'] = '13.0.0'
+
+    def download_file(self, src, dest, **kwargs):
+        filename = os.path.basename(src)
+        self.file_bound_uri = self._meta_data['uri'] + filename
+        self._download_file(src, dest, **kwargs)
+
+
+class Madm(PathElement, FileDownloadMixin):
+    """A file upload resource."""
+    def __init__(self, file_transfer):
+        super(Madm, self).__init__(file_transfer)
 
     def download_file(self, src, dest, **kwargs):
         filename = os.path.basename(src)
