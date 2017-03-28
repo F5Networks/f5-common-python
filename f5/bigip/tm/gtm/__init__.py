@@ -30,6 +30,7 @@ REST Kind
 
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.gtm.datacenter import Datacenters
+from f5.bigip.tm.gtm.global_settings import Global_Settings
 from f5.bigip.tm.gtm.listener import Listeners
 from f5.bigip.tm.gtm.pool import Pools
 from f5.bigip.tm.gtm.region import Regions
@@ -45,6 +46,7 @@ class Gtm(OrganizingCollection):
         super(Gtm, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
             Datacenters,
+            Global_Settings,
             Listeners,
             Pools,
             Regions,
