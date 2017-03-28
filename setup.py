@@ -43,6 +43,7 @@ setup(
     packages=find_packages(
         exclude=["*.test", "*.test.*", "test.*", "test_*", "test", "test*"]
     ),
+    data_files=[('.', ['setup_requirements.txt'])],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: Apache Software License',
