@@ -13,6 +13,8 @@
 # limitations under the License.
 #
 
+from distutils.version import LooseVersion
+
 import os
 import pytest
 
@@ -29,8 +31,33 @@ def upload_content():
 
 
 @pytest.fixture(scope='function')
-def uploaded_file(mgmt_root, upload_content):
-    fake_name = 'foo.txt'
+def uploaded_file_madm(mgmt_root, upload_content):
+    fake_name = 'fooMadm.txt'
+    upath = '/var/config/rest/downloads'
+    dpath = '/var/config/rest/madm'
+    content = StringIO(upload_content)
+
+    ftu = mgmt_root.shared.file_transfer.uploads
+    ftu.upload_stringio(content, fake_name, chunk_size=20)
+
+    mgmt_root.tm.util.unix_mv.exec_cmd(
+        'run',
+        utilCmdArgs='{0}/{2} {1}/{2}'.format(upath, dpath, fake_name)
+    )
+
+    yield fake_name
+    tpath_name = '{0}/{1}'.format(dpath, fake_name)
+    mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs=tpath_name)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '13.0.0'),
+    reason='This fixture requires >= 13.0.0.'
+)
+@pytest.fixture(scope='function')
+def uploaded_file_v13(mgmt_root, upload_content):
+    fake_name = 'foo13.txt'
     upath = '/var/config/rest/downloads'
     dpath = '/var/config/rest/bulk'
     content = StringIO(upload_content)
@@ -47,11 +74,28 @@ def uploaded_file(mgmt_root, upload_content):
     mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs=tpath_name)
 
 
-class TestSoftwareImage(object):
-    def test_download(self, mgmt_root, uploaded_file, upload_content):
-        dest = '/tmp/{0}'.format(uploaded_file)
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '13.0.0'),
+    reason='This fixture requires >= 13.0.0.'
+)
+class TestFileTransferV13(object):
+    def test_download_v13(self, mgmt_root, uploaded_file_v13, upload_content):
+        dest = '/tmp/{0}'.format(uploaded_file_v13)
         bulk = mgmt_root.shared.file_transfer.bulk
-        bulk.download_file(uploaded_file, dest)
+        bulk.download_file(uploaded_file_v13, dest)
+        assert os.path.exists(dest)
+
+        fh = open(dest, 'r')
+        content = fh.read()
+        assert content == upload_content
+
+
+class TestMadmFileTransfer(object):
+    def test_download(self, mgmt_root, uploaded_file_madm, upload_content):
+        dest = '/tmp/{0}'.format(uploaded_file_madm)
+        madm = mgmt_root.shared.file_transfer.madm
+        madm.download_file(uploaded_file_madm, dest)
         assert os.path.exists(dest)
 
         fh = open(dest, 'r')
