@@ -32,12 +32,12 @@ class Iapps(Collection):
     def __init__(self, templates):
         super(Iapps, self).__init__(templates)
         self._meta_data['required_json_kind'] = \
-            'cm:cloud:templates:iapp:iapptemplatecollectionworkerstate'
+            'cm:cloud:templates:iapp:templatesiappcollectionworkerstate'
         self._meta_data['allowed_lazy_attributes'] = [
             Iapp
         ]
         self._meta_data['attribute_registry'] = {
-            'cm:cloud:templates:iapp:iapptemplateitemstate': Iapp
+            'cm:cloud:templates:iapp:templatesiappitemstate': Iapp
         }
 
 
@@ -45,5 +45,5 @@ class Iapp(Resource):
     def __init__(self, iapps):
         super(Iapp, self).__init__(iapps)
         self._meta_data['required_json_kind'] = \
-            'cm:cloud:templates:iapp:iapptemplateitemstate'
+            'cm:cloud:templates:iapp:templatesiappitemstate'
         self._meta_data['required_load_parameters'] = {'name', }
