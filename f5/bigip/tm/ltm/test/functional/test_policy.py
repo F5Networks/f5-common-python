@@ -344,6 +344,22 @@ class TestPolicy(object):
         assert 'Modify operation not allowed on a published policy.' in \
             ex2.value.message
 
+    def test_policy_draft_to_publish_and_back(self, setup, request, mgmt_root):
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common',
+                                    'draft-policy', subPath='Drafts')
+        assert pol.status == 'draft'
+        pol.publish()
+        assert pol.status == 'published'
+        pol.draft()
+        assert pol.status == 'draft'
+        pol.modify(
+            description='foo'
+        )
+        pol.publish()
+
+        pol2 = pc.policy.load(name='draft-policy', partition='Common')
+        assert pol2.description == 'foo'
+
 
 @pytest.mark.skipif(
     LooseVersion(

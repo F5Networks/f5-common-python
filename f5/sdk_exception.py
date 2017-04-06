@@ -223,6 +223,14 @@ class UtilError(F5SDKError):
     pass
 
 
+class DraftPolicyNotSupportedInTMOSVersion(F5SDKError):
+    """Raise when using Drafts in a legacy TMOS version
+
+    Raise this if handling Draft work in a Policy class that is
+    used by legacy, and current, versions of BIG-IP
+    """
+
+
 class RequiredOneOf(F5SDKError):
     """Raise this if more than one of required argument sets is provided."""
     def __init__(self, required_one_of):

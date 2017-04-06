@@ -30,6 +30,7 @@ REST Kind
 from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import DraftPolicyNotSupportedInTMOSVersion
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import NonExtantPolicyRule
 from f5.sdk_exception import OperationNotSupportedOnPublishedPolicy
@@ -62,8 +63,7 @@ class Policy(Resource):
         Draft policies only exist in 12.1.0 and greater versions of TMOS.
         But there must be a method to create a draft, then publish it.
 
-        :raises: DraftPolicyNotSupportedInTMOSVersion,
-                OperationNotSupportedOnPublishedPolicy
+        :raises: MissingRequiredCreationParameter
         '''
 
         tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
@@ -142,6 +142,42 @@ class Policy(Resource):
             'name': self.name, 'partition': self.partition,
             'uri_as_parts': True
         }
+        response = session.get(base_uri, **get_kwargs)
+        json_data = response.json()
+        self._local_update(json_data)
+        self._activate_URI(json_data['selfLink'])
+
+    def draft(self, **kwargs):
+        '''Allows for easily re-drafting a policy
+
+        After a policy has been created, it was not previously possible
+        to re-draft the published policy. This method makes it possible
+        for a user with existing, published, policies to create drafts
+        from them so that they are modifiable.
+        See https://github.com/F5Networks/f5-common-python/pull/1099
+
+        :param kwargs:
+        :return:
+        '''
+        tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
+        legacy = kwargs.pop('legacy', False)
+        if LooseVersion(tmos_ver) < LooseVersion('12.1.0') or legacy:
+            raise DraftPolicyNotSupportedInTMOSVersion(
+                "Drafting on this version of BIG-IP is not supported"
+            )
+        kwargs = dict(
+            createDraft=True
+        )
+        super(Policy, self)._modify(**kwargs)
+
+        get_kwargs = {
+            'name': self.name,
+            'partition': self.partition,
+            'uri_as_parts': True,
+            'subPath': 'Drafts'
+        }
+        base_uri = self._meta_data['container']._meta_data['uri']
+        session = self._meta_data['bigip']._meta_data['icr_session']
         response = session.get(base_uri, **get_kwargs)
         json_data = response.json()
         self._local_update(json_data)
