@@ -9,3 +9,5 @@ git+https://github.com/F5Networks/pytest-symbols.git
 python-coveralls==2.7.0
 pyOpenSSL==16.2.0
 requests-mock==1.2.0
+netaddr
+q
