@@ -38,6 +38,7 @@ from f5.bigip.tm.sys.file import File
 from f5.bigip.tm.sys.folder import Folders
 from f5.bigip.tm.sys.global_settings import Global_Settings
 from f5.bigip.tm.sys.httpd import Httpd
+from f5.bigip.tm.sys.icall import Icall
 from f5.bigip.tm.sys.management_ip import Management_Ips
 from f5.bigip.tm.sys.management_route import Management_Routes
 from f5.bigip.tm.sys.ntp import Ntp
@@ -54,24 +55,25 @@ class Sys(OrganizingCollection):
     def __init__(self, tm):
         super(Sys, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
+            Application,
             Config,
             Crypto,
+            Dbs,
+            Dns,
+            Failover,
             File,
             Folders,
-            Application,
-            Performances,
-            Provision,
-            Dbs,
             Global_Settings,
+            Httpd,
+            Icall,
             Management_Ips,
             Management_Routes,
             Ntp,
-            Failover,
-            Dns,
+            Performances,
+            Provision,
             Snmp,
-            Sshd,
-            Httpd,
             Software,
-            Ucs,
-            Syslog
+            Sshd,
+            Syslog,
+            Ucs
         ]
