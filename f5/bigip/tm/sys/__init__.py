@@ -31,6 +31,7 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.sys.application import Application
 from f5.bigip.tm.sys.config import Config
 from f5.bigip.tm.sys.crypto import Crypto
+from f5.bigip.tm.sys.daemon_log_settings import Daemon_Log_Settings
 from f5.bigip.tm.sys.db import Dbs
 from f5.bigip.tm.sys.dns import Dns
 from f5.bigip.tm.sys.failover import Failover
@@ -58,6 +59,7 @@ class Sys(OrganizingCollection):
             Application,
             Config,
             Crypto,
+            Daemon_Log_Settings,
             Dbs,
             Dns,
             Failover,
