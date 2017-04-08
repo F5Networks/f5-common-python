@@ -46,12 +46,25 @@ class Local(Resource):
         self._meta_data['required_json_kind'] = \
             'cm:cloud:connectors:cloudconnectorstate'
         self._meta_data['required_creation_parameters'] = {'name', }
+        self._meta_data['allowed_lazy_attributes'] = [Nodes_s]
+        self._meta_data['attribute_registry'] = {'': Nodes_s}
 
-        # TODO(Implement device attribute registry)
-        #
-        # self._meta_data['allowed_lazy_attributes'] = [
-        #     Device
-        # ]
-        # self._meta_data['attribute_registry'] = {
-        #     'shared:resolver:device-groups:restdeviceresolverdevicestate': Device,  # NOQA
-        # }
+
+class Nodes_s(Collection):
+    def __init__(self, local):
+        super(Nodes_s, self).__init__(local)
+        self._meta_data['required_json_kind'] = \
+            'cm:cloud:nodes:nodecollection'
+        self._meta_data['allowed_lazy_attributes'] = [Node]
+        self._meta_data['attribute_registry'] = {
+            'cm:cloud:nodes:node': Node
+        }
+
+
+class Node(Resource):
+    def __init__(self, nodes):
+        super(Node, self).__init__(nodes)
+        self._meta_data['required_creation_parameters'] = set()
+        self._meta_data['required_load_parameters'] = {'uuid', }
+        self._meta_data['required_json_kind'] = \
+            'cm:cloud:nodes:node'
