@@ -64,7 +64,6 @@ class Policy(AsmResource):
             'tm:asm:policies:headers:headercollectionstate': Headers_s,
             'tm:asm:policies:response-pages:response-pagecollectionstate':
                 Response_Pages_s,
-            'tm:asm:policies:policy-builder:pbconfigstate': Policy_Builder,
             'tm:asm:policies:history-revisions:'
             'history-revisioncollectionstate': History_Revisions_s,
             'tm:asm:policies:vulnerability-assessment:'
@@ -125,10 +124,14 @@ class Policy(AsmResource):
         v12kind = 'tm:asm:policies:blocking-settings:blocking-' \
                   'settingcollectionstate'
         v11kind = 'tm:asm:policies:blocking-settings'
+        builderv11 = 'tm:asm:policies:policy-builder:pbconfigstate'
+        builderv12 = 'tm:asm:policies:policy-builder:policy-builderstate'
         if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
             attributes[v11kind] = Blocking_Settings
+            attributes[builderv11] = Policy_Builder
         else:
             attributes[v12kind] = Blocking_Settings
+            attributes[builderv12] = Policy_Builder
 
 
 class Methods_s(Collection):
@@ -755,10 +758,19 @@ class Policy_Builder(UnnamedResource):
     """BIG-IP® ASM Policy Builder resource."""
     def __init__(self, policy):
         super(Policy_Builder, self).__init__(policy)
-        self._meta_data['required_json_kind'] = \
-            'tm:asm:policies:policy-builder:pbconfigstate'
+        tmos_v = self._meta_data['bigip'].tmos_version
+        self._set_kind(tmos_v)
+
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['object_has_stats'] = False
+
+    def _set_kind(self, tmos_v):
+        if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
+            self._meta_data['required_json_kind'] = \
+                'tm:asm:policies:policy-builder:pbconfigstate'
+        else:
+            self._meta_data['required_json_kind'] = \
+                'tm:asm:policies:policy-builder:policy-builderstate'
 
     def update(self, **kwargs):
         """Update is not supported for Policy Builder resource
@@ -1454,10 +1466,10 @@ class Websocket_Url(AsmResource):
             req_set = {'allowTextMessage', 'allowJsonMessage',
                        'allowBinaryMessage'}
             _minimum_one_is_missing(req_set, **kwargs)
-        if 'allowTextMessage' in kwargs:
+        if 'allowTextMessage' in kwargs.keys():
             self._meta_data['required_creation_parameters'].update((
                 'plainTextProfileReference',))
-        if 'allowJsonMessage' in kwargs:
+        if 'allowJsonMessage' in kwargs.keys():
             self._meta_data['required_creation_parameters'].update((
                 'jsonProfileReference',))
-        return self._create(**kwargs)
+        return super(Websocket_Url, self)._create(**kwargs)

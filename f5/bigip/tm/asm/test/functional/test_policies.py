@@ -69,11 +69,24 @@ from six import iteritems
 from six import iterkeys
 import time
 
-XML = '<?xml version=\"1.0\" encoding=\"UTF-8\"?> <xsd:schema " \
-      "targetNamespace=\"http://www.example.org/test\" ' \
-      'xmlns=\"http://www.example.org/test\" elementFormDefault="qualified" ' \
-      'attributeFormDefault=\"unqualified\" ' \
-      'xmlns:xsd="http://www.w3.org/2001/XMLSchema\"> </xsd:schema>'
+XML2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n<shiporder " \
+       "orderid=\"889923\"\nxmlns:xsi=\"" \
+       "http://www.w3.org/2001/XMLSchema-instance\"\n" \
+       "xsi:noNamespaceSchemaLocation=\"shiporder.xsd\">\n  " \
+       "<orderperson>John Smith</orderperson>\n  <shipto>\n    " \
+       "<name>Ola Nordmann</name>\n    <address>Langgt 23</address>\n    " \
+       "<city>4000 Stavanger</city>\n    <country>Norway</country>\n  " \
+       "</shipto>\n  <item>\n    <title>Empire Burlesque</title>\n    " \
+       "<note>Special Edition</note>\n    <quantity>1</quantity>\n    " \
+       "<price>10.90</price>\n  </item>\n  <item>\n    " \
+       "<title>Hide your heart</title>\n    <quantity>1</quantity>\n    " \
+       "<price>9.90</price>\n  </item>\n</shiporder> "
+
+if LooseVersion(pytest.config.getoption('--release')) >= LooseVersion(
+        '12.1.0'):
+        SCAN = 'qualys'
+else:
+        SCAN = 'qualys-guard'
 
 
 def delete_policy_item(mgmt_root, name):
@@ -103,6 +116,13 @@ def policy(mgmt_root):
     pol1 = mgmt_root.tm.asm.policies_s.policy.create(name='fake_policy')
     yield pol1
     delete_policy_item(mgmt_root, 'fake_policy')
+
+
+@pytest.fixture(scope='session')
+def policy2(mgmt_root):
+    pol2 = mgmt_root.tm.asm.policies_s.policy.create(name='fake_policy2')
+    yield pol2
+    delete_policy_item(mgmt_root, 'fake_policy2')
 
 
 @pytest.fixture(scope='session')
@@ -179,7 +199,7 @@ def set_s_par(policy):
 @pytest.fixture(scope='function')
 def set_xml_file(policy):
     r1 = policy.xml_validation_files_s.xml_validation_file.create(
-        fileName='fakefile', contents=XML)
+        fileName='fakefile', contents=XML2)
     yield r1
     r1.delete()
 
@@ -203,7 +223,7 @@ def set_extraction(policy):
 @pytest.fixture(scope='class')
 def set_vulnerability(mgmt_root, policy):
     reference = {'link': policy.selfLink}
-    policy.vulnerability_assessment.modify(scannerType='qualys-guard')
+    policy.vulnerability_assessment.modify(scannerType=SCAN)
     dirpath = os.path.dirname(__file__)
     path = os.path.join(dirpath, 'test_files')
     fake_report = os.path.join(path, 'fake_scan.xml')
@@ -1736,15 +1756,15 @@ class TestHeaders(object):
         assert h1.kind == 'tm:asm:policies:headers:headerstate'
         assert h1.name == 'fake'
         assert h1.type == 'explicit'
-        assert h1.base64Decoding is False
+        assert h1.mandatory is False
         h1.delete()
 
     def test_create_optional_args(self, policy):
-        h1 = policy.headers_s.header.create(name='Fake', base64Decoding=True)
+        h1 = policy.headers_s.header.create(name='Fake', mandatory=True)
         assert h1.kind == 'tm:asm:policies:headers:headerstate'
         assert h1.name == 'fake'
         assert h1.type == 'explicit'
-        assert h1.base64Decoding is True
+        assert h1.mandatory is True
         h1.delete()
 
     def test_refresh(self, policy):
@@ -1752,19 +1772,19 @@ class TestHeaders(object):
         h2 = policy.headers_s.header.load(id=h1.id)
         assert h1.kind == h2.kind
         assert h1.name == h2.name
-        assert h1.base64Decoding == h2.base64Decoding
-        h2.modify(base64Decoding=True)
-        assert h1.base64Decoding is False
-        assert h2.base64Decoding is True
+        assert h1.mandatory == h2.mandatory
+        h2.modify(mandatory=True)
+        assert h1.mandatory is False
+        assert h2.mandatory is True
         h1.refresh()
-        assert h1.base64Decoding is True
+        assert h1.mandatory is True
         h1.delete()
 
     def test_modify(self, policy):
         h1 = policy.headers_s.header.create(name='Fake')
         original_dict = copy.copy(h1.__dict__)
-        itm = 'base64Decoding'
-        h1.modify(base64Decoding=True)
+        itm = 'mandatory'
+        h1.modify(mandatory=True)
         for k, v in iteritems(original_dict):
             if k != itm:
                 original_dict[k] = h1.__dict__[k]
@@ -1789,14 +1809,14 @@ class TestHeaders(object):
         h1 = policy.headers_s.header.create(name='Fake')
         assert h1.kind == 'tm:asm:policies:headers:headerstate'
         assert h1.name == 'fake'
-        assert h1.base64Decoding is False
-        h1.modify(base64Decoding=True)
-        assert h1.base64Decoding is True
+        assert h1.mandatory is False
+        h1.modify(mandatory=True)
+        assert h1.mandatory is True
         h2 = policy.headers_s.header.load(id=h1.id)
         assert h1.name == h2.name
         assert h1.selfLink == h2.selfLink
         assert h1.kind == h2.kind
-        assert h1.base64Decoding == h2.base64Decoding
+        assert h1.mandatory == h2.mandatory
         h1.delete()
 
     def test_headers_subcollection(self, policy):
@@ -1822,7 +1842,12 @@ class TestPolicyBuilder(object):
             elif k == itm:
                 assert r1.__dict__[k] is True
 
-    def test_load(self, policy):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) > LooseVersion(
+            '11.6.1'),
+        reason='This test is for versions below 12.'
+    )
+    def test_load_modify(self, policy):
         r1 = policy.policy_builder.load()
         assert r1.kind == 'tm:asm:policies:policy-builder:pbconfigstate'
         assert r1.enablePolicyBuilder is True
@@ -1835,7 +1860,12 @@ class TestPolicyBuilder(object):
         assert not hasattr(r2, 'responseStatusCodes')
         assert not hasattr(r2, 'learnFromResponses')
 
-    def test_refresh(self, policy):
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) > LooseVersion(
+            '11.6.1'),
+        reason='This test is for versions below 12.'
+    )
+    def test_refresh_modify(self, policy):
         r1 = policy.policy_builder.load()
         assert r1.kind == 'tm:asm:policies:policy-builder:pbconfigstate'
         assert r1.enablePolicyBuilder is False
@@ -1854,6 +1884,37 @@ class TestPolicyBuilder(object):
         assert hasattr(r1, 'responseStatusCodes')
         assert hasattr(r1, 'learnFromResponses')
         assert r1.enablePolicyBuilder == r2.enablePolicyBuilder
+
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+            '12.0.0'),
+        reason='This test is for version 12.1.0 or greater.'
+    )
+    def test_refresh_modify_v12(self, policy):
+        r1 = policy.policy_builder.load()
+        assert r1.kind == 'tm:asm:policies:policy-builder:policy-builderstate'
+        assert r1.trustAllIps is False
+        r2 = policy.policy_builder.load()
+        assert r1.kind == r2.kind
+        assert r2.trustAllIps is False
+        r2.modify(trustAllIps=True)
+        assert r2.trustAllIps is True
+        r1.refresh()
+        assert r1.trustAllIps == r2.trustAllIps
+
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+            '12.0.0'),
+        reason='This test is for version 12.0.0 or greater.'
+    )
+    def test_load_modify_v12(self, policy):
+        r1 = policy.policy_builder.load()
+        assert r1.kind == 'tm:asm:policies:policy-builder:policy-builderstate'
+        assert r1.trustAllIps is True
+        r1.modify(trustAllIps=False)
+        assert r1.trustAllIps is False
+        r2 = policy.policy_builder.load()
+        assert r1.kind == r2.kind
 
 
 @pytest.mark.skipif(
@@ -1955,8 +2016,6 @@ class TestHistoryRevisions(object):
         r1 = policy.history_revisions_s.history_revision.load(id=hashid)
         assert r1.kind == 'tm:asm:policies:history-revisions:' \
                           'history-revisionstate'
-        link = str(policy.selfLink) + '/' + 'history-revisions' + '/' + hashid
-        assert r1.selfLink == link
         r2 = policy.history_revisions_s.history_revision.load(id=hashid)
         assert r1.kind == r2.kind
         assert r1.selfLink == r2.selfLink
@@ -1974,8 +2033,6 @@ class TestHistoryRevisions(object):
         r1 = policy.history_revisions_s.history_revision.load(id=hashid)
         assert r1.kind == 'tm:asm:policies:history-revisions:' \
                           'history-revisionstate'
-        link = str(policy.selfLink) + '/'+'history-revisions' + '/' + hashid
-        assert r1.selfLink == link
         r2 = policy.history_revisions_s.history_revision.load(id=hashid)
         assert r1.kind == r2.kind
         assert r1.selfLink == r2.selfLink
@@ -2001,46 +2058,35 @@ class TestVulnerabilityAssessment(object):
         r1 = policy.vulnerability_assessment.load()
         original_dict = copy.copy(r1.__dict__)
         itm = 'scannerType'
-        r1.modify(scannerType='cenzic-hailstorm')
+        r1.modify(scannerType=SCAN)
         for k, v in iteritems(original_dict):
             if k != itm:
                 original_dict[k] = r1.__dict__[k]
             elif k == itm:
-                assert r1.__dict__[k] == 'cenzic-hailstorm'
+                assert r1.__dict__[k] == SCAN
 
     def test_load(self, policy):
         r1 = policy.vulnerability_assessment.load()
         assert r1.kind == 'tm:asm:policies:vulnerability-assessment' \
                           ':vulnerability-assessmentstate'
-        assert r1.scannerType == 'cenzic-hailstorm'
-        assert hasattr(r1, 'learnFromResponses')
-        assert hasattr(r1, 'untrustedTrafficLoosen')
-        r1.modify(scannerType='none')
-        assert r1.scannerType == 'none'
+        assert r1.scannerType == SCAN
+        r1.modify(scannerType='generic')
+        assert r1.scannerType == 'generic'
         r2 = policy.vulnerability_assessment.load()
         assert r1.kind == r2.kind
-        assert not hasattr(r2, 'learnFromResponses')
-        assert not hasattr(r2, 'untrustedTrafficLoosen')
+        assert r1.scannerType == r2.scannerType
 
     def test_refresh(self, policy):
         r1 = policy.vulnerability_assessment.load()
         assert r1.kind == 'tm:asm:policies:vulnerability-assessment' \
                           ':vulnerability-assessmentstate'
-        assert r1.scannerType == 'none'
-        assert not hasattr(r1, 'learnFromResponses')
-        assert not hasattr(r1, 'untrustedTrafficLoosen')
+        assert r1.scannerType == 'generic'
         r2 = policy.vulnerability_assessment.load()
         assert r1.kind == r2.kind
         assert r1.scannerType == r2.scannerType
-        assert not hasattr(r2, 'learnFromResponses')
-        assert not hasattr(r2, 'untrustedTrafficLoosen')
-        r2.modify(scannerType='cenzic-hailstorm')
-        assert r2.scannerType == 'cenzic-hailstorm'
-        assert hasattr(r2, 'learnFromResponses')
-        assert hasattr(r2, 'untrustedTrafficLoosen')
+        r2.modify(scannerType=SCAN)
+        assert r2.scannerType == SCAN
         r1.refresh()
-        assert hasattr(r1, 'learnFromResponses')
-        assert hasattr(r1, 'untrustedTrafficLoosen')
         assert r1.scannerType == r2.scannerType
 
 
@@ -2179,7 +2225,8 @@ class TestSessionTracking(object):
             is True
         tmp_2 = {'enableSessionAwareness': False}
         r1.modify(sessionTrackingConfiguration=tmp_2)
-        assert r1.sessionTrackingConfiguration == tmp_2
+        assert r1.sessionTrackingConfiguration['enableSessionAwareness'] \
+            is False
         r2 = policy.session_tracking.load()
         assert r1.kind == r2.kind
         assert r1.sessionTrackingConfiguration == \
@@ -2187,10 +2234,10 @@ class TestSessionTracking(object):
 
     def test_refresh(self, policy):
         r1 = policy.session_tracking.load()
-        tmp = {'enableSessionAwareness': False}
         assert r1.kind == 'tm:asm:policies:session-tracking:' \
                           'session-awareness-settingsstate'
-        assert r1.sessionTrackingConfiguration == tmp
+        assert r1.sessionTrackingConfiguration['enableSessionAwareness'] \
+            is False
         r2 = policy.session_tracking.load()
         assert r1.kind == r2.kind
         assert r1.sessionTrackingConfiguration == \
@@ -2222,7 +2269,7 @@ class TestSessionTrackingStatuses(object):
         assert hasattr(r1, 'createdDatetime')
 
     def test_refresh(self, set_policy_status):
-        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
+        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake2'}
         r1 = set_policy_status.session_tracking_statuses_s.\
             session_tracking_status.create(**args)
         r2 = set_policy_status.session_tracking_statuses_s.\
@@ -2231,7 +2278,7 @@ class TestSessionTrackingStatuses(object):
                           'session-tracking-statusstate'
         assert r1.action == 'block-all'
         assert r1.scope == 'user'
-        assert r1.value == 'fake'
+        assert r1.value == 'fake2'
         assert hasattr(r1, 'createdDatetime')
         r1.refresh()
         assert r1.kind == r2.kind
@@ -2245,7 +2292,7 @@ class TestSessionTrackingStatuses(object):
                 session_tracking_status.modify(value='test')
 
     def test_delete(self, set_policy_status):
-        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
+        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake3'}
         r1 = set_policy_status.session_tracking_statuses_s.\
             session_tracking_status.create(**args)
         idhash = str(r1.id)
@@ -2262,7 +2309,7 @@ class TestSessionTrackingStatuses(object):
         assert err.value.response.status_code == 404
 
     def test_load(self, set_policy_status):
-        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
+        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake4'}
         r1 = set_policy_status.session_tracking_statuses_s.\
             session_tracking_status.create(**args)
         r2 = set_policy_status.session_tracking_statuses_s.\
@@ -2271,7 +2318,7 @@ class TestSessionTrackingStatuses(object):
                           'session-tracking-statusstate'
         assert r1.action == 'block-all'
         assert r1.scope == 'user'
-        assert r1.value == 'fake'
+        assert r1.value == 'fake4'
         assert hasattr(r1, 'createdDatetime')
         assert r1.kind == r2.kind
         assert r1.action == r2.action
@@ -2279,12 +2326,12 @@ class TestSessionTrackingStatuses(object):
         assert r1.value == r2.value
 
     def test_session_tracking_subcollection(self, set_policy_status):
-        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake'}
+        args = {'action': 'block-all', 'scope': 'user', 'value': 'fake5'}
         r1 = set_policy_status.session_tracking_statuses_s.\
             session_tracking_status.create(**args)
         assert r1.kind == 'tm:asm:policies:session-tracking-statuses:' \
                           'session-tracking-statusstate'
-        assert r1.value == 'fake'
+        assert r1.value == 'fake5'
         mc = set_policy_status.session_tracking_statuses_s.get_collection()
         assert isinstance(mc, list)
         assert len(mc)
@@ -2660,12 +2707,8 @@ class TestBruteForceAttackPreventions(object):
         login.modify(authenticationType='http-basic')
         bc = policy.brute_force_attack_preventions_s
         r1 = bc.brute_force_attack_prevention.create(urlReference=reference)
-        hashid = str(r1.id)
-        main_uri = policy.selfLink + '/'+'brute-force-attack-preventions' + \
-            '/' + hashid
         assert r1.kind == 'tm:asm:policies:brute-force-attack-preventions:' \
                           'brute-force-attack-preventionstate'
-        assert r1.selfLink == main_uri
         assert r1.preventionDuration == 'unlimited'
         assert r1.reEnableLoginAfter == 600
         r1.delete()
@@ -2677,12 +2720,8 @@ class TestBruteForceAttackPreventions(object):
         r1 = bc.brute_force_attack_prevention.create(urlReference=reference,
                                                      preventionDuration='120',
                                                      reEnableLoginAfter=300)
-        hashid = str(r1.id)
-        main_uri = policy.selfLink + '/' + 'brute-force-attack-preventions' + \
-            '/' + hashid
         assert r1.kind == 'tm:asm:policies:brute-force-attack-preventions:' \
                           'brute-force-attack-preventionstate'
-        assert r1.selfLink == main_uri
         assert r1.preventionDuration == '120'
         assert r1.reEnableLoginAfter == 300
         r1.delete()
@@ -2740,12 +2779,8 @@ class TestBruteForceAttackPreventions(object):
 
     def test_brute_force_subcollection(self, policy, set_brute):
         r1 = set_brute
-        hashid = str(r1.id)
-        main_uri = policy.selfLink + '/'+'brute-force-attack-preventions' + \
-            '/' + hashid
         assert r1.kind == 'tm:asm:policies:brute-force-attack-preventions:' \
                           'brute-force-attack-preventionstate'
-        assert r1.selfLink == main_uri
         assert r1.preventionDuration == 'unlimited'
         assert r1.reEnableLoginAfter == 600
         cc = policy.brute_force_attack_preventions_s.get_collection()
@@ -2766,7 +2801,7 @@ class TestXmlValidationFiles(object):
 
     def test_create_req_arg(self, policy):
         r1 = policy.xml_validation_files_s.xml_validation_file.create(
-            fileName='fakefile', contents=XML)
+            fileName='fakefile', contents=XML2)
         assert r1.kind == \
             'tm:asm:policies:xml-validation-files:xml-validation-filestate'
         assert r1.fileName == 'fakefile'
@@ -2785,7 +2820,7 @@ class TestXmlValidationFiles(object):
 
     def test_delete(self, policy):
         r1 = policy.xml_validation_files_s.xml_validation_file.create(
-            fileName='fakefile', contents=XML)
+            fileName='fakefile', contents=XML2)
         idhash = r1.id
         r1.delete()
         with pytest.raises(HTTPError) as err:
@@ -2827,9 +2862,7 @@ class TestExtractions(object):
     def test_create_req_arg(self, policy):
         r1 = policy.extractions_s.extraction.create(
             extractFromAllItems=True, name='fake_extract')
-        tmpurl = policy.selfLink + '/' + 'extractions' + '/' + r1.id
         assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
-        assert r1.selfLink == tmpurl
         r1.delete()
 
     def test_create_mandatory_arg_missing(self, policy):
@@ -2848,9 +2881,7 @@ class TestExtractions(object):
         r1 = policy.extractions_s.extraction.create(
             extractFromAllItems=False, name='fake_extract',
             extractFromRegularExpression='["test"]')
-        tmpurl = policy.selfLink + '/' + 'extractions' + '/' + r1.id
         assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
-        assert r1.selfLink == tmpurl
         assert r1.extractFromRegularExpression == '["test"]'
         assert r1.extractFromAllItems is False
         r1.delete()
@@ -2904,11 +2935,7 @@ class TestExtractions(object):
 
     def test_extractions_subcollection(self, policy, set_extraction):
         r1 = set_extraction
-        hashid = str(r1.id)
-        main_uri = policy.selfLink + '/'+'extractions' + \
-            '/' + hashid
         assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
-        assert r1.selfLink == main_uri
         cc = policy.extractions_s.get_collection()
         assert isinstance(cc, list)
         assert len(cc)
@@ -2937,8 +2964,6 @@ class TestVulnerabilities(object):
         hashid = set_vulnerability
         r1 = policy.vulnerabilities_s.vulnerabilities.load(id=hashid)
         assert r1.kind == 'tm:asm:policies:vulnerabilities:vulnerabilitystate'
-        link = str(policy.selfLink) + '/' + 'vulnerabilities' + '/' + hashid
-        assert r1.selfLink == link
         r2 = policy.vulnerabilities_s.vulnerabilities.load(id=hashid)
         assert r1.kind == r2.kind
         assert r1.selfLink == r2.selfLink
@@ -2955,8 +2980,6 @@ class TestVulnerabilities(object):
         hashid = set_vulnerability
         r1 = policy.vulnerabilities_s.vulnerabilities.load(id=hashid)
         assert r1.kind == 'tm:asm:policies:vulnerabilities:vulnerabilitystate'
-        link = str(policy.selfLink) + '/' + 'vulnerabilities' + '/' + hashid
-        assert r1.selfLink == link
         r2 = policy.vulnerabilities_s.vulnerabilities.load(id=hashid)
         assert r1.kind == r2.kind
         assert r1.selfLink == r2.selfLink
@@ -3325,30 +3348,30 @@ class TestWebsocketUrls(object):
 
     def test_create_optional_args(self, policy):
         r1 = policy.websocket_urls_s.websocket_url.create(
-            name='fakewebsock', checkPayload=False,
+            name='optionalwebsock', checkPayload=False,
             description='fake_websock_text')
         assert r1.kind == \
             'tm:asm:policies:websocket-urls:websocket-urlstate'
-        assert r1.name == 'fakewebsock'
+        assert r1.name == 'optionalwebsock'
         assert r1.description == 'fake_websock_text'
         r1.delete()
 
-    def test_create_mandatory_arg_missing(self, policy):
+    def test_create_mandatory_arg_missing(self, policy2):
         error_message = "This resource requires at least one of the " \
                         "mandatory additional parameters to be provided: " \
                         "set(['allowJsonMessage', " \
                         "'allowTextMessage', " \
                         "'allowBinaryMessage'])"
         with pytest.raises(MissingRequiredCreationParameter) as err:
-            policy.websocket_urls_s.websocket_url.create(name='fakewebsock',
-                                                         checkPayload=True)
+            policy2.websocket_urls_s.websocket_url.create(name='fakewebsock',
+                                                          checkPayload=True)
         assert err.value.message == error_message
 
-    def test_create_profile_ref_missing(self, policy):
+    def test_create_profile_ref_missing(self, policy2):
         error_message = "Missing required params: [" \
                         "'jsonProfileReference', 'plainTextProfileReference']"
         with pytest.raises(MissingRequiredCreationParameter) as err:
-            policy.websocket_urls_s.websocket_url.create(
+            policy2.websocket_urls_s.websocket_url.create(
                 name='fakewebsock', allowTextMessage=True,
                 allowJsonMessage=True, checkPayload=True)
         assert err.value.message == error_message
@@ -3380,7 +3403,7 @@ class TestWebsocketUrls(object):
 
     def test_delete(self, policy):
         r1 = policy.websocket_urls_s.websocket_url.create(
-            name='fakewebsock', checkPayload=False)
+            name='deletewebsock', checkPayload=False)
         idhash = r1.id
         r1.delete()
         with pytest.raises(HTTPError) as err:
