@@ -284,8 +284,8 @@ def FakeHeader():
 @pytest.fixture
 def FakeBuilder():
     fake_policy = mock.MagicMock()
+    fake_policy._meta_data['bigip'].tmos_version = '11.6.0'
     fake_build = Policy_Builder(fake_policy)
-    fake_build._meta_data['bigip'].tmos_version = '11.6.0'
     return fake_build
 
 
