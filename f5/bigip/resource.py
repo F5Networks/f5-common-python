@@ -146,28 +146,6 @@ def _missing_required_parameters(rqset, **kwargs):
         return list(required_minus_received)
 
 
-def _minimum_one_is_missing(rqset, **kwargs):
-    """Helper function to do operation on sets
-
-    Verify if at least one of the elements
-    is present in **kwargs. If no items of rqset
-    are contained in **kwargs  the function
-    raises exception.
-
-    Raises:
-
-         MissingRequiredCreationParameter
-    """
-
-    kwarg_set = set(iterkeys(kwargs))
-
-    if kwarg_set.isdisjoint(rqset):
-        error_message = 'This resource requires at least one of the ' \
-                        'mandatory additional ' \
-                        'parameters to be provided: %s' % rqset
-        raise MissingRequiredCreationParameter(error_message)
-
-
 class PathElement(LazyAttributeMixin):
     """Base class to represent a URI path element that does not contain data.
 
@@ -196,8 +174,11 @@ class PathElement(LazyAttributeMixin):
         self._meta_data['exclusive_attributes'] = []
         # As some objects do not support Stats we need this setting,
         # by default Stats are enabled on all endpoints. Override in
-        # sub-clases as required
+        # subclass as required
         self._meta_data['object_has_stats'] = True
+        # Some endpoints have mandatory parameters that can be one of x,
+        # this means that all or at least 1 need to be present during create
+        self._meta_data['minimum_additional_parameters'] = set()
 
     def _set_meta_data_uri(self):
         base_uri = self._get_base_uri()
@@ -915,6 +896,30 @@ class Resource(ResourceBase):
             error_message = 'Missing required params: %s' % check
             raise MissingRequiredCreationParameter(error_message)
 
+    def _minimum_one_is_missing(self, **kwargs):
+        """Helper function to do operation on sets
+
+        Verify if at least one of the elements
+        is present in **kwargs. If no items of rqset
+        are contained in **kwargs  the function
+        raises exception.
+
+        Note: This check will only trigger
+              if rqset is not empty.
+
+        Raises:
+
+             MissingRequiredCreationParameter
+        """
+        rqset = self._meta_data['minimum_additional_parameters']
+        if rqset:
+            kwarg_set = set(iterkeys(kwargs))
+            if kwarg_set.isdisjoint(rqset):
+                error_message = 'This resource requires at least one of the ' \
+                                'mandatory additional ' \
+                                'parameters to be provided: %s' % rqset
+                raise MissingRequiredCreationParameter(error_message)
+
     def _create(self, **kwargs):
         """wrapped by `create` override that in subclasses to customize"""
         if 'uri' in self._meta_data:
@@ -924,6 +929,7 @@ class Resource(ResourceBase):
             raise URICreationCollision(error)
         self._check_exclusive_parameters(**kwargs)
         requests_params = self._handle_requests_params(kwargs)
+        self._minimum_one_is_missing(**kwargs)
         self._check_create_parameters(**kwargs)
         kwargs = self._check_for_python_keywords(kwargs)
 

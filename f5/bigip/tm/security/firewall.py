@@ -27,7 +27,6 @@ REST Kind
     ``tm:security:firewall:*``
 """
 from f5.bigip.mixins import CheckExistenceMixin
-from f5.bigip.resource import _minimum_one_is_missing
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
@@ -65,17 +64,13 @@ class Address_List(Resource):
             'tm:security:firewall:address-list:address-liststate'
         self._meta_data['required_creation_parameters'].update(('partition',))
         self._meta_data['required_load_parameters'].update(('partition',))
-        self.tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
-
-    def create(self, **kwargs):
-        """Custom create method to accommodate different endpoint behavior."""
-        self._check_create_parameters(**kwargs)
+        self.tmos_ver = self._meta_data['bigip'].tmos_version
         if LooseVersion(self.tmos_ver) < LooseVersion('12.0.0'):
-            req_set = {'addressLists', 'addresses', 'geo'}
+            self._meta_data['minimum_additional_parameters'] = {
+                'addressLists', 'addresses', 'geo'}
         else:
-            req_set = {'addressLists', 'addresses', 'geo', 'fqdns'}
-        _minimum_one_is_missing(req_set, **kwargs)
-        return self._create(**kwargs)
+            self._meta_data['minimum_additional_parameters'] = {
+                'addressLists', 'addresses', 'geo', 'fqdns'}
 
 
 class Port_Lists(Collection):
@@ -96,14 +91,8 @@ class Port_List(Resource):
             'tm:security:firewall:port-list:port-liststate'
         self._meta_data['required_creation_parameters'].update(('partition',))
         self._meta_data['required_load_parameters'].update(('partition',))
-
-    def create(self, **kwargs):
-        """Custom create method to accommodate different endpoint behavior."""
-        self._check_create_parameters(**kwargs)
-        req_set = {'ports', 'portLists'}
-
-        _minimum_one_is_missing(req_set, **kwargs)
-        return self._create(**kwargs)
+        self._meta_data['minimum_additional_parameters'] = {'ports',
+                                                            'portLists'}
 
 
 class Rule_Lists(Collection):
@@ -160,24 +149,9 @@ class Rule(Resource, CheckExistenceMixin):
         self._meta_data['required_creation_parameters'].update(('action',))
         self._meta_data['exclusive_attributes'].append(
             ('place-after', 'place-before'))
-        self.tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
-
-    def create(self, **kwargs):
-        """Custom create method to accommodate different endpoint behavior.
-
-        WARNING: Some parameters are hyphenated therefore the function
-                 will need to utilize variable keyword argument syntax.
-                 eg.
-
-                 param_set ={'name': 'rule', 'place-before': 'first',
-                 'action': 'reject'}
-
-                 rule_lst.rules_s.rule.create(**param_set)
-        """
-        self._check_create_parameters(**kwargs)
-        req_set = {'place-before', 'place-after'}
-        _minimum_one_is_missing(req_set, **kwargs)
-        return self._create(**kwargs)
+        self._meta_data['minimum_additional_parameters'] = {'place-before',
+                                                            'place-after'}
+        self.tmos_ver = self._meta_data['bigip'].tmos_version
 
     def update(self, **kwargs):
         """We need to implement the custom exclusive parameter check."""

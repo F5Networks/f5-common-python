@@ -230,6 +230,15 @@ class TestResourceCreate(object):
         assert str(MRCPEIO.value) ==\
             "Missing required params: ['NONEMPTY']"
 
+    def test_minimium_one_required_missing(self):
+        r = Resource(mock.MagicMock())
+        r._meta_data['minimum_additional_parameters'] = {'NONEMPTY'}
+        with pytest.raises(MissingRequiredCreationParameter) as MRCPEIO:
+            r.create(partition="Common", name='CreateTest')
+        assert str(MRCPEIO.value) == \
+            "This resource requires at least one of the mandatory " \
+            "additional parameters to be provided: set(['NONEMPTY'])"
+
     def test_KindTypeMismatch(self):
         expected_result = (
             "For instances of type ''Virtual'' the "

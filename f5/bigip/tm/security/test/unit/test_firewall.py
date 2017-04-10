@@ -30,6 +30,7 @@ from six import iterkeys
 @pytest.fixture
 def FakeAddrLst():
     fake_col = mock.MagicMock()
+    fake_col._meta_data['bigip'].tmos_version = '11.6.0'
     fake_addrlst = Address_List(fake_col)
     return fake_addrlst
 

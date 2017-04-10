@@ -391,7 +391,7 @@ class TestRules(object):
         param_set = {'name': 'fake_rule', 'action': 'reject'}
         ERR = "This resource requires at least one of the mandatory " \
               "additional parameters to be provided: " \
-              "set(['place-before', 'place-after'])"
+              "set(['place-after', 'place-before'])"
         with pytest.raises(MissingRequiredCreationParameter) as err:
             rulelst.rules_s.rule.create(**param_set)
         assert err.value.message == ERR
