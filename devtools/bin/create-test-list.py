@@ -52,7 +52,7 @@ def examine_python_rules(line):
 
 def examine_non_python_rules(line):
     if 'test/functional' in line:
-        return line
+        return os.path.dirname(line)
 
 
 def determine_files_to_test(product, commit):
