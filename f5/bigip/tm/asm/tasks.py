@@ -26,7 +26,6 @@ GUI Path
 REST Kind
     ``tm:asm:tasks:``
 """
-from f5.bigip.resource import _minimum_one_is_missing
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import AsmTaskResource
 from f5.bigip.resource import Collection
@@ -234,13 +233,8 @@ class Import_Vulnerabilities(AsmResource):
             'import-vulnerabilities-taskstate'
         self._meta_data['required_creation_parameters'] = {
             'policyReference', 'filename'}
-
-    def create(self, **kwargs):
-        """We check if one of the 3 mandatory attributes is present."""
-        rq_set = {'onlyGetDomainNames', 'importAllDomainNames', 'domainNames'}
-        _minimum_one_is_missing(rq_set, **kwargs)
-
-        return self._create(**kwargs)
+        self._meta_data['minimum_additional_parameters'] = {
+            'onlyGetDomainNames', 'importAllDomainNames', 'domainNames'}
 
     def modify(self, **kwargs):
         """Modify is not supported for Import Vulnerabilities resource

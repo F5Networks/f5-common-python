@@ -147,8 +147,10 @@ def set_history(mgmt_root, policy):
     mgmt_root.tm.asm.tasks.apply_policy_s.apply_policy.create(
         policyReference=reference)
     # We need to pause here as the history revisions take time to update
-    time.sleep(3)
-    col = policy.history_revisions_s.get_collection()
+    col = list()
+    while not col:
+        col = policy.history_revisions_s.get_collection()
+        time.sleep(3)
     hashid = str(col[0].id)
     yield hashid
     delete_apply_policy_task(mgmt_root)
@@ -2865,9 +2867,9 @@ class TestExtractions(object):
         assert r1.kind == 'tm:asm:policies:extractions:extractionstate'
         r1.delete()
 
-    def test_create_mandatory_arg_missing(self, policy):
+    def test_create_mandatory_arg_missing(self, policy2):
         with pytest.raises(MissingRequiredCreationParameter) as err:
-            policy.extractions_s.extraction.create(
+            policy2.extractions_s.extraction.create(
                 extractFromAllItems=False, name='fake_extract')
         error_message = "This resource requires at least one of the " \
                         "mandatory additional parameters to be provided: " \
@@ -2877,8 +2879,8 @@ class TestExtractions(object):
 
         assert err.value.message == error_message
 
-    def test_create_mandatory_arg_present(self, policy):
-        r1 = policy.extractions_s.extraction.create(
+    def test_create_mandatory_arg_present(self, policy2):
+        r1 = policy2.extractions_s.extraction.create(
             extractFromAllItems=False, name='fake_extract',
             extractFromRegularExpression='["test"]')
         assert r1.kind == 'tm:asm:policies:extractions:extractionstate'

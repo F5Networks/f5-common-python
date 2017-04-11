@@ -16,7 +16,6 @@
 #
 
 from distutils.version import LooseVersion
-from f5.bigip.resource import _minimum_one_is_missing
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
 from f5.bigip.resource import UnnamedResource
@@ -1178,10 +1177,9 @@ class Extraction(AsmResource):
         """Custom create method to accommodate different endpoint behavior."""
         self._check_create_parameters(**kwargs)
         if kwargs['extractFromAllItems'] is False:
-            req_set = {'extractFromRegularExpression', 'extractUrlReferences',
-                       'extractFiletypeReferences'}
-            _minimum_one_is_missing(req_set, **kwargs)
-
+            self._meta_data['minimum_additional_parameters'] = {
+                'extractFromRegularExpression', 'extractUrlReferences',
+                'extractFiletypeReferences'}
         return self._create(**kwargs)
 
 
@@ -1463,13 +1461,12 @@ class Websocket_Url(AsmResource):
         """Custom create method to accommodate different endpoint behavior."""
         self._check_create_parameters(**kwargs)
         if kwargs['checkPayload'] is True:
-            req_set = {'allowTextMessage', 'allowJsonMessage',
-                       'allowBinaryMessage'}
-            _minimum_one_is_missing(req_set, **kwargs)
-        if 'allowTextMessage' in kwargs.keys():
+            self._meta_data['minimum_additional_parameters'] = {
+                'allowTextMessage', 'allowJsonMessage', 'allowBinaryMessage'}
+        if 'allowTextMessage' in kwargs:
             self._meta_data['required_creation_parameters'].update((
                 'plainTextProfileReference',))
-        if 'allowJsonMessage' in kwargs.keys():
+        if 'allowJsonMessage' in kwargs:
             self._meta_data['required_creation_parameters'].update((
                 'jsonProfileReference',))
         return super(Websocket_Url, self)._create(**kwargs)
