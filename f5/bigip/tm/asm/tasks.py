@@ -125,7 +125,9 @@ class Import_Policy(AsmResource):
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:import-policy:import-policy-taskstate'
         self._meta_data['required_creation_parameters'] = {
-            'name', 'filename'}
+            'name'}
+        self._meta_data['exclusive_attributes'] = ['filename', 'file']
+        self._meta_data['minimum_additional_parameters'] = {'filename', 'file'}
 
     def modify(self, **kwargs):
         """Modify is not supported for Apply Policy resource
@@ -218,6 +220,7 @@ class Import_Vulnerabilities_s(Collection):
     def __init__(self, tasks):
         super(Import_Vulnerabilities_s, self).__init__(tasks)
         self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '11.6.0'
         self._meta_data['allowed_lazy_attributes'] = [Import_Vulnerabilities]
         self._meta_data['attribute_registry'] = {
             'tm:asm:tasks:import-vulnerabilities:'

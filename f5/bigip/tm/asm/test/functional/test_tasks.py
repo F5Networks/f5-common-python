@@ -13,10 +13,11 @@
 # limitations under the License.
 #
 
-
+import os
 import pytest
 import time
 
+from distutils.version import LooseVersion
 from f5.bigip.tm.asm.tasks import Apply_Policy
 from f5.bigip.tm.asm.tasks import Check_Signature
 from f5.bigip.tm.asm.tasks import Export_Policy
@@ -28,8 +29,33 @@ from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
 from requests.exceptions import HTTPError
 
+if LooseVersion(pytest.config.getoption('--release')) >= LooseVersion(
+        '12.1.0'):
+        SCAN = 'trustwave'
+else:
+        SCAN = 'cenzic-hailstorm'
 
 F = 'fake_export.xml'
+
+
+def file_read():
+    dirpath = os.path.dirname(__file__)
+    path = os.path.join(dirpath, 'test_files')
+    import_policy = os.path.join(path, 'fake_policy.xml')
+    with open(import_policy) as imp:
+        f = imp.read()
+    return f
+
+
+def policy_created(name, mgmt_root):
+    """Checks if the policy was created by import, and removes it"""
+    pc = mgmt_root.tm.asm.policies_s.get_collection()
+    for p in pc:
+        if p.name == name:
+            p.delete()
+            return True
+    else:
+            return False
 
 
 def delete_chksig_item(mgmt_root, hashid):
@@ -102,7 +128,16 @@ def set_policy(mgmt_root):
     pol1 = \
         mgmt_root.tm.asm.policies_s.policy.create(
             name='fake_policy')
-    pol1.vulnerability_assessment.modify(scannerType='cenzic-hailstorm')
+    pol1.vulnerability_assessment.modify(scannerType=SCAN)
+    yield pol1.selfLink
+    delete_policy_item(mgmt_root)
+
+
+@pytest.fixture(scope='class')
+def set_policy2(mgmt_root):
+    pol1 = \
+        mgmt_root.tm.asm.policies_s.policy.create(
+            name='fake_policy2')
     yield pol1.selfLink
     delete_policy_item(mgmt_root)
 
@@ -177,16 +212,16 @@ def set_import_vuln_test(request, mgmt_root, reference):
 
 
 class TestApplyPolicy(object):
-    def test_create_req_arg(self, request, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_create_req_arg(self, request, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         ap = set_apply_policy(request, mgmt_root, reference)
         assert ap.status == 'NEW'
         assert ap.kind == 'tm:asm:tasks:apply-policy:apply-policy-taskstate'
         assert ap.policyReference == reference
         delete_apply_policy_task(mgmt_root)
 
-    def test_refresh(self, request, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_refresh(self, request, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         ap = set_apply_policy(request, mgmt_root, reference)
         hashid = str(ap.id)
         link = ap.selfLink
@@ -202,28 +237,28 @@ class TestApplyPolicy(object):
                 id='Lx3553-321')
         assert err.value.response.status_code == 404
 
-    def test_load(self, request, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_load(self, request, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         ap = set_apply_policy(request, mgmt_root, reference)
         ap2 = mgmt_root.tm.asm.tasks.apply_policy_s.apply_policy.load(id=ap.id)
         assert ap.id == ap2.id
         assert ap.selfLink == ap2.selfLink
         assert ap.policyReference == ap2.policyReference
 
-    def test_exists(self, request, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_exists(self, request, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         ap = set_apply_policy(request, mgmt_root, reference)
         hashid = str(ap.id)
         assert ap.exists(id=hashid)
 
-    def test_delete(self, request, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_delete(self, request, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         ap = set_apply_policy(request, mgmt_root, reference)
         ap.delete()
         assert ap.__dict__['deleted']
 
-    def test_apply_policy_collection(self, request, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_apply_policy_collection(self, request, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         ap = set_apply_policy(request, mgmt_root, reference)
         assert ap.status == 'NEW'
         assert ap.kind == 'tm:asm:tasks:apply-policy:apply-policy-taskstate'
@@ -236,8 +271,8 @@ class TestApplyPolicy(object):
 
 
 class TestExportPolicy(object):
-    def test_create_req_arg(self, request, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_create_req_arg(self, request, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         exp1 = set_export_policy_test(request, mgmt_root, reference)
         endpoint = str(exp1.id)
         base_uri = 'https://localhost/mgmt/tm/asm/tasks/export-policy/'
@@ -249,8 +284,8 @@ class TestExportPolicy(object):
             'tm:asm:tasks:export-policy:export-policy-taskstate'
         assert exp1.inline is False
 
-    def test_create_optional_args(self, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_create_optional_args(self, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         exp1 = mgmt_root.tm.asm.tasks.export_policy_s.export_policy\
             .create(filename=F, policyReference=reference, inline=True)
         endpoint = str(exp1.id)
@@ -263,8 +298,8 @@ class TestExportPolicy(object):
             'tm:asm:tasks:export-policy:export-policy-taskstate'
         assert exp1.inline is True
 
-    def test_refresh(self, request, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_refresh(self, request, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         exp1 = set_export_policy_test(request, mgmt_root, reference)
         exp2 = mgmt_root.tm.asm.tasks.export_policy_s.export_policy\
             .load(id=exp1.id)
@@ -278,15 +313,15 @@ class TestExportPolicy(object):
                 .load(id='Lx3553-321')
         assert err.value.response.status_code == 404
 
-    def test_load(self, request, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_load(self, request, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         exp1 = set_export_policy_test(request, mgmt_root, reference)
         exp2 = mgmt_root.tm.asm.tasks.export_policy_s.export_policy\
             .load(id=exp1.id)
         assert exp1.selfLink == exp2.selfLink
 
-    def test_delete(self, request, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_delete(self, request, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         exp1 = set_export_policy_test(request, mgmt_root, reference)
         hashid = str(exp1.id)
         exp1.delete()
@@ -295,8 +330,8 @@ class TestExportPolicy(object):
                 id=hashid)
         assert err.value.response.status_code == 404
 
-    def test_policy_export_collection(self, request, mgmt_root, set_policy):
-        reference = {'link': set_policy}
+    def test_policy_export_collection(self, request, mgmt_root, set_policy2):
+        reference = {'link': set_policy2}
         exp1 = set_export_policy_test(request, mgmt_root, reference)
         endpoint = str(exp1.id)
         base_uri = 'https://localhost/mgmt/tm/asm/tasks/export-policy/'
@@ -326,6 +361,44 @@ class TestImportPolicy(object):
         assert imp1.kind == \
             'tm:asm:tasks:import-policy:import-policy-taskstate'
         assert imp1.isBase64 is False
+
+    def test_create_inline_file_import(self, mgmt_root):
+        f = file_read()
+        imp1 = mgmt_root.tm.asm.tasks.import_policy_s.import_policy.create(
+            file=f, name='fake_one')
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-policy/'
+        final_uri = base_uri + endpoint
+        assert imp1.selfLink.startswith(final_uri)
+        assert imp1.status == 'NEW'
+        assert imp1.kind == \
+            'tm:asm:tasks:import-policy:import-policy-taskstate'
+        imp1.refresh()
+        while imp1.status != 'COMPLETED':
+            imp1.refresh()
+            if imp1.status == 'FAILURE':
+                break
+        assert imp1.status == 'COMPLETED'
+        assert policy_created('fake_one', mgmt_root)
+
+    def test_create_inline_file_import_fails(self, mgmt_root):
+        f = file_read()
+        imp1 = mgmt_root.tm.asm.tasks.import_policy_s.import_policy.create(
+            file=f, name='fake_one', isBase64=True)
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-policy/'
+        final_uri = base_uri + endpoint
+        assert imp1.selfLink.startswith(final_uri)
+        assert imp1.status == 'NEW'
+        assert imp1.kind == \
+            'tm:asm:tasks:import-policy:import-policy-taskstate'
+        imp1.refresh()
+        while imp1.status != 'COMPLETED':
+            imp1.refresh()
+            if imp1.status == 'FAILURE':
+                break
+        assert imp1.status == 'FAILURE'
+        assert not policy_created('fake_one', mgmt_root)
 
     def test_create_optional_args(self, mgmt_root):
         imp1 = mgmt_root.tm.asm.tasks.import_policy_s.import_policy\
@@ -603,6 +676,11 @@ class TestUpdateSignature(object):
         assert isinstance(sc[0], Update_Signature)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
 class TestImportVulnerabilities(object):
     def test_modify_raises(self, mgmt_root):
         rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
