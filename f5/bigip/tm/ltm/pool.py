@@ -52,6 +52,43 @@ class Pool(Resource):
             'tm:ltm:pool:memberscollectionstate': Members_s
         }
 
+    @staticmethod
+    def _format_monitor_parameter(param):
+        """This is a workaround for a known issue ID645289, which affects
+
+        all versions of TMOS at this time.
+        """
+        if '{' in param and '}':
+            tmp = param.strip('}').split('{')
+            monitor = ''.join(tmp).rstrip()
+            return monitor
+        else:
+            return param
+
+    def create(self, **kwargs):
+        """Custom create method to implement monitor parameter formatting."""
+        if 'monitor' in kwargs:
+            value = self._format_monitor_parameter(kwargs['monitor'])
+            kwargs['monitor'] = value
+        return super(Pool, self)._create(**kwargs)
+
+    def update(self, **kwargs):
+        """Custom update method to implement monitor parameter formatting."""
+        if 'monitor' in kwargs:
+            value = self._format_monitor_parameter(kwargs['monitor'])
+            kwargs['monitor'] = value
+        elif 'monitor' in self.__dict__:
+            value = self._format_monitor_parameter(self.__dict__['monitor'])
+            self.__dict__['monitor'] = value
+        return super(Pool, self)._update(**kwargs)
+
+    def modify(self, **patch):
+        """Custom modify method to implement monitor parameter formatting."""
+        if 'monitor' in patch:
+            value = self._format_monitor_parameter(patch['monitor'])
+            patch['monitor'] = value
+        return super(Pool, self)._modify(**patch)
+
 
 class Members_s(Collection):
     """BIG-IP® LTM pool members sub-collection"""
