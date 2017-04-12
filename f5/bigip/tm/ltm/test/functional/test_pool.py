@@ -281,3 +281,34 @@ class TestPool(object):
         pool1.allowNat = "yes"
         pool1.refresh()
         assert pool1.allowNat == "no"
+
+    def test_create_monitor_parameter(self, request, bigip):
+        setup_create_test(request, bigip, 'pool1', 'Common')
+        mon = 'min 1 of { /Common/http /Common/tcp }'
+        pool1 = bigip.ltm.pools.pool.create(
+            name='pool1', partition='Common', monitor=mon)
+        assert pool1.name == 'pool1'
+        assert pool1.partition == 'Common'
+        assert pool1.monitor == mon
+        assert pool1.generation and isinstance(pool1.generation, int)
+        assert pool1.fullPath == '/Common/pool1'
+        assert pool1.kind == 'tm:ltm:pool:poolstate'
+        assert pool1.selfLink.startswith(
+            'https://localhost/mgmt/tm/ltm/pool/~Common~pool1')
+
+    def test_update_monitor_parameter(self, request, bigip):
+        pool1 = setup_basic_test(request, bigip, 'pool1', 'Common')
+        mon = 'min 1 of { /Common/http /Common/tcp }'
+        pool1.monitor = mon
+        pool1.update()
+        assert pool1.monitor == mon
+        # Test kwargs
+        mon2 = 'min 2 of { /Common/http /Common/tcp }'
+        pool1.update(monitor=mon2)
+        assert pool1.monitor == mon2
+
+    def test_modify_monitor_parameter(self, request, bigip):
+        pool1 = setup_basic_test(request, bigip, 'pool1', 'Common')
+        mon = 'min 1 of { /Common/http /Common/tcp }'
+        pool1.modify(monitor=mon)
+        assert pool1.monitor == mon
