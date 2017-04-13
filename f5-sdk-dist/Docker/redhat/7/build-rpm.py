@@ -19,11 +19,13 @@ from __future__ import print_function
 import glob
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 import traceback
 
+from collections import namedtuple
 from tempfile import mkdtemp
 
 
@@ -84,6 +86,40 @@ def make_rpms_build(config):
     return rpm_build
 
 
+def change_requires(buildroot, config):
+    spec = buildroot + "/rpmbuild/SPECS/{}.spec".format(config['project'])
+    try:
+        with open(spec, 'r') as fh:
+            contents = fh.read()
+    except IOError as Error:
+        print("Could not open spec file! ({})".format(Error))
+        raise
+    try:
+        with open(spec, 'w') as fh:
+            for line in contents.split("\n"):
+                if 'Requires' in line:
+                    old = line.replace("Requires: ", "")
+                    Req = namedtuple('Req', 'module, modifier, version')
+                    breakout_re = re.compile('([^<=>]+)([<=>]+)([\d]\S+)')
+                    change = 'Requires: '
+                    modifier_format = "{} {} {}, "
+                    for requirement in old.split(' '):
+                        match = breakout_re.search(requirement)
+                        if match:
+                            req = Req(*match.groups())
+                            mod = 'python-' + req.module \
+                                if 'python-' not in req.module and \
+                                'f5-' not in req.module else req.module
+                            change = change + \
+                                modifier_format.format(mod, req.modifier,
+                                                       req.version)
+                    line = change
+                fh.write("{}\n".format(line))
+    except Exception as Error:
+        print("Could not handle change in spec file {}".format(Error))
+        raise
+
+
 def main():
     src_dir = sys.argv[1]
     os.chdir(src_dir)
@@ -103,6 +139,7 @@ def main():
             fh.write('%s_topdir %s/rpmbuild' % ('%', buildroot))
         cmd = "python setup.py bdist_rpm --spec-only --dist-dir rpmbuild/SPECS"
         print(subprocess.check_output([cmd], shell=True))
+        change_requires(buildroot, config)
         cmd = "rpmbuild -ba rpmbuild/SPECS/%s.spec" % project
         print(subprocess.check_output([cmd], shell=True))
         nonarch_pkg = None
