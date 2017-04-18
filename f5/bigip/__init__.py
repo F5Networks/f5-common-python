@@ -37,7 +37,7 @@ from f5.bigip.tm.transaction import Transactions
 
 class ManagementRoot(PathElement):
     """An interface to a single BIG-IP"""
-    def __init__(self, hostname, username, password, **kwargs):
+    def __init__(self, hostname, username='admin', password='admin', **kwargs):
         timeout = kwargs.pop('timeout', 30)
         port = kwargs.pop('port', 443)
         icontrol_version = kwargs.pop('icontrol_version', '')
