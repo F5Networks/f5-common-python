@@ -18,11 +18,11 @@
 from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.mixins import UnnamedResourceMixin
-from f5.bigip.resource import Resource
+from f5.bigip.resource import PathElement
 
 
-class Add_To_Trust(UnnamedResourceMixin, ExclusiveAttributesMixin,
-                   CommandExecutionMixin, Resource):
+class Add_To_Trust(PathElement, UnnamedResourceMixin, ExclusiveAttributesMixin,
+                   CommandExecutionMixin):
     """BIG-IP® Add-To-Trust resource
 
     Use this object to set or overwrite device trust
@@ -33,15 +33,16 @@ class Add_To_Trust(UnnamedResourceMixin, ExclusiveAttributesMixin,
         super(Add_To_Trust, self).__init__(cm)
         self._meta_data['exclusive_attributes'].append(
             ('caDevice', 'nonCaDevice'))
-        self._meta_data['required_creation_parameters'].update(
-            ('device', 'deviceName', 'username', 'password'))
+        self._meta_data['required_command_parameters'].update(
+            ('name', 'device', 'deviceName', 'username', 'password'))
         self._meta_data['required_json_kind'] = \
             'tm:cm:add-to-trust:runstate'
         self._meta_data['allowed_commands'].append('run')
-        self._meta_data['supported_versions'].discard('11.6.0')
+        self._meta_data['minimum_version'] = '12.0.0'
 
 
-class Remove_From_Trust(UnnamedResourceMixin, CommandExecutionMixin, Resource):
+class Remove_From_Trust(PathElement, UnnamedResourceMixin,
+                        CommandExecutionMixin):
     """BIG-IP®« Remove-From-Trust resource
 
     Use this object to remove device trust
@@ -55,9 +56,9 @@ class Remove_From_Trust(UnnamedResourceMixin, CommandExecutionMixin, Resource):
 
     def __init__(self, cm):
         super(Remove_From_Trust, self).__init__(cm)
-        self._meta_data['required_creation_parameters'].update(
-            ('deviceName',))
+        self._meta_data['required_command_parameters'].update(
+            ('deviceName', 'name'))
         self._meta_data['required_json_kind'] = \
             'tm:cm:remove-from-trust:runstate'
         self._meta_data['allowed_commands'].append('run')
-        self._meta_data['supported_versions'].discard('11.6.0')
+        self._meta_data['minimum_version'] = '12.0.0'

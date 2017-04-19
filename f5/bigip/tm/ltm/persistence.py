@@ -29,14 +29,15 @@ REST Kind
 
 
 from f5.bigip.resource import Collection
+from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 
 
-class Persistences(Collection):
+class Persistence(OrganizingCollection):
     '''A Collection concrete subclass docstring.'''
     def __init__(self, ltm):
         '''Auto generated constructor.'''
-        super(Persistences, self).__init__(ltm)
+        super(Persistence, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [
             Source_Addrs,
             Hashs,

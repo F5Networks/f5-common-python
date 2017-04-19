@@ -29,15 +29,16 @@ REST Kind
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import KindTypeMismatch
+from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 
 from requests import HTTPError
 
 
-class Applications(Collection):
+class Application(OrganizingCollection):
     """BIG-IP® iApp collection."""
     def __init__(self, sys):
-        super(Applications, self).__init__(sys)
+        super(Application, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [
             Aplscripts,
             Customstats,

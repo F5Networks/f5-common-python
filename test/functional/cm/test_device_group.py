@@ -13,7 +13,9 @@
 # limitations under the License.
 #
 
+import pytest
 from requests import HTTPError
+
 
 TEST_DESCR = "TEST DESCRIPTION"
 
@@ -67,7 +69,9 @@ class TestDeviceGroup(object):
         d1 = dg1.devices_s.devices.create(
             name=this_device.name, partition=this_device.partition)
         assert len(dg1.devices_s.get_collection()) == 1
-        assert d1.name == this_device.name
+        # This needs to be in this format due to the change between
+        # 11.6.0 Final and other versions.
+        assert this_device.name in d1.name
 
     def test_cm_sync_to_group(self, request, bigip):
         dg1, dgs = setup_device_group_test(
@@ -76,6 +80,10 @@ class TestDeviceGroup(object):
         cm_obj = bigip.cm.exec_cmd('run', utilCmdArgs=sync_cmd)
         assert cm_obj.utilCmdArgs == sync_cmd
 
+
+@pytest.mark.skipif(pytest.config.getoption('--release') == '12.0.0',
+                    reason='Behavior change in v12, causing this to fail')
+class TestSyncFromGroup(object):
     def test_cm_sync_from_group(self, request, bigip):
         dg1, dgs = setup_device_group_test(
             request, bigip, name='test-group', partition='Common')

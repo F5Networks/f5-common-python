@@ -16,9 +16,10 @@
 #
 # NOTE:  Code taken from Effective Python Item 26
 
-import logging
 
+from distutils.version import LooseVersion
 from f5.sdk_exception import F5SDKError
+import logging
 
 
 class InvalidCommand(F5SDKError):
@@ -117,10 +118,13 @@ class LazyAttributeMixin(object):
 
     def _check_supported_versions(container, attribute):
         tmos_v = container._meta_data['bigip'].tmos_version
-        if tmos_v not in attribute._meta_data['supported_versions']:
+        minimum = attribute._meta_data['minimum_version']
+        if LooseVersion(tmos_v) < LooseVersion(minimum):
             error = "There was an attempt to access API which " \
                     "has not been implemented or supported " \
-                    "in the device's TMOS version: {}".format(tmos_v)
+                    "in the device's TMOS version: {}. "\
+                    "Minimum TMOS version supported is {}".format(
+                        tmos_v, minimum)
             raise UnsupportedTmosVersion(error)
 
 
@@ -250,7 +254,9 @@ class CommandExecutionMixin(object):
         '''
 
         kwargs['command'] = command
+        self._check_exclusive_parameters(**kwargs)
         requests_params = self._handle_requests_params(kwargs)
+        self._check_command_parameters(**kwargs)
         session = self._meta_data['bigip']._meta_data['icr_session']
         response = session.post(
             self._meta_data['uri'], json=kwargs, **requests_params)

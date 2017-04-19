@@ -36,9 +36,6 @@ class Trust_Domains(Collection):
 
     def __init__(self, cm):
         super(Trust_Domains, self).__init__(cm)
-        endpoint = 'trust-domain'
-        self._meta_data['uri'] =\
-            self._meta_data['container']._meta_data['uri'] + endpoint + '/'
         self._meta_data['allowed_lazy_attributes'] = [Trust_Domain]
         self._meta_data['attribute_registry'] = \
             {'tm:cm:trust-domain:trust-domainstate': Trust_Domain}

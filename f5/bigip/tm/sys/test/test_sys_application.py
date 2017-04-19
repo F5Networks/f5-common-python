@@ -173,8 +173,8 @@ class MockHTTPErrorResponse400(HTTPError):
 class TestServiceCreate(object):
     def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        serv1 = b.sys.applications.services.service
-        serv2 = b.sys.applications.services.service
+        serv1 = b.sys.application.services.service
+        serv2 = b.sys.application.services.service
         assert serv1 is not serv2
 
     def test_create_no_args(self, FakeService):
@@ -279,13 +279,13 @@ class TestServiceLoad(object):
         with pytest.raises(MissingRequiredReadParameter) as ex:
             FakeService.load()
         assert ex.value.message == \
-            "Missing required params: set(['partition', 'name'])"
+            "Missing required params: ['partition', 'name']"
 
     def test_load_no_partition(self, FakeService):
         with pytest.raises(MissingRequiredReadParameter) as ex:
             FakeService.load(name='test_service')
         assert ex.value.message == \
-            "Missing required params: set(['partition'])"
+            "Missing required params: ['partition']"
 
 
 class TestServiceUpdate(object):
@@ -325,8 +325,8 @@ class TestServiceUpdate(object):
 class TestTemplateCreate(object):
     def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.applications.templates.template
-        templ2 = b.sys.applications.templates.template
+        templ1 = b.sys.application.templates.template
+        templ2 = b.sys.application.templates.template
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeTemplate):
@@ -339,8 +339,8 @@ class TestTemplateCreate(object):
 class TestAplscript(object):
     def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.applications.aplscripts.aplscript
-        templ2 = b.sys.applications.aplscripts.aplscript
+        templ1 = b.sys.application.aplscripts.aplscript
+        templ2 = b.sys.application.aplscripts.aplscript
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeAplscript):
@@ -352,8 +352,8 @@ class TestAplscript(object):
 class TestCustomstat(object):
     def test_create_two(self, fakeicontrolsession):
         b = BigIP('192.168.1.1', 'admin', 'admin')
-        templ1 = b.sys.applications.customstats.customstat
-        templ2 = b.sys.applications.customstats.customstat
+        templ1 = b.sys.application.customstats.customstat
+        templ2 = b.sys.application.customstats.customstat
         assert templ1 is not templ2
 
     def test_create_no_args(self, FakeCustomstat):
