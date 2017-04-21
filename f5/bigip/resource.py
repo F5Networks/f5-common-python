@@ -981,7 +981,6 @@ class Resource(ResourceBase):
 
     def _check_load_parameters(self, **kwargs):
         """Params given to load should at least satisfy required params.
-
         :params: kwargs
         :raises: MissingRequiredReadParameter
         """
