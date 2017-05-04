@@ -28,6 +28,7 @@ REST Kind
 """
 
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.tm.sys.software.hotfix import Hotfix_s
 from f5.bigip.tm.sys.software.image import Images
 from f5.bigip.tm.sys.software.update import Update
 
@@ -36,6 +37,7 @@ class Software(OrganizingCollection):
     def __init__(self, tm):
         super(Software, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
+            Hotfix_s,
             Images,
             Update
         ]
