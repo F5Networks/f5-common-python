@@ -158,6 +158,9 @@ object creation.  This requires running commands at the command prompt.
         """
         if 'python-' not in self.name or '(' in self.name:
             return
+        self._install_req()
+
+    def _install_req(self):
         print("Installing %s(v%s)" % (self.name, self.version))
         name = self.pkg_location if hasattr(self, 'pkg_location') \
             else self.name
@@ -233,6 +236,14 @@ actions to perform for its automated installation.
         self.pkg_name = pkg_name
         self.url = self.url + pkg_name
 
+    def install_req(self):
+        """install_req
+
+This object method will install the attribute-defined package yielded at
+object creation.  This requires running commands at the command prompt.
+        """
+        self._install_req()
+
 
 def usage():
     """usage
@@ -251,16 +262,12 @@ and the output is redacte to an empty string.
     """
     output = ""
     try:
-        p = subprocess.Popen(cmd.split(),
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        (output) = p.communicate()[0]
-    except OSError as e:
-        print("Execution failed: [%s:%s] " %
-              (cmd, os.listdir('/var/wdir')), str(e))
+        output = subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print("Execution failed: [{}]".format(e))
     else:
-        return (output, p.returncode)
-    return ('', 99)
+        return (output, 0)
+    return (str(e), 99)
 
 
 def load_requirements(cfg):
@@ -447,7 +454,10 @@ the InstallError exception for known scenarios where things may break.
 
     print("Installing Self - %s" % pkg_name)
     try:
-        runCommand('dpkg -i %s' % tmp_pkg_name)
+        output, result = runCommand('dpkg -i %s 2>&1' % tmp_pkg_name)
+        if not result == 0:
+            raise IOError("Result was non-zero! [{}:{}]".format(output,
+                                                                result))
     except InstallError as error:
         print("Failed to get requirements for %s." % (pkg_name))
         return error
@@ -548,8 +558,14 @@ error.  Any other value indicates that an issue occurred.
     # Instal from the tmp directory.
     if error:
         sys.exit(error.errnum)
-    else:
+    # last chance to check for failure:
+    cmd = 'dpkg -l | grep {}'.format(config['project'])
+    output, status = runCommand(cmd)
+    if status == 0:
+        print("passed last check:\n{}".format(output))
         sys.exit(0)
+    print("Last check FAILED: {}".format(cmd))
+    sys.exit(99)
 
 
 if __name__ == '__main__':
