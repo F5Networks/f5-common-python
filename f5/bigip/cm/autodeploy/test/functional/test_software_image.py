@@ -48,7 +48,7 @@ def uploaded_file(mgmt_root, upload_content):
 
 class TestSoftwareImage(object):
     def test_download(self, mgmt_root, uploaded_file, upload_content):
-        dest = '/tmp/{0}'.format(uploaded_file)
+        dest = "c:\\tmp\\{0}".format(uploaded_file)
         downloads = mgmt_root.cm.autodeploy.software_image_downloads
         downloads.download_file(uploaded_file, dest)
         assert os.path.exists(dest)
