@@ -15,16 +15,16 @@
 # limitations under the License.
 #
 
-"""BIG-IP® System Software Image sub-module
+"""BIG-IP® System Software Hotfix sub-module
 
 REST URI
-    ``http://localhost/mgmt/tm/sys/software/image``
+    ``http://localhost/mgmt/tm/sys/software/hotfix``
 
 GUI Path
-    ``System --> Software Management --> Image List``
+    ``System --> Software Management --> Hotfix List``
 
 REST Kind
-    ``tm:sys:software:image*``
+    ``tm:sys:software:hotfix*``
 """
 
 from f5.bigip.resource import Collection
@@ -32,24 +32,24 @@ from f5.bigip.resource import Resource
 from f5.sdk_exception import UnsupportedOperation
 
 
-class Images(Collection):
-    """BIG-IP® system software image collection."""
+class Hotfix_s(Collection):
+    """BIG-IP® system software hotfix collection."""
     def __init__(self, software):
-        super(Images, self).__init__(software)
-        self._meta_data['allowed_lazy_attributes'] = [Image]
+        super(Hotfix_s, self).__init__(software)
+        self._meta_data['allowed_lazy_attributes'] = [Hotfix]
         self._meta_data['attribute_registry'] = \
-            {'tm:sys:software:image:imagestate': Image}
+            {'tm:sys:software:hotfix:hotfixstate': Hotfix}
 
 
-class Image(Resource):
-    """BIG-IP® system software image resource."""
+class Hotfix(Resource):
+    """BIG-IP® system software hotfix resource."""
     def __init__(self, images):
-        super(Image, self).__init__(images)
+        super(Hotfix, self).__init__(images)
         self._meta_data['required_json_kind'] = \
-            'tm:sys:software:image:imagestate'
+            'tm:sys:software:hotfix:hotfixstate'
 
     def create(self, **kwargs):
-        """Create is not supported for Image resource.
+        """Create is not supported for hotfix resource.
 
         :raises: UnsupportedOperation
         """
@@ -58,7 +58,7 @@ class Image(Resource):
         )
 
     def modify(self, **kwargs):
-        """Modify is not supported for Image resource.
+        """Modify is not supported for hotfix resource.
 
         :raises: UnsupportedOperation
         """
@@ -67,7 +67,7 @@ class Image(Resource):
         )
 
     def update(self, **kwargs):
-        """Update is not supported for Image resource.
+        """Update is not supported for hotfix resource.
 
         :raises: UnsupportedOperation
         """
