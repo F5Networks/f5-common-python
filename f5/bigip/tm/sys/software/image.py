@@ -1,6 +1,6 @@
 # coding=utf-8
 #
-# Copyright 2015 F5 Networks Inc.
+# Copyright 2017 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ class Image(Resource):
         :raises: UnsupportedOperation
         """
         raise UnsupportedOperation(
-            "%s does not support the modify method" % self.__class__.__name__
+            "%s does not support the create method." % self.__class__.__name__
         )
 
     def modify(self, **kwargs):
@@ -63,7 +63,7 @@ class Image(Resource):
         :raises: UnsupportedOperation
         """
         raise UnsupportedOperation(
-            "%s does not support the modify method" % self.__class__.__name__
+            "%s does not support the modify method." % self.__class__.__name__
         )
 
     def update(self, **kwargs):
@@ -72,5 +72,5 @@ class Image(Resource):
         :raises: UnsupportedOperation
         """
         raise UnsupportedOperation(
-            "%s does not support the update method" % self.__class__.__name__
+            "%s does not support the update method." % self.__class__.__name__
         )

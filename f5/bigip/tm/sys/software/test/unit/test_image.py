@@ -18,7 +18,7 @@ import pytest
 
 
 from f5.bigip.tm.sys.software.image import Image
-from f5.sdk_exception import UnsupportedMethod
+from f5.sdk_exception import UnsupportedOperation
 
 
 @pytest.fixture
@@ -28,18 +28,18 @@ def FakeImage():
 
 
 def test_create_raises(FakeImage):
-    with pytest.raises(UnsupportedMethod) as EIO:
+    with pytest.raises(UnsupportedOperation) as EIO:
         FakeImage.create()
-    assert EIO.value.message == "Image does not support the create method"
+    assert EIO.value.message == "Image does not support the create method."
 
 
 def test_update_raises(FakeImage):
-    with pytest.raises(UnsupportedMethod) as EIO:
+    with pytest.raises(UnsupportedOperation) as EIO:
         FakeImage.update()
-    assert EIO.value.message == "Image does not support the create method"
+    assert EIO.value.message == "Image does not support the update method."
 
 
 def test_modify_raises(FakeImage):
-    with pytest.raises(UnsupportedMethod) as EIO:
+    with pytest.raises(UnsupportedOperation) as EIO:
         FakeImage.modify()
-    assert EIO.value.message == "Image does not support the create method"
+    assert EIO.value.message == "Image does not support the modify method."
