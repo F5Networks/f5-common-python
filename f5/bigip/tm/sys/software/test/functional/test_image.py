@@ -14,7 +14,10 @@
 #
 
 
+from f5.sdk_exception import InvalidCommand
+from f5.sdk_exception import MissingRequiredCommandParameter
 from f5.sdk_exception import UnsupportedOperation
+
 import pytest
 
 
@@ -45,3 +48,12 @@ class TestImage(object):
         # Until we are able to install ISOs in Jenkins (which will allow us to
         # create images) we cannot test collection
         pass
+
+    def test_command_argument_missing(self, mgmt_root):
+        with pytest.raises(MissingRequiredCommandParameter):
+            mgmt_root.tm.sys.software.images.exec_cmd('install',
+                                                      name='fake.iso')
+
+    def test_invalid_command(self, mgmt_root):
+        with pytest.raises(InvalidCommand):
+            mgmt_root.tm.sys.software.images.exec_cmd('run')

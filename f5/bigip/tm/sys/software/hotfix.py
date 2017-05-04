@@ -27,18 +27,22 @@ REST Kind
     ``tm:sys:software:hotfix*``
 """
 
+from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 from f5.sdk_exception import UnsupportedOperation
 
 
-class Hotfix_s(Collection):
+class Hotfix_s(Collection, CommandExecutionMixin):
     """BIG-IP® system software hotfix collection."""
     def __init__(self, software):
         super(Hotfix_s, self).__init__(software)
         self._meta_data['allowed_lazy_attributes'] = [Hotfix]
         self._meta_data['attribute_registry'] = \
             {'tm:sys:software:hotfix:hotfixstate': Hotfix}
+        self._meta_data['allowed_commands'].append('install')
+        self._meta_data['required_command_parameters'].update((
+            'name', 'volume'))
 
 
 class Hotfix(Resource):
