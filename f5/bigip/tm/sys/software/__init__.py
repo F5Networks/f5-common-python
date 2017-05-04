@@ -31,6 +31,7 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.sys.software.hotfix import Hotfix_s
 from f5.bigip.tm.sys.software.image import Images
 from f5.bigip.tm.sys.software.update import Update
+from f5.bigip.tm.sys.software.volume import Volumes
 
 
 class Software(OrganizingCollection):
@@ -39,7 +40,8 @@ class Software(OrganizingCollection):
         self._meta_data['allowed_lazy_attributes'] = [
             Hotfix_s,
             Images,
-            Update
+            Update,
+            Volumes
         ]
 
     def __getattribute__(self, name):
