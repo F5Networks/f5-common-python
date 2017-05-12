@@ -106,7 +106,7 @@ self-orchestrate the necessary actions to retrieve the dependencie's
 requirements for installation.  It does depend on yum to retrieve subsquent
 dependencies.
     """
-    cmd = "yum install -y %s"
+    install_cmd = "yum install -y %s"
 
     def __init__(self, req):
         match = dep_match_re.search(str(req))
@@ -163,9 +163,9 @@ object creation.  This requires running commands at the command prompt.
             else self.name
         name = 'python-' + name if 'python-' not in name and \
             '.rpm' not in name else name
-        results, status = runCommand(self.cmd % name)
+        results, status = runCommand(self.install_cmd % name)
         if status:
-            raise InstallError(self.cmd % name, str(self.req),
+            raise InstallError(self.install_cmd % name, str(self.req),
                                msg="Unable to install dep",
                                frame=gfi(cf()), errno=errno.ESPIPE)
 
@@ -181,6 +181,7 @@ The F5 packages often require further dependencies; thus, there are further
 actions to perform for its automated installation.
     """
     cmd = "rpm -qRp %s"
+    install_cmd = "rpm -i %s"
 
     def __init__(self, req):
         super(F5Dependency, self).__init__(req)
@@ -253,15 +254,15 @@ and the output is redacte to an empty string.
     """
     output = ""
     try:
-        p = subprocess.Popen(cmd.split(),
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        (output) = p.communicate()[0]
+        output = subprocess.check_output(cmd, shell=True)
     except OSError as e:
         print("Execution failed: [%s:%s] " %
               (cmd, os.listdir('/var/wdir')), str(e))
+    except subprocess.CalledProcessError as Error:
+        print("exceution failed: [{}]".format(Error))
+        return(output, errno.ESPIPE)
     else:
-        return (output, p.returncode)
+        return (output, 0)
     return ('', 99)
 
 
@@ -459,7 +460,9 @@ the InstallError exception for known scenarios where things may break.
 
     print("Installing Self - %s" % pkg_name)
     try:
-        runCommand('rpm -i %s' % tmp_pkg_name)
+        output, result = runCommand('rpm -i %s 2>&1' % tmp_pkg_name)
+        if not result == 0:
+            raise InstallError("Exit status was {}".format(result))
     except InstallError as error:
         print("Failed to get requirements for %s." % (pkg_name))
         return error
@@ -544,7 +547,14 @@ error.  Any other value indicates that an issue occurred.
     if error:
         sys.exit(error.errnum)
     else:
-        sys.exit(0)
+        # last attempt to detect an error:
+        cmd = "rpm -qa | grep {}".format(config['project'])
+        output, status = runCommand(cmd)
+        if status == 0:
+            print("Passed last check:\n{}".format(output))
+            sys.exit(0)
+        print("Failed last level of verification:\n{}".format(cmd))
+        sys.exit(29)
 
 
 if __name__ == '__main__':
