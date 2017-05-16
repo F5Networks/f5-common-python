@@ -27,18 +27,21 @@ REST Kind
     ``tm:sys:software:volume*``
 """
 
+from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 from f5.sdk_exception import UnsupportedOperation
 
 
-class Volumes(Collection):
+class Volumes(Collection, CommandExecutionMixin):
     """BIG-IP® system software Volume collection."""
     def __init__(self, software):
         super(Volumes, self).__init__(software)
         self._meta_data['allowed_lazy_attributes'] = [Volume]
         self._meta_data['attribute_registry'] = \
             {'tm:sys:software:volume:volumestate': Volume}
+        self._meta_data['allowed_commands'].append('reboot')
+        self._meta_data['required_command_parameters'].update(('volume',))
 
 
 class Volume(Resource):
