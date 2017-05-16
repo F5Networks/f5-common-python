@@ -18,6 +18,9 @@ import pytest
 
 
 from f5.bigip.tm.sys.software.volume import Volume
+from f5.bigip.tm.sys.software.volume import Volumes
+from f5.sdk_exception import InvalidCommand
+from f5.sdk_exception import MissingRequiredCommandParameter
 from f5.sdk_exception import UnsupportedOperation
 
 
@@ -25,6 +28,12 @@ from f5.sdk_exception import UnsupportedOperation
 def FakeVolume():
     fake_software = mock.MagicMock()
     return Volume(fake_software)
+
+
+@pytest.fixture
+def FakeVolumes():
+    fake_software = mock.MagicMock()
+    return Volumes(fake_software)
 
 
 def test_create_raises(FakeVolume):
@@ -43,3 +52,16 @@ def test_modify_raises(FakeVolume):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeVolume.modify()
     assert EIO.value.message == "Volume does not support the modify method."
+
+
+def test_no_command_param_raises(FakeVolumes):
+    with pytest.raises(MissingRequiredCommandParameter) as EIO:
+        FakeVolumes.exec_cmd('reboot')
+    assert EIO.value.message == "Missing required params: ['volume']"
+
+
+def test_invalid_command_raises(FakeVolumes):
+    with pytest.raises(InvalidCommand) as EIO:
+        FakeVolumes.exec_cmd('foobar')
+    assert EIO.value.message == "The command value foobar does not exist" \
+                                "Valid commands are ['reboot']"
