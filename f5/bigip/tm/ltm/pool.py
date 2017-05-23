@@ -214,7 +214,7 @@ class Members(Resource):
                       "'user-down'" % patch['state']
                 raise MemberStateModifyUnsupported(msg)
         if 'session' in patch:
-            if patch['session'] != 'user-enabled' and patch['state'] != \
+            if patch['session'] != 'user-enabled' and patch['session'] != \
                     'user-disabled':
                 msg = "The members resource does not support a modify with " \
                       "the value of the 'session' attribute as %s. " \
