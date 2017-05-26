@@ -219,6 +219,16 @@ class TestPoolMembersCollection(object):
         m2.session = m1.session
         m2.state = m1.state
 
+    def test_session_modify(self, request, bigip):
+        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+                                     'Common')
+        assert m1.session == 'user-enabled'
+        m1.modify(session='user-disabled')
+        m2 = pool.members_s.members.load(
+            name='192.168.15.15:80', partition='Common')
+        assert m2.session == 'user-disabled'
+        assert m1.session == m2.session
+
     def test_state_modify(self, request, bigip):
         m1, pool = setup_member_test(request, bigip, 'membertestpool1',
                                      'Common')
