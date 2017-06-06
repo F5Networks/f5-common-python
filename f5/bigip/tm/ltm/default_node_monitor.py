@@ -33,7 +33,7 @@ from f5.bigip.resource import UnnamedResource
 class Default_Node_Monitor(UnnamedResource):
     """BIG-IP® ltm default node monitor resource
 
-    The default node monitor object only supports load and update because it 
+    The default node monitor object only supports load and update because it
     is an unnamed resource.
 
     .. note::
