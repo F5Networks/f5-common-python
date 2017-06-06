@@ -31,6 +31,7 @@ REST Kind
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.ltm.auth import Auth
 from f5.bigip.tm.ltm.data_group import Data_Group
+from f5.bigip.tm.ltm.default_node_monitor import Default_Node_Monitor
 from f5.bigip.tm.ltm.ifile import Ifiles
 from f5.bigip.tm.ltm.monitor import Monitor
 from f5.bigip.tm.ltm.nat import Nats
@@ -55,6 +56,7 @@ class Ltm(OrganizingCollection):
         self._meta_data['allowed_lazy_attributes'] = [
             Auth,
             Data_Group,
+            Default_Node_Monitor,
             Ifiles,
             Monitor,
             Nats,
