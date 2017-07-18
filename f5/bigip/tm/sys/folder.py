@@ -15,13 +15,10 @@
 # limitations under the License.
 #
 
-"""BIG-IP® system folder (partition) module
+"""BIG-IP® system folder module
 
 REST URI
     ``http://localhost/mgmt/tm/sys/folder``
-
-GUI Path
-    ``System --> Users --> Partition List``
 
 REST Kind
     ``tm:sys:folder:*``

@@ -29,6 +29,7 @@ REST Kind
 
 
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.tm.auth.partition import Partitions
 from f5.bigip.tm.auth.password_policy import Password_Policy
 from f5.bigip.tm.auth.user import Users
 
@@ -37,6 +38,7 @@ class Auth(OrganizingCollection):
     def __init__(self, tm):
         super(Auth, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
+            Partitions,
             Password_Policy,
             Users
         ]
