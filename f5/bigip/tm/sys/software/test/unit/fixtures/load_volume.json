@@ -1,0 +1,25 @@
+{
+  "kind": "tm:sys:software:volume:volumestate",
+  "name": "HD1.1",
+  "fullPath": "HD1.1",
+  "generation": 39,
+  "selfLink": "https://localhost/mgmt/tm/sys/software/volume/HD1.1?ver=12.1.0",
+  "active": true,
+  "apiRawValues": {},
+  "basebuild": "0.0.1434",
+  "build": "1.0.1447",
+  "product": "BIG-IP",
+  "status": "complete",
+  "version": "12.1.0",
+  "media": [
+    {
+      "name": "HD1.1",
+      "defaultBootLocation": true,
+      "media": "hd",
+      "size": "default",
+      "nameReference": {
+        "link": "https://localhost/mgmt/tm/sys/software/volume/HD1.1?ver=12.1.0"
+      }
+    }
+  ]
+}

@@ -13,15 +13,39 @@
 # limitations under the License.
 #
 
+import json
 import mock
+import os
 import pytest
 
-
+from f5.bigip import ManagementRoot
 from f5.bigip.tm.sys.software.volume import Volume
 from f5.bigip.tm.sys.software.volume import Volumes
 from f5.sdk_exception import InvalidCommand
 from f5.sdk_exception import MissingRequiredCommandParameter
 from f5.sdk_exception import UnsupportedOperation
+
+
+fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures')
+fixture_data = {}
+
+
+def load_fixture(name):
+    path = os.path.join(fixture_path, name)
+
+    if path in fixture_data:
+        return fixture_data[path]
+
+    with open(path) as f:
+        data = f.read()
+
+    try:
+        data = json.loads(data)
+    except Exception:
+        pass
+
+    fixture_data[path] = data
+    return data
 
 
 @pytest.fixture
@@ -65,3 +89,35 @@ def test_invalid_command_raises(FakeVolumes):
         FakeVolumes.exec_cmd('foobar')
     assert EIO.value.message == "The command value foobar does not exist" \
                                 "Valid commands are ['reboot']"
+
+
+def test_load(responsivesessionfactory):
+    responsivesessionfactory(200, **load_fixture('load_volume.json'))
+    mr = ManagementRoot('192.168.1.1', 'admin', 'admin')
+    res = mr.tm.sys.software.volumes.volume.load(name='HD1.1')
+    assert res.kind == 'tm:sys:software:volume:volumestate'
+    assert res.name == 'HD1.1'
+    assert res.build == '1.0.1447'
+    assert res.version == '12.1.0'
+
+
+def test_delete(responsivesessionfactory):
+    responsivesessionfactory(200, **load_fixture('load_volume.json'))
+    mr = ManagementRoot('192.168.1.1', 'admin', 'admin')
+    res = mr.tm.sys.software.volumes.volume.load(name='HD1.1')
+    assert res.kind == 'tm:sys:software:volume:volumestate'
+    assert res.name == 'HD1.1'
+    assert res.build == '1.0.1447'
+    assert res.version == '12.1.0'
+    res.delete()
+    assert res.deleted is True
+
+
+def test_collection(responsivesessionfactory):
+    responsivesessionfactory(200, **load_fixture('load_volumes.json'))
+    mr = ManagementRoot('192.168.1.1', 'admin', 'admin')
+    resc = mr.tm.sys.software.volumes.get_collection()
+
+    assert isinstance(resc, list)
+    assert len(resc)
+    assert isinstance(resc[0], Volume)
