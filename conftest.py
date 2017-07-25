@@ -105,7 +105,6 @@ def responsivesessionfactory(monkeypatch):
     return _session_factory
 
 
-
 @pytest.fixture
 def fakeicontrolsession_v12(monkeypatch):
     class Response(object):
