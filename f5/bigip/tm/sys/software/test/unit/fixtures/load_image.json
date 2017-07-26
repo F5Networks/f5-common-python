@@ -1,0 +1,15 @@
+{
+  "kind": "tm:sys:software:image:imagestate",
+  "name": "BIGIP-12.1.0.0.0.1434.iso",
+  "fullPath": "BIGIP-12.1.0.0.0.1434.iso",
+  "generation": 43,
+  "selfLink": "https://localhost/mgmt/tm/sys/software/image/BIGIP-12.1.0.0.0.1434.iso?ver=12.1.0",
+  "build": "0.0.1434",
+  "buildDate": "Wed May 11 11 45 11 PDT 2016",
+  "checksum": "c2300ca7b630a0b46a9047a1bafe4922",
+  "fileSize": "1946 MB",
+  "lastModified": "Thu Sep 22 02:46:26 2016",
+  "product": "BIG-IP",
+  "verified": "yes",
+  "version": "12.1.0"
+}
