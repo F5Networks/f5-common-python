@@ -17,6 +17,7 @@ from distutils.version import LooseVersion
 
 import os
 import pytest
+import tempfile
 
 try:
     from StringIO import StringIO
@@ -47,6 +48,27 @@ def uploaded_file_madm(mgmt_root, upload_content):
 
     yield fake_name
     tpath_name = '{0}/{1}'.format(dpath, fake_name)
+    mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs=tpath_name)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '12.0.0'),
+    reason='This fixture requires >= 12.0.0.'
+)
+@pytest.fixture(scope='function')
+def uploaded_file_ucs(mgmt_root, upload_content):
+    dpath = '/var/local/ucs'
+    fh = tempfile.NamedTemporaryFile()
+    fh.write(upload_content)
+    fh.flush()
+
+    ftu = mgmt_root.shared.file_transfer.ucs_uploads
+    ftu.upload_file(fh.name)
+
+    base_name = os.path.basename(fh.name)
+    yield os.path.basename(base_name)
+    tpath_name = '{0}/{1}'.format(dpath, base_name)
     mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs=tpath_name)
 
 
@@ -96,6 +118,23 @@ class TestMadmFileTransfer(object):
         dest = '/tmp/{0}'.format(uploaded_file_madm)
         madm = mgmt_root.shared.file_transfer.madm
         madm.download_file(uploaded_file_madm, dest)
+        assert os.path.exists(dest)
+
+        fh = open(dest, 'r')
+        content = fh.read()
+        assert content == upload_content
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+        '12.0.0'),
+    reason='This fixture requires >= 12.0.0.'
+)
+class TestUcsFileTransfer(object):
+    def test_download(self, mgmt_root, uploaded_file_ucs, upload_content):
+        dest = '/tmp/{0}'.format(uploaded_file_ucs)
+        ucs = mgmt_root.shared.file_transfer.ucs_downloads
+        ucs.download_file(uploaded_file_ucs, dest)
         assert os.path.exists(dest)
 
         fh = open(dest, 'r')
