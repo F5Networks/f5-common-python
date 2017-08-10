@@ -21,7 +21,14 @@ try:
 except ImportError:
     from io import StringIO
 
+from distutils.version import LooseVersion
 from requests.exceptions import HTTPError
+
+pytestmark = pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release'))
+    < LooseVersion('12.0.0'),
+    reason='Needs v12 TMOS or greater to pass.'
+)
 
 
 @pytest.fixture(scope='function')
@@ -41,6 +48,15 @@ def pkg_task(mgmt_root, iapp_lx):
     task = collection.package_management_task.create(
         operation='INSTALL',
         packageFilePath='/var/config/rest/downloads/foo-iapp.rpm'
+    )
+    yield task
+
+
+@pytest.fixture(scope='function')
+def pkg_query_task(mgmt_root, iapp_lx):
+    collection = mgmt_root.shared.iapp.package_management_tasks_s
+    task = collection.package_management_task.create(
+        operation='QUERY'
     )
     yield task
 
@@ -88,3 +104,8 @@ class TestPackageManagementTasks(object):
         col = mgmt_root.shared.iapp.package_management_tasks_s.get_collection()
         assert isinstance(col, list)
         assert len(col) > 0
+
+    def test_create_query_task(self, pkg_query_task):
+        assert pkg_query_task.operation == "QUERY"
+        assert pkg_query_task.kind == \
+               'shared:iapp:package-management-tasks:iapppackagemanagementtaskstate'  # NOQA
