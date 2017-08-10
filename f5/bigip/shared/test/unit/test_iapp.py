@@ -45,6 +45,10 @@ class TestIapp(object):
         with pytest.raises(MissingRequiredCreationParameter):
             FakeIapp.create()
 
+    def test_create_no_package(self, FakeIapp):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeIapp.create(operation='INSTALL')
+
     def test_collection(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         t = b.shared.iapp.package_management_tasks_s
