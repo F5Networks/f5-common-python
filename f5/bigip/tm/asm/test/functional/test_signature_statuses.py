@@ -29,16 +29,16 @@ class TestSignatureStatuses(object):
     def test_load_no_object(self, mgmt_root):
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.signature_statuses_s.signature_status.load(
-                id='Lx3553-321')
+                id='Lx3553-321'
+            )
             assert err.response.status_code == 404
 
     def test_load(self, request, mgmt_root):
         hashid = get_sigstatid(request, mgmt_root)
-        sigstat = mgmt_root.tm.asm.signature_statuses_s.signature_status.load(
-            id=hashid)
+        sigstat = mgmt_root.tm.asm.signature_statuses_s.signature_status.load(id=hashid)
         kind = 'tm:asm:signature-statuses:signature-statusstate'
         baseuri = 'https://localhost/mgmt/tm/asm/signature-statuses/'
-        final_uri = baseuri+hashid
+        final_uri = baseuri + hashid
         assert sigstat.id == hashid
         assert sigstat.kind == kind
         assert sigstat.selfLink.startswith(final_uri)
@@ -46,13 +46,11 @@ class TestSignatureStatuses(object):
 
     def test_refresh(self, request, mgmt_root):
         hashid = get_sigstatid(request, mgmt_root)
-        sigstat = mgmt_root.tm.asm.signature_statuses_s.signature_status.load(
-            id=hashid)
-        sigstat2 = mgmt_root.tm.asm.signature_statuses_s.signature_status.load(
-            id=hashid)
+        sigstat = mgmt_root.tm.asm.signature_statuses_s.signature_status.load(id=hashid)
+        sigstat2 = mgmt_root.tm.asm.signature_statuses_s.signature_status.load(id=hashid)
         kind = 'tm:asm:signature-statuses:signature-statusstate'
         baseuri = 'https://localhost/mgmt/tm/asm/signature-statuses/'
-        final_uri = baseuri+hashid
+        final_uri = baseuri + hashid
         assert sigstat.id == hashid
         assert sigstat.kind == kind
         assert sigstat.selfLink.startswith(final_uri)
@@ -61,7 +59,7 @@ class TestSignatureStatuses(object):
         assert sigstat.kind == sigstat2.kind
         assert sigstat.selfLink == sigstat2.selfLink
 
-    def test_collection(self, request, mgmt_root):
+    def test_collection(self, mgmt_root):
         sc = mgmt_root.tm.asm.signature_statuses_s.get_collection()
         assert isinstance(sc, list)
         assert len(sc)

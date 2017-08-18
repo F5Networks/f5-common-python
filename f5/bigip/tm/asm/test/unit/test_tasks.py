@@ -24,6 +24,8 @@ from f5.bigip.tm.asm.tasks import Import_Vulnerabilities
 from f5.bigip.tm.asm.tasks import Update_Signature
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
+from f5.sdk_exception import UnsupportedTmosVersion
+
 
 import mock
 import pytest
@@ -87,16 +89,27 @@ def FakeImportVuln():
 
 
 class TestTasksOC(object):
-    def test_OC(self, fakeicontrolsession):
+    def test_OC_v11(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         t1 = b.tm.asm.tasks
         assert isinstance(t1, OrganizingCollection)
         assert hasattr(t1, 'check_signatures_s')
         assert hasattr(t1, 'export_signatures_s')
-        assert hasattr(t1, 'update_signatures_s')
         assert hasattr(t1, 'apply_policy_s')
         assert hasattr(t1, 'export_policy_s')
         assert hasattr(t1, 'import_policy_s')
+        assert not hasattr(t1, 'update_signatures_s')
+
+    def test_OC_v12(self, fakeicontrolsessionv12):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        t1 = b.tm.asm.tasks
+        assert isinstance(t1, OrganizingCollection)
+        assert hasattr(t1, 'check_signatures_s')
+        assert hasattr(t1, 'export_signatures_s')
+        assert hasattr(t1, 'apply_policy_s')
+        assert hasattr(t1, 'export_policy_s')
+        assert hasattr(t1, 'import_policy_s')
+        assert hasattr(t1, 'update_signatures_s')
 
 
 class TestCheckSignature(object):
@@ -154,7 +167,12 @@ class TestUpdateSignature(object):
         with pytest.raises(UnsupportedOperation):
             FakeUpdateSignature.modify()
 
-    def test_collection(self, fakeicontrolsession):
+    def test_collection_v11(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        with pytest.raises(UnsupportedTmosVersion):
+            b.tm.asm.tasks.update_signatures_s
+
+    def test_collection_v12(self, fakeicontrolsessionv12):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         t = b.tm.asm.tasks.update_signatures_s
         test_meta = t._meta_data['attribute_registry']

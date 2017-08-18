@@ -310,7 +310,6 @@ class PathElement(LazyAttributeMixin):
                 error_message = 'Requests Parameter %r collides with a load'\
                     ' parameter of the same name.' % param
                 raise RequestParamKwargCollision(error_message)
-
         # If we have an icontrol version we need to add 'ver' to params
         if self._meta_data['icontrol_version']:
             params = requests_params.pop('params', {})
@@ -523,6 +522,15 @@ class ResourceBase(PathElement, ToDictMixin):
         requests_params, update_uri, session, read_only = \
             self._prepare_put_or_patch(kwargs)
 
+        read_only_mutations = []
+        for attr in read_only:
+            if attr in kwargs:
+                read_only_mutations.append(attr)
+        if read_only_mutations:
+            msg = 'Attempted to mutate read-only attribute(s): %s' \
+                  % read_only_mutations
+            raise AttemptedMutationOfReadOnly(msg)
+
         # Get the current state of the object on BIG-IP® and check the
         # generation Use pop here because we don't want force in the data_dict
         force = self._check_force_arg(kwargs.pop('force', True))
@@ -601,6 +609,7 @@ class ResourceBase(PathElement, ToDictMixin):
         """wrapped by `refresh` override that in a subclass to customize"""
         requests_params = self._handle_requests_params(kwargs)
         refresh_session = self._meta_data['bigip']._meta_data['icr_session']
+
         if self._meta_data['uri'].endswith('/stats/'):
             # Slicing off the trailing slash here for Stats enpoints because
             # iWorkflow doesn't consider those `stats` URLs valid if they
@@ -610,6 +619,7 @@ class ResourceBase(PathElement, ToDictMixin):
             uri = self._meta_data['uri'][0:-1]
         else:
             uri = self._meta_data['uri']
+
         response = refresh_session.get(uri, **requests_params)
         self._local_update(response.json())
 

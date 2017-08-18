@@ -91,6 +91,7 @@ def main(args):
     else:
         print(version, releaseNumber, commit, branch)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', action="store_true")

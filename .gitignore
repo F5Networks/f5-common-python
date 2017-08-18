@@ -41,6 +41,7 @@ nosetests.xml
 htmlcov
 .cache
 test/*/logs/*
+__lock__
 
 # Translations
 *.mo

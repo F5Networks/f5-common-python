@@ -20,7 +20,7 @@ def test_shared(request, mgmt_root):
     assert s._meta_data['allowed_lazy_attributes'][0].__name__ == "Licensing"
     suri = s._meta_data['uri']
     assert suri.endswith('/mgmt/tm/shared/')
-    l = mgmt_root.tm.shared.licensing
-    assert isinstance(l._meta_data['container'], Shared)
-    luri = l._meta_data['uri']
+    lic = mgmt_root.tm.shared.licensing
+    assert isinstance(lic._meta_data['container'], Shared)
+    luri = lic._meta_data['uri']
     assert luri.endswith('/mgmt/tm/shared/licensing/')

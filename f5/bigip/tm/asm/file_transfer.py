@@ -32,7 +32,7 @@ class File_Transfer(OrganizingCollection):
         self._meta_data['allowed_lazy_attributes'] = [
             Uploads,
             Downloads,
-            ]
+        ]
 
 
 class Uploads(PathElement, AsmFileMixin):

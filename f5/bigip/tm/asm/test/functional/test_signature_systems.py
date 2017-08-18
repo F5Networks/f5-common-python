@@ -17,7 +17,7 @@ from f5.bigip.tm.asm.signature_systems import Signature_System
 
 
 class TestSignatureSystems(object):
-    def test_collection(self, request, mgmt_root):
+    def test_collection(self, mgmt_root):
         coll = mgmt_root.tm.asm.signature_systems_s.get_collection()
         assert coll
         assert coll[0] is not coll[1]
@@ -27,27 +27,23 @@ class TestSignatureSystems(object):
         assert coll[0].id != coll[1].id
         assert coll[0].name != coll[1].name
 
-    def test_load(self, request, mgmt_root):
+    def test_load(self, mgmt_root):
         coll = mgmt_root.tm.asm.signature_systems_s.get_collection()
         idhash1 = str(coll[0].id)
-        sig1 = mgmt_root.tm.asm.signature_systems_s.signature_system.load(
-            id=idhash1)
+        sig1 = mgmt_root.tm.asm.signature_systems_s.signature_system.load(id=idhash1)
         idhash2 = str(coll[1].id)
-        sig2 = mgmt_root.tm.asm.signature_systems_s.signature_system.load(
-            id=idhash2)
+        sig2 = mgmt_root.tm.asm.signature_systems_s.signature_system.load(id=idhash2)
         assert sig1.kind == 'tm:asm:signature-systems:signature-systemstate'
         assert sig2.kind == sig1.kind
         assert sig1.name != sig2.name
         assert sig1.id == coll[0].id
         assert sig2.id == coll[1].id
 
-    def test_refresh(self, request, mgmt_root):
+    def test_refresh(self, mgmt_root):
         coll = mgmt_root.tm.asm.signature_systems_s.get_collection()
         idhash1 = str(coll[0].id)
-        sig1 = mgmt_root.tm.asm.signature_systems_s.signature_system.load(
-            id=idhash1)
-        sig2 = mgmt_root.tm.asm.signature_systems_s.signature_system.load(
-            id=idhash1)
+        sig1 = mgmt_root.tm.asm.signature_systems_s.signature_system.load(id=idhash1)
+        sig2 = mgmt_root.tm.asm.signature_systems_s.signature_system.load(id=idhash1)
 
         assert sig1.kind == 'tm:asm:signature-systems:signature-systemstate'
         sig2.refresh()
