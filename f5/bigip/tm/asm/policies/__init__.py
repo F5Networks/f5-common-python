@@ -30,7 +30,7 @@ from icontrol.exceptions import iControlUnexpectedHTTPError
 # from . urls import Urls_s
 from . parameters import Parameters_s
 # from . data_guard import Data_Guard
-# from . blocking_settings import Blocking_Settings
+from . blocking_settings import Blocking_Settings
 # from . whitelist_ips import Whitelist_Ips_s
 # from . gwt_profiles import Gwt_Profiles_s
 # from . json_profiles import Json_Profiles_s
@@ -127,7 +127,7 @@ class Policy(AsmResource):
         #                'tm:asm:policies:general:generalstate': General
         #            })
 
-        #        self._set_attr_reg()
+        self._set_attr_reg()
 
     def _set_attr_reg(self):
         """Helper method.
@@ -143,10 +143,10 @@ class Policy(AsmResource):
         builderv12 = 'tm:asm:policies:policy-builder:policy-builderstate'
         if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
             attributes[v11kind] = Blocking_Settings
-            attributes[builderv11] = Policy_Builder
+            # attributes[builderv11] = Policy_Builder
         else:
             attributes[v12kind] = Blocking_Settings
-            attributes[builderv12] = Policy_Builder
+            # attributes[builderv12] = Policy_Builder
 
     def create(self, **kwargs):
         """Custom creation logic to handle edge cases

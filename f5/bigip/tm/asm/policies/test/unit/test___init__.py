@@ -74,17 +74,17 @@ class TestPolicy(object):
         assert Policy in test_meta2
         assert t._meta_data['object_has_stats'] is False
 
-#    def test_set_attr_reg_v11(self, fakeicontrolsession):
-#        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
-#        t1 = b.tm.asm.policies_s.policy
-#        v11kind = 'tm:asm:policies:blocking-settings'
-#        assert v11kind in t1._meta_data['attribute_registry'].keys()
+    def test_set_attr_reg_v11(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        t1 = b.tm.asm.policies_s.policy
+        v11kind = 'tm:asm:policies:blocking-settings'
+        assert v11kind in t1._meta_data['attribute_registry'].keys()
 
-#    def test_set_attr_reg_v12(self, fakeicontrolsession_v12):
-#        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
-#        t1 = b.tm.asm.policies_s.policy
-#        v12kind = 'tm:asm:policies:blocking-settings:blocking-settingcollectionstate'
-#        assert v12kind in t1._meta_data['attribute_registry'].keys()
+    def test_set_attr_reg_v12(self, fakeicontrolsession_v12):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        t1 = b.tm.asm.policies_s.policy
+        v12kind = 'tm:asm:policies:blocking-settings:blocking-settingcollectionstate'
+        assert v12kind in t1._meta_data['attribute_registry'].keys()
 
 
 class TestParameters_s(object):
