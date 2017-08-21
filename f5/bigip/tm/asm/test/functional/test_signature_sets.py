@@ -13,76 +13,43 @@
 # limitations under the License.
 #
 
-import copy
+import os
+import tempfile
 from f5.bigip.tm.asm.signature_sets import Signature_Set
 import pytest
 from requests.exceptions import HTTPError
-from six import iteritems
-
-
-def delete_sigset(mgmt_root, id):
-    try:
-        foo = mgmt_root.tm.asm.signature_sets_s.signature_set.load(id=id)
-    except HTTPError as err:
-        if err.response.status_code != 404:
-            raise
-        return
-    foo.delete()
-
-
-def create_sigset(request, mgmt_root, name):
-    def teardown():
-        delete_sigset(mgmt_root, sig.id)
-
-    sig = mgmt_root.tm.asm.signature_sets_s.signature_set.create(
-        name=name)
-    request.addfinalizer(teardown)
-    return sig
-
-
-def set_create_test(request, mgmt_root, id):
-    def teardown():
-        delete_sigset(mgmt_root, id=id)
-    request.addfinalizer(teardown)
 
 
 class TestSignatureSets(object):
-    def test_create_req_arg(self, request, mgmt_root):
-        sig = mgmt_root.tm.asm.signature_sets_s.signature_set.create(
-            name='fake_sig')
-        endpoint = str(sig.id)
+    def test_create_req_arg(self, sigset):
+        endpoint = str(sigset.id)
         base_uri = 'https://localhost/mgmt/tm/asm/signature-sets/'
         final_uri = base_uri + endpoint
-        assert sig.name == 'fake_sig'
-        assert sig.selfLink.startswith(final_uri)
-        assert sig.defaultBlock is True
-        assert sig.kind == 'tm:asm:signature-sets:signature-setstate'
-        delete_sigset(mgmt_root, sig.id)
+        assert sigset.selfLink.startswith(final_uri)
+        assert sigset.defaultBlock is True
+        assert sigset.kind == 'tm:asm:signature-sets:signature-setstate'
 
-    def test_create_optional_args(self, request, mgmt_root):
-        sig = mgmt_root.tm.asm.signature_sets_s.signature_set.create(
-            name='fake_sig', defaultBlock=False)
-        endpoint = str(sig.id)
+    def test_create_optional_args(self, sigset2):
+        endpoint = str(sigset2.id)
         base_uri = 'https://localhost/mgmt/tm/asm/signature-sets/'
         final_uri = base_uri + endpoint
-        assert sig.name == 'fake_sig'
-        assert sig.selfLink.startswith(final_uri)
-        assert sig.defaultBlock is False
-        assert sig.kind == 'tm:asm:signature-sets:signature-setstate'
-        delete_sigset(mgmt_root, sig.id)
+        assert sigset2.selfLink.startswith(final_uri)
+        assert sigset2.defaultBlock is False
+        assert sigset2.kind == 'tm:asm:signature-sets:signature-setstate'
 
-    def test_create_duplicate(self, request, mgmt_root):
-        create_sigset(request, mgmt_root, name='fake_sig')
+    def test_create_duplicate(self, mgmt_root):
+        file = tempfile.NamedTemporaryFile()
+        name = os.path.basename(file.name)
+        foo = mgmt_root.tm.asm.signature_sets_s.signature_set.create(name=name)
         with pytest.raises(HTTPError) as err:
-            mgmt_root.tm.asm.signature_sets_s.signature_set.create(
-                name='fake_sig')
+            mgmt_root.tm.asm.signature_sets_s.signature_set.create(name=name)
         assert err.value.response.status_code == 400
+        foo.delete()
 
-    def test_refresh(self, request, mgmt_root):
-        sig1 = create_sigset(request, mgmt_root, name='fake_sig')
+    def test_refresh(self, mgmt_root, sigset):
+        sig1 = sigset
         sig2 = mgmt_root.tm.asm.signature_sets_s.signature_set.load(id=sig1.id)
         assert sig1.id == sig2.id
-        assert sig1.name == sig2.name
         assert sig1.selfLink == sig2.selfLink
         assert sig1.defaultBlock is True
         assert sig2.defaultBlock is True
@@ -94,15 +61,13 @@ class TestSignatureSets(object):
 
     def test_load_no_object(self, mgmt_root):
         with pytest.raises(HTTPError) as err:
-            mgmt_root.tm.asm.signature_sets_s.signature_set.load(
-                id='Lx3553-321')
+            mgmt_root.tm.asm.signature_sets_s.signature_set.load(id='Lx3553-321')
         assert err.value.response.status_code == 404
 
-    def test_load(self, request, mgmt_root):
-        sig1 = create_sigset(request, mgmt_root, name='fake_sig')
+    def test_load(self, mgmt_root, sigset):
+        sig1 = sigset
         sig2 = mgmt_root.tm.asm.signature_sets_s.signature_set.load(id=sig1.id)
         assert sig1.id == sig2.id
-        assert sig1.name == sig2.name
         assert sig1.selfLink == sig2.selfLink
         assert sig1.defaultBlock == sig2.defaultBlock
         sig2.modify(defaultBlock=False)
@@ -112,46 +77,30 @@ class TestSignatureSets(object):
         assert not sig1.defaultBlock == sig2.defaultBlock
         sig1.refresh()
         assert sig1.id == sig2.id
-        assert sig1.name == sig2.name
         assert sig1.selfLink == sig2.selfLink
         assert sig1.defaultBlock == sig2.defaultBlock
 
-    def test_delete(self, request, mgmt_root):
+    def test_delete(self, mgmt_root):
+        file = tempfile.NamedTemporaryFile()
+        name = os.path.basename(file.name)
         sig = mgmt_root.tm.asm.signature_sets_s.signature_set.create(
-            name='fake_sig')
+            name=name
+        )
         hashid = str(sig.id)
         sig.delete()
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.asm.signature_sets_s.signature_set.load(id=hashid)
         assert err.value.response.status_code == 404
 
-    def test_modify(self, request, mgmt_root):
-        sig = create_sigset(request, mgmt_root, name='fake_sig')
-        meta_data = sig.__dict__.pop('_meta_data')
-        start_dict = copy.deepcopy(sig.__dict__)
-        sig.__dict__['_meta_data'] = meta_data
-        sig.modify(defaultBlock=False)
-        itm = 'defaultBlock'
-        for k, v in iteritems(sig.__dict__):
-            if k != itm:
-                start_dict[k] = sig.__dict__[k]
-                assert getattr(sig, k) == start_dict[k]
-            elif k == itm:
-                assert getattr(sig, itm) is False
-
-    def test_signature_set_collection(self, request, mgmt_root):
-        sig = mgmt_root.tm.asm.signature_sets_s.signature_set.create(
-            name='fake_sig')
-        endpoint = str(sig.id)
+    def test_signature_set_collection(self, mgmt_root, sigset):
+        endpoint = str(sigset.id)
         base_uri = 'https://localhost/mgmt/tm/asm/signature-sets/'
         final_uri = base_uri + endpoint
-        assert sig.name == 'fake_sig'
-        assert sig.selfLink.startswith(final_uri)
-        assert sig.defaultBlock is True
-        assert sig.kind == 'tm:asm:signature-sets:signature-setstate'
+        assert sigset.selfLink.startswith(final_uri)
+        assert sigset.defaultBlock is True
+        assert sigset.kind == 'tm:asm:signature-sets:signature-setstate'
 
         sc = mgmt_root.tm.asm.signature_sets_s.get_collection()
         assert isinstance(sc, list)
         assert len(sc)
         assert isinstance(sc[0], Signature_Set)
-        delete_sigset(mgmt_root, sig.id)

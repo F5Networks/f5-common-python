@@ -13,24 +13,22 @@
 #   limitations under the License.
 #
 
-import copy
-from six import iteritems
+import pytest
 
 
-def setup_sig_test(request, mgmt_root):
-    def teardown():
-        d.modify(updateInterval=interval)
-    request.addfinalizer(teardown)
+@pytest.fixture(scope='function')
+def setup_sig_test(mgmt_root):
     d = mgmt_root.tm.asm.signature_update.load()
     interval = d.updateInterval
-    return d, interval
+    yield d
+    d.modify(updateInterval=interval)
 
 
 class TestSignatureUpdate(object):
-    def test_RL(self, request, mgmt_root):
+    def test_RL(self, mgmt_root, setup_sig_test):
         # Load
         inter = 'monthly'
-        sig1, interval = setup_sig_test(request, mgmt_root)
+        sig1 = setup_sig_test
         sig2 = mgmt_root.tm.asm.signature_update.load()
         assert sig1.updateInterval == sig2.updateInterval
 
@@ -38,17 +36,5 @@ class TestSignatureUpdate(object):
         sig1.modify(updateInterval=inter)
         sig1.refresh()
         assert sig1.updateInterval != sig2.updateInterval
-        assert sig2.updateInterval == interval
         sig2.refresh()
         assert sig1.updateInterval == sig2.updateInterval
-
-    def test_modify(self, request, mgmt_root):
-        sig1, interval = setup_sig_test(request, mgmt_root)
-        original_dict = copy.copy(sig1.__dict__)
-        att = 'updateInterval'
-        sig1.modify(updateInterval='monthly')
-        for k, v in iteritems(original_dict):
-            if k != att:
-                original_dict[k] = sig1.__dict__[k]
-            elif k == att:
-                assert sig1.__dict__[k] == 'monthly'

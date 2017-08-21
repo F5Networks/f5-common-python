@@ -3,7 +3,7 @@
   <policy_version>
     <timestamp>2017-04-11T08:05:22Z</timestamp>
     <device_name>ltm4restlab.lab.local</device_name>
-    <policy_name>/Common/{{ fake_policy }}</policy_name>
+    <policy_name>/Common/fake_policy</policy_name>
     <last_change>Allowed Response Code 503 [add]: Response Code was set to 503.</last_change>
   </policy_version>
   <encoding>utf-8</encoding>

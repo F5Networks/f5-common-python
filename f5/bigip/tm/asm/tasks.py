@@ -46,7 +46,7 @@ class Tasks(OrganizingCollection):
             Import_Policy_s,
             Import_Vulnerabilities_s,
             Update_Signatures_s,
-            ]
+        ]
 
 
 class Apply_Policy_s(Collection):
@@ -122,10 +122,10 @@ class Import_Policy(AsmResource):
     """BIG-IP® ASM Import Policy Resource."""
     def __init__(self, import_policy_s):
         super(Import_Policy, self).__init__(import_policy_s)
-        self._meta_data['required_json_kind'] =\
-            'tm:asm:tasks:import-policy:import-policy-taskstate'
+        self._meta_data['required_json_kind'] = 'tm:asm:tasks:import-policy:import-policy-taskstate'
         self._meta_data['required_creation_parameters'] = {
-            'name'}
+            'name'
+        }
         self._meta_data['exclusive_attributes'] = ['filename', 'file']
         self._meta_data['minimum_additional_parameters'] = {'filename', 'file'}
 
@@ -197,10 +197,11 @@ class Update_Signatures_s(Collection):
     def __init__(self, tasks):
         super(Update_Signatures_s, self).__init__(tasks)
         self._meta_data['object_has_stats'] = False
+        self._meta_data['minimum_version'] = '12.0.0'
         self._meta_data['allowed_lazy_attributes'] = [Update_Signature]
         self._meta_data['attribute_registry'] = {
-            'tm:asm:tasks:update-signatures:update-signatures-taskstate':
-                Update_Signature}
+            'tm:asm:tasks:update-signatures:update-signatures-taskstate': Update_Signature
+        }
 
 
 class Update_Signature(AsmTaskResource):
@@ -211,8 +212,8 @@ class Update_Signature(AsmTaskResource):
     """
     def __init__(self, update_signatures_s):
         super(Update_Signature, self).__init__(update_signatures_s)
-        self._meta_data['required_json_kind'] =\
-            'tm:asm:tasks:update-signatures:update-signatures-taskstate'
+        self._meta_data['minimum_version'] = '12.0.0'
+        self._meta_data['required_json_kind'] = 'tm:asm:tasks:update-signatures:update-signatures-taskstate'
 
 
 class Import_Vulnerabilities_s(Collection):

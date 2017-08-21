@@ -49,6 +49,23 @@ def fakeicontrolsession(monkeypatch):
 
 
 @pytest.fixture
+def fakeicontrolsessionv12(monkeypatch):
+    class Response(object):
+
+        def json(self):
+            return {'selfLink': 'https://localhost/mgmt/tm/sys?ver=12.0.0'}
+
+    fakesessionclass = mock.create_autospec(iControlRESTSession, spec_set=True)
+    fakesessioninstance = mock.create_autospec(
+        iControlRESTSession('A', 'B'),
+        spec_set=True
+    )
+    fakesessioninstance.get = mock.MagicMock(return_value=Response())
+    fakesessionclass.return_value = fakesessioninstance
+    monkeypatch.setattr('f5.bigip.iControlRESTSession', fakesessionclass)
+
+
+@pytest.fixture
 def fakeicontrolsessionfactory(monkeypatch):
     class Response(object):
         def __init__(self, **json_keys):

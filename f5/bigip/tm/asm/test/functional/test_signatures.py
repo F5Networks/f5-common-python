@@ -13,25 +13,17 @@
 # limitations under the License.
 #
 
-import copy
+import fcntl
+import os
+import tempfile
+import time
 from f5.bigip.tm.asm.signatures import Signature
 import pytest
 from requests.exceptions import HTTPError
-from six import iteritems
 
 
-def delete_signature_item(request, mgmt_root, id):
-    try:
-        foo = mgmt_root.tm.asm.signatures_s.signature.load(
-            id=id)
-    except HTTPError as err:
-        if err.response.status_code != 404:
-            raise
-        return
-    foo.delete()
-
-
-def get_atckid(request, mgmt_root):
+@pytest.fixture(scope='function')
+def attack_id(mgmt_root):
     atckcoll = mgmt_root.tm.asm.attack_types_s.get_collection()
     # We obtain the ID for the resource to test and return the hashed id
     hashid = str(atckcoll[0].id)
@@ -39,56 +31,73 @@ def get_atckid(request, mgmt_root):
     return atck.selfLink
 
 
-def set_sig_test(request, mgmt_root, name, rule, atck, **kwargs):
-    def teardown():
-        delete_signature_item(request, mgmt_root, sig1.id)
-    sig1 = \
-        mgmt_root.tm.asm.signatures_s.signature.create(
-            name=name, rule=rule, attackTypeReference=atck, **kwargs)
-    request.addfinalizer(teardown)
-    return sig1
+@pytest.fixture(scope='function')
+def sig_test(mgmt_root, attack_id):
+    f = open('__lock__', 'w')
+    while True:
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            break
+        except IOError:
+            time.sleep(1)
+
+    file = tempfile.NamedTemporaryFile()
+    name = os.path.basename(file.name)
+    sig1 = mgmt_root.tm.asm.signatures_s.signature.create(
+        name=name,
+        rule="content:\"ABC\"; depth:10;",
+        attackTypeReference={
+            'link': attack_id
+        }
+    )
+    yield sig1
+    sig1.delete()
+    fcntl.flock(f, fcntl.LOCK_UN | fcntl.LOCK_NB)
+    f.close()
 
 
 class TestSignature(object):
-    def test_create_req_arg(self, request, mgmt_root):
-        rule = "content:\"ABC\"; depth:10;"
-        lnk = get_atckid(request, mgmt_root)
-        atck = {'link': lnk}
-        sig1 = \
-            mgmt_root.tm.asm.signatures_s.signature.create(
-                name='fake_sigs', rule=rule, attackTypeReference=atck)
+    def test_create_req_arg(self, attack_id, mgmt_root):
+        file = tempfile.NamedTemporaryFile()
+        name = os.path.basename(file.name)
+        sig1 = mgmt_root.tm.asm.signatures_s.signature.create(
+            name=name,
+            rule="content:\"ABC\"; depth:10;",
+            attackTypeReference={
+                'link': attack_id
+            }
+        )
         endpoint = str(sig1.id)
         base_uri = 'https://localhost/mgmt/tm/asm/signatures/'
-        final_uri = base_uri+endpoint
-        assert sig1.name == 'fake_sigs'
+        final_uri = base_uri + endpoint
+        assert sig1.name == name
         assert sig1.selfLink.startswith(final_uri)
         assert sig1.isUserDefined is True
         assert sig1.kind == 'tm:asm:signatures:signaturestate'
-        delete_signature_item(request, mgmt_root, endpoint)
+        sig1.delete()
 
-    def test_create_optional_args(self, request, mgmt_root):
-        rule = "content:\"ABC\"; depth:10;"
-        lnk = get_atckid(request, mgmt_root)
-        atck = {'link': lnk}
-        sig1 = \
-            mgmt_root.tm.asm.signatures_s.signature.create(
-                name='fake_sigs', rule=rule, attackTypeReference=atck,
-                signatureType='response')
+    def test_create_optional_args(self, attack_id, mgmt_root):
+        file = tempfile.NamedTemporaryFile()
+        name = os.path.basename(file.name)
+        sig1 = mgmt_root.tm.asm.signatures_s.signature.create(
+            name=name,
+            rule="content:\"ABC\"; depth:10;",
+            attackTypeReference={
+                'link': attack_id
+            },
+            signatureType='response'
+        )
         endpoint = str(sig1.id)
         base_uri = 'https://localhost/mgmt/tm/asm/signatures/'
-        final_uri = base_uri+endpoint
-        assert sig1.name == 'fake_sigs'
+        final_uri = base_uri + endpoint
         assert sig1.selfLink.startswith(final_uri)
         assert sig1.isUserDefined is True
         assert sig1.kind == 'tm:asm:signatures:signaturestate'
         assert sig1.signatureType == 'response'
-        delete_signature_item(request, mgmt_root, endpoint)
+        sig1.delete()
 
-    def test_refresh(self, request, mgmt_root):
-        rule = "content:\"ABC\"; depth:10;"
-        lnk = get_atckid(request, mgmt_root)
-        atck = {'link': lnk}
-        sig1 = set_sig_test(request, mgmt_root, 'fake_sigs', rule, atck)
+    def test_refresh(self, sig_test, mgmt_root):
+        sig1 = sig_test
         sig2 = mgmt_root.tm.asm.signatures_s.signature.load(id=sig1.id)
         assert sig1.name == sig2.name
         assert sig1.selfLink == sig2.selfLink
@@ -101,30 +110,20 @@ class TestSignature(object):
         sig1.refresh()
         assert sig1.signatureType == sig2.signatureType
 
-    def test_modify(self, request, mgmt_root):
-        rule = "content:\"ABC\"; depth:10;"
-        lnk = get_atckid(request, mgmt_root)
-        atck = {'link': lnk}
-        sig1 = set_sig_test(request, mgmt_root, 'fake_sigs', rule, atck)
-        original_dict = copy.copy(sig1.__dict__)
-        itm = 'signatureType'
-        sig1.modify(signatureType='response')
-        for k, v in iteritems(original_dict):
-            if k != itm:
-                original_dict[k] = sig1.__dict__[k]
-            elif k == itm:
-                assert sig1.__dict__[k] == 'response'
-
-    def test_delete(self, request, mgmt_root):
-        rule = "content:\"ABC\"; depth:10;"
-        lnk = get_atckid(request, mgmt_root)
-        atck = {'link': lnk}
+    def test_delete(self, attack_id, mgmt_root):
+        file = tempfile.NamedTemporaryFile()
+        name = os.path.basename(file.name)
         sig1 = mgmt_root.tm.asm.signatures_s.signature.create(
-            name='fake_sigs', rule=rule, attackTypeReference=atck)
-        idhash = str(sig1.id)
+            name=name,
+            rule="content:\"ABC\"; depth:10;",
+            attackTypeReference={
+                'link': attack_id
+            }
+        )
+        hash_id = str(sig1.id)
         sig1.delete()
         with pytest.raises(HTTPError) as err:
-            mgmt_root.tm.asm.signatures_s.signature.load(id=idhash)
+            mgmt_root.tm.asm.signatures_s.signature.load(id=hash_id)
         assert err.value.response.status_code == 404
 
     def test_load_no_object(self, mgmt_root):
@@ -132,15 +131,11 @@ class TestSignature(object):
             mgmt_root.tm.asm.signatures_s.signature.load(id='Lx3553-321')
         assert err.value.response.status_code == 404
 
-    def test_load(self, request, mgmt_root):
-        rule = "content:\"ABC\"; depth:10;"
-        lnk = get_atckid(request, mgmt_root)
-        atck = {'link': lnk}
-        sig1 = set_sig_test(request, mgmt_root, 'fake_sigs', rule, atck)
+    def test_load(self, mgmt_root, sig_test):
+        sig1 = sig_test
         endpoint = str(sig1.id)
         base_uri = 'https://localhost/mgmt/tm/asm/signatures/'
-        final_uri = base_uri+endpoint
-        assert sig1.name == 'fake_sigs'
+        final_uri = base_uri + endpoint
         assert sig1.selfLink.startswith(final_uri)
         assert sig1.isUserDefined is True
         assert sig1.kind == 'tm:asm:signatures:signaturestate'
@@ -153,12 +148,13 @@ class TestSignature(object):
 
 
 class TestSignaturesCollection(object):
-    def test_signature_collection(self, request, mgmt_root):
+    def test_signature_collection(self, sig_test, mgmt_root):
         # As ASM has predefined items, there is no need to create one
         # However this test might be an issue as the returned json is quite
         # large.
         sc = mgmt_root.tm.asm.signatures_s.get_collection(
-            requests_params={'params': '$top=2'})
+            requests_params={'params': '$top=2'}
+        )
         assert isinstance(sc, list)
         assert len(sc)
         assert isinstance(sc[0], Signature)
