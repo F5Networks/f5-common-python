@@ -93,15 +93,15 @@ def export_basic(mgmt_root):
     task.delete()
 
 
-# @pytest.fixture(scope='function')
-# def set_policy(mgmt_root):
-#     file = tempfile.NamedTemporaryFile()
-#     name = os.path.basename(file.name)
-#     pol1 = mgmt_root.tm.asm.policies_s.policy.create(
-#         name=name
-#     )
-#     pol1.vulnerability_assessment.modify(scannerType=SCAN)
-#     yield pol1.selfLink
+@pytest.fixture(scope='function')
+def set_policy(mgmt_root):
+    file = tempfile.NamedTemporaryFile()
+    name = os.path.basename(file.name)
+    pol1 = mgmt_root.tm.asm.policies_s.policy.create(
+        name=name
+    )
+    pol1.vulnerability_assessment.modify(scannerType=SCAN)
+    yield pol1.selfLink
 
 
 @pytest.fixture(scope='function')
@@ -186,28 +186,28 @@ def import_policy(mgmt_root):
     task.delete()
 
 
-# @pytest.fixture(scope='function')
-# def import_vuln(mgmt_root, set_policy):
-#     reference = {'link': set_policy}
-#     imports = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
-#     content = file_read()
-#     file = tempfile.NamedTemporaryFile()
-#     fh = open(file.name, 'w')
-#     fh.write(content)
-#     fh.close()
-#     mgmt_root.tm.asm.file_transfer.uploads.upload_file(file.name)
-#     task = imports.import_vulnerabilities.create(
-#         filename=file.name,
-#         policyReference=reference,
-#         importAllDomainNames=True
-#     )
-#     while True:
-#         task.refresh()
-#         if task.status in ['COMPLETED', 'FAILURE']:
-#             break
-#         time.sleep(1)
-#     yield task
-#     task.delete()
+@pytest.fixture(scope='function')
+def import_vuln(mgmt_root, set_policy):
+    reference = {'link': set_policy}
+    imports = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+    content = file_read()
+    file = tempfile.NamedTemporaryFile()
+    fh = open(file.name, 'w')
+    fh.write(content)
+    fh.close()
+    mgmt_root.tm.asm.file_transfer.uploads.upload_file(file.name)
+    task = imports.import_vulnerabilities.create(
+        filename=file.name,
+        policyReference=reference,
+        importAllDomainNames=True
+    )
+    while True:
+        task.refresh()
+        if task.status in ['COMPLETED', 'FAILURE']:
+            break
+        time.sleep(1)
+    yield task
+    task.delete()
 
 
 class TestApplyPolicy(object):
@@ -672,101 +672,101 @@ class TestUpdateSignature(object):
         assert isinstance(sc[0], Update_Signature)
 
 
-# @pytest.mark.skipif(
-#     LooseVersion(pytest.config.getoption('--release')) < LooseVersion('11.6.0'),
-#     reason='This collection is fully implemented on 11.6.0 or greater.'
-# )
-# class TestImportVulnerabilities(object):
-#     def test_modify_raises(self, mgmt_root):
-#         rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
-#         with pytest.raises(UnsupportedOperation):
-#             rc.import_vulnerabilities.modify()
-#
-#     def test_create_mandatory_arg_missing(self, mgmt_root, set_policy):
-#         reference = {'link': set_policy}
-#         rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
-#         content = file_read()
-#         file = tempfile.NamedTemporaryFile()
-#         fh = open(file.name, 'w')
-#         fh.write(content)
-#         fh.close()
-#         with pytest.raises(MissingRequiredCreationParameter) as err:
-#             rc.import_vulnerabilities.create(
-#                 filename=file.name,
-#                 policyReference=reference
-#             )
-#         assert 'This resource requires at least one of the' in str(err.value)
-#
-#     def test_create_req_arg(self, import_vuln):
-#         imp1 = import_vuln
-#         endpoint = str(imp1.id)
-#         base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-vulnerabilities/'
-#         final_uri = base_uri + endpoint
-#         assert imp1.selfLink.startswith(final_uri)
-#         assert imp1.status == 'COMPLETED'
-#         assert imp1.kind == 'tm:asm:tasks:import-vulnerabilities:import-vulnerabilities-taskstate'
-#         assert imp1.importAllDomainNames is True
-#
-#     def test_refresh(self, import_vuln, mgmt_root):
-#         rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
-#         imp1 = import_vuln
-#         imp2 = rc.import_vulnerabilities.load(id=imp1.id)
-#         assert imp1.selfLink == imp2.selfLink
-#         assert imp1.importAllDomainNames == imp2.importAllDomainNames
-#         imp1.refresh()
-#         assert imp1.selfLink == imp2.selfLink
-#         assert imp1.importAllDomainNames == imp2.importAllDomainNames
-#
-#     def test_load_no_object(self, mgmt_root):
-#         rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
-#         with pytest.raises(HTTPError) as err:
-#             rc.import_vulnerabilities.load(id='Lx3553-321')
-#         assert err.value.response.status_code == 404
-#
-#     def test_load(self, mgmt_root, import_vuln):
-#         rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
-#         imp1 = import_vuln
-#         imp2 = rc.import_vulnerabilities.load(id=imp1.id)
-#         assert imp1.selfLink == imp2.selfLink
-#         assert imp1.importAllDomainNames == imp2.importAllDomainNames
-#
-#     def test_delete(self, mgmt_root, set_policy):
-#         reference = {'link': set_policy}
-#         imports = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
-#         content = file_read()
-#         file = tempfile.NamedTemporaryFile()
-#         fh = open(file.name, 'w')
-#         fh.write(content)
-#         fh.close()
-#         mgmt_root.tm.asm.file_transfer.uploads.upload_file(file.name)
-#         task = imports.import_vulnerabilities.create(
-#             filename=file.name,
-#             policyReference=reference,
-#             importAllDomainNames=True
-#         )
-#         while True:
-#             task.refresh()
-#             if task.status in ['COMPLETED', 'FAILURE']:
-#                 break
-#             time.sleep(1)
-#         hashid = str(task.id)
-#         task.delete()
-#         rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
-#         with pytest.raises(HTTPError) as err:
-#             rc.import_vulnerabilities.load(id=hashid)
-#         assert err.value.response.status_code == 404
-#
-#     def test_import_vuln_collection(self, mgmt_root, import_vuln):
-#         imp1 = import_vuln
-#         endpoint = str(imp1.id)
-#         base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-vulnerabilities/'
-#         final_uri = base_uri + endpoint
-#         assert imp1.selfLink.startswith(final_uri)
-#         assert imp1.status == 'COMPLETED'
-#         assert imp1.kind == 'tm:asm:tasks:import-vulnerabilities:import-vulnerabilities-taskstate'
-#         assert imp1.importAllDomainNames is True
-#
-#         sc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s.get_collection()
-#         assert isinstance(sc, list)
-#         assert len(sc)
-#         assert isinstance(sc[0], Import_Vulnerabilities)
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('11.6.0'),
+    reason='This collection is fully implemented on 11.6.0 or greater.'
+)
+class TestImportVulnerabilities(object):
+    def test_modify_raises(self, mgmt_root):
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        with pytest.raises(UnsupportedOperation):
+            rc.import_vulnerabilities.modify()
+
+    def test_create_mandatory_arg_missing(self, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        content = file_read()
+        file = tempfile.NamedTemporaryFile()
+        fh = open(file.name, 'w')
+        fh.write(content)
+        fh.close()
+        with pytest.raises(MissingRequiredCreationParameter) as err:
+            rc.import_vulnerabilities.create(
+                filename=file.name,
+                policyReference=reference
+            )
+        assert 'This resource requires at least one of the' in str(err.value)
+
+    def test_create_req_arg(self, import_vuln):
+        imp1 = import_vuln
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-vulnerabilities/'
+        final_uri = base_uri + endpoint
+        assert imp1.selfLink.startswith(final_uri)
+        assert imp1.status == 'COMPLETED'
+        assert imp1.kind == 'tm:asm:tasks:import-vulnerabilities:import-vulnerabilities-taskstate'
+        assert imp1.importAllDomainNames is True
+
+    def test_refresh(self, import_vuln, mgmt_root):
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        imp1 = import_vuln
+        imp2 = rc.import_vulnerabilities.load(id=imp1.id)
+        assert imp1.selfLink == imp2.selfLink
+        assert imp1.importAllDomainNames == imp2.importAllDomainNames
+        imp1.refresh()
+        assert imp1.selfLink == imp2.selfLink
+        assert imp1.importAllDomainNames == imp2.importAllDomainNames
+
+    def test_load_no_object(self, mgmt_root):
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        with pytest.raises(HTTPError) as err:
+            rc.import_vulnerabilities.load(id='Lx3553-321')
+        assert err.value.response.status_code == 404
+
+    def test_load(self, mgmt_root, import_vuln):
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        imp1 = import_vuln
+        imp2 = rc.import_vulnerabilities.load(id=imp1.id)
+        assert imp1.selfLink == imp2.selfLink
+        assert imp1.importAllDomainNames == imp2.importAllDomainNames
+
+    def test_delete(self, mgmt_root, set_policy):
+        reference = {'link': set_policy}
+        imports = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        content = file_read()
+        file = tempfile.NamedTemporaryFile()
+        fh = open(file.name, 'w')
+        fh.write(content)
+        fh.close()
+        mgmt_root.tm.asm.file_transfer.uploads.upload_file(file.name)
+        task = imports.import_vulnerabilities.create(
+            filename=file.name,
+            policyReference=reference,
+            importAllDomainNames=True
+        )
+        while True:
+            task.refresh()
+            if task.status in ['COMPLETED', 'FAILURE']:
+                break
+            time.sleep(1)
+        hashid = str(task.id)
+        task.delete()
+        rc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s
+        with pytest.raises(HTTPError) as err:
+            rc.import_vulnerabilities.load(id=hashid)
+        assert err.value.response.status_code == 404
+
+    def test_import_vuln_collection(self, mgmt_root, import_vuln):
+        imp1 = import_vuln
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-vulnerabilities/'
+        final_uri = base_uri + endpoint
+        assert imp1.selfLink.startswith(final_uri)
+        assert imp1.status == 'COMPLETED'
+        assert imp1.kind == 'tm:asm:tasks:import-vulnerabilities:import-vulnerabilities-taskstate'
+        assert imp1.importAllDomainNames is True
+
+        sc = mgmt_root.tm.asm.tasks.import_vulnerabilities_s.get_collection()
+        assert isinstance(sc, list)
+        assert len(sc)
+        assert isinstance(sc[0], Import_Vulnerabilities)
