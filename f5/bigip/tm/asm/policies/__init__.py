@@ -41,7 +41,7 @@ from . parameters import Parameters_s
 # from . response_pages import Response_Pages_s
 # from . policy_builder import Policy_Builder
 # from . history_revisions import History_Revisions_s
-# from . vulnerability_assessment import Vulnerability_Assessment
+from . vulnerability_assessment import Vulnerability_Assessment
 # from . geolocation_enforcement import Geolocation_Enforcement
 # from . session_tracking import Session_Tracking
 # from . session_tracking_status import Session_Tracking_Statuses_s
@@ -97,7 +97,7 @@ class Policy(AsmResource):
             #            'tm:asm:policies:headers:headercollectionstate': Headers_s,
             #            'tm:asm:policies:response-pages:response-pagecollectionstate': Response_Pages_s,
             #            'tm:asm:policies:history-revisions:history-revisioncollectionstate': History_Revisions_s,
-            #            'tm:asm:policies:vulnerability-assessment:vulnerability-assessmentstate': Vulnerability_Assessment,
+            'tm:asm:policies:vulnerability-assessment:vulnerability-assessmentstate': Vulnerability_Assessment,
             #            'tm:asm:policies:data-guard:data-guardstate': Data_Guard,
             #            'tm:asm:policies:geolocation-enforcement:geolocation-enforcementstate': Geolocation_Enforcement,
             #            'tm:asm:policies:session-tracking:session-awareness-settingsstate': Session_Tracking,
