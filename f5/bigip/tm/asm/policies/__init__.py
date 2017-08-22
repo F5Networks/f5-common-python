@@ -62,7 +62,7 @@ from . vulnerability_assessment import Vulnerability_Assessment
 # from . suggestions import Suggestions_s
 # from . plain_text_profiles import Plain_Text_Profiles_s
 # from . websocket_urls import Websocket_Urls_s
-# from . general import General
+from . general import General
 
 
 class Policies_s(Collection):
@@ -121,11 +121,11 @@ class Policy(AsmResource):
             #            'tm:asm:policies:websocket-urls:websocket-urlcollectionstate': Websocket_Urls_s
         }
 
-        #        tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
-        #        if LooseVersion(tmos_v) >= LooseVersion('13.0.0'):
-        #            self._meta_data['attribute_registry'].update({
-        #                'tm:asm:policies:general:generalstate': General
-        #            })
+        tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
+        if LooseVersion(tmos_v) >= LooseVersion('13.0.0'):
+            self._meta_data['attribute_registry'].update({
+                'tm:asm:policies:general:generalstate': General
+            })
 
         self._set_attr_reg()
 
