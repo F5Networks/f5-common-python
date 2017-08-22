@@ -19,6 +19,9 @@ from f5.bigip.tm.asm.policies.parameters import Parameter
 from f5.bigip.tm.asm.policies.parameters import Parameters_s
 from f5.bigip.tm.asm.policies.parameters import ParametersCollection
 from f5.bigip.tm.asm.policies.parameters import ParametersResource
+from f5.bigip.tm.asm.policies.urls import Url
+from f5.bigip.tm.asm.policies.parameters import UrlParametersCollection
+from f5.bigip.tm.asm.policies.parameters import UrlParametersResource
 from f5.bigip.tm.asm.policies import Policy
 from f5.sdk_exception import MissingRequiredCreationParameter
 
@@ -26,6 +29,24 @@ from f5.sdk_exception import MissingRequiredCreationParameter
 import mock
 import pytest
 from six import iterkeys
+
+
+@pytest.fixture
+def FakeURL():
+    pol = mock.MagicMock()
+    url = Url(pol)
+    url._meta_data['uri'] = \
+        'https://192.168.1.1/mgmt/tm/asm/policies/' \
+        'Lx3553-321/urls/vIlmHUz1-CQx5yxDEuf0Rw'
+    return url
+
+
+@pytest.fixture
+def FakeUrlParameters():
+    fake_policy = mock.MagicMock()
+    fake_param = UrlParametersCollection(fake_policy)
+    fake_param._meta_data['bigip'].tmos_version = '11.6.0'
+    return fake_param
 
 
 @pytest.fixture
@@ -91,9 +112,9 @@ class TestParameters_s(object):
         param = Parameters_s(MakePolicy(fakeicontrolsession))
         assert isinstance(param, ParametersCollection)
 
-#    def test_urlcol_new(self, FakeURL):
-#        param = Parameters_s(FakeURL)
-#        assert isinstance(param, UrlParametersCollection)
+    def test_urlcol_new(self, FakeURL):
+        param = Parameters_s(FakeURL)
+        assert isinstance(param, UrlParametersCollection)
 
 
 class TestParameter(object):
@@ -101,6 +122,6 @@ class TestParameter(object):
         param = Parameter(FakePolicyParameters)
         assert isinstance(param, ParametersResource)
 
-#    def test_urlres_new(self, FakeUrlParameters):
-#        param = Parameter(FakeUrlParameters)
-#        assert isinstance(param, UrlParametersResource)
+    def test_urlres_new(self, FakeUrlParameters):
+        param = Parameter(FakeUrlParameters)
+        assert isinstance(param, UrlParametersResource)
