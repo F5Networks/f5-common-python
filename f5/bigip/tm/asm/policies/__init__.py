@@ -23,7 +23,7 @@ from f5.bigip.resource import Collection
 from icontrol.exceptions import iControlUnexpectedHTTPError
 
 
-# from . methods import Methods_s
+from . methods import Methods_s
 # from . filetypes import Filetypes_s
 # from . cookies import Cookies_s
 # from . host_names import Host_Names_s
@@ -82,7 +82,7 @@ class Policy(AsmResource):
         super(Policy, self).__init__(policies_s)
         self._meta_data['required_json_kind'] = 'tm:asm:policies:policystate'
         self._meta_data['attribute_registry'] = {
-            #            'tm:asm:policies:methods:methodcollectionstate': Methods_s,
+            'tm:asm:policies:methods:methodcollectionstate': Methods_s,
             #            'tm:asm:policies:filetypes:filetypecollectionstate': Filetypes_s,
             #            'tm:asm:policies:cookies:cookiecollectionstate': Cookies_s,
             #            'tm:asm:policies:host-names:host-namecollectionstate': Host_Names_s,
