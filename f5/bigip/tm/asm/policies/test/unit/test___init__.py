@@ -21,7 +21,6 @@ from f5.bigip.tm.asm.policies.parameters import ParametersCollection
 from f5.bigip.tm.asm.policies.parameters import ParametersResource
 from f5.bigip.tm.asm.policies import Policy
 from f5.sdk_exception import MissingRequiredCreationParameter
-# from f5.sdk_exception import UnsupportedOperation
 
 
 import mock
