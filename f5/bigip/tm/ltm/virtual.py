@@ -58,6 +58,28 @@ class Virtual(Resource):
             {'tm:ltm:virtual:profiles:profilescollectionstate': Profiles_s,
              'tm:ltm:virtual:policies:policiescollectionstate': Policies_s}
 
+    def load(self, **kwargs):
+        result = self._load(**kwargs)
+        if not hasattr(result, 'rules'):
+            result.__dict__.update({'rules': []})
+        return result
+
+    def create(self, **kwargs):
+        result = self._create(**kwargs)
+        if not hasattr(result, 'rules'):
+            result.__dict__.update({'rules': []})
+        return result
+
+    def update(self, **kwargs):
+        result = self._update(**kwargs)
+        if not hasattr(result, 'rules'):
+            self.__dict__.update({'rules': []})
+
+    def modify(self, **kwargs):
+        result = self._modify(**kwargs)
+        if not hasattr(result, 'rules'):
+            self.__dict__.update({'rules': []})
+
 
 class Profiles(Resource):
     """BIG-IP® LTM profile resource"""

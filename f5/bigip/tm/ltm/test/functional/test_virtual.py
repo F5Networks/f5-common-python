@@ -24,18 +24,23 @@ TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
 @pytest.fixture
-def virtual_setup(request, mgmt_root):
+def basic_rule(mgmt_root):
+    rule1 = mgmt_root.tm.ltm.rules.rule.create(
+        name='foo',
+        partition='Common',
+        apiAnonymous=''
+    )
+    yield rule1
+    rule1.delete()
+
+
+@pytest.fixture
+def virtual_setup(mgmt_root):
     vs_kwargs = {'name': 'vs', 'partition': 'Common'}
     vs = mgmt_root.tm.ltm.virtuals.virtual
-
-    def teardown():
-        if vs.exists(**vs_kwargs):
-            v1 = vs.load(**vs_kwargs)
-            v1.delete()
-    teardown()
-    request.addfinalizer(teardown)
     v1 = vs.create(profiles=['/Common/http'], **vs_kwargs)
-    return v1
+    yield v1
+    v1.delete()
 
 
 @pytest.fixture
@@ -108,6 +113,23 @@ class TestVirtual(object):
                 original_dict[k] = virtual1.__dict__[k]
             elif k == desc:
                 assert virtual1.__dict__[k] == 'Cool mod test'
+
+    def test_virtual_no_rules(self, virtual_setup, basic_rule):
+        assert len(virtual_setup.rules) == 0
+
+    def test_virtual_modify(self, virtual_setup, basic_rule):
+        virtual_setup.modify(rules=[basic_rule.name])
+        virtual_setup.refresh()
+        assert len(virtual_setup.rules) == 1
+        virtual_setup.modify(rules=[])
+        assert len(virtual_setup.rules) == 0
+
+    def test_virtual_update(self, virtual_setup, basic_rule):
+        virtual_setup.update(rules=[basic_rule.name])
+        virtual_setup.refresh()
+        assert len(virtual_setup.rules) == 1
+        virtual_setup.update(rules=[])
+        assert len(virtual_setup.rules) == 0
 
 
 class TestProfiles(object):
