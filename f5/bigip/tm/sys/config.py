@@ -38,6 +38,7 @@ class Config(UnnamedResource,
         self._meta_data['required_json_kind'] = \
             'tm:sys:config:configstate'
         self._meta_data['allowed_commands'].append('save')
+        self._meta_data['allowed_commands'].append('load')
 
     def update(self, **kwargs):
         '''Update is not supported for Config
