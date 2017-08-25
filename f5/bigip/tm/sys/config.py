@@ -48,3 +48,13 @@ class Config(UnnamedResource,
         raise UnsupportedMethod(
             "%s does not support the update method" % self.__class__.__name__
         )
+
+    def exec_cmd(self, command, **kwargs):
+        """Normal save and load only need the command.
+        To merge, just supply the merge and file arguments as kwargs like so:
+            exec_cmd('load', merge=True, file='/path/to/file.txt')"""
+
+        if command == 'load':
+            if kwargs:
+                kwargs = dict(options=[kwargs])
+        return self._exec_cmd(command, **kwargs)
