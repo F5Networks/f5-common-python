@@ -13,11 +13,17 @@
 # limitations under the License.
 #
 
+from distutils.version import LooseVersion
 from f5.sdk_exception import UnsupportedMethod
 from tempfile import NamedTemporaryFile
 
 import os
 import pytest
+
+if LooseVersion(pytest.config.getoption('--release')) >= LooseVersion('12.1.0'):
+    MERGEWHITELIST = True
+else:
+    MERGEWHITELIST = False
 
 
 class TestConfig(object):
@@ -37,8 +43,18 @@ class TestConfig(object):
         ntf_basename = os.path.basename(ntf.name)
         ntf.write('ltm pool mergepool { }')
         ntf.seek(0)
+
         # upload the file to BIG-IP
         mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
+
+        # update sys global settings to allow merge
+        # from /var/config/rest/downloads (12.1+)
+        if MERGEWHITELIST:
+            sysset = mgmt_root.tm.sys.global_settings.load()
+            orig_whitelist = str(sysset.fileWhitelistPathPrefix)
+            sysset.fileWhitelistPathPrefix = "".join(orig_whitelist + ' {/var/config/rest/downloads/}')
+            sysset.update()
+
         c = mgmt_root.tm.sys.config
         config_merge = c.exec_cmd('load',
                                   merge=True,
@@ -49,6 +65,10 @@ class TestConfig(object):
 
         p1 = mgmt_root.tm.ltm.pools.pool.load(name='mergepool')
         p1.delete()
+
+        if MERGEWHITELIST:
+            sysset.fileWhitelistPathPrefix = orig_whitelist
+            sysset.update()
 
     def test_update(self, mgmt_root):
         with pytest.raises(UnsupportedMethod) as ex:
