@@ -30,25 +30,25 @@ def FakeMgmtRoute():
 def test_create_no_args(FakeMgmtRoute):
     with pytest.raises(MissingRequiredCreationParameter) as EIO:
         FakeMgmtRoute.create()
-    assert "Missing required params:" in EIO.value.message
+    assert "Missing required params:" in str(EIO.value)
 
 
 def test_create_missing_name(FakeMgmtRoute):
     with pytest.raises(MissingRequiredCreationParameter) as EIO:
         FakeMgmtRoute.create(gateway='192.168.1.1', network='172.16.15.0/24')
-    assert EIO.value.message == "Missing required params: ['name']"
+    assert str(EIO.value) == "Missing required params: ['name']"
 
 
 def test_create_missing_network(FakeMgmtRoute):
     with pytest.raises(MissingRequiredCreationParameter) as EIO:
         FakeMgmtRoute.create(name='testnet', gateway='192.168.1.1')
-    assert EIO.value.message == "Missing required params: ['network']"
+    assert str(EIO.value) == "Missing required params: ['network']"
 
 
 def test_create_missing_gateway(FakeMgmtRoute):
     with pytest.raises(MissingRequiredCreationParameter) as EIO:
         FakeMgmtRoute.create(name='testnet', network='172.16.15.0/24')
-    assert EIO.value.message == "Missing required params: ['gateway']"
+    assert str(EIO.value) == "Missing required params: ['gateway']"
 
 
 def test_create_mgmtroute(fakeicontrolsession):

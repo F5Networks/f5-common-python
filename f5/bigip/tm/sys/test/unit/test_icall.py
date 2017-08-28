@@ -66,19 +66,19 @@ class TestHandlers(object):
     def test_create_periodic_handler_no_args(self, FakeSysPeriodicHandler):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeSysPeriodicHandler.create()
-        assert 'name' in ex.value.message
+        assert 'name' in str(ex.value)
 
     def test_create_periodic_handler_missing_args(self,
                                                   FakeSysPeriodicHandler):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeSysPeriodicHandler.create(name='myperiodichandler',
                                                script='myscript')
-        assert 'interval' in ex.value.message
+        assert 'interval' in str(ex.value)
 
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeSysPeriodicHandler.create(name='myperiodichandler',
                                                interval='5')
-        assert 'script' in ex.value.message
+        assert 'script' in str(ex.value)
 
     def test_create_two_periodic_handler(self, fakeicontrolsession):
         b = ManagementRoot('10.0.2.15', 'admin', 'admin')
@@ -89,13 +89,13 @@ class TestHandlers(object):
     def test_create_perpetual_handler_no_args(self, FakeSysPerpetualHandler):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeSysPerpetualHandler.create()
-        assert 'name' in ex.value.message
+        assert 'name' in str(ex.value)
 
     def test_create_perpetual_handler_missing_args(self,
                                                    FakeSysPerpetualHandler):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeSysPerpetualHandler.create(name='myperpetualhandler')
-        assert 'script' in ex.value.message
+        assert 'script' in str(ex.value)
 
     def test_create_two_perpetual_handler(self, fakeicontrolsession):
         b = ManagementRoot('10.0.2.15', 'admin', 'admin')
@@ -106,13 +106,13 @@ class TestHandlers(object):
     def test_create_triggered_handler_no_args(self, FakeSysTriggeredHandler):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeSysTriggeredHandler.create()
-        assert 'name' in ex.value.message
+        assert 'name' in str(ex.value)
 
     def test_create_triggered_handler_missing_args(self,
                                                    FakeSysTriggeredHandler):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeSysTriggeredHandler.create(name='mytriggeredhandler')
-        assert 'script' in ex.value.message
+        assert 'script' in str(ex.value)
 
     def test_create_two_triggered_handler(self, fakeicontrolsession):
         b = ManagementRoot('10.0.2.15', 'admin', 'admin')
@@ -125,7 +125,7 @@ class TestScripts(object):
     def test_create_script_no_args(self, FakeSysScript):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeSysScript.create()
-        assert 'name' in ex.value.message
+        assert 'name' in str(ex.value)
 
     def test_create_two_script(self, fakeicontrolsession):
         b = ManagementRoot('10.0.2.15', 'admin', 'admin')
@@ -138,18 +138,18 @@ class TestIstatsTrigger(object):
     def test_create_istats_trigger_no_args(self, FakeSysIstatsTrigger):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeSysIstatsTrigger.create()
-        assert 'name' in ex.value.message
+        assert 'name' in str(ex.value)
 
     def test_create_istats_trigger_missing_args(self, FakeSysIstatsTrigger):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeSysIstatsTrigger.create(name='myistatstrigger',
                                         eventName='myevent')
-        assert 'istatsKey' in ex.value.message
+        assert 'istatsKey' in str(ex.value)
 
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeSysIstatsTrigger.create(name='myistatstrigger',
                                         istatsKey='my key')
-        assert 'eventName' in ex.value.message
+        assert 'eventName' in str(ex.value)
 
     def test_create_two_istats_trigger(self, fakeicontrolsession):
         b = ManagementRoot('10.0.2.15', 'admin', 'admin')

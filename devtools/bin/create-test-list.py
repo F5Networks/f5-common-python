@@ -58,7 +58,8 @@ def examine_non_python_rules(line):
 def determine_files_to_test(product, commit):
     results = []
     build_all = [
-        'setup.py', 'contexts.py', 'mixins.py', 'resource.py', 'f5sdk_plugins/fixtures.py'
+        'setup.py', 'f5/bigip/contexts.py', 'f5/bigip/mixins.py',
+        'f5/bigip/resource.py', 'f5sdk_plugins/fixtures.py'
     ]
     output_file = "pytest.{0}.jenkins.txt".format(product)
 
@@ -103,9 +104,23 @@ def determine_files_to_test(product, commit):
                 results.append(result)
     if results:
         results = set(results)
+        results = compress_testable_files(results)
         fh = open(output_file, 'w')
         fh.writelines("%s\n" % l for l in results)
         fh.close()
+
+
+def compress_testable_files(files):
+    lines = sorted(files)
+
+    for idx, item in enumerate(lines):
+        file, ext = os.path.splitext(item)
+        if not ext and not file.endswith('/'):
+            item += '/'
+        tmp = [x for x in lines if item in x and item != x]
+        for _ in tmp:
+            lines.remove(_)
+    return lines
 
 
 if __name__ == '__main__':

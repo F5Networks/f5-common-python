@@ -69,11 +69,11 @@ def DeviceGroupCreateNew(mock_sync, mock_poll, mock_add, BigIPs):
 def test_missing_required_parameter(BigIPs):
     with pytest.raises(MissingRequiredDeviceGroupParameter) as ex:
         DeviceGroup(devices=BigIPs)
-    assert 'device_group_name' in ex.value.message
+    assert 'device_group_name' in str(ex.value)
     with pytest.raises(MissingRequiredDeviceGroupParameter) as ex:
         DeviceGroup(
             devices=BigIPs, device_group_name='test', device_group_type='test')
-    assert 'device_group_partition' in ex.value.message
+    assert 'device_group_partition' in str(ex.value)
 
 
 def test_validate_unsupported_type(BigIPs):
@@ -81,7 +81,7 @@ def test_validate_unsupported_type(BigIPs):
         DeviceGroup(
             devices=BigIPs, device_group_name='test',
             device_group_type='wrong', device_group_partition='Common')
-    assert 'Unsupported cluster type was given: wrong' == ex.value.message
+    assert 'Unsupported cluster type was given: wrong' == str(ex.value)
 
 
 def test_validate_sync_only_not_device_trust_group(BigIPs):
@@ -90,7 +90,7 @@ def test_validate_sync_only_not_device_trust_group(BigIPs):
             devices=BigIPs, device_group_name='test',
             device_group_type='sync-only', device_group_partition='Common')
     assert "Management of sync-only device groups only supported for " \
-        "built-in device group named 'device_trust_group'" in ex.value.message
+        "built-in device group named 'device_trust_group'" in str(ex.value)
 
 
 def test_validate_type_mismatch(BigIPs):
@@ -104,7 +104,7 @@ def test_validate_type_mismatch(BigIPs):
                 device_group_type='sync-failover',
                 device_group_partition='part')
     assert "Device group type found: 'sync-only' does not match expected " \
-        "device group type: 'sync-failover'" == ex.value.message
+        "device group type: 'sync-failover'" == str(ex.value)
 
 
 def itest_scale_up_device_already_in_group(DeviceGroupCreateNew, BigIPs):
@@ -119,7 +119,7 @@ def itest_scale_up_device_already_in_group(DeviceGroupCreateNew, BigIPs):
     dg._get_device_names_in_group = mock_names_in_group
     with pytest.raises(DeviceGroupOperationNotSupported) as ex:
         dg.scale_up_by_one(mock_bigip)
-    assert "Device: 'test' is already in device group" == ex.value.message
+    assert "Device: 'test' is already in device group" == str(ex.value)
 
 
 def itest_scale_down_device_not_in_group(DeviceGroupCreateNew, BigIPs):
@@ -134,7 +134,7 @@ def itest_scale_down_device_not_in_group(DeviceGroupCreateNew, BigIPs):
     dg._get_device_names_in_group = mock_names_in_group
     with pytest.raises(DeviceGroupOperationNotSupported) as ex:
         dg.scale_down_by_one(mock_bigip)
-    assert "Device: 'test' is not in device group" == ex.value.message
+    assert "Device: 'test' is not in device group" == str(ex.value)
 
 
 def test_check_devices_active_licensed_unexpected(DeviceGroupCreateNew):
@@ -142,8 +142,7 @@ def test_check_devices_active_licensed_unexpected(DeviceGroupCreateNew):
     dg._get_devices_by_activation_state = mock.MagicMock(return_value=['one'])
     with pytest.raises(UnexpectedDeviceGroupState) as ex:
         dg._check_devices_active_licensed()
-    assert ex.value.message == \
-        "One or more devices not in 'Active' and licensed state."
+    assert str(ex.value) == "One or more devices not in 'Active' and licensed state."
 
 
 def test__ensure_device_active_unexpected(DeviceGroupCreateNew):
@@ -152,8 +151,7 @@ def test__ensure_device_active_unexpected(DeviceGroupCreateNew):
     dg.get_device_info = mock.MagicMock()
     with pytest.raises(UnexpectedDeviceGroupState) as ex:
         dg._ensure_device_active(mock_bigips[0])
-    assert ex.value.message == \
-        "A device in the cluster was not in the 'Active' state."
+    assert str(ex.value) == "A device in the cluster was not in the 'Active' state."
 
 
 def test__check_all_devices_in_sync_unexpected(DeviceGroupCreateNew):
@@ -162,8 +160,7 @@ def test__check_all_devices_in_sync_unexpected(DeviceGroupCreateNew):
         return_value=['one', 'two'])
     with pytest.raises(UnexpectedDeviceGroupState) as ex:
         dg._check_all_devices_in_sync()
-    assert "Expected all devices in group to have 'In Sync' status." == \
-        ex.value.message
+    assert "Expected all devices in group to have 'In Sync' status." == str(ex.value)
 
 
 @mock.patch(
@@ -200,4 +197,4 @@ def test_validate_given_devices_dont_match(mock_get_dg, mock_dev_map, BigIPs):
         DeviceGroup(
             devices=BigIPs, device_group_name='device_not_found',
             device_group_type='sync-failover', device_group_partition='Common')
-    assert 'Given devices does not match queried devices.' in ex.value.message
+    assert 'Given devices does not match queried devices.' in str(ex.value)

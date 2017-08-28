@@ -68,22 +68,15 @@ def rule(rulelst):
 class TestAddressList(object):
     def test_create_missing_mandatory_attr_raises(self, mgmt_root):
         ac = mgmt_root.tm.security.firewall.address_lists
-        error_message = "This resource requires at least one of the " \
-                        "mandatory additional " \
-                        "parameters to be provided: set(['geo', 'addresses', "\
-                        "'addressLists'])"
-        error_message_v12 = "This resource requires at least one of the " \
-                            "mandatory additional " \
-                            "parameters to be provided: set(['addressLists', "\
-                            "'geo', 'fqdns', 'addresses'])"
         with pytest.raises(MissingRequiredCreationParameter) as err:
             ac.address_list.create(name='fail', partition='Common')
 
-        if LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
-                '12.0.0'):
-            assert err.value.message == error_message
+        if LooseVersion(pytest.config.getoption('--release')) < LooseVersion('12.0.0'):
+            error = "This resource requires at least one of the mandatory additional parameters to be provided: addressLists, addresses, geo"
+            assert str(err.value) == error
         else:
-            assert err.value.message == error_message_v12
+            error = "This resource requires at least one of the mandatory additional parameters to be provided: addressLists, addresses, fqdns, geo"
+            assert str(err.value) == error
 
     def test_create_req_args(self, addrlst):
         r1 = addrlst
@@ -123,16 +116,6 @@ class TestAddressList(object):
         assert r1.selfLink == r2.selfLink
         assert hasattr(r1, 'description')
         assert r1.description == r2.description
-
-    def test_modify(self, addrlst):
-        original_dict = copy.copy(addrlst.__dict__)
-        itm = 'description'
-        addrlst.modify(description=DESC)
-        for k, v in iteritems(original_dict):
-            if k != itm:
-                original_dict[k] = addrlst.__dict__[k]
-            elif k == itm:
-                assert addrlst.__dict__[k] == DESC
 
     def test_delete(self, mgmt_root):
         rc = mgmt_root.tm.security.firewall.address_lists
@@ -186,14 +169,11 @@ class TestAddressList(object):
 class TestPortList(object):
     def test_create_missing_mandatory_attr_raises(self, mgmt_root):
         ac = mgmt_root.tm.security.firewall.port_lists
-        error_message = "This resource requires at least one of the " \
-                        "mandatory additional " \
-                        "parameters to be provided: set(['portLists', " \
-                        "'ports'])"
+        error_message = "This resource requires at least one of the mandatory additional parameters to be provided: portLists, ports"
 
         with pytest.raises(MissingRequiredCreationParameter) as err:
             ac.port_list.create(name='fail', partition='Common')
-        assert err.value.message == error_message
+        assert str(err.value) == error_message
 
     def test_create_req_args(self, portlst):
         r1 = portlst
@@ -233,16 +213,6 @@ class TestPortList(object):
         assert r1.selfLink == r2.selfLink
         assert hasattr(r1, 'description')
         assert r1.description == r2.description
-
-    def test_modify(self, portlst):
-        original_dict = copy.copy(portlst.__dict__)
-        itm = 'description'
-        portlst.modify(description=DESC)
-        for k, v in iteritems(original_dict):
-            if k != itm:
-                original_dict[k] = portlst.__dict__[k]
-            elif k == itm:
-                assert portlst.__dict__[k] == DESC
 
     def test_delete(self, mgmt_root):
         rc = mgmt_root.tm.security.firewall.port_lists
@@ -325,16 +295,6 @@ class TestRuleList(object):
         assert hasattr(r1, 'description')
         assert r1.description == r2.description
 
-    def test_modify(self, rulelst):
-        original_dict = copy.copy(rulelst.__dict__)
-        itm = 'description'
-        rulelst.modify(description=DESC)
-        for k, v in iteritems(original_dict):
-            if k != itm:
-                original_dict[k] = rulelst.__dict__[k]
-            elif k == itm:
-                assert rulelst.__dict__[k] == DESC
-
     def test_delete(self, mgmt_root):
         rc = mgmt_root.tm.security.firewall.rule_lists
         r1 = rc.rule_list.create(name='delete_me', partition='Common')
@@ -380,21 +340,17 @@ class TestRules(object):
     def test_mutually_exclusive_raises(self, rulelst):
         param_set = {'name': 'fake_rule', 'place-after': 'first',
                      'action': 'reject', 'place-before': 'last'}
-        ERR = 'Mutually exclusive arguments submitted. ' \
-              'The following arguments cannot be set together: ' \
-              '"place-after, place-before".'
+        ERR = 'Mutually exclusive arguments submitted. The following arguments cannot be set together: "place-after, place-before".'
         with pytest.raises(ExclusiveAttributesPresent) as err:
             rulelst.rules_s.rule.create(**param_set)
-        assert err.value.message == ERR
+        assert str(err.value) == ERR
 
     def test_mandatory_attribute_missing(self, rulelst):
         param_set = {'name': 'fake_rule', 'action': 'reject'}
-        ERR = "This resource requires at least one of the mandatory " \
-              "additional parameters to be provided: " \
-              "set(['place-after', 'place-before'])"
+        ERR = "This resource requires at least one of the mandatory additional parameters to be provided: place-after, place-before"
         with pytest.raises(MissingRequiredCreationParameter) as err:
             rulelst.rules_s.rule.create(**param_set)
-        assert err.value.message == ERR
+        assert str(err.value) == ERR
 
     def test_create_req_arg(self, rule):
         r1 = rule
@@ -431,17 +387,6 @@ class TestRules(object):
         assert r2.description == DESC
         r1.refresh()
         assert r1.description == r2.description
-
-    def test_modify(self, rule):
-        r1 = rule
-        original_dict = copy.deepcopy(r1.__dict__)
-        itm = 'description'
-        r1.modify(description=DESC)
-        for k, v in iteritems(original_dict):
-            if k != itm:
-                original_dict[k] = r1.__dict__[k]
-            elif k == itm:
-                assert r1.__dict__[k] == DESC
 
     @pytest.mark.skipif(
         LooseVersion(

@@ -29,10 +29,10 @@ def FakeSshd():
 def test_create_raises(FakeSshd):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeSshd.create()
-    assert EIO.value.message == "Sshd does not support the create method"
+    assert str(EIO.value) == "Sshd does not support the create method"
 
 
 def test_delete_raises(FakeSshd):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeSshd.delete()
-    assert EIO.value.message == "Sshd does not support the delete method"
+    assert str(EIO.value) == "Sshd does not support the delete method"

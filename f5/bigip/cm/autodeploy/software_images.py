@@ -28,6 +28,7 @@ class Software_Image_Uploads(PathElement, FileUploadMixin):
     """Software image upload resource."""
     def __init__(self, autodeploy):
         super(Software_Image_Uploads, self).__init__(autodeploy)
+        self._meta_data['minimum_version'] = '12.0.0'
 
     def upload_image(self, filepathname, **kwargs):
         filename = os.path.basename(filepathname)
@@ -41,6 +42,7 @@ class Software_Image_Downloads(PathElement, FileDownloadMixin):
     """Software image download resource."""
     def __init__(self, autodeploy):
         super(Software_Image_Downloads, self).__init__(autodeploy)
+        self._meta_data['minimum_version'] = '12.0.0'
 
     def download_image(self, src, dest, **kwargs):
         filename = os.path.basename(src)

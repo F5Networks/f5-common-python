@@ -30,12 +30,10 @@ def FakeDefaultNodeMonitor():
 def test_create_raises(FakeDefaultNodeMonitor):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeDefaultNodeMonitor.create()
-    assert EIO.value.message == "Default_Node_Monitor does not support the " \
-                                "create method"
+    assert str(EIO.value) == "Default_Node_Monitor does not support the create method"
 
 
 def test_delete_raises(FakeDefaultNodeMonitor):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeDefaultNodeMonitor.delete()
-    assert EIO.value.message == "Default_Node_Monitor does not support the " \
-                                "delete method"
+    assert str(EIO.value) == "Default_Node_Monitor does not support the delete method"

@@ -213,7 +213,7 @@ class CommandExecutionMixin(object):
         """Checking if the given command is allowed on a given endpoint."""
         cmds = self._meta_data['allowed_commands']
         if command not in self._meta_data['allowed_commands']:
-            error_message = "The command value {0} does not exist" \
+            error_message = "The command value {0} does not exist. " \
                             "Valid commands are {1}".format(command, cmds)
             raise InvalidCommand(error_message)
 

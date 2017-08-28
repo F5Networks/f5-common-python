@@ -61,7 +61,10 @@ class Signature(AsmResource):
         :param kwargs:
         :return:
         """
-        for x in range(0, 30):
+        ex = iControlUnexpectedHTTPError(
+            "Failed to delete the signature"
+        )
+        for _ in range(0, 30):
             try:
                 return self._create(**kwargs)
             except iControlUnexpectedHTTPError as ex:
@@ -69,6 +72,7 @@ class Signature(AsmResource):
                     continue
                 else:
                     raise
+        raise ex
 
     def delete(self, **kwargs):
         """Custom deletion logic to handle edge cases
@@ -85,7 +89,10 @@ class Signature(AsmResource):
         :param kwargs:
         :return:
         """
-        for x in range(0, 30):
+        ex = iControlUnexpectedHTTPError(
+            "Failed to delete the signature"
+        )
+        for _ in range(0, 30):
             try:
                 return self._delete(**kwargs)
             except iControlUnexpectedHTTPError as ex:
@@ -93,9 +100,13 @@ class Signature(AsmResource):
                     continue
                 else:
                     raise
+        raise ex
 
     def modify(self, **kwargs):
-        for x in range(0, 30):
+        ex = iControlUnexpectedHTTPError(
+            "Failed to modify the signature"
+        )
+        for _ in range(0, 30):
             try:
                 return self._modify(**kwargs)
             except iControlUnexpectedHTTPError as ex:
@@ -103,9 +114,13 @@ class Signature(AsmResource):
                     continue
                 else:
                     raise
+        raise ex
 
     def update(self, **kwargs):
-        for x in range(0, 30):
+        ex = iControlUnexpectedHTTPError(
+            "Failed to delete the signature"
+        )
+        for _ in range(0, 30):
             try:
                 return self._update(**kwargs)
             except iControlUnexpectedHTTPError as ex:
@@ -113,8 +128,21 @@ class Signature(AsmResource):
                     continue
                 else:
                     raise
+        raise ex
 
     def _check_exception(self, ex):
+        """Check for exceptions in action responses
+
+        In versions of ASM < v12, the REST API is quite unstable and therefore
+        needs some additional supporting retries to ensure that actions function
+        as expected. In particular versions 11.5.4 and 11.6.0 are affected.
+
+        This method handles checking for various exceptions and allowing the
+        given command to retry itself.
+
+        :param ex:
+        :return:
+        """
         retryable = [
             # iControlUnexpectedHTTPError: 500 Unexpected Error: Internal Server Error ...
             # {

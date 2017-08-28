@@ -197,19 +197,19 @@ class TestServiceCreate(object):
     def test_create_no_args(self, FakeService):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeService.create()
-        assert 'name' in ex.value.message
-        assert 'template' in ex.value.message
-        assert 'partition' in ex.value.message
+        assert 'name' in str(ex.value)
+        assert 'template' in str(ex.value)
+        assert 'partition' in str(ex.value)
 
     def test_create_no_template(self, FakeService):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeService.create(name='test_service')
-        assert 'template' in ex.value.message
+        assert 'template' in str(ex.value)
 
     def test_create_no_partition(self, FakeService):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeService.create(name='test_service', template='test_template')
-        assert 'partition' in ex.value.message
+        assert 'partition' in str(ex.value)
 
     def test_create_uri_collision(self, FakeService):
         FakeService._meta_data = {'uri': 'already_defined'}
@@ -217,7 +217,7 @@ class TestServiceCreate(object):
             FakeService.create(fakeuri='FAKEURI')
         assert "There was an attempt to assign a new uri to this resource, " \
             "the _meta_data['uri'] is already_defined and it should not be " \
-            "changed." in ex.value.message
+            "changed." in str(ex.value)
 
     def test_create_http_error_not_successful(self):
         with mock.patch(target='f5.bigip.resource.Resource._create') as \
@@ -295,14 +295,12 @@ class TestServiceLoad(object):
     def test_load_no_args(self, FakeService):
         with pytest.raises(MissingRequiredReadParameter) as ex:
             FakeService.load()
-        assert ex.value.message == \
-            "Missing required params: ['name', 'partition']"
+        assert str(ex.value) == "Missing required params: ['name', 'partition']"
 
     def test_load_no_partition(self, FakeService):
         with pytest.raises(MissingRequiredReadParameter) as ex:
             FakeService.load(name='test_service')
-        assert ex.value.message == \
-            "Missing required params: ['partition']"
+        assert str(ex.value) == "Missing required params: ['partition']"
 
 
 class TestServiceUpdate(object):
@@ -349,8 +347,8 @@ class TestTemplateCreate(object):
     def test_create_no_args(self, FakeTemplate):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeTemplate.create()
-        assert 'name' in ex.value.message
-        assert 'partition' in ex.value.message
+        assert 'name' in str(ex.value)
+        assert 'partition' in str(ex.value)
 
 
 class TestAplscript(object):
@@ -363,7 +361,7 @@ class TestAplscript(object):
     def test_create_no_args(self, FakeAplscript):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeAplscript.create()
-        assert 'name' in ex.value.message
+        assert 'name' in str(ex.value)
 
 
 class TestCustomstat(object):
@@ -376,7 +374,7 @@ class TestCustomstat(object):
     def test_create_no_args(self, FakeCustomstat):
         with pytest.raises(MissingRequiredCreationParameter) as ex:
             FakeCustomstat.create()
-        assert 'name' in ex.value.message
+        assert 'name' in str(ex.value)
 
 
 def test_setup_side_effect_in_fixture(SideEffectFixture):

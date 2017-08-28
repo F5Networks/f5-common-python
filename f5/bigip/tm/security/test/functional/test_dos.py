@@ -78,16 +78,6 @@ class TestDosProfiles(object):
         assert hasattr(r1, 'description')
         assert r1.description == r2.description
 
-    def test_modify(self, dos_profile):
-        original_dict = copy.copy(dos_profile.__dict__)
-        itm = 'description'
-        dos_profile.modify(description=DESC)
-        for k, v in iteritems(original_dict):
-            if k != itm:
-                original_dict[k] = dos_profile.__dict__[k]
-            elif k == itm:
-                assert dos_profile.__dict__[k] == DESC
-
     def test_delete(self, mgmt_root):
         r1 = mgmt_root.tm.security.dos.profiles.profile.create(
             name='delete_me', partition='Common')
@@ -166,17 +156,6 @@ class TestApplication(object):
         assert r1.triggerIrule != r2.triggerIrule
         r1.refresh()
         assert r1.triggerIrule == r2.triggerIrule
-
-    def test_modify(self, dos_profile):
-        r1 = dos_profile.applications.application.create(name='fake_app')
-        original_dict = copy.deepcopy(r1.__dict__)
-        itm = 'triggerIrule'
-        r1.modify(triggerIrule='enabled')
-        for k, v in iteritems(original_dict):
-            if k != itm:
-                original_dict[k] = r1.__dict__[k]
-            elif k == itm:
-                assert r1.__dict__[k] == 'enabled'
 
     @pytest.mark.skipif(
         LooseVersion(
@@ -299,17 +278,6 @@ class TestDosNetwork(object):
         r1.refresh()
         assert r1.networkAttackVector == r2.networkAttackVector
 
-    def test_modify(self, dos_profile):
-        r1 = dos_profile.dos_networks.dos_network.create(name='fake_app')
-        original_dict = copy.deepcopy(r1.__dict__)
-        itm = 'networkAttackVector'
-        r1.modify(networkAttackVector=ATCK)
-        for k, v in iteritems(original_dict):
-            if k != itm:
-                original_dict[k] = r1.__dict__[k]
-            elif k == itm:
-                assert r1.__dict__[k] == ATCK
-
     @pytest.mark.skipif(
         LooseVersion(
             pytest.config.getoption('--release')
@@ -430,17 +398,6 @@ class TestProtocolDns(object):
         r1.refresh()
         assert r1.protErrAttackDetection == r2.protErrAttackDetection
 
-    def test_modify(self, dos_profile):
-        r1 = dos_profile.protocol_dns_s.protocol_dns.create(name='fake_app')
-        original_dict = copy.deepcopy(r1.__dict__)
-        itm = 'protErrAttackDetection'
-        r1.modify(protErrAttackDetection='enabled')
-        for k, v in iteritems(original_dict):
-            if k != itm:
-                original_dict[k] = r1.__dict__[k]
-            elif k == itm:
-                assert r1.__dict__[k] == 'enabled'
-
     @pytest.mark.skipif(
         LooseVersion(
             pytest.config.getoption('--release')
@@ -560,17 +517,6 @@ class TestProtocolSip(object):
         assert r1.protErrAttackDetection != r2.protErrAttackDetection
         r1.refresh()
         assert r1.protErrAttackDetection == r2.protErrAttackDetection
-
-    def test_modify(self, dos_profile):
-        r1 = dos_profile.protocol_sips.protocol_sip.create(name='fake_app')
-        original_dict = copy.deepcopy(r1.__dict__)
-        itm = 'protErrAttackDetection'
-        r1.modify(protErrAttackDetection='enabled')
-        for k, v in iteritems(original_dict):
-            if k != itm:
-                original_dict[k] = r1.__dict__[k]
-            elif k == itm:
-                assert r1.__dict__[k] == 'enabled'
 
     @pytest.mark.skipif(
         LooseVersion(

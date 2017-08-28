@@ -15,7 +15,7 @@
 #   limitations under the License.
 #
 
-"""BIG-IP® system syslog module
+"""BIG-IP® system management route module
 
 REST URI
     ``http://localhost/mgmt/tm/sys/management-route``
@@ -27,6 +27,7 @@ REST Kind
     ``tm:sys:management-route:management-routestate``
 """
 
+from distutils.version import LooseVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
@@ -48,3 +49,45 @@ class Management_Route(Resource):
             ('network', 'gateway'))
         self._meta_data['required_json_kind'] = \
             'tm:sys:management-route:management-routestate'
+
+    def update(self, **kwargs):
+        # Turns out that versions < 12 are incapable of sending the
+        # "network" param when modifying. So, to accommodate the ability
+        # to update devices in the standard way, we need to pop off the
+        # network value on anything < 12.
+        #
+        # Actual error is this
+        #
+        # '{
+        #   "code":400,
+        #   "message":"\\"network\\" may not be specified in the context
+        #             of the \\"modify\\" command. \\"network\\" may be
+        #             specified using the following commands: create, list",
+        #   "errorStack":[]
+        # }'
+        tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
+        if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
+            kwargs.pop('network', None)
+            self.__dict__.pop('network', None)
+        return self._update(**kwargs)
+
+    def modify(self, **kwargs):
+        # Turns out that versions < 12 are incapable of sending the
+        # "network" param when modifying. So, to accommodate the ability
+        # to update devices in the standard way, we need to pop off the
+        # network value on anything < 12.
+        #
+        # Actual error is this
+        #
+        # '{
+        #   "code":400,
+        #   "message":"\\"network\\" may not be specified in the context
+        #             of the \\"modify\\" command. \\"network\\" may be
+        #             specified using the following commands: create, list",
+        #   "errorStack":[]
+        # }'
+        tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
+        if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
+            kwargs.pop('network', None)
+            self.__dict__.pop('network', None)
+        return self._modify(**kwargs)

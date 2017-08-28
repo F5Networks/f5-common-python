@@ -34,4 +34,4 @@ class Test_OCSP_update(object):
         profile.useProxyServer = 'enabled'
         with pytest.raises(MissingUpdateParameter) as err:
             profile.update()
-        assert 'Missing proxyServerPool parameter value' in err.value.message
+        assert 'Missing proxyServerPool parameter value' in str(err.value)

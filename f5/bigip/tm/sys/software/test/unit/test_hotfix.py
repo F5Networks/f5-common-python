@@ -54,19 +54,19 @@ def FakeHotfix():
 def test_create_raises(FakeHotfix):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeHotfix.create()
-    assert EIO.value.message == "Hotfix does not support the create method."
+    assert str(EIO.value) == "Hotfix does not support the create method."
 
 
 def test_update_raises(FakeHotfix):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeHotfix.update()
-    assert EIO.value.message == "Hotfix does not support the update method."
+    assert str(EIO.value) == "Hotfix does not support the update method."
 
 
 def test_modify_raises(FakeHotfix):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeHotfix.modify()
-    assert EIO.value.message == "Hotfix does not support the modify method."
+    assert str(EIO.value) == "Hotfix does not support the modify method."
 
 
 def test_load(responsivesessionfactory):

@@ -89,7 +89,7 @@ def FakeImportVuln():
 
 
 class TestTasksOC(object):
-    def test_OC_v11(self, fakeicontrolsession):
+    def test_OC_v11_old_tmos_version(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         t1 = b.tm.asm.tasks
         assert isinstance(t1, OrganizingCollection)
@@ -98,7 +98,9 @@ class TestTasksOC(object):
         assert hasattr(t1, 'apply_policy_s')
         assert hasattr(t1, 'export_policy_s')
         assert hasattr(t1, 'import_policy_s')
-        assert not hasattr(t1, 'update_signatures_s')
+        with pytest.raises(UnsupportedTmosVersion) as ex:
+            assert getattr(t1, "update_signatures_s", None) is None
+        assert 'The minimum TMOS version' in str(ex.value)
 
     def test_OC_v12(self, fakeicontrolsessionv12):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
@@ -109,7 +111,7 @@ class TestTasksOC(object):
         assert hasattr(t1, 'apply_policy_s')
         assert hasattr(t1, 'export_policy_s')
         assert hasattr(t1, 'import_policy_s')
-        assert hasattr(t1, 'update_signatures_s')
+        assert getattr(t1, "update_signatures_s", None) is not None
 
 
 class TestCheckSignature(object):

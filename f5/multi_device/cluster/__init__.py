@@ -153,9 +153,14 @@ class ClusterManager(object):
         :param kwargs: dict -- keyword arguments for cluster manager
         '''
 
-        if hasattr(self, 'cluster'):
+        try:
+            cluster = getattr(self, "cluster", None)
+        except NoClusterToManage:
+            cluster = None
+        if cluster is not None:
             msg = 'The ClusterManager is already managing a cluster.'
             raise AlreadyManagingCluster(msg)
+
         self._check_device_number(kwargs['devices'])
         self.trust_domain.create(
             devices=kwargs['devices'],
