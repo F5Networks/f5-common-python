@@ -3,7 +3,7 @@
 # Test Requirements
 hacking==0.13.0
 mock==2.0.0
-pytest==3.0.5
+pytest==3.2.1
 pytest-cov>=2.2.1
 git+https://github.com/F5Networks/pytest-symbols.git
 python-coveralls==2.7.0
