@@ -63,6 +63,7 @@ def test_modify_addr(request, mgmt_root):
     mip1.modify(description='')
     assert hasattr(mip1, 'description') is False
 
+
 def test_update_addr(request, mgmt_root):
     name = '10.0.2.15/24'
     mip3 = mgmt_root.tm.sys.management_ips.management_ip.load(
