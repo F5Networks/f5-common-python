@@ -15,7 +15,7 @@
 #   limitations under the License.
 #
 
-"""BIG-IP® system syslog module
+"""BIG-IP® system management IP module
 
 REST URI
     ``http://localhost/mgmt/tm/sys/management-ip``
