@@ -14,6 +14,7 @@
 #
 
 import pytest
+from distutils.version import LooseVersion
 
 from f5.sdk_exception import MissingRequiredCreationParameter
 from icontrol.exceptions import iControlUnexpectedHTTPError
@@ -291,7 +292,6 @@ class Test_CULD_Periodic_Handler(object):
             request, mgmt_root, 'myhandler', 'Common')
         h2 = mgmt_root.tm.sys.icall.handler.periodics.periodic.load(
             name='myhandler', partition='Common')
-        assert h1.generation is not h2.generation
         assert h2.name == 'myhandler'
 
     def test_delete(self, request, mgmt_root):
@@ -303,6 +303,10 @@ class Test_CULD_Periodic_Handler(object):
                 name='myhandler', partition='Common')
         assert err.value.response.status_code == 404
 
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) < LooseVersion('12.0.0'),
+        reason='Needs v12.0.0 TMOS or greater to pass.'
+    )
     def test_update(self, request, mgmt_root):
         h1, s1 = setup_basic_periodic_handler_test(
             request, mgmt_root, 'myhandler', 'Common')
@@ -335,7 +339,6 @@ class Test_CULD_Perpetual_Handler(object):
             request, mgmt_root, 'myhandler', 'Common')
         h2 = mgmt_root.tm.sys.icall.handler.perpetuals.perpetual.load(
             name='myhandler', partition='Common')
-        assert h1.generation is not h2.generation
         assert h2.name == 'myhandler'
 
     def test_delete(self, request, mgmt_root):
@@ -379,7 +382,6 @@ class Test_CULD_Triggered_Handler(object):
             request, mgmt_root, 'myhandler', 'Common')
         h2 = mgmt_root.tm.sys.icall.handler.triggered_s.triggered.load(
             name='myhandler', partition='Common')
-        assert h1.generation is not h2.generation
         assert h2.name == 'myhandler'
 
     def test_delete(self, request, mgmt_root):
