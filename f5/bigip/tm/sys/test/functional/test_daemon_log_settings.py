@@ -13,6 +13,9 @@
 # limitations under the License.
 #
 
+import pytest
+from distutils.version import LooseVersion
+
 
 def setup_daemon_log_settings_clusterd_test(request, mgmt_root):
     def teardown():
@@ -103,6 +106,10 @@ class TestDaemon_Log_Settings(object):
         daemon2.refresh()
         assert daemon1.logLevel == daemon2.logLevel
 
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) < LooseVersion('11.6.0'),
+        reason='Needs v11.6.0 TMOS or greater to pass.'
+    )
     def test_icrd_RUL(self, request, mgmt_root):
         # Load
         daemon1 = setup_daemon_log_settings_icrd_test(request, mgmt_root)
