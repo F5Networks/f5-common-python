@@ -30,7 +30,7 @@ def test_missing_mask(request, mgmt_root):
     with pytest.raises(iControlUnexpectedHTTPError) as err:
         mgmt_root.tm.sys.management_ips.management_ip.create(
             name=name)
-    assert 'a netmask must be specified' in str(err.value.message)
+    assert 'a netmask must be specified' in str(err.value)
 
 
 def test_invalid_addr(request, mgmt_root):
@@ -38,7 +38,7 @@ def test_invalid_addr(request, mgmt_root):
     with pytest.raises(iControlUnexpectedHTTPError) as err:
         mgmt_root.tm.sys.management_ips.management_ip.create(
             name=name)
-    assert 'invalid address' in str(err.value.message)
+    assert 'invalid address' in str(err.value)
 
 
 def test_create_existing_addr(request, mgmt_root):
@@ -47,14 +47,14 @@ def test_create_existing_addr(request, mgmt_root):
         mgmt_root.tm.sys.management_ips.management_ip.create(
             name=name)
     assert 'The requested management IP (10.0.2.15) already exists.' in\
-           str(err.value.message)
+           str(err.value)
 
 
 def test_modify_addr(request, mgmt_root):
     name = '10.0.2.15/24'
     mip1 = mgmt_root.tm.sys.management_ips.management_ip.load(
         name=name)
-    assert hasattr(mip1, 'description') is False
+    assert hasattr(mip1, 'description') is True
     # Add a description and update
     mip1.modify(description='adding a description')
     # Assert description is now present
@@ -63,22 +63,26 @@ def test_modify_addr(request, mgmt_root):
     mip1.modify(description='')
     assert hasattr(mip1, 'description') is False
 
-
 def test_update_addr(request, mgmt_root):
     name = '10.0.2.15/24'
     mip3 = mgmt_root.tm.sys.management_ips.management_ip.load(
         name=name)
     mip3.name = '10.0.2.16/24'
+    mip3.description = "foo"
     mip3.update()
     # Prove name doesn't actually update
     assert mip3.name == '10.0.2.15/24'
-    # Shouldn't be a description currently
-    assert hasattr(mip3, 'description') is False
+    # Description should be 'configured-by-dhcp' in most cases
+    assert hasattr(mip3, 'description') is True
     # Add a description and update
     mip3.description = 'adding a description'
     mip3.update()
     # Assert description is now present
     assert mip3.description == 'adding a description'
     # Remove description
-    delattr(mip3, 'description')
+    mip3.description = ''
+    mip3.update()
+
+    # Set value back
+    mip3.description = 'description bar'
     mip3.update()
