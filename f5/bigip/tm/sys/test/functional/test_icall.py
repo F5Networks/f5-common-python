@@ -291,7 +291,6 @@ class Test_CULD_Periodic_Handler(object):
             request, mgmt_root, 'myhandler', 'Common')
         h2 = mgmt_root.tm.sys.icall.handler.periodics.periodic.load(
             name='myhandler', partition='Common')
-        assert h1.generation is not h2.generation
         assert h2.name == 'myhandler'
 
     def test_delete(self, request, mgmt_root):
@@ -335,7 +334,6 @@ class Test_CULD_Perpetual_Handler(object):
             request, mgmt_root, 'myhandler', 'Common')
         h2 = mgmt_root.tm.sys.icall.handler.perpetuals.perpetual.load(
             name='myhandler', partition='Common')
-        assert h1.generation is not h2.generation
         assert h2.name == 'myhandler'
 
     def test_delete(self, request, mgmt_root):
@@ -379,7 +377,6 @@ class Test_CULD_Triggered_Handler(object):
             request, mgmt_root, 'myhandler', 'Common')
         h2 = mgmt_root.tm.sys.icall.handler.triggered_s.triggered.load(
             name='myhandler', partition='Common')
-        assert h1.generation is not h2.generation
         assert h2.name == 'myhandler'
 
     def test_delete(self, request, mgmt_root):
