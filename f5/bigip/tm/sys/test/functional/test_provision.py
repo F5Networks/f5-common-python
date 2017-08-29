@@ -15,9 +15,9 @@
 
 
 class TestProvision(object):
-    def test_Provision(self, request, mgmt_root):
+    def test_Provision(self, mgmt_root):
         # Load
-        ltmprov = mgmt_root.sys.provision.ltm.load()
+        ltmprov = mgmt_root.tm.sys.provision.ltm.load()
         assert ltmprov.level == 'nominal'
         assert ltmprov.name == 'ltm'
 
