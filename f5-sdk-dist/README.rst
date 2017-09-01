@@ -1,9 +1,9 @@
-f5 Package Creation and Automation
+F5 Package Creation and Automation
 ==================================
 
 Introduction
 ------------
-You've gon the wrong way!  This directory and lower directories are not
+You've gone the wrong way!  This directory and lower directories are not
 actually used in the standard f5-sdk package except to install the .deb and
 .rpm packages.
 

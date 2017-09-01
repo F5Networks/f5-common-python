@@ -1,5 +1,8 @@
 language: python
-python: 2.7
+python:
+  - 2.7
+  - 3.5
+  - 3.6
 sudo: true
 env:
   global:
@@ -10,8 +13,6 @@ env:
     - PKG_RELEASE_1404=${DIST_REPO}/deb_dist/python-f5-sdk_${PKG_VERSION}-${PKG_RELEASE}_1404_all.deb
 services:
   - docker
-python:
-  - '2.7'
 before_install:
   - git config --global user.email "OpenStack_TravisCI@f5.com"
   - git config --global user.name "Travis F5 Openstack"
@@ -24,7 +25,7 @@ script:
   - tox -e flake
   - tox -e unit
   - python setup.py sdist
-  - ${DIST_REPO}/scripts/build_pkgs.py  # ubuntu;14.04,15.01 # basically <os>;<version> !! overwrites !!
+  - ${DIST_REPO}/build_pkgs.py  # ubuntu;14.04,15.01 # basically <os>;<version> !! overwrites !!
   - sudo chown -R travis:travis ${DIST_REPO}/rpms/build
   - sudo chown travis:travis ${DIST_REPO}/deb_dist/*.deb
 after_success:
@@ -56,6 +57,7 @@ deploy:
       repo: F5Networks/f5-common-python
       all_branches: true
       tags: true
+      python: 2.7
 
 notifications:
   slack:

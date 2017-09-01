@@ -35,15 +35,15 @@ import os
 import re
 import sys
 import traceback
-
-import build_expectations
-import build_pkgs
-
-from build_exceptions import TestError
 from collections import deque
 from collections import namedtuple
 from inspect import currentframe as cf
 from inspect import getframeinfo as gfi
+
+from . import build_expectations
+
+from . terminal import terminal
+from . build_exceptions import TestError
 
 # Globals:
 builds = build_expectations.Builds()
@@ -248,11 +248,11 @@ Outside:
         tst_cmd = "docker run --privileged --rm -v %s:/var/wdir %s %s" % \
             (wkg, container,
              re.sub('.+/([^\/]+-dist/.+)', '/var/wdir/\g<1>', pkg.pkg))
-        result = build_pkgs.terminal([build_cmd], multi_stmt=True)
+        result = terminal([build_cmd], multi_stmt=True)
         frame = None
         msg = ''
         if result.succeeded:
-            result = build_pkgs.terminal([tst_cmd], multi_stmt=True)
+            result = terminal([tst_cmd], multi_stmt=True)
             if result.succeeded:
                 print("Package: %s Test succeeded!" % pkg.pkg)
             else:

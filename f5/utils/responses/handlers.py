@@ -19,7 +19,9 @@
 
 
 """
-import urlparse
+
+from six.moves.urllib.parse import urlparse
+from six import iteritems
 
 
 class BaseHandler(object):
@@ -41,7 +43,7 @@ class Stats(BaseHandler):
     def _key_dot_replace(self, rdict):
         """Replace fullstops in returned keynames"""
         temp_dict = {}
-        for key, value in rdict.items():
+        for key, value in iteritems(rdict):
             if isinstance(value, dict):
                 value = self._key_dot_replace(value)
             temp_dict[key.replace('.', '_')] = value
@@ -53,7 +55,7 @@ class Stats(BaseHandler):
         as json format changed in v12.x
         """
         for x in self.rdict:
-            check = urlparse.urlparse(x)
+            check = urlparse(x)
             if check.scheme:
                 nested_dict = self.rdict[x]['nestedStats']
                 tmp_dict = nested_dict['entries']
