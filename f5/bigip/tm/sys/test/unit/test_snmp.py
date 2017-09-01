@@ -48,26 +48,22 @@ def FakeTrapUser():
 def test_create_raises(FakeSnmp):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeSnmp.create()
-    assert EIO.value.message == "Snmp does not support the create method"
+    assert str(EIO.value) == "Snmp does not support the create method"
 
 
 def test_delete_raises(FakeSnmp):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeSnmp.delete()
-    assert EIO.value.message == "Snmp does not support the delete method"
+    assert str(EIO.value) == "Snmp does not support the delete method"
 
 
 def test_update_user_raises(FakeSnmpUser):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeSnmpUser.update()
-    assert EIO.value.message == "Update() is unsupported for User on " \
-                                "version 12.1.0. " \
-                                "Utilize Modify() method instead"
+    assert str(EIO.value) == "Update() is unsupported for User on version 12.1.0. Utilize Modify() method instead"
 
 
 def test_update_trap_raises(FakeTrapUser):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeTrapUser.update()
-    assert EIO.value.message == "Update() is unsupported for Trap on " \
-                                "version 12.1.0. " \
-                                "Utilize Modify() method instead"
+    assert str(EIO.value) == "Update() is unsupported for Trap on version 12.1.0. Utilize Modify() method instead"

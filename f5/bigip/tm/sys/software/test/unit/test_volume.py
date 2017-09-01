@@ -63,32 +63,31 @@ def FakeVolumes():
 def test_create_raises(FakeVolume):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeVolume.create()
-    assert EIO.value.message == "Volume does not support the create method."
+    assert str(EIO.value) == "Volume does not support the create method."
 
 
 def test_update_raises(FakeVolume):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeVolume.update()
-    assert EIO.value.message == "Volume does not support the update method."
+    assert str(EIO.value) == "Volume does not support the update method."
 
 
 def test_modify_raises(FakeVolume):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeVolume.modify()
-    assert EIO.value.message == "Volume does not support the modify method."
+    assert str(EIO.value) == "Volume does not support the modify method."
 
 
 def test_no_command_param_raises(FakeVolumes):
     with pytest.raises(MissingRequiredCommandParameter) as EIO:
         FakeVolumes.exec_cmd('reboot')
-    assert EIO.value.message == "Missing required params: ['volume']"
+    assert str(EIO.value) == "Missing required params: ['volume']"
 
 
 def test_invalid_command_raises(FakeVolumes):
     with pytest.raises(InvalidCommand) as EIO:
         FakeVolumes.exec_cmd('foobar')
-    assert EIO.value.message == "The command value foobar does not exist" \
-                                "Valid commands are ['reboot']"
+    assert str(EIO.value) == "The command value foobar does not exist. Valid commands are ['reboot']"
 
 
 def test_load(responsivesessionfactory):

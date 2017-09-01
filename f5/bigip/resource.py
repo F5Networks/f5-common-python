@@ -100,6 +100,7 @@ except ImportError:
 import copy
 import keyword
 import re
+import time
 import tokenize
 try:
     import urlparse
@@ -126,6 +127,7 @@ from f5.sdk_exception import UnsupportedOperation
 from f5.sdk_exception import URICreationCollision
 from icontrol.exceptions import iControlUnexpectedHTTPError
 from requests.exceptions import HTTPError
+from requests.exceptions import ConnectionError
 from six import iteritems
 from six import iterkeys
 from six import itervalues
@@ -571,18 +573,27 @@ class ResourceBase(PathElement, ToDictMixin):
         data_dict.update(kwargs)
         data_dict = self._prepare_request_json(data_dict)
 
-        # This is necessary as when we receive exception the returned object
-        # has its _meta_data stripped.
-
-        try:
-            response = session.put(update_uri, json=data_dict,
-                                   **requests_params)
-        except iControlUnexpectedHTTPError:
+        # Handles ConnectionAborted errors
+        #
+        # @see https://github.com/F5Networks/f5-ansible/issues/317
+        # @see https://github.com/requests/requests/issues/2364
+        for _ in range(0, 30):
+            try:
+                response = session.put(update_uri, json=data_dict, **requests_params)
+                self._meta_data = temp_meta
+                self._local_update(response.json())
+                break
+            except iControlUnexpectedHTTPError:
                 response = session.get(update_uri, **requests_params)
+                self._meta_data = temp_meta
+                self._local_update(response.json())
                 raise
-        finally:
-            self._meta_data = temp_meta
-            self._local_update(response.json())
+            except ConnectionError as ex:
+                if 'Connection aborted' in str(ex):
+                    time.sleep(1)
+                    continue
+                else:
+                    raise
 
     def update(self, **kwargs):
         """Update the configuration of the resource on the BIG-IP®.
@@ -710,7 +721,7 @@ class ResourceBase(PathElement, ToDictMixin):
 
     @property
     def attrs(self):
-        no_meta_dict = {k: v for k, v in self.__dict__.iteritems()
+        no_meta_dict = {k: v for k, v in iteritems(self.__dict__)
                         if k != '_meta_data'}
         return no_meta_dict
 
@@ -779,8 +790,7 @@ class Collection(ResourceBase):
                 kind = item['kind']
                 if kind in self._meta_data['attribute_registry']:
                     # If it has a kind, it must be registered.
-                    instance =\
-                        self._meta_data['attribute_registry'][kind](self)
+                    instance = self._meta_data['attribute_registry'][kind](self)
                     instance._local_update(item)
                     instance._activate_URI(instance.selfLink)
                     list_of_contents.append(instance)
@@ -872,7 +882,7 @@ class Resource(ResourceBase):
         """
 
         # netloc local alias
-        uri = urlparse.urlsplit(self._meta_data['bigip']._meta_data['uri'])
+        uri = urlparse.urlsplit(str(self._meta_data['bigip']._meta_data['uri']))
 
         # attrs local alias
         attribute_reg = self._meta_data.get('attribute_registry', {})
@@ -925,9 +935,10 @@ class Resource(ResourceBase):
         if rqset:
             kwarg_set = set(iterkeys(kwargs))
             if kwarg_set.isdisjoint(rqset):
+                args = sorted(rqset)
                 error_message = 'This resource requires at least one of the ' \
                                 'mandatory additional ' \
-                                'parameters to be provided: %s' % rqset
+                                'parameters to be provided: %s' % ', '.join(args)
                 raise MissingRequiredCreationParameter(error_message)
 
     def _create(self, **kwargs):
@@ -957,7 +968,8 @@ class Resource(ResourceBase):
         response = session.post(_create_uri, json=kwargs, **requests_params)
 
         # Make new instance of self
-        return self._produce_instance(response)
+        result = self._produce_instance(response)
+        return result
 
     def create(self, **kwargs):
         """Create the resource on the BIG-IP®.

@@ -17,16 +17,21 @@ from __future__ import print_function
 import mock
 import pytest
 
-from f5.bigip.cm.autodeploy.software_images import\
-    ImageFilesMustHaveDotISOExtension
+from distutils.version import LooseVersion
+from f5.bigip.cm.autodeploy.software_images import ImageFilesMustHaveDotISOExtension
 from f5.bigip import ManagementRoot
+
+
+pytestmark = pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('12.0.0'),
+    reason='Needs v12 TMOS or greater to pass.'
+)
 
 
 CHUNKSIZE = 20
 
 
-def test_software_image_uploads_80a(tmpdir, fakeicontrolsessionfactory):
-    fakeicontrolsessionfactory()
+def test_software_image_uploads_80a(tmpdir, fakeicontrolsessionv12):
     filepath = tmpdir.mkdir('testdir').join('eightya.iso')
     filepath.write(80*'a')
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
@@ -39,8 +44,7 @@ def test_software_image_uploads_80a(tmpdir, fakeicontrolsessionfactory):
         assert d == b'a'*CHUNKSIZE
 
 
-def test_software_image_uploads_70a(tmpdir, fakeicontrolsessionfactory):
-    fakeicontrolsessionfactory()
+def test_software_image_uploads_70a(tmpdir, fakeicontrolsessionv12):
     filepath = tmpdir.mkdir('testdir').join('seventya.iso')
     filepath.write(70*'a')
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
@@ -55,8 +59,7 @@ def test_software_image_uploads_70a(tmpdir, fakeicontrolsessionfactory):
     assert b'a'*10 == lchunk
 
 
-def test_non_ISO_extension(tmpdir, fakeicontrolsessionfactory):
-    fakeicontrolsessionfactory()
+def test_non_ISO_extension(tmpdir, fakeicontrolsessionv12):
     filepath = tmpdir.mkdir('testdir').join('wrong.name')
     mr = ManagementRoot('FAKENETLOC', 'FAKENAME', 'FAKEPASSWORD')
     sius = mr.cm.autodeploy.software_image_uploads

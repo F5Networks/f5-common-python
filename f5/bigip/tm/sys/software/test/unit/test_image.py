@@ -22,6 +22,7 @@ from f5.bigip import ManagementRoot
 from f5.bigip.tm.sys.software.image import Image
 from f5.sdk_exception import UnsupportedOperation
 
+
 fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures')
 fixture_data = {}
 
@@ -53,19 +54,19 @@ def FakeImage():
 def test_create_raises(FakeImage):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeImage.create()
-    assert EIO.value.message == "Image does not support the create method."
+    assert str(EIO.value) == "Image does not support the create method."
 
 
 def test_update_raises(FakeImage):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeImage.update()
-    assert EIO.value.message == "Image does not support the update method."
+    assert str(EIO.value) == "Image does not support the update method."
 
 
 def test_modify_raises(FakeImage):
     with pytest.raises(UnsupportedOperation) as EIO:
         FakeImage.modify()
-    assert EIO.value.message == "Image does not support the modify method."
+    assert str(EIO.value) == "Image does not support the modify method."
 
 
 def test_load(responsivesessionfactory):
@@ -90,6 +91,7 @@ def test_delete(responsivesessionfactory):
     assert res.name == 'BIGIP-12.1.0.0.0.1434.iso'
     assert res.build == '0.0.1434'
     assert res.version == '12.1.0'
+
     res.delete()
     assert res.deleted is True
 

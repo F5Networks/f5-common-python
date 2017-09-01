@@ -298,7 +298,7 @@ class TestVLAN(object):
         assert "'tagMode', is not allowed against the following version of " \
             'TMOS: 11.5.4' in ex.value.message
 
-    def test_load_subcollection_(self, request, bigip):
+    def test_load_subcollection(self, request, bigip):
         '''This tests for issue #148.
 
         Test that we we load a vlan object we can see the sub-s

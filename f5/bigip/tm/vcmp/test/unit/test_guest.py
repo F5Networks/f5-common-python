@@ -31,18 +31,16 @@ def FakeGuest():
 def test_create_no_args(FakeGuest):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeGuest.create()
-    assert "Missing required params: ['name']" in ex.value.message
+    assert "Missing required params: ['name']" in str(ex.value)
 
 
 def test_create_with_parition(FakeGuest):
     with pytest.raises(DisallowedCreationParameter) as ex:
         FakeGuest.create(name='test', partition='Common')
-    assert "'partition' is not allowed as a create parameter" in \
-        ex.value.message
+    assert "'partition' is not allowed as a create parameter" in str(ex.value)
 
 
 def test_load_with_partition(FakeGuest):
     with pytest.raises(DisallowedReadParameter) as ex:
         FakeGuest.load(name='test', partition='Common')
-    assert "'partition' is not allowed as a load parameter" in \
-        ex.value.message
+    assert "'partition' is not allowed as a load parameter" in str(ex.value)

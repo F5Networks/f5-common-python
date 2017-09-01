@@ -642,14 +642,12 @@ class Ocsp_Stapling_Params(Resource):
 
             proxyServerPool value as well
         """
-        if 'useProxyServer' in kwargs and \
-                kwargs['useProxyServer'] == 'enabled':
+        if 'useProxyServer' in kwargs and kwargs['useProxyServer'] == 'enabled':
             if 'proxyServerPool' not in kwargs:
                 error = 'Missing proxyServerPool parameter value.'
                 raise MissingUpdateParameter(error)
         if hasattr(self, 'useProxyServer'):
-            if getattr(self, 'useProxyServer') == 'enabled' and \
-                    not hasattr(self, 'proxyServerPool'):
+            if getattr(self, 'useProxyServer') == 'enabled' and 'proxyServerPool' not in self.__dict__:
                 error = 'Missing proxyServerPool parameter value.'
                 raise MissingUpdateParameter(error)
 

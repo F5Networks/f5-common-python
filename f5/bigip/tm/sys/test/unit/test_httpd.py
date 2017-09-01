@@ -29,10 +29,10 @@ def FakeHttpd():
 def test_create_raises(FakeHttpd):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeHttpd.create()
-    assert EIO.value.message == "Httpd does not support the create method"
+    assert str(EIO.value) == "Httpd does not support the create method"
 
 
 def test_delete_raises(FakeHttpd):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeHttpd.delete()
-    assert EIO.value.message == "Httpd does not support the delete method"
+    assert str(EIO.value) == "Httpd does not support the delete method"

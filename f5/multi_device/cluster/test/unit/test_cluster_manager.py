@@ -90,15 +90,14 @@ def test_no_cluster_to_manage():
     with pytest.raises(NoClusterToManage) as ex:
         cm = ClusterManager()
         cm.cluster
-    assert 'The ClusterManager is not managing a cluster.' == ex.value.message
+    assert 'The ClusterManager is not managing a cluster.' == str(ex.value)
 
 
 def test_already_managing_cluster(ClusterManagerExisting):
     cm, mock_bigips = ClusterManagerExisting
     with pytest.raises(AlreadyManagingCluster) as ex:
         cm.create(test='test')
-    assert 'The ClusterManager is already managing a cluster.' == \
-        ex.value.message
+    assert 'The ClusterManager is already managing a cluster.' == str(ex.value)
 
 
 def test__init__bad_cluster_number():
@@ -108,8 +107,7 @@ def test__init__bad_cluster_number():
             device_group_name='cluster_name',
             device_group_partition='test_partition',
             device_group_type='sync-only')
-    assert 'The number of devices to cluster is not supported.' \
-        in ex.value.message
+    assert 'The number of devices to cluster is not supported.' in str(ex.value)
 
 
 def test_create_cluster(ClusterManagerCreateNew, BigIPs):
@@ -164,8 +162,7 @@ def itest_scale_up_too_many_devices(ClusterManagerCreateNew, BigIPs):
     with pytest.raises(ClusterNotSupported) as ex:
         cm.scale_up_by_one(mock.MagicMock())
     assert sorted(cm.cluster.devices) == sorted(mock_bigips)
-    assert 'The number of devices to cluster is not supported.' == \
-        ex.value.message
+    assert 'The number of devices to cluster is not supported.' == str(ex.value)
 
 
 def itest_scale_down_cluster_not_supported(ClusterManagerCreateNew, BigIPs):
@@ -179,5 +176,4 @@ def itest_scale_down_cluster_not_supported(ClusterManagerCreateNew, BigIPs):
     cm.scale_down_by_one(mock_bigips[0])
     with pytest.raises(ClusterNotSupported) as ex:
         cm.scale_down_by_one(mock_bigips[0])
-    assert 'The number of devices to cluster is not supported.' == \
-        ex.value.message
+    assert 'The number of devices to cluster is not supported.' == str(ex.value)

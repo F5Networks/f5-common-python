@@ -15,11 +15,19 @@
 
 import os
 import pytest
+from distutils.version import LooseVersion
+
 
 try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
+
+
+pytestmark = pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('12.0.0'),
+    reason='Needs v12 TMOS or greater to pass.'
+)
 
 
 @pytest.fixture(scope='function')
@@ -30,7 +38,7 @@ def upload_content():
 
 @pytest.fixture(scope='function')
 def uploaded_file(mgmt_root, upload_content):
-    fake_name = 'foo.txt'
+    fake_name = 'foo.iso'
     tpath_name = '/var/config/rest/downloads'
     content = StringIO(upload_content)
 
@@ -40,7 +48,6 @@ def uploaded_file(mgmt_root, upload_content):
         'run',
         utilCmdArgs='{0}/{1} /shared/images/{1}'.format(tpath_name, fake_name)
     )
-
     yield fake_name
     tpath_name = '/shared/images/{0}'.format(fake_name)
     mgmt_root.tm.util.unix_rm.exec_cmd('run', utilCmdArgs=tpath_name)
@@ -48,7 +55,7 @@ def uploaded_file(mgmt_root, upload_content):
 
 class TestSoftwareImage(object):
     def test_download(self, mgmt_root, uploaded_file, upload_content):
-        dest = "c:\\tmp\\{0}".format(uploaded_file)
+        dest = "/tmp/{0}".format(uploaded_file)
         downloads = mgmt_root.cm.autodeploy.software_image_downloads
         downloads.download_file(uploaded_file, dest)
         assert os.path.exists(dest)

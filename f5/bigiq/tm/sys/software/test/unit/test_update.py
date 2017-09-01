@@ -30,10 +30,10 @@ def FakeUpdate():
 def test_create_raises(FakeUpdate):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeUpdate.create()
-    assert EIO.value.message == "Update does not support the create method"
+    assert str(EIO.value) == "Update does not support the create method"
 
 
 def test_delete_raises(FakeUpdate):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeUpdate.delete()
-    assert EIO.value.message == "Update does not support the delete method"
+    assert str(EIO.value) == "Update does not support the delete method"

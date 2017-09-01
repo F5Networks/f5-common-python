@@ -29,10 +29,10 @@ def FakeSyslog():
 def test_create_raises(FakeSyslog):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeSyslog.create()
-    assert EIO.value.message == "Syslog does not support the create method"
+    assert str(EIO.value) == "Syslog does not support the create method"
 
 
 def test_delete_raises(FakeSyslog):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeSyslog.delete()
-    assert EIO.value.message == "Syslog does not support the delete method"
+    assert str(EIO.value) == "Syslog does not support the delete method"

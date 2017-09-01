@@ -30,10 +30,10 @@ def FakeDns():
 def test_create_raises(FakeDns):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeDns.create()
-    assert EIO.value.message == "Dns does not support the create method"
+    assert str(EIO.value) == "Dns does not support the create method"
 
 
 def test_delete_raises(FakeDns):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeDns.delete()
-    assert EIO.value.message == "Dns does not support the delete method"
+    assert str(EIO.value) == "Dns does not support the delete method"

@@ -65,63 +65,61 @@ class TestCreate(object):
     def test_clusterd(self, FakeClusterd):
         with pytest.raises(UnsupportedMethod) as err:
             FakeClusterd.create()
-        assert err.value.message == 'Clusterd does not support the create ' \
-                                    'method'
+        assert str(err.value) == 'Clusterd does not support the create method'
 
     def test_csyncd(self, FakeCsyncd):
         with pytest.raises(UnsupportedMethod) as err:
             FakeCsyncd.create()
-        assert err.value.message == 'Csyncd does not support the create method'
+        assert str(err.value) == 'Csyncd does not support the create method'
 
     def test_icrd(self, FakeIcrd):
         with pytest.raises(UnsupportedMethod) as err:
             FakeIcrd.create()
-        assert err.value.message == 'Icrd does not support the create method'
+        assert str(err.value) == 'Icrd does not support the create method'
 
     def test_lind(self, FakeLind):
         with pytest.raises(UnsupportedMethod) as err:
             FakeLind.create()
-        assert err.value.message == 'Lind does not support the create method'
+        assert str(err.value) == 'Lind does not support the create method'
 
     def test_mcpd(self, FakeMcpd):
         with pytest.raises(UnsupportedMethod) as err:
             FakeMcpd.create()
-        assert err.value.message == 'Mcpd does not support the create method'
+        assert str(err.value) == 'Mcpd does not support the create method'
 
     def test_tmm(self, FakeTmm):
         with pytest.raises(UnsupportedMethod) as err:
             FakeTmm.create()
-        assert err.value.message == 'Tmm does not support the create method'
+        assert str(err.value) == 'Tmm does not support the create method'
 
 
 class TestDelete(object):
     def test_clusterd(self, FakeClusterd):
         with pytest.raises(UnsupportedMethod) as err:
             FakeClusterd.delete()
-        assert err.value.message == 'Clusterd does not support the delete ' \
-                                    'method'
+        assert str(err.value) == 'Clusterd does not support the delete method'
 
     def test_csyncd(self, FakeCsyncd):
         with pytest.raises(UnsupportedMethod) as err:
             FakeCsyncd.delete()
-        assert err.value.message == 'Csyncd does not support the delete method'
+        assert str(err.value) == 'Csyncd does not support the delete method'
 
     def test_icrd(self, FakeIcrd):
         with pytest.raises(UnsupportedMethod) as err:
             FakeIcrd.delete()
-        assert err.value.message == 'Icrd does not support the delete method'
+        assert str(err.value) == 'Icrd does not support the delete method'
 
     def test_lind(self, FakeLind):
         with pytest.raises(UnsupportedMethod) as err:
             FakeLind.delete()
-        assert err.value.message == 'Lind does not support the delete method'
+        assert str(err.value) == 'Lind does not support the delete method'
 
     def test_mcpd(self, FakeMcpd):
         with pytest.raises(UnsupportedMethod) as err:
             FakeMcpd.delete()
-        assert err.value.message == 'Mcpd does not support the delete method'
+        assert str(err.value) == 'Mcpd does not support the delete method'
 
     def test_tmm(self, FakeTmm):
         with pytest.raises(UnsupportedMethod) as err:
             FakeTmm.delete()
-        assert err.value.message == 'Tmm does not support the delete method'
+        assert str(err.value) == 'Tmm does not support the delete method'

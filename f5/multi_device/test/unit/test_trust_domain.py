@@ -53,8 +53,7 @@ def test_validate_device_not_trusted(TrustDomainCreateNew):
     with pytest.raises(DeviceNotTrusted) as ex:
         td.devices = mock_bigips
         td.validate()
-    assert "'test' is not trusted by 'test', which trusts: []" in \
-        ex.value.message
+    assert "'test' is not trusted by 'test', which trusts: []" in str(ex.value)
 
 
 @mock.patch('f5.multi_device.trust_domain.TrustDomain._set_attributes')
@@ -128,4 +127,4 @@ def test__add_trustee_already_in_domain(
     td.domain = {'test': 'device'}
     with pytest.raises(DeviceAlreadyInTrustDomain) as ex:
         td._add_trustee(mock_bigips[1])
-    assert "Device: 'test' is already in this trust domain" in ex.value.message
+    assert "Device: 'test' is already in this trust domain" in str(ex.value)

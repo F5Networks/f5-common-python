@@ -150,7 +150,7 @@ def test_zero_content_length_header():
           "should be greater than 0"
     with pytest.raises(EmptyContent) as err:
         dwnld.download_file('fakefile.txt')
-    assert err.value.message == msg
+    assert str(err.value) == msg
 
 
 def test_no_content_length_header():
@@ -163,4 +163,4 @@ def test_no_content_length_header():
     msg = "The Content-Length header is not present."
     with pytest.raises(MissingHttpHeader) as err:
         dwnld.download_file('fakefile.txt')
-    assert err.value.message == msg
+    assert str(err.value) == msg

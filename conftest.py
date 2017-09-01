@@ -89,13 +89,12 @@ def fakeicontrolsessionfactory(monkeypatch):
     return _session_factory
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def responsivesessionfactory(monkeypatch):
     class Response(object):
         def __init__(self, http_code, **json_keys):
             if 'selfLink' not in json_keys:
-                json_keys['selfLink'] =\
-                    'https://localhost/mgmt/tm/sys?ver=12.1.0'
+                json_keys['selfLink'] = 'https://localhost/mgmt/tm/sys?ver=12.1.0'
             self.params = json_keys
             self.status_code = http_code
 
@@ -103,20 +102,16 @@ def responsivesessionfactory(monkeypatch):
             return self.params
 
     def _session_factory(http_code, **json_keys):
-        fakesessionclass = mock.create_autospec(iControlRESTSession,
-                                                spec_set=True)
-        fakesessioninstance =\
-            mock.create_autospec(iControlRESTSession('A', 'B'), spec_set=True)
-        fakesessioninstance.get =\
-            mock.MagicMock(return_value=Response(http_code, **json_keys))
-        fakesessioninstance.delete =\
-            mock.MagicMock(return_value=Response(http_code))
-        fakesessioninstance.patch =\
-            mock.MagicMock(return_value=Response(http_code, **json_keys))
-        fakesessioninstance.put = \
-            mock.MagicMock(return_value=Response(http_code, **json_keys))
-        fakesessioninstance.post = \
-            mock.MagicMock(return_value=Response(http_code, **json_keys))
+        fakesessionclass = mock.create_autospec(
+            iControlRESTSession,
+            spec_set=True
+        )
+        fakesessioninstance = mock.create_autospec(iControlRESTSession('A', 'B'), spec_set=True)
+        fakesessioninstance.get = mock.MagicMock(return_value=Response(http_code, **json_keys))
+        fakesessioninstance.delete = mock.MagicMock(return_value=Response(http_code))
+        fakesessioninstance.patch = mock.MagicMock(return_value=Response(http_code, **json_keys))
+        fakesessioninstance.put = mock.MagicMock(return_value=Response(http_code, **json_keys))
+        fakesessioninstance.post = mock.MagicMock(return_value=Response(http_code, **json_keys))
         fakesessionclass.return_value = fakesessioninstance
         monkeypatch.setattr('f5.bigip.iControlRESTSession', fakesessionclass)
     return _session_factory

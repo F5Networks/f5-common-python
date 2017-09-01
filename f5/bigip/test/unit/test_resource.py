@@ -237,7 +237,7 @@ class TestResourceCreate(object):
             r.create(partition="Common", name='CreateTest')
         assert str(MRCPEIO.value) == \
             "This resource requires at least one of the mandatory " \
-            "additional parameters to be provided: set(['NONEMPTY'])"
+            "additional parameters to be provided: NONEMPTY"
 
     def test_KindTypeMismatch(self):
         expected_result = (

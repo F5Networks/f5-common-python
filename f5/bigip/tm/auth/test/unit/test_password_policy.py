@@ -29,12 +29,10 @@ def FakePasswordPolicy():
 def test_create_raises(FakePasswordPolicy):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakePasswordPolicy.create()
-    assert EIO.value.message == \
-        "Password_Policy does not support the create method"
+    assert str(EIO.value) == "Password_Policy does not support the create method"
 
 
 def test_delete_raises(FakePasswordPolicy):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakePasswordPolicy.delete()
-    assert EIO.value.message == \
-        "Password_Policy does not support the delete method"
+    assert str(EIO.value) == "Password_Policy does not support the delete method"
