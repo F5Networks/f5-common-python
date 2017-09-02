@@ -154,9 +154,9 @@ def main():
             new_location = rpm_build + "/%s" % os.path.basename(pkg)
             shutil.copyfile(pkg, new_location)
         os.chdir(src_dir)
-    cmd = "python %s/add_pkg_name.py rpm_pkg %s" % \
-        (config['scripts'], nonarch_pkg)
-    subprocess.check_output([cmd], shell=True)
+
+    cmd = "python ./f5-sdk-dist/add_pkg_name.py rpm_pkg %s" % (nonarch_pkg)
+    subprocess.check_output(cmd, shell=True)
     if not os.path.isfile(nonarch_pkg):
         print("RPM package could not be created!")
         sys.exit(29)

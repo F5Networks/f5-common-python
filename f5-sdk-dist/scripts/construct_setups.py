@@ -122,12 +122,10 @@ def _construct_file(setup_cfg, setup, fmt, start):
     if not os.path.isfile(setup) or not os.access(setup, os.R_OK):
         print(setup + " does not exist or is not readable")
         exit_cleanly(error_number=errno.ENOSYS)
-    contents = _read_in_cfgs(setup_cfg) if os.path.isfile(setup_cfg) else \
-        deque()
-    parsed_reqs = map(lambda x: (x.req), p_reqs(setup, session="pkg"))
+    contents = _read_in_cfgs(setup_cfg) if os.path.isfile(setup_cfg) else deque()
+    parsed_reqs = list(map(lambda x: (x.req), p_reqs(setup, session="pkg")))
     if not parsed_reqs:
-        print("Nothing to do!\n%s\nDoes not contain any reqs parsable!" %
-              setup)
+        print("Nothing to do!\n%s\nDoes not contain any reqs parsable!" % setup)
         exit_cleanly(error_number=0)
     try:
         with open(setup_cfg, 'w') as fh:
@@ -139,8 +137,7 @@ def _construct_file(setup_cfg, setup, fmt, start):
                 req = parsed_reqs[count]
                 if 'Depends' in start:
                     # special case for debian...
-                    name = str(req.name) if 'python-' in str(req.name) else \
-                        'python-' + str(req.name)
+                    name = str(req.name) if 'python-' in str(req.name) else 'python-' + str(req.name)
                 else:
                     name = str(req.name)
                 fh.write(fmt % (name, str(req.specifier)))

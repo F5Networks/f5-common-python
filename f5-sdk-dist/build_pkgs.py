@@ -63,150 +63,28 @@ import getopt
 import json
 import os
 import re
-import subprocess
 import sys
 import traceback
 
-import build_expectations
-import configure
-import construct_setups
-import install_test
+from scripts import build_expectations
+from scripts import configure
+from scripts import construct_setups
+from scripts import install_test
+from scripts.terminal import terminal
 
-from collections import namedtuple
+from scripts.build_exceptions import BuildError
+from scripts.build_exceptions import DebianError
+from scripts.build_exceptions import RedhatError
+
 from inspect import currentframe as cf
 from inspect import getframeinfo as gfi
 
-from build_exceptions import BuildError
-from build_exceptions import DebianError
-from build_exceptions import RedhatError
 
 # Globals...
 # Keeping from confusing namespace issues...
 builds = build_expectations.Builds()
 OperationSettings = builds.OperationSettings
 expected_operations = builds.expected_operations
-# used for terminal:
-Result = namedtuple('Result', 'succeeded, cli, error')
-
-
-class Hold(object):
-    """Hold
-
-A basic text caching object for later use of printing into the terminal,
-storing into a return object, or mimicking the standard IO commands of a file
-object.
-
-This object is handy for reducing code size, but offering a transparent
-functionality to a user using the terminal function.
-    """
-    def __init__(self):
-        self.held = str()
-
-    def __str__(self):
-        return self.get_held()
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self):
-        self.held = ''
-
-    def writeline(self, addition):
-        """writeline()
-
-Functions like a file.writeline() call; however, it stores into the object's
-cached memory rather than a file's IO.
-        """
-        addition = addition.strip()
-        self.held = self.held + addition + "\n"
-
-    def write(self, addition):
-        """write()
-
-Functions like a file.write() call; however, it stores into the object's cached
-memory rather than a file's IO.
-        """
-        self.held = self.held + addition
-
-    def output(self):
-        """output()
-
-Dumps the contents of the cache as a string into the terminal.
-        """
-        print(self.held)
-
-    def get_held(self):
-        """get_held()
-
-Returns the cached contents as a str() object.
-        """
-        return self.held
-
-
-def terminal(cmd, log=None, args=[], want_result=True, multi_stmt=False):
-    """terminal
-
-Usage:
-    terminal(cmd, log=None, args=[], want_result=True, multi_stmt=False)
-
-    Args:
-        cmd - list or tuple(list) that contains the command with args
-            commonly delimited by spaces
-    Opts:
-        log - string containing the log location where to store the CLI
-            stdout result from running the command on the terminal
-        args - list of arguments within the command statement that would
-            normally be delimited by spaces.  Note that if the cmd argument
-            is already a list, then it will be extended by this list.  If it
-            is a str, then it will be put into a list with this list
-            extended after it.
-        want_result - boolean contaiining whether or not the result,
-            namedtuple will be returned
-        multi_stmt - boolean enabling there to be a multi-command stmt.  If
-            this is left as False, then cmd statements in the arguments or
-            as a part of the cmd argument will be ignored and not
-            interpretted, or the OSError will be thrown over the fact that
-            the cmd will not be allowed.
-    Returns:
-        result - A named tuple containing the following flags:
-            succeeded - boolean on whether or not the command succeeded
-            cli - the cli's stdout
-            error - the exception that was thrown if one was over whether or
-                not the command failed at the CLI
-
-This function will attempt to execute a CLI command at the /bin/bash
-terminal.
-    """
-    Error = None
-    succeeded = False
-    if log and isinstance(log, str) and os.access(log, os.W_OK):
-        fh = open(log, 'w')
-    else:
-        fh = Hold()
-    if args and isinstance(cmd, str):
-        cmd = [cmd]
-        cmd.extend(args)
-    try:
-        proc = subprocess.Popen(cmd, shell=multi_stmt, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-        # fh.write(subprocess.check_output(cmd, shell=multi_stmt))
-        out, err = proc.communicate()
-        fh.write('Out:\n' + out)
-        fh.write('Err:\n' + err)
-        succeeded = True if proc.returncode == 0 else False
-    except OSError as Error:
-        fh.write(str(Error))
-    except subprocess.CalledProcessError as Error:
-        fh.write(str(Error))
-    if isinstance(fh, file):
-        fh.close()
-        result = Result(succeeded, None, Error)
-    elif want_result:
-        result = Result(succeeded, fh.get_held(), Error)
-    elif not want_result:
-        result = Result(succeeded, None, Error)
-        fh.output()
-    return result
 
 
 def load_json():
@@ -221,7 +99,7 @@ Python object.  This python object is then returned.
     except SystemExit:
         raise BuildError(msg="configure failed!  Could not build targets!",
                          frame=gfi(cf()), errno=errno.ENOSYS)
-    json_fl = os.path.dirname(sys.argv[0]) + "/config.JSON"
+    json_fl = os.path.dirname(sys.argv[0]) + "/scripts/config.JSON"
     data = _load_json(json_fl)
     return data
 
@@ -360,15 +238,20 @@ def _preliminary_construct(config):
     # this is an internal function; however, allows for quick and easy access
     # to execute these operations...
     error = 0
+    construct_setups._construct_cfgs_from_json(config)
     try:
-        construct_setups._construct_cfgs_from_json(config)
-    except Exception as error:
         pass
+    except Exception as error:
+        print("ASDASD")
+        return error
     except SystemExit:
-        error = \
-            BuildError(config['setup_cfg'], config['stdeb_cfg'],
-                       frame=gfi(cf()), errno=errno.ESPIPE,
-                       msg="Could not construct the setup files")
+        error = BuildError(
+            config['setup_cfg'],
+            config['stdeb_cfg'],
+            frame=gfi(cf()),
+            errno=errno.ESPIPE,
+            msg="Could not construct the setup files"
+        )
     return error
 
 

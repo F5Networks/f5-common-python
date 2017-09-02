@@ -18,7 +18,7 @@ from __future__ import print_function
 import os
 import sys
 
-from configure import add_package
+from scripts.configure import add_package
 
 
 def store(script, pkg_type, pkg_name):

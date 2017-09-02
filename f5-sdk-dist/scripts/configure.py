@@ -31,12 +31,12 @@ unchanged.
     """
     kvp = {pkg_type: pkg_name}
     working = os.getcwd() if not working else os.path.abspath(working)
-    if '-dist/script' in working:
+    if '-dist/scripts' in working:
         config = working + "/config.JSON"
     elif '-dist' in working:
-        config = working + "/script/config.JSON"
+        config = working + "/scripts/config.JSON"
     else:
-        config = working + "/*-dist/script/config.JSON"
+        config = working + "/*-dist/scripts/config.JSON"
         entropy = glob.glob(config)
         if entropy:
             config = entropy[0]  # we'll just assume it's the first one...
@@ -86,12 +86,13 @@ exception here as this is mostly meant to be a standalone script.
 def get_env(working_directory=None):
     """get_env
 
-This function grabs key/value pair items and assigns them for the the
+This function grabs key/value pair items and assigns them for the
 config.JSON.  This essentially checks the environment for key locations within
 the filesystem.
     """
     working = working_directory if working_directory else os.getcwd()
     dist_dirs = glob.glob(working + "/f5-*-dist")
+    print(dist_dirs)
     dist_dir_re = re.compile('/([^/]+)-dist/?')
     if dist_dirs:
         dist_dir = dist_dirs[0]
