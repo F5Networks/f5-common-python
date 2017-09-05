@@ -18,3 +18,6 @@ run_biq_license_tests: false
 biq_license_pool: XXXXX-XXXXX-XXXXX-XXXXX-XXXXXXX
 biq_license_utility: XXXXX-XXXXX-XXXXX-XXXXX-XXXXXXX
 biq_license_volume: XXXXX-XXXXX-XXXXX-XXXXX-XXXXXXX
+
+# Tests related to VCMP guests
+run_vcmp_tests: true

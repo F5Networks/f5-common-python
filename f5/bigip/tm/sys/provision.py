@@ -47,7 +47,9 @@ class Provision(OrganizingCollection):
             Ltm,
             Pem,
             Swg,
-            Urldb]
+            Urldb,
+            Vcmp
+        ]
 
 
 class Afm(UnnamedResource):
@@ -297,6 +299,24 @@ class Urldb(UnnamedResource):
     """
     def __init__(self, provision):
         super(Urldb, self).__init__(provision)
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['required_json_kind'] =\
+            'tm:sys:provision:provisionstate'
+
+
+class Vcmp(UnnamedResource):
+    """BIG-IP® system provision vcmp resource
+
+    The vcmp object only supports load and update because it is an
+    unnamed resource.
+
+    .. note::
+
+        This is an unnamed resource so it has not ~Partition~Name pattern
+        at the end of its URI.
+    """
+    def __init__(self, provision):
+        super(Vcmp, self).__init__(provision)
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
             'tm:sys:provision:provisionstate'
