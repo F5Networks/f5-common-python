@@ -150,6 +150,22 @@ def export_policy(mgmt_root, set_policy2):
 
 
 @pytest.fixture(scope='function')
+def export_policy_inline(mgmt_root, set_policy2):
+    reference = {'link': set_policy2}
+    exp1 = mgmt_root.tm.asm.tasks.export_policy_s.export_policy.create(
+        inline=True,
+        policyReference=reference
+    )
+    while True:
+        exp1.refresh()
+        if exp1.status in ['COMPLETED', 'FAILURE']:
+            break
+        time.sleep(1)
+    yield exp1
+    exp1.delete()
+
+
+@pytest.fixture(scope='function')
 def import_policy_base64(mgmt_root):
     content = file_read()
     file = tempfile.NamedTemporaryFile()
@@ -158,6 +174,25 @@ def import_policy_base64(mgmt_root):
         file=content,
         name=name,
         isBase64=True
+    )
+    while True:
+        task.refresh()
+        if task.status in ['COMPLETED', 'FAILURE']:
+            break
+        time.sleep(1)
+    yield task
+    task.delete()
+
+
+@pytest.fixture(scope='function')
+def import_policy_template(mgmt_root):
+    tmpl = mgmt_root.tm.asm.policy_templates_s.get_collection()
+    link = {'link': tmpl[0].selfLink}
+    f = tempfile.NamedTemporaryFile()
+    name = os.path.basename(f.name)
+    task = mgmt_root.tm.asm.tasks.import_policy_s.import_policy.create(
+        policyTemplateReference=link,
+        name=name,
     )
     while True:
         task.refresh()
@@ -284,6 +319,15 @@ class TestExportPolicy(object):
         assert exp1.kind == 'tm:asm:tasks:export-policy:export-policy-taskstate'
         assert exp1.inline is False
 
+    def test_create_inline_export(self, export_policy_inline):
+        exp1 = export_policy_inline
+        endpoint = str(exp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/export-policy/'
+        final_uri = base_uri+endpoint
+        assert exp1.selfLink.startswith(final_uri)
+        assert exp1.kind == 'tm:asm:tasks:export-policy:export-policy-taskstate'
+        assert exp1.inline is True
+
     def test_create_optional_args(self, mgmt_root, set_policy2):
         file = tempfile.NamedTemporaryFile()
         name = os.path.basename(file.name)
@@ -367,6 +411,15 @@ class TestImportPolicy(object):
         final_uri = base_uri + endpoint
         assert imp1.selfLink.startswith(final_uri)
         assert imp1.status == 'COMPLETED'
+        assert imp1.kind == 'tm:asm:tasks:import-policy:import-policy-taskstate'
+        assert imp1.isBase64 is False
+
+    def test_create_import_template(self, import_policy_template):
+        imp1 = import_policy_template
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-policy/'
+        final_uri = base_uri + endpoint
+        assert imp1.selfLink.startswith(final_uri)
         assert imp1.kind == 'tm:asm:tasks:import-policy:import-policy-taskstate'
         assert imp1.isBase64 is False
 
