@@ -95,7 +95,9 @@ class Export_Policy(AsmResource):
         self._meta_data['required_json_kind'] =\
             'tm:asm:tasks:export-policy:export-policy-taskstate'
         self._meta_data['required_creation_parameters'] = {
-            'policyReference', 'filename'}
+            'policyReference'}
+        self._meta_data['exclusive_attributes'] = ['filename', 'inline']
+        self._meta_data['minimum_additional_parameters'] = {'filename', 'inline'}
 
     def modify(self, **kwargs):
         """Modify is not supported for Apply Policy resource
@@ -127,7 +129,7 @@ class Import_Policy(AsmResource):
             'name'
         }
         self._meta_data['exclusive_attributes'] = ['filename', 'file']
-        self._meta_data['minimum_additional_parameters'] = {'filename', 'file'}
+        self._meta_data['minimum_additional_parameters'] = {'filename', 'file', 'policyTemplateReference'}
 
     def modify(self, **kwargs):
         """Modify is not supported for Apply Policy resource
