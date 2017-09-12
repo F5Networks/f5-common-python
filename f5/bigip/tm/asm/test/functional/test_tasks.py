@@ -28,9 +28,9 @@ from f5.bigip.tm.asm.tasks import Import_Vulnerabilities
 from f5.bigip.tm.asm.tasks import Update_Signature
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import UnsupportedOperation
-from requests.exceptions import HTTPError
-from jinja2 import FileSystemLoader
 from jinja2 import Environment
+from jinja2 import FileSystemLoader
+from requests.exceptions import HTTPError
 
 
 if LooseVersion(pytest.config.getoption('--release')) >= LooseVersion('12.1.0'):

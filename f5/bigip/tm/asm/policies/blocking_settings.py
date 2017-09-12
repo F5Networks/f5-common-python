@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distutils.version import LooseVersion
+from f5.bigip.resource import AsmResource
+from f5.bigip.resource import Collection
 from f5.bigip.resource import UnnamedResource
 from f5.sdk_exception import UnsupportedOperation
-from distutils.version import LooseVersion
-from f5.bigip.resource import Collection
-from f5.bigip.resource import AsmResource
 
 
 class Blocking_Settings(UnnamedResource):

@@ -16,9 +16,9 @@
 import pytest
 import random
 
+from f5.bigip.tm.asm.policies.whitelist_ips import Whitelist_Ip
 from f5.sdk_exception import AttemptedMutationOfReadOnly
 from requests.exceptions import HTTPError
-from f5.bigip.tm.asm.policies.whitelist_ips import Whitelist_Ip
 
 
 class TestWhitelistIps(object):

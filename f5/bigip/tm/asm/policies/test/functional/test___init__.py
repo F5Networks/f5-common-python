@@ -13,15 +13,14 @@
 # limitations under the License.
 #
 
-from f5.bigip.tm.asm.policies import Policy
-
 import os
 import pytest
+import tempfile
 
 from distutils.version import LooseVersion
 from f5.bigip.tm.asm.policies.parameters import ParametersResource
+from f5.bigip.tm.asm.policies import Policy
 from requests.exceptions import HTTPError
-import tempfile
 
 
 @pytest.mark.skipif(

@@ -18,9 +18,9 @@ import pytest
 import tempfile
 
 from distutils.version import LooseVersion
+from f5.bigip.tm.asm.policies.sensitive_parameters import Sensitive_Parameter
 from f5.sdk_exception import UnsupportedOperation
 from requests.exceptions import HTTPError
-from f5.bigip.tm.asm.policies.sensitive_parameters import Sensitive_Parameter
 
 
 @pytest.mark.skipif(

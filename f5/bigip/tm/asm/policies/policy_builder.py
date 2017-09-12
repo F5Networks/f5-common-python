@@ -15,8 +15,8 @@
 # limitations under the License.
 
 from distutils.version import LooseVersion
-from f5.sdk_exception import UnsupportedOperation
 from f5.bigip.resource import UnnamedResource
+from f5.sdk_exception import UnsupportedOperation
 
 
 class Policy_Builder(UnnamedResource):

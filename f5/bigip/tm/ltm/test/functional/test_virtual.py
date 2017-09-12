@@ -117,7 +117,7 @@ class TestVirtual(object):
     def test_virtual_no_rules(self, virtual_setup, basic_rule):
         assert len(virtual_setup.rules) == 0
 
-    def test_virtual_modify(self, virtual_setup, basic_rule):
+    def test_virtual_modify2(self, virtual_setup, basic_rule):
         virtual_setup.modify(rules=[basic_rule.name])
         virtual_setup.refresh()
         assert len(virtual_setup.rules) == 1

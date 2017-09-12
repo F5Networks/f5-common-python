@@ -18,8 +18,8 @@ import pytest
 import tempfile
 
 from distutils.version import LooseVersion
-from requests.exceptions import HTTPError
 from f5.bigip.tm.asm.policies.json_profiles import Json_Profile
+from requests.exceptions import HTTPError
 
 
 @pytest.mark.skipif(

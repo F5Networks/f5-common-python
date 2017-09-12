@@ -51,8 +51,10 @@ class Config(UnnamedResource,
 
     def exec_cmd(self, command, **kwargs):
         """Normal save and load only need the command.
+
         To merge, just supply the merge and file arguments as kwargs like so:
-            exec_cmd('load', merge=True, file='/path/to/file.txt')"""
+        exec_cmd('load', merge=True, file='/path/to/file.txt')
+        """
 
         if command == 'load':
             if kwargs:

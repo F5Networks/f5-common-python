@@ -17,8 +17,8 @@ import os
 import pytest
 import tempfile
 
-from requests.exceptions import HTTPError
 from f5.bigip.tm.asm.policies.host_names import Host_Name
+from requests.exceptions import HTTPError
 
 
 class TestHostNames(object):

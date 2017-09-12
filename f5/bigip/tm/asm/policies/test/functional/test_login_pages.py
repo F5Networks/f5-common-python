@@ -18,8 +18,8 @@ import pytest
 import tempfile
 
 from distutils.version import LooseVersion
-from requests.exceptions import HTTPError
 from f5.bigip.tm.asm.policies.login_pages import Login_Page
+from requests.exceptions import HTTPError
 
 
 @pytest.mark.skipif(

@@ -16,9 +16,9 @@
 import pytest
 
 from distutils.version import LooseVersion
+from f5.bigip.tm.asm.policies.audit_logs import Audit_Log
 from f5.sdk_exception import UnsupportedOperation
 from requests.exceptions import HTTPError
-from f5.bigip.tm.asm.policies.audit_logs import Audit_Log
 
 
 @pytest.fixture(scope='function')

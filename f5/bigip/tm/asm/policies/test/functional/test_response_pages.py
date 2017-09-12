@@ -16,9 +16,9 @@
 import pytest
 
 from distutils.version import LooseVersion
+from f5.bigip.tm.asm.policies.response_pages import Response_Page
 from f5.sdk_exception import UnsupportedOperation
 from requests.exceptions import HTTPError
-from f5.bigip.tm.asm.policies.response_pages import Response_Page
 
 
 @pytest.mark.skipif(

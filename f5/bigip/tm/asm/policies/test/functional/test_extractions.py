@@ -17,10 +17,10 @@ import os
 import pytest
 import tempfile
 
-from f5.sdk_exception import MissingRequiredCreationParameter
 from distutils.version import LooseVersion
-from requests.exceptions import HTTPError
 from f5.bigip.tm.asm.policies.extractions import Extraction
+from f5.sdk_exception import MissingRequiredCreationParameter
+from requests.exceptions import HTTPError
 
 
 @pytest.fixture(scope='function')

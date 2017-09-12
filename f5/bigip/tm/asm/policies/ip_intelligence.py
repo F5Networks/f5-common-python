@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from f5.sdk_exception import UnsupportedOperation
 from f5.bigip.resource import UnnamedResource
+from f5.sdk_exception import UnsupportedOperation
 
 
 class Ip_Intelligence(UnnamedResource):

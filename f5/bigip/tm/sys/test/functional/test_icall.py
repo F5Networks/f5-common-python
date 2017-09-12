@@ -14,11 +14,10 @@
 #
 
 import pytest
-from distutils.version import LooseVersion
 
+from distutils.version import LooseVersion
 from f5.sdk_exception import MissingRequiredCreationParameter
 from icontrol.exceptions import iControlUnexpectedHTTPError
-
 from requests.exceptions import HTTPError
 
 ICALLSCRIPT1 = '''puts "hello world."'''

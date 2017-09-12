@@ -16,8 +16,8 @@
 import pytest
 
 from distutils.version import LooseVersion
-from f5.sdk_exception import UnsupportedOperation
 from f5.bigip.tm.asm.policies.suggestions import Suggestion
+from f5.sdk_exception import UnsupportedOperation
 
 
 @pytest.mark.skipif(

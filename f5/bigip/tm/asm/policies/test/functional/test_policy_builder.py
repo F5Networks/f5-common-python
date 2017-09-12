@@ -13,10 +13,8 @@
 # limitations under the License.
 #
 
-import copy
 import pytest
 
-from six import iteritems
 from distutils.version import LooseVersion
 from f5.sdk_exception import UnsupportedOperation
 

@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import copy
+
 import pytest
 
+from distutils.version import LooseVersion
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.security.firewall import Address_List
 from f5.bigip.tm.security.firewall import Port_List
@@ -22,11 +23,8 @@ from f5.bigip.tm.security.firewall import Rule
 from f5.bigip.tm.security.firewall import Rule_List
 from f5.sdk_exception import ExclusiveAttributesPresent
 from f5.sdk_exception import NonExtantFirewallRule
-
 from requests.exceptions import HTTPError
-from six import iteritems
 
-from distutils.version import LooseVersion
 
 DESC = 'TESTADDED'
 

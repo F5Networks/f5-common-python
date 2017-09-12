@@ -15,10 +15,11 @@
 
 import fcntl
 import os
+import pytest
 import tempfile
 import time
+
 from f5.bigip.tm.asm.signatures import Signature
-import pytest
 from requests.exceptions import HTTPError
 
 

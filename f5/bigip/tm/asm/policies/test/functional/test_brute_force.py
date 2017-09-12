@@ -16,8 +16,8 @@
 import pytest
 
 from distutils.version import LooseVersion
-from requests.exceptions import HTTPError
 from f5.bigip.tm.asm.policies.brute_force import Brute_Force_Attack_Prevention
+from requests.exceptions import HTTPError
 
 
 @pytest.mark.skipif(

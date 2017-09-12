@@ -18,9 +18,9 @@ import pytest
 import tempfile
 
 from distutils.version import LooseVersion
-from requests.exceptions import HTTPError
-from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.bigip.tm.asm.policies.websocket_urls import Websocket_Url
+from f5.sdk_exception import MissingRequiredCreationParameter
+from requests.exceptions import HTTPError
 
 
 @pytest.mark.skipif(
@@ -114,7 +114,7 @@ class TestWebsocketUrls(object):
     def test_websocketurls_subcollection(self, policy):
         file = tempfile.NamedTemporaryFile()
         name = os.path.basename(file.name)
-        r1 = policy.websocket_urls_s.websocket_url.create(
+        policy.websocket_urls_s.websocket_url.create(
             name=name,
             checkPayload=False,
             description='fake_websock_text'
