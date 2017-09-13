@@ -16,17 +16,17 @@
 import pytest
 
 from distutils.version import LooseVersion
-from f5.sdk_exception import UnsupportedOperation
-from f5.sdk_exception import UnsupportedMethod
-from requests.exceptions import HTTPError
 from f5.bigip.tm.asm.policies.blocking_settings import Evasion
 from f5.bigip.tm.asm.policies.blocking_settings import Evasions_s
-from f5.bigip.tm.asm.policies.blocking_settings import Violation
-from f5.bigip.tm.asm.policies.blocking_settings import Violations_s
 from f5.bigip.tm.asm.policies.blocking_settings import Http_Protocol
 from f5.bigip.tm.asm.policies.blocking_settings import Http_Protocols_s
-from f5.bigip.tm.asm.policies.blocking_settings import Web_Services_Security
+from f5.bigip.tm.asm.policies.blocking_settings import Violation
+from f5.bigip.tm.asm.policies.blocking_settings import Violations_s
 from f5.bigip.tm.asm.policies.blocking_settings import Web_Services_Securities_s
+from f5.bigip.tm.asm.policies.blocking_settings import Web_Services_Security
+from f5.sdk_exception import UnsupportedMethod
+from f5.sdk_exception import UnsupportedOperation
+from requests.exceptions import HTTPError
 
 
 class TestBlockingSettings(object):

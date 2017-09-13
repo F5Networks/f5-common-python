@@ -15,9 +15,9 @@
 
 import pytest
 
+from f5.bigip.tm.asm.policies.signatures import Signature
 from f5.sdk_exception import UnsupportedOperation
 from requests.exceptions import HTTPError
-from f5.bigip.tm.asm.policies.signatures import Signature
 
 
 class TestSignature(object):

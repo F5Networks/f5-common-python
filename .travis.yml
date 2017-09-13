@@ -23,6 +23,7 @@ install:
   - pip install -r requirements.docs.txt
 script:
   - tox -e flake
+  - tox -e pycodestyle
   - tox -e unit
   - python setup.py sdist
   - ${DIST_REPO}/build_pkgs.py  # ubuntu;14.04,15.01 # basically <os>;<version> !! overwrites !!

@@ -17,12 +17,12 @@ import os
 import pytest
 import tempfile
 
-from f5.bigip.tm.asm.policies.parameters import UrlParametersResource
-from f5.bigip.tm.asm.policies.parameters import UrlParametersCollection
+from f5.bigip.tm.asm.policies.parameters import Parameter
+from f5.bigip.tm.asm.policies.parameters import Parameters_s
 from f5.bigip.tm.asm.policies.parameters import ParametersCollection
 from f5.bigip.tm.asm.policies.parameters import ParametersResource
-from f5.bigip.tm.asm.policies.parameters import Parameters_s
-from f5.bigip.tm.asm.policies.parameters import Parameter
+from f5.bigip.tm.asm.policies.parameters import UrlParametersCollection
+from f5.bigip.tm.asm.policies.parameters import UrlParametersResource
 from requests.exceptions import HTTPError
 from six import iterkeys
 

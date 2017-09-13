@@ -16,12 +16,7 @@
 import logging
 import os
 import pytest
-import shutil
 import tempfile
-import time
-import fcntl
-from f5.sdk_exception import F5SDKError
-from distutils.version import LooseVersion
 
 logger = logging.getLogger()
 logger.setLevel(logging.WARNING)

@@ -163,7 +163,7 @@ class Signature(AsmResource):
 
             # {
             #   "code": 404,
-            #   "message": "Could not add_signature the Attack Signature, " \
+            #   "message": "Could not add_signature the Attack Signature, "
             #              "internal data inconsistency was detected.",
             'internal data inconsistency',
         ]

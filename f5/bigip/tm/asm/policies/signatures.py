@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from f5.sdk_exception import UnsupportedOperation
 from f5.bigip.resource import AsmResource
 from f5.bigip.resource import Collection
+from f5.sdk_exception import UnsupportedOperation
 
 
 class Signatures_s(Collection):

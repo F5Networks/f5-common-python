@@ -19,16 +19,15 @@ from f5.bigip.tm.asm.policies.parameters import Parameter
 from f5.bigip.tm.asm.policies.parameters import Parameters_s
 from f5.bigip.tm.asm.policies.parameters import ParametersCollection
 from f5.bigip.tm.asm.policies.parameters import ParametersResource
-from f5.bigip.tm.asm.policies.urls import Url
 from f5.bigip.tm.asm.policies.parameters import UrlParametersCollection
 from f5.bigip.tm.asm.policies.parameters import UrlParametersResource
 from f5.bigip.tm.asm.policies import Policy
+from f5.bigip.tm.asm.policies.urls import Url
 from f5.sdk_exception import MissingRequiredCreationParameter
-
+from six import iterkeys
 
 import mock
 import pytest
-from six import iterkeys
 
 
 @pytest.fixture

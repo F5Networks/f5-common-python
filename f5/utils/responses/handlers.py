@@ -20,8 +20,8 @@
 
 """
 
-from six.moves.urllib.parse import urlparse
 from six import iteritems
+from six.moves.urllib.parse import urlparse
 
 
 class BaseHandler(object):

@@ -16,9 +16,9 @@
 import pytest
 
 from distutils.version import LooseVersion
-from requests.exceptions import HTTPError
-from f5.sdk_exception import UnsupportedOperation
 from f5.bigip.tm.asm.policies.vulnerabilities import Vulnerabilities
+from f5.sdk_exception import UnsupportedOperation
+from requests.exceptions import HTTPError
 
 
 @pytest.mark.skipif(

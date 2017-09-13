@@ -14,9 +14,10 @@
 #
 
 import os
-import tempfile
-from f5.bigip.tm.asm.signature_sets import Signature_Set
 import pytest
+import tempfile
+
+from f5.bigip.tm.asm.signature_sets import Signature_Set
 from requests.exceptions import HTTPError
 
 

@@ -126,8 +126,8 @@ from f5.sdk_exception import UnsupportedMethod
 from f5.sdk_exception import UnsupportedOperation
 from f5.sdk_exception import URICreationCollision
 from icontrol.exceptions import iControlUnexpectedHTTPError
-from requests.exceptions import HTTPError
 from requests.exceptions import ConnectionError
+from requests.exceptions import HTTPError
 from six import iteritems
 from six import iterkeys
 from six import itervalues

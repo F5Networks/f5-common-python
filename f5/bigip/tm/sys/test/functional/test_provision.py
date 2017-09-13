@@ -59,7 +59,7 @@ def wait_for_module_provisioning(mgmt_root):
                 nops += 1
             else:
                 nops = 0
-        except Exception as ex:
+        except Exception:
             # This can be caused by restjavad restarting.
             pass
         time.sleep(10)
@@ -82,7 +82,7 @@ def wait_for_reboot(mgmt_root):
                 nops = 0
             else:
                 nops += 1
-        except Exception as ex:
+        except Exception:
             # This can be caused by restjavad restarting.
             pass
         time.sleep(10)

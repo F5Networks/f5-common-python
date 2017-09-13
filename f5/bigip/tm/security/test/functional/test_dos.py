@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import copy
+
 import pytest
 
+from distutils.version import LooseVersion
 from f5.bigip.tm.security.dos import Application
 from f5.bigip.tm.security.dos import Dos_Network
 from f5.bigip.tm.security.dos import Profile
@@ -22,9 +23,7 @@ from f5.bigip.tm.security.dos import Protocol_Dns
 from f5.bigip.tm.security.dos import Protocol_Sip
 from f5.sdk_exception import NonExtantApplication
 from requests.exceptions import HTTPError
-from six import iteritems
 
-from distutils.version import LooseVersion
 
 DESC = 'TESTCHANGEDIT'
 ATCK = [{'name': 'tcp-rst-flood', 'rateLimit': 100, 'rateThreshold': 50}]

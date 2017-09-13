@@ -16,10 +16,10 @@
 import pytest
 import time
 
-from requests.exceptions import HTTPError
 from distutils.version import LooseVersion
-from f5.sdk_exception import UnsupportedOperation
 from f5.bigip.tm.asm.policies.session_tracking_status import Session_Tracking_Status
+from f5.sdk_exception import UnsupportedOperation
+from requests.exceptions import HTTPError
 
 
 @pytest.mark.skipif(

@@ -18,9 +18,9 @@ import pytest
 import tempfile
 
 from distutils.version import LooseVersion
+from f5.bigip.tm.asm.policies.navigation_parameters import Navigation_Parameter
 from f5.sdk_exception import UnsupportedOperation
 from requests.exceptions import HTTPError
-from f5.bigip.tm.asm.policies.navigation_parameters import Navigation_Parameter
 
 
 @pytest.mark.skipif(

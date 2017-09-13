@@ -15,8 +15,8 @@
 
 import pytest
 
-from requests.exceptions import HTTPError
 from f5.bigip.tm.asm.policies.signature_sets import Signature_Set
+from requests.exceptions import HTTPError
 
 
 class TestSignatureSets(object):

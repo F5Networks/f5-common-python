@@ -17,8 +17,8 @@ import os
 import pytest
 import tempfile
 
-from requests.exceptions import HTTPError
 from f5.bigip.tm.asm.policies.filetypes import Filetype
+from requests.exceptions import HTTPError
 
 
 class TestFiletypes(object):

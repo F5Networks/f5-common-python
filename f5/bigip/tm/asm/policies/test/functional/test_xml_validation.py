@@ -17,10 +17,10 @@ import os
 import pytest
 import tempfile
 
-from f5.sdk_exception import UnsupportedOperation
 from distutils.version import LooseVersion
-from requests.exceptions import HTTPError
 from f5.bigip.tm.asm.policies.xml_validation import Xml_Validation_File
+from f5.sdk_exception import UnsupportedOperation
+from requests.exceptions import HTTPError
 
 
 XML2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n<shiporder " \
