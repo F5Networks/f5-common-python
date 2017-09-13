@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-import os
 import f5
+import os
 
 from setuptools import find_packages
 from setuptools import setup
