@@ -29,9 +29,13 @@ REST Kind
 
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.vcmp.guest import Guests
+from f5.bigip.tm.vcmp.virtual_disk import Virtual_Disks
 
 
 class Vcmp(OrganizingCollection):
     def __init__(self, tm):
         super(Vcmp, self).__init__(tm)
-        self._meta_data['allowed_lazy_attributes'] = [Guests]
+        self._meta_data['allowed_lazy_attributes'] = [
+            Guests,
+            Virtual_Disks
+        ]
