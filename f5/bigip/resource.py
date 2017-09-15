@@ -1105,6 +1105,10 @@ class Resource(ResourceBase):
         :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
                  code 404.
         """
+        return self._exists(**kwargs)
+
+    def _exists(self, **kwargs):
+        """wrapped with exists, override that in a subclass to customize """
         requests_params = self._handle_requests_params(kwargs)
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
