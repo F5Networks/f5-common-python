@@ -163,6 +163,11 @@ class TestProfiles(object):
         # Check for existence with partition given
         p1.exists(name='http', partition='Common')
 
+    def test_profiles_known_invalid(self, request, mgmt_root):
+        v1, _ = setup_virtual_test(request, mgmt_root, 'Common', 'tv1')
+        p1 = v1.profiles_s.profiles.exists(name="asdasdasd", partition='Common')
+        assert p1 is False
+
 
 class TestPolicies(object):
     def test_policies(self, policy_setup, virtual_setup):

@@ -81,7 +81,7 @@ class Virtual(Resource):
             self.__dict__.update({'rules': []})
 
 
-class Profiles(Resource):
+class Profiles(Resource, CheckExistenceMixin):
     """BIG-IP® LTM profile resource"""
     def __init__(self, Profiles_s):
         super(Profiles, self).__init__(Profiles_s)
@@ -89,6 +89,12 @@ class Profiles(Resource):
         self._meta_data['required_load_parameters'].update(('partition',))
         self._meta_data['required_json_kind'] =\
             "tm:ltm:virtual:profiles:profilesstate"
+
+    def _exists(self, **kwargs):
+        tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
+        if LooseVersion(tmos_v) == LooseVersion('11.6.0'):
+            return self._check_existence_by_collection(self._meta_data['container'], kwargs['name'])
+        return super(Profiles, self)._exists(**kwargs)
 
 
 class Profiles_s(Collection):
