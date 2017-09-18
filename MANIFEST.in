@@ -2,5 +2,4 @@ include README.md
 include SUPPORT
 include VERSION
 include RELEASE
-
-
+include setup_requirements.txt
