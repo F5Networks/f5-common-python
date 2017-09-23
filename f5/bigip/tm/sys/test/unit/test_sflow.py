@@ -111,9 +111,9 @@ class TestSflowReceiver(object):
             FakeSflowReceiver.create()
 
     def test_receiver_create_missing_args(self, FakeSflowReceiver):
-        with pytest.raises(MissingRequiredCreationParameter) as ex:
+        with pytest.raises(MissingRequiredCreationParameter) as EIO:
             FakeSflowReceiver.create(name='tr1')
-        assert 'address' in ex.value.message
+        assert 'address' in str(EIO.value)
 
     def test_receiver_create_two(self, fakeicontrolsession):
         b = ManagementRoot('localhost', 'admin', 'admin', port='10443')
