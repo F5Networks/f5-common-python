@@ -45,6 +45,7 @@ from f5.bigip.tm.sys.management_route import Management_Routes
 from f5.bigip.tm.sys.ntp import Ntp
 from f5.bigip.tm.sys.performance import Performances
 from f5.bigip.tm.sys.provision import Provision
+from f5.bigip.tm.sys.sflow import Sflow
 from f5.bigip.tm.sys.snmp import Snmp
 from f5.bigip.tm.sys.software import Software
 from f5.bigip.tm.sys.sshd import Sshd
@@ -73,6 +74,7 @@ class Sys(OrganizingCollection):
             Ntp,
             Performances,
             Provision,
+            Sflow,
             Snmp,
             Software,
             Sshd,
