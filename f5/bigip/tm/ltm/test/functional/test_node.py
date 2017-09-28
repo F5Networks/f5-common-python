@@ -167,6 +167,17 @@ class TestNode(object):
         n2.session = n1.session
         n2.state = n1.state
 
+    def test_update_session_without_state(self, request, mgmt_root):
+        n1, nc1 = setup_node_test(
+            request, mgmt_root, 'Common', 'node1', '192.168.100.2')
+        assert n1.session == 'user-enabled'
+        assert n1.state == 'unchecked'
+        n1.update(session='user-disabled')
+        n2 = mgmt_root.tm.ltm.nodes.node.load(name='node1', partition='Common')
+        n2.session = 'user-disabled'
+        n2.session = n1.session
+        n2.state = n1.state
+
     def test_state_modify(self, request, mgmt_root):
         n1, nc1 = setup_node_test(
             request, mgmt_root, 'Common', 'node1', '10.10.10.1')
@@ -182,21 +193,14 @@ class TestNode(object):
             request, mgmt_root, 'Common', 'node1', '10.10.10.1')
         with pytest.raises(NodeStateModifyUnsupported) as ex:
             n1.modify(state='down')
-        assert ex.value.message == "The node resource does not support a " \
-                                   "modify with the value of the 'state' " \
-                                   "attribute as down. The accepted values " \
-                                   "are 'user-up' or 'user-down'"
+        assert "The node resource does not support a" in str(ex.value)
 
     def test_session_modify_error(self, request, mgmt_root):
         n1, nc1 = setup_node_test(
             request, mgmt_root, 'Common', 'node1', '10.10.10.1')
         with pytest.raises(NodeStateModifyUnsupported) as ex:
-            n1.modify(state='monitor-enabled')
-        assert ex.value.message == "The node resource does not support a " \
-                                   "modify with the value of the 'state' " \
-                                   "attribute as monitor-enabled. " \
-                                   "The accepted values are " \
-                                   "'user-up' or 'user-down'"
+            n1.modify(session='monitor-enabled')
+        assert "The node resource does not support a" in str(ex.value)
 
 
 class TestNodes(object):

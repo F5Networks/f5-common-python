@@ -103,14 +103,14 @@ class Node(Resource):
     def _modify(self, **patch):
         """Override modify to check kwargs before request sent to device."""
         if 'state' in patch:
-            if patch['state'] != 'user-up' and patch['state'] != 'user-down':
+            if patch['state'] not in ['user-up', 'user-down', 'unchecked', 'fqdn-up']:
                 msg = "The node resource does not support a modify with the " \
                       "value of the 'state' attribute as %s. The accepted " \
-                      "values are 'user-up' or 'user-down'" % patch['state']
+                      "values are 'user-up', 'user-down', 'unchecked', or 'fqdn-up'" \
+                      % patch['state']
                 raise NodeStateModifyUnsupported(msg)
         if 'session' in patch:
-            if patch['session'] != 'user-enabled' and patch['state'] != \
-                    'user-disabled':
+            if patch['session'] not in ['user-enabled', 'user-disabled']:
                 msg = "The node resource does not support a modify with the " \
                       "value of the 'session' attribute as %s. " \
                       "The accepted values are 'user-enabled' or " \
