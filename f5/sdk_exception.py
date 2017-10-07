@@ -229,6 +229,12 @@ class DraftPolicyNotSupportedInTMOSVersion(F5SDKError):
     Raise this if handling Draft work in a Policy class that is
     used by legacy, and current, versions of BIG-IP
     """
+    pass
+
+
+class ConstraintError(F5SDKError):
+    """Raise when a supplied value is outside the limits for that attribute."""
+    pass
 
 
 class RequiredOneOf(F5SDKError):

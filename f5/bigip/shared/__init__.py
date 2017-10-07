@@ -1,6 +1,5 @@
 # coding=utf-8
 #
-"""Classes and functions for configuring BIG-IP"""
 # Copyright 2016 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +16,7 @@
 #
 
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.shared.authz import Authz
 from f5.bigip.shared.file_transfer import File_Transfer
 from f5.bigip.shared.iapp import Iapp
 
@@ -27,5 +27,6 @@ class Shared(OrganizingCollection):
         super(Shared, self).__init__(mgmt)
         self._meta_data['allowed_lazy_attributes'] = [
             File_Transfer,
-            Iapp
+            Iapp,
+            Authz
         ]
