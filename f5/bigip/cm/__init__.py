@@ -17,6 +17,7 @@
 """Classes and functions for configuring BIG-IP"""
 
 from f5.bigip.cm.autodeploy import Autodeploy
+from f5.bigip.cm.system import System
 from f5.bigip.resource import OrganizingCollection
 
 
@@ -25,5 +26,6 @@ class Cm(OrganizingCollection):
     def __init__(self, bigip):
         super(Cm, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
-            Autodeploy
+            Autodeploy,
+            System
         ]
