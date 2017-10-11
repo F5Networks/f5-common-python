@@ -70,6 +70,8 @@ class Policy(Resource):
         legacy = kwargs.pop('legacy', False)
         publish = kwargs.pop('publish', False)
         if LooseVersion(tmos_ver) < LooseVersion('12.1.0'):
+            for r in kwargs.get('rules', []):
+                r.pop('description', None)
             return super(Policy, self)._create(**kwargs)
         else:
             if legacy:
@@ -94,6 +96,9 @@ class Policy(Resource):
 
         legacy = patch.pop('legacy', False)
         tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
+        if LooseVersion(tmos_ver) < LooseVersion('12.1.0'):
+            for r in patch.get('rules', []):
+                r.pop('description', None)
         if 'Drafts' not in self._meta_data['uri'] and \
                 LooseVersion(tmos_ver) >= LooseVersion('12.1.0') and \
                 not legacy:
@@ -110,6 +115,9 @@ class Policy(Resource):
 
         legacy = kwargs.pop('legacy', False)
         tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
+        if LooseVersion(tmos_ver) < LooseVersion('12.1.0'):
+            for r in kwargs.get('rules', []):
+                r.pop('description', None)
         if 'Drafts' not in self._meta_data['uri'] and \
                 LooseVersion(tmos_ver) >= LooseVersion('12.1.0') and \
                 not legacy:
