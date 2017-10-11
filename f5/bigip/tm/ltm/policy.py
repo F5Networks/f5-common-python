@@ -36,6 +36,9 @@ from f5.sdk_exception import NonExtantPolicyRule
 from f5.sdk_exception import OperationNotSupportedOnPublishedPolicy
 
 from distutils.version import LooseVersion
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Policys(Collection):
@@ -56,6 +59,24 @@ class Policy(Resource):
         self._meta_data['required_creation_parameters'].update(('strategy',))
         temp = {'tm:ltm:policy:rules:rulescollectionstate': Rules_s}
         self._meta_data['attribute_registry'] = temp
+        self._meta_data['optional_parameters'] = {'rules': ['description']}
+
+    def _filter_version_specific_options(self, tmos_ver, **kwargs):
+        '''Filter version-specific optional parameters
+
+        Some optional parameters only exist in v12.1.0 and greater,
+        filter these out for earlier versions to allow backward comatibility.
+        '''
+
+        if LooseVersion(tmos_ver) < LooseVersion('12.1.0'):
+            for k, parms in self._meta_data['optional_parameters'].items():
+                for r in kwargs.get(k, []):
+                    for parm in parms:
+                        value = r.pop(parm, None)
+                        if value is not None:
+                            logger.info(
+                                "Policy parameter %s:%s is invalid for v%s",
+                                k, parm, tmos_ver)
 
     def _create(self, **kwargs):
         '''Allow creation of draft policy and ability to publish a draft
@@ -69,9 +90,8 @@ class Policy(Resource):
         tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
         legacy = kwargs.pop('legacy', False)
         publish = kwargs.pop('publish', False)
+        self._filter_version_specific_options(tmos_ver, **kwargs)
         if LooseVersion(tmos_ver) < LooseVersion('12.1.0'):
-            for r in kwargs.get('rules', []):
-                r.pop('description', None)
             return super(Policy, self)._create(**kwargs)
         else:
             if legacy:
@@ -96,9 +116,7 @@ class Policy(Resource):
 
         legacy = patch.pop('legacy', False)
         tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
-        if LooseVersion(tmos_ver) < LooseVersion('12.1.0'):
-            for r in patch.get('rules', []):
-                r.pop('description', None)
+        self._filter_version_specific_options(tmos_ver, **patch)
         if 'Drafts' not in self._meta_data['uri'] and \
                 LooseVersion(tmos_ver) >= LooseVersion('12.1.0') and \
                 not legacy:
@@ -115,9 +133,7 @@ class Policy(Resource):
 
         legacy = kwargs.pop('legacy', False)
         tmos_ver = self._meta_data['bigip']._meta_data['tmos_version']
-        if LooseVersion(tmos_ver) < LooseVersion('12.1.0'):
-            for r in kwargs.get('rules', []):
-                r.pop('description', None)
+        self._filter_version_specific_options(tmos_ver, **kwargs)
         if 'Drafts' not in self._meta_data['uri'] and \
                 LooseVersion(tmos_ver) >= LooseVersion('12.1.0') and \
                 not legacy:
