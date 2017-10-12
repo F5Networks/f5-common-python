@@ -38,6 +38,7 @@ def setup_policy_test(request, mgmt_root, partition, name,
         kw = copy.deepcopy(kwargs)
         kw.pop('legacy', None)
         kw.pop('publish', None)
+        kw.pop('rules', None)
         if mgmt_root.tm.ltm.policys.policy.exists(
                 name=name, partition=partition, **kw):
             pol = mgmt_root.tm.ltm.policys.policy.load(
@@ -138,6 +139,30 @@ class TestPolicy_legacy(object):
         pol1.update(legacy=False, rules=[])
         pol1.modify(legacy=True, rules=[])
         pol1.modify(legacy=False, rules=[])
+
+    def test_rules_description(self, setup, request, mgmt_root):
+        rules = [
+            dict(
+                name='rule1',
+                ordinal=0,
+                actions=[],
+                conditions=[],
+                description='This is a rule description')
+        ]
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'desctest',
+                                    rules=rules, legacy=True)
+        rule = pol.rules_s.rules.load(name='rule1')
+        hasattr(rule, 'description') is False
+
+        rules[0]['description'] = 'Updated description'
+        pol.update(legacy=True, rules=rules)
+        rule = pol.rules_s.rules.load(name='rule1')
+        hasattr(rule, 'description') is False
+
+        rules[0]['description'] = 'Modified description'
+        pol.modify(legacy=True, rules=rules)
+        rule = pol.rules_s.rules.load(name='rule1')
+        hasattr(rule, 'description') is False
 
     def test_policy_update_race(self, setup, request, mgmt_root):
         full_pol_dict = json.load(
@@ -316,6 +341,30 @@ class TestPolicy(object):
             # Wipe the rule with an update
             pol.update(**empty_pol_dict)
             assert pol.rules_s.rules.exists(name='test_rule') is False
+
+    def test_rules_description(self, setup, request, mgmt_root):
+        rules = [
+            dict(
+                name='rule1',
+                ordinal=0,
+                actions=[],
+                conditions=[],
+                description='This is a rule description')
+        ]
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'desctest',
+                                    rules=rules, legacy=True)
+        rule = pol.rules_s.rules.load(name='rule1')
+        assert rule.description == 'This is a rule description'
+
+        rules[0]['description'] = 'Updated description'
+        pol.update(legacy=True, rules=rules)
+        rule = pol.rules_s.rules.load(name='rule1')
+        assert rule.description == 'Updated description'
+
+        rules[0]['description'] = 'Modified description'
+        pol.modify(legacy=True, rules=rules)
+        rule = pol.rules_s.rules.load(name='rule1')
+        assert rule.description == 'Modified description'
 
     def test_rules_nonextant_on_load(self, setup, request, mgmt_root):
         pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest',
