@@ -23,6 +23,7 @@ from f5.bigip.tm.asm.tasks import Import_Policy
 from f5.bigip.tm.asm.tasks import Import_Vulnerabilities
 from f5.bigip.tm.asm.tasks import Update_Signature
 from f5.sdk_exception import MissingRequiredCreationParameter
+from f5.sdk_exception import RequiredOneOf
 from f5.sdk_exception import UnsupportedOperation
 from f5.sdk_exception import UnsupportedTmosVersion
 
@@ -249,7 +250,7 @@ class TestImportPolicy(object):
         assert t1 is t2
 
     def test_create_no_args(self, FakeImportPolicy):
-        with pytest.raises(MissingRequiredCreationParameter):
+        with pytest.raises(RequiredOneOf):
             FakeImportPolicy.create()
 
     def test_collection(self, fakeicontrolsession):
