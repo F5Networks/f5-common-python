@@ -55,6 +55,26 @@ def file_read():
     return result
 
 
+def remove_policies(mgmt_root, policy=None):
+    policies = mgmt_root.tm.asm.policies_s.get_collection()
+    if policy is None:
+        resources = policies
+    else:
+        resources = [p for p in policies if p.name == policy]
+    for resource in resources:
+        resource.delete()
+
+
+@pytest.fixture(scope='function')
+def partition(mgmt_root):
+    file = tempfile.NamedTemporaryFile()
+    name = os.path.basename(file.name)
+    partitions = mgmt_root.tm.auth.partitions.partition
+    local = partitions.create(name=name)
+    yield local
+    local.delete()
+
+
 @pytest.fixture(scope='function')
 def check_sig(mgmt_root):
     task = mgmt_root.tm.asm.tasks.check_signatures_s.check_signature.fetch()
@@ -211,6 +231,43 @@ def import_policy(mgmt_root):
     task = mgmt_root.tm.asm.tasks.import_policy_s.import_policy.create(
         file=content,
         name=name
+    )
+    while True:
+        task.refresh()
+        if task.status in ['COMPLETED', 'FAILURE']:
+            break
+        time.sleep(1)
+    yield task
+    task.delete()
+
+
+@pytest.fixture(scope='function')
+def import_partitioned_policy(mgmt_root, partition):
+    content = file_read()
+    file = tempfile.NamedTemporaryFile()
+    name = os.path.basename(file.name)
+    task = mgmt_root.tm.asm.tasks.import_policy_s.import_policy.create(
+        file=content,
+        fullPath='/{0}/{1}'.format(partition.name, name)
+    )
+    while True:
+        task.refresh()
+        if task.status in ['COMPLETED', 'FAILURE']:
+            break
+        time.sleep(1)
+    yield task
+    task.delete()
+
+
+@pytest.fixture(scope='function')
+def import_partitioned_policy2(mgmt_root, partition):
+    content = file_read()
+    file = tempfile.NamedTemporaryFile()
+    name = os.path.basename(file.name)
+    task = mgmt_root.tm.asm.tasks.import_policy_s.import_policy.create(
+        file=content,
+        name=name,
+        partition=partition.name
     )
     while True:
         task.refresh()
@@ -422,6 +479,26 @@ class TestImportPolicy(object):
         assert imp1.selfLink.startswith(final_uri)
         assert imp1.kind == 'tm:asm:tasks:import-policy:import-policy-taskstate'
         assert imp1.isBase64 is False
+
+    def test_create_import_partitioned(self, mgmt_root, import_partitioned_policy):
+        imp1 = import_partitioned_policy
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-policy/'
+        final_uri = base_uri + endpoint
+        assert imp1.selfLink.startswith(final_uri)
+        assert imp1.kind == 'tm:asm:tasks:import-policy:import-policy-taskstate'
+        assert imp1.isBase64 is False
+        remove_policies(mgmt_root, os.path.basename(imp1.fullPath))
+
+    def test_create_import_partitioned2(self, mgmt_root, import_partitioned_policy2):
+        imp1 = import_partitioned_policy2
+        endpoint = str(imp1.id)
+        base_uri = 'https://localhost/mgmt/tm/asm/tasks/import-policy/'
+        final_uri = base_uri + endpoint
+        assert imp1.selfLink.startswith(final_uri)
+        assert imp1.kind == 'tm:asm:tasks:import-policy:import-policy-taskstate'
+        assert imp1.isBase64 is False
+        remove_policies(mgmt_root, os.path.basename(imp1.fullPath))
 
     def test_create_import_fails(self, import_policy_base64):
         imp1 = import_policy_base64

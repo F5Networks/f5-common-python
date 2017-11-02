@@ -30,7 +30,10 @@ from f5.bigip.resource import AsmResource
 from f5.bigip.resource import AsmTaskResource
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
+from f5.sdk_exception import F5SDKError
+from f5.sdk_exception import RequiredOneOf
 from f5.sdk_exception import UnsupportedOperation
+from six import iterkeys
 
 
 class Tasks(OrganizingCollection):
@@ -125,11 +128,30 @@ class Import_Policy(AsmResource):
     def __init__(self, import_policy_s):
         super(Import_Policy, self).__init__(import_policy_s)
         self._meta_data['required_json_kind'] = 'tm:asm:tasks:import-policy:import-policy-taskstate'
-        self._meta_data['required_creation_parameters'] = {
-            'name'
-        }
+        self._meta_data['required_creation_parameters'] = set()
         self._meta_data['exclusive_attributes'] = ['filename', 'file']
         self._meta_data['minimum_additional_parameters'] = {'filename', 'file', 'policyTemplateReference'}
+
+    def create(self, **kwargs):
+        required_one_of = ['name', 'fullPath']
+        has_any = [x for x in iterkeys(kwargs) if x in required_one_of]
+
+        if 'partition' in kwargs and 'name' in kwargs and 'fullPath' not in kwargs:
+            partition = kwargs.pop('partition', None)
+            name = kwargs.pop('name', None)
+            if partition is not None and not partition.startswith('/'):
+                kwargs['fullPath'] = '/{0}/{1}'.format(partition, name)
+            elif partition is None:
+                raise F5SDKError(
+                    "The partition name, if specified, cannot be none"
+                )
+            elif partition.startswith('/'):
+                kwargs['fullPath'] = '{0}/{1}'.format(partition, name)
+
+        if len(has_any) == 1:
+            return self._create(**kwargs)
+
+        raise RequiredOneOf(required_one_of)
 
     def modify(self, **kwargs):
         """Modify is not supported for Apply Policy resource
