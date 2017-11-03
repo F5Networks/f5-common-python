@@ -43,9 +43,25 @@ def delete_pool(bigip, name):
     p.delete()
 
 
+def delete_log_profile(bigip, name):
+    try:
+        p = bigip.ltm.lsnlogprofiles.lsnlogprofile.load(name=name)
+    except HTTPError as err:
+        if err.response.status_code != 404:
+            raise
+        return
+    p.delete()
+
+
 def setup_create_test(request, bigip, name):
     def teardown():
         delete_pool(bigip, name)
+    request.addfinalizer(teardown)
+
+
+def setup_log_profile_create_test(request, bigip, name):
+    def teardown():
+        delete_log_profile(bigip, name)
     request.addfinalizer(teardown)
 
 
@@ -59,6 +75,16 @@ def setup_basic_test(request, bigip, name, partition):
     return pool1
 
 
+def setup_log_profile_basic_test(request, bigip, name, partition):
+    def teardown():
+        delete_log_profile(bigip, name)
+
+    profile = bigip.ltm.lsnlogprofiles.lsnlogprofile.create(
+        name=name, partition=partition)
+    request.addfinalizer(teardown)
+    return profile
+
+
 class TestLSNPool(object):
     def test_create_no_args(self, bigip):
         pool1 = bigip.ltm.lsnpools.lsnpool
@@ -70,6 +96,36 @@ class TestLSNPool(object):
         pool1 = bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1')
         assert pool1.name == 'lsnpool1'
         assert pool1.mode == 'napt'
+
+    def test_create_with_logProfile_without_logPub(self, request, bigip):
+        setup_log_profile_create_test(request, bigip, 'lsnlogpool1')
+        logprofile1 = bigip.ltm.lsnlogprofiles.lsnlogprofile.create(
+            name='lsnlogpool1')
+
+        with pytest.raises(iControlUnexpectedHTTPError) as excinfo:
+            setup_create_test(request, bigip, 'lsnpool1')
+            pool1 = bigip.ltm.lsnpools.lsnpool.create(
+                name='lsnpool1',
+                logProfile=logprofile1.name)
+            expected_msg = ('Configuration of LSN Pool (/Common/lsnpool1) '
+                            'is incomplete, you cannot use a log profile '
+                            'without a log publisher.')
+            assert expected_msg in str(excinfo.value)
+
+    def test_create_with_logProfile(self, request, bigip):
+        setup_log_profile_create_test(request, bigip, 'lsnlogpool1')
+        logprofile1 = bigip.ltm.lsnlogprofiles.lsnlogprofile.create(
+            name='lsnlogpool1')
+
+        setup_create_test(request, bigip, 'lsnpool1')
+        default_pub = '/Common/local-db-publisher'
+        pool1 = bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1',
+                                                  logProfile=logprofile1.name,
+                                                  logPublisher=default_pub)
+
+        assert pool1.name == 'lsnpool1'
+        assert pool1.logProfile == '/Common/lsnlogpool1'
+        assert pool1.logPublisher == default_pub
 
     def test_refresh(self, request, bigip):
         pool1 = setup_basic_test(request, bigip, 'lsnpool1', 'Common')
@@ -177,3 +233,41 @@ class TestLSNPool(object):
         assert len(pool_list) == 2
         assert pool_list[0].name == 'lsnpool1'
         assert pool_list[1].name == 'lsnpool2'
+
+
+class TestLSNPoolLogProfile(object):
+    def test_create_no_args(self, bigip):
+        logprofile = bigip.ltm.lsnlogprofiles.lsnlogprofile
+        with pytest.raises(MissingRequiredCreationParameter):
+            logprofile.create()
+
+    def test_create(self, request, bigip):
+        setup_log_profile_create_test(request, bigip, 'lsnlogpool1')
+        logprofile1 = bigip.ltm.lsnlogprofiles.lsnlogprofile.create(
+            name='lsnlogpool1')
+        assert logprofile1.csvFormat == 'disabled'
+        assert logprofile1.name == 'lsnlogpool1'
+        assert logprofile1.endInboundSession['action'] == 'enabled'
+
+    def test_update(self, request, bigip):
+        profile1 = setup_log_profile_basic_test(request,
+                                                bigip,
+                                                'lsnlogprofile1', 'Common')
+        profile1.startOutboundSession = {"action": "enabled",
+                                         "elements": ["destination"]}
+        profile1.update()
+        assert profile1.startOutboundSession["action"] == "enabled"
+        assert profile1.startOutboundSession["elements"] == ["destination"]
+        profile1.startOutboundSession["action"] = "disabled"
+        profile1.refresh()
+        assert profile1.startOutboundSession["action"] == "enabled"
+
+    def test_exists(self, request, bigip):
+        setup_log_profile_create_test(request, bigip, 'logprofile1')
+        bigip.ltm.lsnlogprofiles.lsnlogprofile.create(name='logprofile1')
+        pos_test = bigip.ltm.lsnlogprofiles.lsnlogprofile.exists(
+            name='logprofile1')
+        assert pos_test
+        neg_test = bigip.ltm.lsnlogprofiles.lsnlogprofile.exists(
+            name='logprofile2')
+        assert not neg_test
