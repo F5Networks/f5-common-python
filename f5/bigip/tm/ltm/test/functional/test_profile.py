@@ -589,7 +589,7 @@ class TestIpother(object):
 
 # End Ipother tests
 
-# Begin Tftp tests
+# Begin Ipsecalg tests
 
 
 @pytest.mark.skipif(pytest.config.getoption('--release') != '13.0.0',
@@ -600,7 +600,7 @@ class TestIpsecalg(object):
         tftp.test_MCURDL(request, mgmt_root)
 
 
-# End Tftp tests
+# End Ipsecalg tests
 
 # Begin Mblb tests
 
