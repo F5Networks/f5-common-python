@@ -19,12 +19,15 @@
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/lsn-pool``
+    ``http://localhost/mgmt/tm/ltm/lsn-log-profile``
 
 GUI Path
     ``Carrier Grade NAT --> LSN Pools``
+    ``Carrier Grade NAT --> Logging Profiles --> LSN``
 
 REST Kind
     ``tm:ltm:lsn-pool:*``
+    ``tm:ltm:lsn-log-profile:*``
 """
 
 from requests.exceptions import HTTPError
@@ -59,9 +62,34 @@ class LSNPool(Resource):
         super(LSNPool, self).__init__(lsnpool_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:lsn-pool:lsn-poolstate'
         self._meta_data['attribute_registry'] = {
-            # TODO: need to create these resource
-            #       mgmt/tm/ltm/lsn-log-profile
-            #
-            # 'tm:ltm:lsn-log-profile:lsn-log-profilestate': LSNLogProfile_s,
-            # 'tm:sys:log-config:publisher:publisherstate': LogPublisher_s,
+            'tm:ltm:lsn-log-profile:lsn-log-profilestate': LSNLogProfile,
         }
+
+
+class LSNLogProfiles(Collection):
+    """BIG-IP® LTM LSN pool log profile collection"""
+    def __init__(self, profile):
+        super(LSNLogProfiles, self).__init__(profile)
+        self._meta_data['allowed_lazy_attributes'] = [LSNLogProfile]
+        self._meta_data['required_json_kind'] = (
+            'tm:ltm:lsn-log-profile:lsn-log-profilecollectionstate')
+        self._meta_data['attribute_registry'] = \
+            {'tm:ltm:lsn-log-profile:lsn-log-profilestate': LSNLogProfile}
+
+    def _format_resource_name(self):
+        """Formats the name of the Collection
+
+        Returns:
+            A string representation of the Resource as it should be
+            represented when contructing the final URI used to reach that
+            Resource.
+        """
+        return "lsn-log-profiles"
+
+
+class LSNLogProfile(Resource):
+    """BIG-IP® LTM LSN pool log profile resource"""
+    def __init__(self, LSNLogProfile_s):
+        super(LSNLogProfile, self).__init__(LSNLogProfile_s)
+        self._meta_data['required_json_kind'] = (
+            'tm:ltm:lsn-log-profile:lsn-log-profilestate')
