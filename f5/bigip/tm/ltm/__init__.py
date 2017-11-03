@@ -65,7 +65,6 @@ class Ltm(OrganizingCollection):
             LSNPools,
             Nats,
             Nodes,
-            LSNPools,
             Persistence,
             Policys,
             Pools,
