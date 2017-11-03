@@ -34,7 +34,6 @@ from requests.exceptions import HTTPError
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
-from f5.sdk_exception import MemberStateModifyUnsupported
 
 
 class LSNPools(Collection):
