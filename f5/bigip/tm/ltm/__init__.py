@@ -40,6 +40,7 @@ from f5.bigip.tm.ltm.persistence import Persistence
 from f5.bigip.tm.ltm.policy import Policys
 from f5.bigip.tm.ltm.pool import Pools
 from f5.bigip.tm.ltm.lsnpool import LSNPools
+from f5.bigip.tm.ltm.lsnpool import LSNLogProfiles
 from f5.bigip.tm.ltm.profile import Profile
 from f5.bigip.tm.ltm.rule import Rules
 from f5.bigip.tm.ltm.snat import Snats
@@ -60,9 +61,10 @@ class Ltm(OrganizingCollection):
             Default_Node_Monitor,
             Ifiles,
             Monitor,
+            LSNLogProfiles,
+            LSNPools,
             Nats,
             Nodes,
-            LSNPools,
             Persistence,
             Policys,
             Pools,
