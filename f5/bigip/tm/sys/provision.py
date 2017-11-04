@@ -43,6 +43,7 @@ class Provision(OrganizingCollection):
             Fps,
             Gtm,
             Ili,
+            Ilx,
             Lc,
             Ltm,
             Pem,
@@ -209,6 +210,21 @@ class Ili(UnnamedResource):
     """
     def __init__(self, provision):
         super(Ili, self).__init__(provision)
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['required_json_kind'] =\
+            'tm:sys:provision:provisionstate'
+
+
+class Ilx(UnnamedResource):
+    """BIG-IP® system provision ilx resource
+
+    .. note::
+
+        This is an unnamed resource so it has not ~Partition~Name pattern
+        at the end of its URI.
+    """
+    def __init__(self, provision):
+        super(Ilx, self).__init__(provision)
         self._meta_data['required_load_parameters'] = set()
         self._meta_data['required_json_kind'] =\
             'tm:sys:provision:provisionstate'
