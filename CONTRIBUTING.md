@@ -1,5 +1,5 @@
 <!--
-Copyright 2015 F5 Networks Inc.
+Copyright 2015-2016 F5 Networks Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -101,6 +101,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
  
 ### Contributor License Agreement
-Individuals or business entities who contribute to this project must have completed and submitted the [F5 Contributor License Agreement](http://f5-openstack-docs.readthedocs.org/en/latest/cla_landing.html) to Openstack_CLA@f5.com prior to their
-code submission being included in this project.
+Individuals or business entities who contribute to this project must have completed and submitted the [F5 Contributor License Agreement](http://f5-openstack-docs.readthedocs.org/en/latest/cla_landing.html) to Openstack_CLA@f5.com prior to their code submission being included in this project.
 

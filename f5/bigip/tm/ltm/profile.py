@@ -60,6 +60,7 @@ class Profile(OrganizingCollection):
             Icaps,
             Iiops,
             Ipothers,
+            Ipsecalgs,
             Mblbs,
             Mssqls,
             Ntlms,
@@ -543,6 +544,24 @@ class Ipother(Resource):
         super(Ipother, self).__init__(Ipothers)
         self._meta_data['required_json_kind'] = \
             'tm:ltm:profile:ipother:ipotherstate'
+
+
+class Ipsecalgs(Collection):
+    """BIG-IP® IPsecALG profile collection."""
+    def __init__(self, profile):
+        super(Ipsecalgs, self).__init__(profile)
+        self._meta_data['allowed_lazy_attributes'] = [Ipsecalg]
+        self._meta_data['attribute_registry'] = \
+            {'tm:ltm:profile:ipsecalg:ipsecalgstate': Ipsecalg}
+        self._meta_data['minimum_version'] = '13.0.0'
+
+
+class Ipsecalg(Resource):
+    """BIG-IP® IPsecALG resource."""
+    def __init__(self, Ipsecalgs):
+        super(Ipsecalg, self).__init__(Ipsecalgs)
+        self._meta_data['required_json_kind'] = \
+            'tm:ltm:profile:ipsecalg:ipsecalgstate'
 
 
 class Mblbs(Collection):
