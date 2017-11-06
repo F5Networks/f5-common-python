@@ -30,7 +30,6 @@ REST Kind
     ``tm:ltm:lsn-log-profile:*``
 """
 
-from requests.exceptions import HTTPError
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
@@ -74,6 +73,7 @@ class LSNLogProfiles(Collection):
             'tm:ltm:lsn-log-profile:lsn-log-profilecollectionstate')
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:lsn-log-profile:lsn-log-profilestate': LSNLogProfile}
+        self._meta_data['minimum_version'] = '11.6.0'
 
     def _format_resource_name(self):
         """Formats the name of the Collection

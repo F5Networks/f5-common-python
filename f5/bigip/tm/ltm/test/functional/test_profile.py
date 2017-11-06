@@ -592,12 +592,13 @@ class TestIpother(object):
 # Begin Ipsecalg tests
 
 
-@pytest.mark.skipif(pytest.config.getoption('--release') != '13.0.0',
-                    reason='Needs v13 TMOS to pass')
+@pytest.mark.skipif(pytest.config.getoption('--release')
+                    < LooseVersion('13.0.0'),
+                    reason='Needs minimum of v13 TMOS to pass')
 class TestIpsecalg(object):
     def test_MCURDL(self, request, mgmt_root):
-        tftp = HelperTest('Ipsecalgs')
-        tftp.test_MCURDL(request, mgmt_root)
+        ipsecalg = HelperTest('Ipsecalgs')
+        ipsecalg.test_MCURDL(request, mgmt_root)
 
 
 # End Ipsecalg tests
@@ -1088,8 +1089,9 @@ class TestTcp(object):
 
 # Begin Tftp tests
 
-@pytest.mark.skipif(pytest.config.getoption('--release') != '12.0.0',
-                    reason='Needs v12 TMOS to pass')
+@pytest.mark.skipif(pytest.config.getoption('--release')
+                    < LooseVersion('12.0.0'),
+                    reason='Needs minimum of v12 TMOS to pass')
 class TestTftp(object):
     def test_MCURDL(self, request, mgmt_root):
         tftp = HelperTest('Tftps')
