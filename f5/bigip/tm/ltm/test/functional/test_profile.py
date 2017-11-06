@@ -589,6 +589,19 @@ class TestIpother(object):
 
 # End Ipother tests
 
+# Begin Ipsecalg tests
+
+
+@pytest.mark.skipif(pytest.config.getoption('--release') != '13.0.0',
+                    reason='Needs v13 TMOS to pass')
+class TestIpsecalg(object):
+    def test_MCURDL(self, request, mgmt_root):
+        tftp = HelperTest('Ipsecalgs')
+        tftp.test_MCURDL(request, mgmt_root)
+
+
+# End Ipsecalg tests
+
 # Begin Mblb tests
 
 
