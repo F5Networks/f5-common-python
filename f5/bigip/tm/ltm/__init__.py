@@ -1,4 +1,4 @@
-# coding=utf-8
+﻿# coding=utf-8
 #
 # Copyright 2015-2016 F5 Networks Inc.
 #
@@ -33,14 +33,14 @@ from f5.bigip.tm.ltm.auth import Auth
 from f5.bigip.tm.ltm.data_group import Data_Group
 from f5.bigip.tm.ltm.default_node_monitor import Default_Node_Monitor
 from f5.bigip.tm.ltm.ifile import Ifiles
+from f5.bigip.tm.ltm.lsnpool import LSNLogProfiles
+from f5.bigip.tm.ltm.lsnpool import LSNPools
 from f5.bigip.tm.ltm.monitor import Monitor
 from f5.bigip.tm.ltm.nat import Nats
 from f5.bigip.tm.ltm.node import Nodes
 from f5.bigip.tm.ltm.persistence import Persistence
 from f5.bigip.tm.ltm.policy import Policys
 from f5.bigip.tm.ltm.pool import Pools
-from f5.bigip.tm.ltm.lsnpool import LSNPools
-from f5.bigip.tm.ltm.lsnpool import LSNLogProfiles
 from f5.bigip.tm.ltm.profile import Profile
 from f5.bigip.tm.ltm.rule import Rules
 from f5.bigip.tm.ltm.snat import Snats
@@ -60,9 +60,9 @@ class Ltm(OrganizingCollection):
             Data_Group,
             Default_Node_Monitor,
             Ifiles,
-            Monitor,
             LSNLogProfiles,
             LSNPools,
+            Monitor,
             Nats,
             Nodes,
             Persistence,

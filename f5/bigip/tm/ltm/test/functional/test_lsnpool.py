@@ -186,7 +186,7 @@ class TestLSNPool(object):
                 assert stats.stat['tmName']['description'] == pool_nm
                 assert stats.stat['common_activeTranslations']['value'] == 0
                 break
-            except iControlUnexpectedHTTPError as e:
+            except Exception as e:
                 # This can be caused by restjavad restarting.
                 if nops == 3:
                     raise e

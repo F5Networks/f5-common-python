@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-"""BIG-IP® Local Traffic Manager™ (LTM®) pool module.
+"""BIG-IP® Local Traffic Manager™ (LTM®) LSN pool module.
 
 REST URI
     ``http://localhost/mgmt/tm/ltm/lsn-pool``
@@ -48,7 +48,7 @@ class LSNPools(Collection):
 
         Returns:
             A string representation of the Resource as it should be
-            represented when contructing the final URI used to reach that
+            represented when constructing the final URI used to reach that
             Resource.
         """
         return "lsn-pools"
@@ -59,9 +59,9 @@ class LSNPool(Resource):
     def __init__(self, lsnpool_s):
         super(LSNPool, self).__init__(lsnpool_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:lsn-pool:lsn-poolstate'
+        self._meta_data['allowed_lazy_attributes'] = [LSNLogProfile]
         self._meta_data['attribute_registry'] = {
-            'tm:ltm:lsn-log-profile:lsn-log-profilestate': LSNLogProfile,
-        }
+            'tm:ltm:lsn-log-profile:lsn-log-profilestate': LSNLogProfile}
 
 
 class LSNLogProfiles(Collection):
@@ -80,7 +80,7 @@ class LSNLogProfiles(Collection):
 
         Returns:
             A string representation of the Resource as it should be
-            represented when contructing the final URI used to reach that
+            represented when constructing the final URI used to reach that
             Resource.
         """
         return "lsn-log-profiles"
