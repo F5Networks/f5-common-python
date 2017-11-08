@@ -35,60 +35,40 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class LSNPools(Collection):
+class LSN_Pools(Collection):
     """BIG-IP® LTM LSN pool collection"""
     def __init__(self, ltm):
-        super(LSNPools, self).__init__(ltm)
-        self._meta_data['allowed_lazy_attributes'] = [LSNPool]
+        super(LSN_Pools, self).__init__(ltm)
+        self._meta_data['allowed_lazy_attributes'] = [LSN_Pool]
         self._meta_data['attribute_registry'] =\
-            {'tm:ltm:lsn-pool:lsn-poolstate': LSNPool}
-
-    def _format_resource_name(self):
-        """Formats the name of the Collection
-
-        Returns:
-            A string representation of the Resource as it should be
-            represented when constructing the final URI used to reach that
-            Resource.
-        """
-        return "lsn-pools"
+            {'tm:ltm:lsn-pool:lsn-poolstate': LSN_Pool}
 
 
-class LSNPool(Resource):
+class LSN_Pool(Resource):
     """BIG-IP® LTM LSN pool resource"""
     def __init__(self, lsnpool_s):
-        super(LSNPool, self).__init__(lsnpool_s)
+        super(LSN_Pool, self).__init__(lsnpool_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:lsn-pool:lsn-poolstate'
-        self._meta_data['allowed_lazy_attributes'] = [LSNLogProfile]
+        self._meta_data['allowed_lazy_attributes'] = [LSN_Log_Profile]
         self._meta_data['attribute_registry'] = {
-            'tm:ltm:lsn-log-profile:lsn-log-profilestate': LSNLogProfile}
+            'tm:ltm:lsn-log-profile:lsn-log-profilestate': LSN_Log_Profile}
 
 
-class LSNLogProfiles(Collection):
+class LSN_Log_Profiles(Collection):
     """BIG-IP® LTM LSN pool log profile collection"""
     def __init__(self, profile):
-        super(LSNLogProfiles, self).__init__(profile)
-        self._meta_data['allowed_lazy_attributes'] = [LSNLogProfile]
+        super(LSN_Log_Profiles, self).__init__(profile)
+        self._meta_data['allowed_lazy_attributes'] = [LSN_Log_Profile]
         self._meta_data['required_json_kind'] = (
             'tm:ltm:lsn-log-profile:lsn-log-profilecollectionstate')
         self._meta_data['attribute_registry'] = \
-            {'tm:ltm:lsn-log-profile:lsn-log-profilestate': LSNLogProfile}
+            {'tm:ltm:lsn-log-profile:lsn-log-profilestate': LSN_Log_Profile}
         self._meta_data['minimum_version'] = '11.6.0'
 
-    def _format_resource_name(self):
-        """Formats the name of the Collection
 
-        Returns:
-            A string representation of the Resource as it should be
-            represented when constructing the final URI used to reach that
-            Resource.
-        """
-        return "lsn-log-profiles"
-
-
-class LSNLogProfile(Resource):
+class LSN_Log_Profile(Resource):
     """BIG-IP® LTM LSN pool log profile resource"""
     def __init__(self, LSNLogProfile_s):
-        super(LSNLogProfile, self).__init__(LSNLogProfile_s)
+        super(LSN_Log_Profile, self).__init__(LSNLogProfile_s)
         self._meta_data['required_json_kind'] = (
             'tm:ltm:lsn-log-profile:lsn-log-profilestate')

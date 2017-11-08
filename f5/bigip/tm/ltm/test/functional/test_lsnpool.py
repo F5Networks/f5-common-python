@@ -40,7 +40,7 @@ def virtual_setup(mgmt_root):
 
 def delete_pool(bigip, name):
     try:
-        p = bigip.ltm.lsnpools.lsnpool.load(name=name)
+        p = bigip.ltm.lsn_pools.lsn_pool.load(name=name)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -50,7 +50,7 @@ def delete_pool(bigip, name):
 
 def delete_log_profile(bigip, name):
     try:
-        p = bigip.ltm.lsnlogprofiles.lsnlogprofile.load(name=name)
+        p = bigip.ltm.lsn_log_profiles.lsn_log_profile.load(name=name)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -74,8 +74,8 @@ def setup_basic_test(request, bigip, name, partition):
     def teardown():
         delete_pool(bigip, name)
 
-    pool1 = bigip.ltm.lsnpools.lsnpool.create(name=name,
-                                              partition=partition)
+    pool1 = bigip.ltm.lsn_pools.lsn_pool.create(name=name,
+                                                partition=partition)
     request.addfinalizer(teardown)
     return pool1
 
@@ -84,7 +84,7 @@ def setup_log_profile_basic_test(request, bigip, name, partition):
     def teardown():
         delete_log_profile(bigip, name)
 
-    profile = bigip.ltm.lsnlogprofiles.lsnlogprofile.create(
+    profile = bigip.ltm.lsn_log_profiles.lsn_log_profile.create(
         name=name, partition=partition)
     request.addfinalizer(teardown)
     return profile
@@ -92,25 +92,25 @@ def setup_log_profile_basic_test(request, bigip, name, partition):
 
 class TestLSNPool(object):
     def test_create_no_args(self, bigip):
-        pool1 = bigip.ltm.lsnpools.lsnpool
+        pool1 = bigip.ltm.lsn_pools.lsn_pool
         with pytest.raises(MissingRequiredCreationParameter):
             pool1.create()
 
     def test_create(self, request, bigip):
         setup_create_test(request, bigip, 'lsnpool1')
-        pool1 = bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1')
+        pool1 = bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool1')
         assert pool1.name == 'lsnpool1'
         assert pool1.mode == 'napt'
 
     @not_supported_prior_11_6_0
     def test_create_with_logProfile_without_logPub(self, request, bigip):
         setup_log_profile_create_test(request, bigip, 'lsnlogpool1')
-        logprofile1 = bigip.ltm.lsnlogprofiles.lsnlogprofile.create(
+        logprofile1 = bigip.ltm.lsn_log_profiles.lsn_log_profile.create(
             name='lsnlogpool1')
 
         with pytest.raises(iControlUnexpectedHTTPError) as excinfo:
             setup_create_test(request, bigip, 'lsnpool1')
-            bigip.ltm.lsnpools.lsnpool.create(
+            bigip.ltm.lsn_pools.lsn_pool.create(
                 name='lsnpool1',
                 logProfile=logprofile1.name)
             expected_msg = ('Configuration of LSN Pool (/Common/lsnpool1) '
@@ -121,14 +121,14 @@ class TestLSNPool(object):
     @not_supported_prior_11_6_0
     def test_create_with_logProfile(self, request, bigip):
         setup_log_profile_create_test(request, bigip, 'lsnlogpool1')
-        logprofile1 = bigip.ltm.lsnlogprofiles.lsnlogprofile.create(
+        logprofile1 = bigip.ltm.lsn_log_profiles.lsn_log_profile.create(
             name='lsnlogpool1')
 
         setup_create_test(request, bigip, 'lsnpool1')
         default_pub = '/Common/local-db-publisher'
-        pool1 = bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1',
-                                                  logProfile=logprofile1.name,
-                                                  logPublisher=default_pub)
+        pool1 = bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool1',
+                                                    logProfile=logprofile1.name,
+                                                    logPublisher=default_pub)
 
         assert pool1.name == 'lsnpool1'
         assert pool1.logProfile == '/Common/lsnlogpool1'
@@ -162,16 +162,16 @@ class TestLSNPool(object):
 
     def test_exists(self, request, bigip):
         setup_create_test(request, bigip, 'lsnpool1')
-        bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1')
-        pos_test = bigip.ltm.lsnpools.lsnpool.exists(name='lsnpool1')
+        bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool1')
+        pos_test = bigip.ltm.lsn_pools.lsn_pool.exists(name='lsnpool1')
         assert pos_test
-        neg_test = bigip.ltm.lsnpools.lsnpool.exists(name='lsnpool2')
+        neg_test = bigip.ltm.lsn_pools.lsn_pool.exists(name='lsnpool2')
         assert not neg_test
 
     def test_stats(self, request, bigip):
         setup_create_test(request, bigip, 'lsnpool1')
-        pool1 = bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1',
-                                                  mode='deterministic')
+        pool1 = bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool1',
+                                                    mode='deterministic')
         assert pool1.name == 'lsnpool1'
         assert pool1.mode == 'deterministic'
 
@@ -196,20 +196,20 @@ class TestLSNPool(object):
 
     def test_create_with_nondefault_mode(self, request, bigip):
         setup_create_test(request, bigip, 'lsnpool1')
-        pool1 = bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1',
-                                                  mode='deterministic')
+        pool1 = bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool1',
+                                                    mode='deterministic')
         assert pool1.name == 'lsnpool1'
         assert pool1.mode == 'deterministic'
 
     @not_supported_prior_11_6_0
     def test_create_with_nondefault_mode_11_6_0(self, request, bigip):
         setup_create_test(request, bigip, 'lsnpool1')
-        pool1 = bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1',
-                                                  mode='deterministic')
+        pool1 = bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool1',
+                                                    mode='deterministic')
         assert pool1.name == 'lsnpool1'
         assert pool1.mode == 'deterministic'
         setup_create_test(request, bigip, 'lsnpool2')
-        pool2 = bigip.ltm.lsnpools.lsnpool.create(name='lsnpool2', mode='pba')
+        pool2 = bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool2', mode='pba')
         assert pool2.name == 'lsnpool2'
         assert pool2.mode == 'pba'
 
@@ -217,8 +217,8 @@ class TestLSNPool(object):
         with pytest.raises(iControlUnexpectedHTTPError) as excinfo:
             def create_request():
                 setup_create_test(request, bigip, 'lsnpool1')
-                bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1',
-                                                  mode='invalid_mode')
+                bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool1',
+                                                    mode='invalid_mode')
             create_request()
         expected_msg = ('invalid property value \\\\"mode\\\\":\\\\"'
                         'invalid_mode\\\\')
@@ -226,18 +226,18 @@ class TestLSNPool(object):
 
     def test_create_with_member(self, request, bigip):
         setup_create_test(request, bigip, 'lsnpool1')
-        pool1 = bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1',
-                                                  members=["4.4.0.0/16",
-                                                           "5.5.0.0/32"])
+        pool1 = bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool1',
+                                                    members=["4.4.0.0/16",
+                                                             "5.5.0.0/32"])
         assert pool1.name == 'lsnpool1'
         assert pool1.mode == "napt"
         assert pool1.members == ["4.4.0.0/16", "5.5.0.0/32"]
 
     def test_virtual_with_pool(self, request, bigip, virtual_setup):
         setup_create_test(request, bigip, 'lsnpool1')
-        pool1 = bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1',
-                                                  members=["4.4.0.0/16",
-                                                           "5.5.0.0/32"])
+        pool1 = bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool1',
+                                                    members=["4.4.0.0/16",
+                                                             "5.5.0.0/32"])
         assert pool1.name == 'lsnpool1'
         assert pool1.mode == "napt"
         assert pool1.members == ["4.4.0.0/16", "5.5.0.0/32"]
@@ -251,12 +251,12 @@ class TestLSNPool(object):
 
     def test_collection(self, request, bigip):
         setup_create_test(request, bigip, 'lsnpool1')
-        bigip.ltm.lsnpools.lsnpool.create(name='lsnpool1',
-                                          mode='deterministic')
+        bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool1',
+                                            mode='deterministic')
         setup_create_test(request, bigip, 'lsnpool2')
-        bigip.ltm.lsnpools.lsnpool.create(name='lsnpool2',
-                                          mode='napt')
-        pool_list = bigip.ltm.lsnpools.get_collection()
+        bigip.ltm.lsn_pools.lsn_pool.create(name='lsnpool2',
+                                            mode='napt')
+        pool_list = bigip.ltm.lsn_pools.get_collection()
         assert len(pool_list) == 2
         assert pool_list[0].name == 'lsnpool1'
         assert pool_list[1].name == 'lsnpool2'
@@ -265,13 +265,13 @@ class TestLSNPool(object):
 @not_supported_prior_11_6_0
 class TestLSNPoolLogProfile(object):
     def test_create_no_args(self, bigip):
-        logprofile = bigip.ltm.lsnlogprofiles.lsnlogprofile
+        logprofile = bigip.ltm.lsn_log_profiles.lsn_log_profile
         with pytest.raises(MissingRequiredCreationParameter):
             logprofile.create()
 
     def test_create(self, request, bigip):
         setup_log_profile_create_test(request, bigip, 'lsnlogpool1')
-        logprofile1 = bigip.ltm.lsnlogprofiles.lsnlogprofile.create(
+        logprofile1 = bigip.ltm.lsn_log_profiles.lsn_log_profile.create(
             name='lsnlogpool1')
         assert logprofile1.name == 'lsnlogpool1'
         assert logprofile1.endInboundSession['action'] == 'enabled'
@@ -292,10 +292,10 @@ class TestLSNPoolLogProfile(object):
 
     def test_exists(self, request, bigip):
         setup_log_profile_create_test(request, bigip, 'logprofile1')
-        bigip.ltm.lsnlogprofiles.lsnlogprofile.create(name='logprofile1')
-        pos_test = bigip.ltm.lsnlogprofiles.lsnlogprofile.exists(
+        bigip.ltm.lsn_log_profiles.lsn_log_profile.create(name='logprofile1')
+        pos_test = bigip.ltm.lsn_log_profiles.lsn_log_profile.exists(
             name='logprofile1')
         assert pos_test
-        neg_test = bigip.ltm.lsnlogprofiles.lsnlogprofile.exists(
+        neg_test = bigip.ltm.lsn_log_profiles.lsn_log_profile.exists(
             name='logprofile2')
         assert not neg_test
