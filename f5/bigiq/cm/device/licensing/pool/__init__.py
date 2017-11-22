@@ -24,7 +24,9 @@ REST Kind
     N/A -- HTTP GET returns an error
 """
 
+from f5.bigiq.cm.device.licensing.pool.initial_activation import Initial_Activations
 from f5.bigiq.cm.device.licensing.pool.regkey import Regkey
+from f5.bigiq.cm.device.licensing.pool.utility import Utility
 from f5.bigiq.resource import OrganizingCollection
 
 
@@ -32,5 +34,7 @@ class Pool(OrganizingCollection):
     def __init__(self, licensing):
         super(Pool, self).__init__(licensing)
         self._meta_data['allowed_lazy_attributes'] = [
-            Regkey
+            Initial_Activations,
+            Regkey,
+            Utility
         ]

@@ -1,6 +1,6 @@
 # coding=utf-8
 #
-#  Copyright 2014-2016 F5 Networks Inc.
+# Copyright 2017 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,10 +24,24 @@ REST Kind
     ``cm:device:licensing:pool:regkey:licenses:*``
 """
 
+import os
+import time
+import uuid
+
 from f5.bigiq.resource import Collection
+from f5.bigiq.resource import OrganizingCollection
 from f5.bigiq.resource import Resource
+from f5.sdk_exception import F5SDKError
 from f5.sdk_exception import RequiredOneOf
 from six import iterkeys
+
+
+class Regkey(OrganizingCollection):
+    def __init__(self, pool):
+        super(Regkey, self).__init__(pool)
+        self._meta_data['allowed_lazy_attributes'] = [
+            Licenses_s
+        ]
 
 
 class Licenses_s(Collection):
@@ -35,15 +49,15 @@ class Licenses_s(Collection):
         super(Licenses_s, self).__init__(regkey)
         self._meta_data['required_json_kind'] = \
             'cm:device:licensing:pool:regkey:licenses:regkeypoollicensecollectionstate'  # NOQA
-        self._meta_data['allowed_lazy_attributes'] = [License]
+        self._meta_data['allowed_lazy_attributes'] = [Licenses]
         self._meta_data['attribute_registry'] = {
-            'cm:device:licensing:pool:regkey:licenses:regkeypoollicensestate': License  # NOQA
+            'cm:device:licensing:pool:regkey:licenses:regkeypoollicensestate': Licenses  # NOQA
         }
 
 
-class License(Resource):
+class Licenses(Resource):
     def __init__(self, licenses_s):
-        super(License, self).__init__(licenses_s)
+        super(Licenses, self).__init__(licenses_s)
         self._meta_data['required_creation_parameters'] = {'name', }
         self._meta_data['required_json_kind'] = \
             'cm:device:licensing:pool:regkey:licenses:regkeypoollicensestate'
@@ -60,20 +74,21 @@ class Offerings_s(Collection):
         super(Offerings_s, self).__init__(license)
         self._meta_data['required_json_kind'] = \
             'cm:device:licensing:pool:regkey:licenses:item:offerings:regkeypoollicenseofferingcollectionstate'  # NOQA
-        self._meta_data['allowed_lazy_attributes'] = [Offering]
+        self._meta_data['allowed_lazy_attributes'] = [Offerings]
         self._meta_data['attribute_registry'] = {
-            'cm:device:licensing:pool:regkey:licenses:item:offerings:regkeypoollicenseofferingstate': Offering  # NOQA
+            'cm:device:licensing:pool:regkey:licenses:item:offerings:regkeypoollicenseofferingstate': Offerings  # NOQA
         }
 
 
-class Offering(Resource):
+class Offerings(Resource):
     def __init__(self, offerings_s):
-        super(Offering, self).__init__(offerings_s)
+        super(Offerings, self).__init__(offerings_s)
         self._meta_data['required_creation_parameters'] = {'regKey', }
         self._meta_data['required_json_kind'] = \
             'cm:device:licensing:pool:regkey:licenses:item:offerings:regkeypoollicenseofferingstate'  # NOQA
+        self._meta_data['allowed_lazy_attributes'] = [Members_s]
         self._meta_data['attribute_registry'] = {
-            'cm:device:licensing:pool:regkey:licenses:item:offerings:regkeypoollicenseofferingstate': Offering  # NOQA
+            'cm:device:licensing:pool:regkey:licenses:item:offerings:regkey:members:regkeypoollicensemembercollectionstate': Members_s
         }
 
 
@@ -82,17 +97,16 @@ class Members_s(Collection):
         super(Members_s, self).__init__(pool)
         self._meta_data['required_json_kind'] = \
             'cm:device:licensing:pool:regkey:licenses:item:offerings:regkey:members:regkeypoollicensemembercollectionstate'  # NOQA
-        self._meta_data['allowed_lazy_attributes'] = [Member]
+        self._meta_data['allowed_lazy_attributes'] = [Members]
         self._meta_data['attribute_registry'] = {
-            'cm:shared:licensing:pools:licensepoolmemberstate': Member
+            'cm:device:licensing:pool:regkey:licenses:item:offerings:regkey:members:regkeypoollicensememberstate': Members
         }
 
 
-class Member(Resource):
+class Members(Resource):
     def __init__(self, members_s):
-        super(Member, self).__init__(members_s)
-        self._meta_data['required_json_kind'] = \
-            'cm:shared:licensing:pools:licensepoolmemberstate'
+        super(Members, self).__init__(members_s)
+        self._meta_data['required_json_kind'] = 'cm:device:licensing:pool:regkey:licenses:item:offerings:regkey:members:regkeypoollicensememberstate'
 
         # This set is empty because the creation checking is done as
         # a required_one_of in the create() method
@@ -118,7 +132,7 @@ class Member(Resource):
         raise RequiredOneOf(required_one_of)
 
     def delete(self, **kwargs):
-        """Deletes a member from an unmanaged license pool
+        """Deletes a member from a license pool
 
         You need to be careful with this method. When you use it, and it
         succeeds on the remote BIG-IP, the configuration of the BIG-IP
@@ -132,17 +146,19 @@ class Member(Resource):
         :param kwargs:
         :return:
         """
-        if 'deviceAddress' in kwargs:
-            self._delete_unmanaged_device(**kwargs)
-        else:
-            self._delete_managed_device(**kwargs)
-
-    def _delete_managed_device(self, **kwargs):
-        self._delete(**kwargs)
-
-    def _delete_unmanaged_device(self, **kwargs):
-        if 'uuid' not in kwargs:
-            kwargs['uuid'] = str(self.uuid)
+        if 'id' not in kwargs:
+            # BIG-IQ requires that you provide the ID of the members to revoke
+            # a license from. This ID is already part of the deletion URL though.
+            # Therefore, if you do not provide it, we enumerate it for you.
+            delete_uri = self._meta_data['uri']
+            if delete_uri.endswith('/'):
+                delete_uri = delete_uri[0:-1]
+                kwargs['id'] = os.path.basename(delete_uri)
+            uid = uuid.UUID(kwargs['id'], version=4)
+            if uid.hex != kwargs['id'].replace('-', ''):
+                raise F5SDKError(
+                    "The specified ID is invalid"
+                )
 
         requests_params = self._handle_requests_params(kwargs)
         kwargs = self._check_for_python_keywords(kwargs)
@@ -159,3 +175,10 @@ class Member(Resource):
         response = session.delete(delete_uri, json=kwargs, **requests_params)
         if response.status_code == 200:
             self.__dict__ = {'deleted': True}
+
+        # This sleep is necessary to prevent BIG-IQ from being able to remove
+        # a license. It happens in certain cases that assignments can be revoked
+        # (and license deletion started) too quickly. Therefore, we must introduce
+        # an artificial delay here to prevent revoking from returning before
+        # BIG-IQ would be ready to remove the license.
+        time.sleep(1)
