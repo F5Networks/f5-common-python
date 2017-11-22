@@ -31,12 +31,13 @@ class ManagementRoot(PathElement):
 
         # The BIG-IQ token is called "local", as opposed to BIG-IP's which
         # is called "tmos"
-        token = kwargs.pop('token', 'local')
+        auth_provider = kwargs.pop('auth_provider', 'local')
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
         # _meta_data variable values
-        iCRS = iControlRESTSession(username, password, timeout=timeout,
-                                   token=token)
+        iCRS = iControlRESTSession(
+            username, password, timeout=timeout, auth_provider=auth_provider
+        )
         # define _meta_data
         self._meta_data = {
             'allowed_lazy_attributes': [Cm, Shared, Tm],

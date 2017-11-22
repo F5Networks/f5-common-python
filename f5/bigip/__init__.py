@@ -51,7 +51,8 @@ class BaseManagement(PathElement):
             timeout=kwargs.pop('timeout', 30),
             port=kwargs.pop('port', 443),
             icontrol_version=kwargs.pop('icontrol_version', ''),
-            token=kwargs.pop('token', False)
+            token=kwargs.pop('token', False),
+            auth_provider=kwargs.pop('auth_provider', None)
         )
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
@@ -63,12 +64,17 @@ class BaseManagement(PathElement):
         return result
 
     def _get_icr_session(self, *args, **kwargs):
-        return iControlRESTSession(
+        params = dict(
             username=kwargs['username'],
             password=kwargs['password'],
-            timeout=kwargs['timeout'],
-            token=kwargs['token']
+            timeout=kwargs['timeout']
         )
+        if kwargs['auth_provider']:
+            params['auth_provider'] = kwargs['auth_provider']
+        else:
+            params['token'] = kwargs['token']
+        result = iControlRESTSession(**params)
+        return result
 
     def configure_meta_data(self, *args, **kwargs):
         self._meta_data = {
