@@ -6,6 +6,7 @@ mock==2.0.0
 pytest==3.2.1
 pytest-cov>=2.2.1
 git+https://github.com/F5Networks/pytest-symbols.git
+git+https://github.com/F5Networks/pytest_f5sdk.git
 python-coveralls==2.7.0
 pyOpenSSL==16.2.0
 requests-mock==1.2.0
