@@ -20,4 +20,4 @@ import pytest
 @pytest.fixture(scope='module')
 def mgmt_root(opt_bigip, opt_username, opt_password, opt_port, opt_token):
     return ManagementRoot(opt_bigip, opt_username, opt_password,
-                          port=opt_port, token=opt_token)
+                          port=opt_port, auth_provider="local")

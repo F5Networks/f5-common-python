@@ -37,7 +37,7 @@ class PathElement(BigIpPathElement):
 
     def __init__(self, container):
         super(PathElement, self).__init__(container)
-        self._meta_data['minimum_version'] = '5.0.0'
+        self._meta_data['minimum_version'] = '5.3.0'
 
 
 class Resource(BigIpResource, PathElement):
