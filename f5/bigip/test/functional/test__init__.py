@@ -15,6 +15,7 @@
 import pytest
 
 from f5.bigip import ManagementRoot
+from f5.sdk_exception import TimeoutError
 
 
 def test_invalid_args(opt_bigip, opt_username, opt_password, opt_port):
@@ -34,3 +35,10 @@ def test_tmos_version(mgmt_root):
         mgmt_root._meta_data['bigip']._meta_data['tmos_version']
     assert mgmt_root.tmos_version is not None
     assert mgmt_root._meta_data['bigip']._meta_data['tmos_version'] != ''
+
+
+def test_hard_timeout():
+    # The IP and port here are set to these values deliberately. They should never resolve.
+    with pytest.raises(TimeoutError) as ex:
+        ManagementRoot('10.255.255.1', 'foo', 'bar', port=81, timeout=1)
+    assert str(ex.value) == 'Timed out waiting for response'

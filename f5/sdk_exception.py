@@ -248,3 +248,7 @@ class RequiredOneOf(F5SDKError):
             errors.append(error)
         msg = message.format(' or '.join(errors))
         super(RequiredOneOf, self).__init__(msg)
+
+
+class TimeoutError(F5SDKError):
+    """Raised when hard-timeout (timeout keyword to ManagementRoot) is met"""
