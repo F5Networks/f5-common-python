@@ -59,7 +59,8 @@ def determine_files_to_test(product, commit):
     results = []
     build_all = [
         'setup.py', 'f5/bigip/contexts.py', 'f5/bigip/mixins.py',
-        'f5/bigip/resource.py', 'f5sdk_plugins/fixtures.py'
+        'f5/bigip/resource.py', 'f5sdk_plugins/fixtures.py',
+        'f5/bigip/__init__.py'
     ]
     output_file = "pytest.{0}.jenkins.txt".format(product)
 
