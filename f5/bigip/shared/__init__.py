@@ -16,6 +16,7 @@
 #
 
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.shared.authn import Authn
 from f5.bigip.shared.authz import Authz
 from f5.bigip.shared.file_transfer import File_Transfer
 from f5.bigip.shared.iapp import Iapp
@@ -28,5 +29,6 @@ class Shared(OrganizingCollection):
         self._meta_data['allowed_lazy_attributes'] = [
             File_Transfer,
             Iapp,
+            Authn,
             Authz
         ]
