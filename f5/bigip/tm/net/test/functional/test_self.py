@@ -19,9 +19,9 @@ from f5.sdk_exception import MissingRequiredCreationParameter
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
-def delete_selfip(bigip, name, partition):
+def delete_selfip(mgmt_root, name, partition):
     try:
-        s = bigip.net.selfips.selfip.load(name=name, partition=partition)
+        s = mgmt_root.tm.net.selfips.selfip.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -29,9 +29,9 @@ def delete_selfip(bigip, name, partition):
     s.delete()
 
 
-def delete_vlan(bigip, name, partition):
+def delete_vlan(mgmt_root, name, partition):
     try:
-        s = bigip.net.vlans.vlan.load(name=name, partition=partition)
+        s = mgmt_root.tm.net.vlans.vlan.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -39,15 +39,15 @@ def delete_vlan(bigip, name, partition):
     s.delete()
 
 
-def setup_self_test(request, bigip, partition, name,
+def setup_self_test(request, mgmt_root, partition, name,
                     vlan='v1', vlan_partition='Common'):
     def teardown():
-        delete_selfip(bigip, name, partition)
-        delete_vlan(bigip, 'v1', 'Common')
+        delete_selfip(mgmt_root, name, partition)
+        delete_vlan(mgmt_root, 'v1', 'Common')
     request.addfinalizer(teardown)
 
-    sc1 = bigip.net.selfips
-    vc1 = bigip.net.vlans
+    sc1 = mgmt_root.tm.net.selfips
+    vc1 = mgmt_root.tm.net.vlans
     vc1.vlan.create(name=vlan, partition=vlan_partition)
     s1 = sc1.selfip.create(
         name=name, partition=partition, address='192.168.101.1/32', vlan='v1')
@@ -55,14 +55,14 @@ def setup_self_test(request, bigip, partition, name,
 
 
 class TestSelfIP(object):
-    def test_create_missing_args(self, request, bigip):
+    def test_create_missing_args(self, request, mgmt_root):
         with pytest.raises(MissingRequiredCreationParameter):
-            bigip.net.selfips.selfip.create(name="s1", partition='Common')
+            mgmt_root.tm.net.selfips.selfip.create(name="s1", partition='Common')
 
-    def test_CURDL(self, request, bigip):
+    def test_CURDL(self, request, mgmt_root):
         # We will assume that the setup/teardown will test create/delete
-        s1, sc1 = setup_self_test(request, bigip, 'Common', 'self1')
-        s2 = bigip.net.selfips.selfip.load(
+        s1, sc1 = setup_self_test(request, mgmt_root, 'Common', 'self1')
+        s2 = mgmt_root.tm.net.selfips.selfip.load(
             name=s1.name, partition=s1.partition)
         assert s1.name == 'self1'
         assert s2.name == s1.name
@@ -84,9 +84,9 @@ class TestSelfIP(object):
 
 
 class TestSelfIPCollection(object):
-    def test_get_collection(self, request, bigip):
-        setup_self_test(request, bigip, 'Common', 'self1')
-        sc = bigip.net.selfips
+    def test_get_collection(self, request, mgmt_root):
+        setup_self_test(request, mgmt_root, 'Common', 'self1')
+        sc = mgmt_root.tm.net.selfips
         self_ips = sc.get_collection()
         assert len(self_ips) >= 1
         assert self_ips[0].name == 'self1'

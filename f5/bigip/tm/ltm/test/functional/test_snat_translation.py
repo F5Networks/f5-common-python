@@ -14,32 +14,32 @@
 #
 
 
-def setup(request, bigip, name, partition, ipaddr):
+def setup(request, mgmt_root, name, partition, ipaddr):
     def teardown():
         if st.exists(name=name, partition=partition):
             st.delete()
     request.addfinalizer(teardown)
 
-    stc = bigip.ltm.snat_translations
+    stc = mgmt_root.tm.ltm.snat_translations
     st = stc.snat_translation.create(
         name=name, partition=partition, address=ipaddr)
     return stc, st
 
 
 class TestSnatTranslations(object):
-    def test_get_collection(self, request, bigip):
+    def test_get_collection(self, request, mgmt_root):
         stc, st = setup(
-            request, bigip, 'test-snatxlate', 'Common', '192.168.50.51')
+            request, mgmt_root, 'test-snatxlate', 'Common', '192.168.50.51')
         sts = stc.get_collection()
         assert len(sts) >= 1
         assert [s for s in sts if s.name == 'test-snatxlate']
 
 
 class TestSnatTranslation(object):
-    def test_CURDLE(self, request, bigip):
+    def test_CURDLE(self, request, mgmt_root):
         # Assume create and delete are tested by setup/teardown
         stc, st1 = setup(
-            request, bigip, 'test-snatxlate', 'Common', '192.168.101.1')
+            request, mgmt_root, 'test-snatxlate', 'Common', '192.168.101.1')
 
         # Exists
         assert stc.snat_translation.exists(

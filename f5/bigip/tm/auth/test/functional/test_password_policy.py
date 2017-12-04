@@ -17,14 +17,14 @@ import copy
 
 
 class TestPasswordPolicy(object):
-    def test_load(self, bigip):
-        password_policy = bigip.auth.password_policy.load()
+    def test_load(self, mgmt_root):
+        password_policy = mgmt_root.tm.auth.password_policy.load()
         assert password_policy.maxLoginFailures == 0
         password_policy.refresh()
         assert password_policy.maxLoginFailures == 0
 
-    def test_update(self, bigip):
-        password_policy = bigip.auth.password_policy.load()
+    def test_update(self, mgmt_root):
+        password_policy = mgmt_root.tm.auth.password_policy.load()
         password_policy.update(maxLoginFailures=10)
         assert password_policy.maxLoginFailures == 10
         password_policy.update(maxLoginFailures=0)

@@ -20,7 +20,7 @@ from requests import HTTPError
 TEST_DESCR = "TEST DESCRIPTION"
 
 
-def setup_traffic_group_test(request, bigip, name, partition, **kwargs):
+def setup_traffic_group_test(request, mgmt_root, name, partition, **kwargs):
     def teardown():
         try:
             tg.delete()
@@ -28,7 +28,7 @@ def setup_traffic_group_test(request, bigip, name, partition, **kwargs):
             if err.response.status_code is not 404:
                 raise
     request.addfinalizer(teardown)
-    tg = bigip.cm.traffic_groups.traffic_group.create(
+    tg = mgmt_root.tm.cm.traffic_groups.traffic_group.create(
         name=name, partition=partition, **kwargs)
     return tg
 
@@ -40,29 +40,29 @@ class TestTrafficGroups(object):
         ) < LooseVersion('11.6.0'),
         reason='Skip test if on a version below 11.6.0. The '
         'mac attribute does not exist in 11.5.4.')
-    def test_device_list_11_6_and_greater(self, bigip):
-        groups = bigip.cm.traffic_groups.get_collection()
+    def test_device_list_11_6_and_greater(self, mgmt_root):
+        groups = mgmt_root.tm.cm.traffic_groups.get_collection()
         assert len(groups)
         assert groups[0].generation > 0
         assert hasattr(groups[0], 'mac')
 
-    def test_device_list_alternative(self, bigip):
+    def test_device_list_alternative(self, mgmt_root):
         '''An alternative to test above that works regardless of version.'''
-        groups = bigip.cm.traffic_groups.get_collection()
+        groups = mgmt_root.tm.cm.traffic_groups.get_collection()
         assert len(groups)
         assert groups[0].generation > 0
         assert hasattr(groups[0], 'isFloating')
 
 
 class TestDevice(object):
-    def test_device_CURDL(self, request, bigip):
+    def test_device_CURDL(self, request, mgmt_root):
         # Create and Delete are done by setup/teardown
         tg1 = setup_traffic_group_test(
-            request, bigip, 'test-tg', 'Common')
+            request, mgmt_root, 'test-tg', 'Common')
         assert tg1.generation > 0
 
         # Load
-        tg2 = bigip.cm.traffic_groups.traffic_group.load(
+        tg2 = mgmt_root.tm.cm.traffic_groups.traffic_group.load(
             name=tg1.name, partition=tg1.partition)
         assert tg1.generation == tg2.generation
 

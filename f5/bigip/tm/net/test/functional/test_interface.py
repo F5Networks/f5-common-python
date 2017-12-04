@@ -15,17 +15,17 @@
 import pytest
 
 
-def cleanup_test(request, bigip):
+def cleanup_test(request, mgmt_root):
     def teardown():
-        for ifc in bigip.net.interfaces.get_collection():
+        for ifc in mgmt_root.tm.net.interfaces.get_collection():
             ifc.enabled = True
             ifc.update()
     request.addfinalizer(teardown)
 
 
 class TestInterfaces(object):
-    def test_interfaces_list(self, bigip):
-        ifcs = bigip.net.interfaces.get_collection()
+    def test_interfaces_list(self, mgmt_root):
+        ifcs = mgmt_root.tm.net.interfaces.get_collection()
         assert len(ifcs)
         for ifc in ifcs:
             assert ifc.generation
@@ -36,11 +36,11 @@ class TestInterface(object):
         'A known issue with generation number. '
         'See: https://github.com/F5Networks/f5-common-python/issues/334'
     )
-    def test_RUL(self, request, bigip):
-        cleanup_test(request, bigip)
+    def test_RUL(self, request, mgmt_root):
+        cleanup_test(request, mgmt_root)
         # We can't create or delete interfaces so we will load them to start
-        ifc1 = bigip.net.interfaces.interface.load(name='1.1')
-        ifc2 = bigip.net.interfaces.interface.load(name='1.1')
+        ifc1 = mgmt_root.tm.net.interfaces.interface.load(name='1.1')
+        ifc2 = mgmt_root.tm.net.interfaces.interface.load(name='1.1')
         assert ifc1.generation == ifc2.generation
         assert ifc1.name == ifc2.name
 

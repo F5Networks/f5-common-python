@@ -15,8 +15,8 @@
 
 
 class TestSyncStatus(object):
-    def test_get_status(self, request, bigip):
-        sync_status = bigip.cm.sync_status
+    def test_get_status(self, request, mgmt_root):
+        sync_status = mgmt_root.tm.cm.sync_status
         assert sync_status._meta_data['uri'].endswith(
             "/mgmt/tm/cm/sync-status/")
         sync_status.refresh()

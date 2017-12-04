@@ -24,9 +24,9 @@ from six import iterkeys
 TESTDESCRIPTION = 'TESTDESCRIPTION'
 
 
-def delete_pool(bigip, name, partition):
+def delete_pool(mgmt_root, name, partition):
     try:
-        p = bigip.ltm.pools.pool.load(name=name, partition=partition)
+        p = mgmt_root.tm.ltm.pools.pool.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -34,24 +34,24 @@ def delete_pool(bigip, name, partition):
     p.delete()
 
 
-def setup_create_test(request, bigip, name, partition):
+def setup_create_test(request, mgmt_root, name, partition):
     def teardown():
-        delete_pool(bigip, name, partition)
+        delete_pool(mgmt_root, name, partition)
     request.addfinalizer(teardown)
 
 
-def setup_basic_test(request, bigip, name, partition):
+def setup_basic_test(request, mgmt_root, name, partition):
     def teardown():
-        delete_pool(bigip, name, partition)
+        delete_pool(mgmt_root, name, partition)
 
-    pool1 = bigip.ltm.pools.pool.create(name=name, partition=partition)
+    pool1 = mgmt_root.tm.ltm.pools.pool.create(name=name, partition=partition)
     request.addfinalizer(teardown)
     return pool1
 
 
-def setup_member_test(request, bigip, name, partition,
+def setup_member_test(request, mgmt_root, name, partition,
                       memname="192.168.15.15:80"):
-    p1 = setup_basic_test(request, bigip, name, partition)
+    p1 = setup_basic_test(request, mgmt_root, name, partition)
     member = p1.members_s.members.create(
         name=memname, partition=partition)
     assert member.name == "192.168.15.15:80"
@@ -59,8 +59,8 @@ def setup_member_test(request, bigip, name, partition,
 
 
 class TestPoolMembersCollection(object):
-    def test_get_collection(self, request, bigip, opt_release):
-        member1, pool1 = setup_member_test(request, bigip, 'membertestpool1',
+    def test_get_collection(self, request, mgmt_root, opt_release):
+        member1, pool1 = setup_member_test(request, mgmt_root, 'membertestpool1',
                                            'Common')
         pool1.members_s.members.create(
             name='192.168.16.16:8080', partition='Common')
@@ -87,8 +87,8 @@ class TestPoolMembersCollection(object):
         remaining = pre_del - delta
         assert 'members_s' not in remaining
 
-    def test_refresh_member(self, request, bigip):
-        member, _ = setup_member_test(request, bigip, 'membertestpool1',
+    def test_refresh_member(self, request, mgmt_root):
+        member, _ = setup_member_test(request, mgmt_root, 'membertestpool1',
                                       'Common')
         member.description = TESTDESCRIPTION
         member.update(state=None)
@@ -98,8 +98,8 @@ class TestPoolMembersCollection(object):
         member.delete()
         assert member.__dict__ == {'deleted': True}
 
-    def test_load_member(self, request, bigip):
-        member1, pool1 = setup_member_test(request, bigip, 'membertestpool1',
+    def test_load_member(self, request, mgmt_root):
+        member1, pool1 = setup_member_test(request, mgmt_root, 'membertestpool1',
                                            'Common')
         member1.description = TESTDESCRIPTION
         member1.update(state=None)
@@ -110,16 +110,16 @@ class TestPoolMembersCollection(object):
         member1.delete()
         assert member1.__dict__ == {'deleted': True}
 
-    def test_members_exists(self, request, bigip):
-        member1, pool1 = setup_member_test(request, bigip, 'membertestpool1',
+    def test_members_exists(self, request, mgmt_root):
+        member1, pool1 = setup_member_test(request, mgmt_root, 'membertestpool1',
                                            'Common')
         assert\
             member1.exists(partition="Common", name="192.168.15.15:80") is True
         assert\
             member1.exists(partition="Common", name="19.168.15.15:80") is False
 
-    def test_state_update(self, request, bigip):
-        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+    def test_state_update(self, request, mgmt_root):
+        m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                                      'Common')
         assert m1.state == 'unchecked'
         m1.state = 'user-down'
@@ -129,8 +129,8 @@ class TestPoolMembersCollection(object):
         assert m2.state == 'user-down'
         assert m2.state == m1.state
 
-    def test_state_update_with_kwargs(self, request, bigip):
-        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+    def test_state_update_with_kwargs(self, request, mgmt_root):
+        m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                                      'Common')
         assert m1.state == 'unchecked'
         m1.update(state='user-down')
@@ -139,8 +139,8 @@ class TestPoolMembersCollection(object):
         assert m2.state == 'user-down'
         assert m2.state == m1.state
 
-    def test_state_update_invalid_value_with_kwargs(self, request, bigip):
-        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+    def test_state_update_invalid_value_with_kwargs(self, request, mgmt_root):
+        m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                                      'Common')
         assert m1.state == 'unchecked'
         m1.update(state='down')
@@ -149,8 +149,8 @@ class TestPoolMembersCollection(object):
         assert m2.state == 'unchecked'
         assert m2.state == m1.state
 
-    def test_state_update_invalid_value(self, request, bigip):
-        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+    def test_state_update_invalid_value(self, request, mgmt_root):
+        m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                                      'Common')
         assert m1.state == 'unchecked'
         m1.state = 'down'
@@ -160,8 +160,8 @@ class TestPoolMembersCollection(object):
         assert m2.state == 'unchecked'
         assert m2.state == m1.state
 
-    def test_session_update_with_kwargs(self, request, bigip):
-        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+    def test_session_update_with_kwargs(self, request, mgmt_root):
+        m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                                      'Common')
         assert m1.session == 'user-enabled'
         m1.update(session='user-disabled')
@@ -170,8 +170,8 @@ class TestPoolMembersCollection(object):
         assert m2.session == 'user-disabled'
         assert m2.session == m1.session
 
-    def test_session_update_invalid_value_with_kwargs(self, request, bigip):
-        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+    def test_session_update_invalid_value_with_kwargs(self, request, mgmt_root):
+        m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                                      'Common')
         assert m1.session == 'user-enabled'
         m1.update(session='monitor-enabled')
@@ -180,8 +180,8 @@ class TestPoolMembersCollection(object):
         assert m2.session == 'user-enabled'
         assert m2.session == m1.session
 
-    def test_session_update_invalid_value(self, request, bigip):
-        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+    def test_session_update_invalid_value(self, request, mgmt_root):
+        m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                                      'Common')
         assert m1.session == 'user-enabled'
         m1.session = 'monitor-enabled'
@@ -191,8 +191,8 @@ class TestPoolMembersCollection(object):
         assert m2.session == 'user-enabled'
         assert m2.session == m1.session
 
-    def test_update_session_state(self, request, bigip):
-        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+    def test_update_session_state(self, request, mgmt_root):
+        m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                                      'Common')
         assert m1.session == 'user-enabled'
         assert m1.state == 'unchecked'
@@ -206,8 +206,8 @@ class TestPoolMembersCollection(object):
         m2.session = m1.session
         m2.state = m1.state
 
-    def test_update_session_state_kwargs(self, request, bigip):
-        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+    def test_update_session_state_kwargs(self, request, mgmt_root):
+        m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                                      'Common')
         assert m1.session == 'user-enabled'
         assert m1.state == 'unchecked'
@@ -219,8 +219,8 @@ class TestPoolMembersCollection(object):
         m2.session = m1.session
         m2.state = m1.state
 
-    def test_session_modify(self, request, bigip):
-        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+    def test_session_modify(self, request, mgmt_root):
+        m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                                      'Common')
         assert m1.session == 'user-enabled'
         m1.modify(session='user-disabled')
@@ -229,8 +229,8 @@ class TestPoolMembersCollection(object):
         assert m2.session == 'user-disabled'
         assert m1.session == m2.session
 
-    def test_state_modify(self, request, bigip):
-        m1, pool = setup_member_test(request, bigip, 'membertestpool1',
+    def test_state_modify(self, request, mgmt_root):
+        m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                                      'Common')
         assert m1.state == 'unchecked'
         m1.modify(state='user-down')
@@ -239,8 +239,8 @@ class TestPoolMembersCollection(object):
         assert m2.state == 'user-down'
         assert m1.state == m2.state
 
-    def test_state_modify_error(self, request, bigip):
-        m1, _ = setup_member_test(request, bigip, 'membertestpool1', 'Common')
+    def test_state_modify_error(self, request, mgmt_root):
+        m1, _ = setup_member_test(request, mgmt_root, 'membertestpool1', 'Common')
         with pytest.raises(MemberStateModifyUnsupported) as ex:
             m1.modify(state='down')
         assert ex.value.message == "The members resource does not support a " \
@@ -248,8 +248,8 @@ class TestPoolMembersCollection(object):
                                    "attribute as down. The accepted values " \
                                    "are 'user-up' or 'user-down'"
 
-    def test_session_modify_error(self, request, bigip):
-        m1, _ = setup_member_test(request, bigip, 'membertestpool1', 'Common')
+    def test_session_modify_error(self, request, mgmt_root):
+        m1, _ = setup_member_test(request, mgmt_root, 'membertestpool1', 'Common')
         with pytest.raises(MemberStateModifyUnsupported) as ex:
             m1.modify(state='monitor-enabled')
         assert ex.value.message == "The members resource does not support a " \
@@ -260,14 +260,14 @@ class TestPoolMembersCollection(object):
 
 
 class TestPool(object):
-    def test_create_no_args(self, bigip):
-        pool1 = bigip.ltm.pools.pool
+    def test_create_no_args(self, mgmt_root):
+        pool1 = mgmt_root.tm.ltm.pools.pool
         with pytest.raises(MissingRequiredCreationParameter):
             pool1.create()
 
-    def test_create(self, request, bigip):
-        setup_create_test(request, bigip, 'pool1', 'Common')
-        pool1 = bigip.ltm.pools.pool.create(name='pool1', partition='Common')
+    def test_create(self, request, mgmt_root):
+        setup_create_test(request, mgmt_root, 'pool1', 'Common')
+        pool1 = mgmt_root.tm.ltm.pools.pool.create(name='pool1', partition='Common')
         assert pool1.name == 'pool1'
         assert pool1.partition == 'Common'
         assert pool1.generation and isinstance(pool1.generation, int)
@@ -276,15 +276,15 @@ class TestPool(object):
         assert pool1.selfLink.startswith(
             'https://localhost/mgmt/tm/ltm/pool/~Common~pool1')
 
-    def test_refresh(self, request, bigip):
-        pool1 = setup_basic_test(request, bigip, 'pool1', 'Common')
+    def test_refresh(self, request, mgmt_root):
+        pool1 = setup_basic_test(request, mgmt_root, 'pool1', 'Common')
         assert pool1.allowNat == "yes"
         pool1.allowNat = "no"
         pool1.refresh()
         assert pool1.allowNat == "yes"
 
-    def test_update(self, request, bigip):
-        pool1 = setup_basic_test(request, bigip, 'pool1', 'Common')
+    def test_update(self, request, mgmt_root):
+        pool1 = setup_basic_test(request, mgmt_root, 'pool1', 'Common')
         pool1.allowNat = "no"
         pool1.update()
         assert pool1.allowNat == "no"
@@ -292,10 +292,10 @@ class TestPool(object):
         pool1.refresh()
         assert pool1.allowNat == "no"
 
-    def test_create_monitor_parameter(self, request, bigip):
-        setup_create_test(request, bigip, 'pool1', 'Common')
+    def test_create_monitor_parameter(self, request, mgmt_root):
+        setup_create_test(request, mgmt_root, 'pool1', 'Common')
         mon = 'min 1 of { /Common/http /Common/tcp }'
-        pool1 = bigip.ltm.pools.pool.create(
+        pool1 = mgmt_root.tm.ltm.pools.pool.create(
             name='pool1', partition='Common', monitor=mon)
         assert pool1.name == 'pool1'
         assert pool1.partition == 'Common'
@@ -306,8 +306,8 @@ class TestPool(object):
         assert pool1.selfLink.startswith(
             'https://localhost/mgmt/tm/ltm/pool/~Common~pool1')
 
-    def test_update_monitor_parameter(self, request, bigip):
-        pool1 = setup_basic_test(request, bigip, 'pool1', 'Common')
+    def test_update_monitor_parameter(self, request, mgmt_root):
+        pool1 = setup_basic_test(request, mgmt_root, 'pool1', 'Common')
         mon = 'min 1 of { /Common/http /Common/tcp }'
         pool1.monitor = mon
         pool1.update()
@@ -317,8 +317,8 @@ class TestPool(object):
         pool1.update(monitor=mon2)
         assert pool1.monitor == mon2
 
-    def test_modify_monitor_parameter(self, request, bigip):
-        pool1 = setup_basic_test(request, bigip, 'pool1', 'Common')
+    def test_modify_monitor_parameter(self, request, mgmt_root):
+        pool1 = setup_basic_test(request, mgmt_root, 'pool1', 'Common')
         mon = 'min 1 of { /Common/http /Common/tcp }'
         pool1.modify(monitor=mon)
         assert pool1.monitor == mon

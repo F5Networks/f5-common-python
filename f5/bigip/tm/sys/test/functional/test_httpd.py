@@ -17,8 +17,8 @@ import pytest
 
 
 @pytest.fixture
-def cleaner(request, bigip):
-    initial_httpd = bigip.sys.httpd.load()
+def cleaner(request, mgmt_root):
+    initial_httpd = mgmt_root.tm.sys.httpd.load()
 
     def teardown():
         # There is a difference in 11.6.0 and 12.0.0 default for max clients.
@@ -28,14 +28,14 @@ def cleaner(request, bigip):
 
 
 class TestHttpd(object):
-    def test_load(self, cleaner, bigip):
-        httpd = bigip.sys.httpd.load()
+    def test_load(self, cleaner, mgmt_root):
+        httpd = mgmt_root.tm.sys.httpd.load()
         assert httpd.maxClients == 10
         httpd.refresh()
         assert httpd.maxClients == 10
 
-    def test_update(self, cleaner, bigip):
-        httpd = bigip.sys.httpd.load()
+    def test_update(self, cleaner, mgmt_root):
+        httpd = mgmt_root.tm.sys.httpd.load()
         httpd.update(maxClients=10)
         assert httpd.maxClients == 10
         httpd.update(maxClients=20)

@@ -17,23 +17,23 @@ from f5.sdk_exception import InvalidCommand
 import pytest
 
 
-def set_trust(request, bigip, name, device, dev_name, usr, passwd):
-    dvcs = bigip.cm
+def set_trust(request, mgmt_root, name, device, dev_name, usr, passwd):
+    dvcs = mgmt_root.tm.cm
     trust = dvcs.add_to_trust.exec_cmd('run', name=name, device=device,
                                        deviceName=dev_name, username=usr,
                                        caDevice=True, password=passwd)
     return trust
 
 
-def unset_trust(request, bigip, name, dev_name):
-    dvcs = bigip.cm
+def unset_trust(request, mgmt_root, name, dev_name):
+    dvcs = mgmt_root.tm.cm
     reset = dvcs.remove_from_trust.exec_cmd('run', name=name,
                                             deviceName=dev_name)
     return reset
 
 
-def check_sync(request, bigip):
-    sync_status = bigip.cm.sync_status
+def check_sync(request, mgmt_root):
+    sync_status = mgmt_root.tm.cm.sync_status
     sync_status.refresh()
     des = \
         (sync_status.entries['https://localhost/mgmt/tm/cm/sync-status/0']
@@ -44,8 +44,8 @@ def check_sync(request, bigip):
     return des
 
 
-def check_peer(request, bigip):
-    dvcs = bigip.cm.devices.get_collection()
+def check_peer(request, mgmt_root):
+    dvcs = mgmt_root.tm.cm.devices.get_collection()
     device = str(dvcs[0].managementIp)
     devname = str(dvcs[0].hostname)
     return device, devname
@@ -54,33 +54,33 @@ def check_peer(request, bigip):
 @pytest.mark.skipif(pytest.config.getoption('--peer') == 'none',
                     reason='Needs peer defined to run')
 class TestTrust(object):
-    def test_run(self, request, bigip, peer):
+    def test_run(self, request, mgmt_root, peer):
         # Check sync state, assume standalone
-        assert check_sync(request, bigip) == "Standalone"
+        assert check_sync(request, mgmt_root) == "Standalone"
         assert check_sync(request, peer) == "Standalone"
 
         # Obtain peer information
         device1, devicename1 = check_peer(request, peer)
-        device2, devicename2 = check_peer(request, bigip)
+        device2, devicename2 = check_peer(request, mgmt_root)
 
         # Setup trust
-        set_trust(request, bigip, 'Root', device1,
+        set_trust(request, mgmt_root, 'Root', device1,
                   devicename1, 'admin', 'admin')
 
         # Verify sync state assume disconnected
-        assert check_sync(request, bigip) == "Disconnected"
+        assert check_sync(request, mgmt_root) == "Disconnected"
         assert check_sync(request, peer) == "Disconnected"
 
         # Remove trust from both units
-        unset_trust(request, bigip, 'Root', devicename1)
+        unset_trust(request, mgmt_root, 'Root', devicename1)
         unset_trust(request, peer, 'Root', devicename2)
 
         # Verify devices sync state is Standalone
-        assert check_sync(request, bigip) == "Standalone"
+        assert check_sync(request, mgmt_root) == "Standalone"
         assert check_sync(request, peer) == "Standalone"
 
-    def test_invalid_cmd_meta(self, request, bigip):
-        dvcs = bigip.cm
+    def test_invalid_cmd_meta(self, request, mgmt_root):
+        dvcs = mgmt_root.tm.cm
         with pytest.raises(InvalidCommand):
             dvcs.add_to_trust.exec_cmd('foo', name='fooname',
                                        device='foodev',

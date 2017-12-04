@@ -19,7 +19,7 @@ from requests import HTTPError
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
-def setup_folder_test(request, bigip, name, subpath):
+def setup_folder_test(request, mgmt_root, name, subpath):
     def teardown():
         '''Remove the f1 folder only.
 
@@ -33,15 +33,15 @@ def setup_folder_test(request, bigip, name, subpath):
                 raise
     request.addfinalizer(teardown)
 
-    fc1 = bigip.sys.folders
+    fc1 = mgmt_root.tm.sys.folders
     f1 = fc1.folder.create(name=name, subPath=subpath)
     return f1, fc1
 
 
 class TestFolder(object):
-    def test_CURDL(self, request, bigip):
+    def test_CURDL(self, request, mgmt_root):
         # Create
-        f1, fc1 = setup_folder_test(request, bigip, 'testfolder', '/')
+        f1, fc1 = setup_folder_test(request, mgmt_root, 'testfolder', '/')
         assert f1.name == 'testfolder'
         assert f1.subPath == '/'
         assert f1.fullPath == '/testfolder'
@@ -67,29 +67,29 @@ class TestFolder(object):
 
         # We assume delete is taken care of by teardown
 
-    def test_load_root_folder_by_name(self, bigip):
-        fc = bigip.sys.folders
+    def test_load_root_folder_by_name(self, mgmt_root):
+        fc = mgmt_root.tm.sys.folders
         f = fc.folder.load(name='/')
         assert f.name == '/'
         assert f.fullPath == '/'
 
-    def test_load_root_folder_by_partition(self, bigip):
-        fc = bigip.sys.folders
+    def test_load_root_folder_by_partition(self, mgmt_root):
+        fc = mgmt_root.tm.sys.folders
         f = fc.folder.load(partition='/')
         assert f.name == '/'
         assert f.fullPath == '/'
 
-    def test_load_root_no_attributes(self, bigip):
-        fc = bigip.sys.folders
+    def test_load_root_no_attributes(self, mgmt_root):
+        fc = mgmt_root.tm.sys.folders
         f = fc.folder.load()
         assert f.name == '/'
         assert f.fullPath == '/'
 
 
 class TestFolderCollection(object):
-    def test_get_collection(self, request, bigip):
-        setup_folder_test(request, bigip, 'testfolder', '/')
-        fc = bigip.sys.folders
+    def test_get_collection(self, request, mgmt_root):
+        setup_folder_test(request, mgmt_root, 'testfolder', '/')
+        fc = mgmt_root.tm.sys.folders
         folders = fc.get_collection()
 
         assert len(folders)

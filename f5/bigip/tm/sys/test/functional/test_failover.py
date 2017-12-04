@@ -45,7 +45,7 @@ def teardown_device_failover_state(request, mgmt_root):
 
 
 class TestFailover(object):
-    def test_failover_LR(self, bigip):
+    def test_failover_LR(self, mgmt_root):
         """Test failover refresh and load.
 
         Test that the failover object can be refreshed and loaded. The object
@@ -55,13 +55,13 @@ class TestFailover(object):
         it here.
         """
 
-        f = bigip.sys.failover.load()
+        f = mgmt_root.tm.sys.failover.load()
         assert 'Failover active' in f.apiRawValues['apiAnonymous']
         f.refresh()
         assert 'Failover active' in f.apiRawValues['apiAnonymous']
 
-    def test_toggle_standby(self, bigip):
-        f = bigip.sys.failover
+    def test_toggle_standby(self, mgmt_root):
+        f = mgmt_root.tm.sys.failover
         fl = f.toggle_standby(trafficgroup="traffic-group-1", state=None)
         assert fl.standby is None
         assert fl.command == "run"
@@ -78,8 +78,8 @@ class TestFailover(object):
                              state=None, foo="bar")
         assert "Unexpected **kwargs" in str(ex.value)
 
-    def test_attribute_values(self, bigip):
-        fl = bigip.sys.failover
+    def test_attribute_values(self, mgmt_root):
+        fl = mgmt_root.tm.sys.failover
         # Testing both conditions
         with pytest.raises(BooleansToReduceHaveSameValue) as ex1:
             fl.exec_cmd('run', online=True, offline=True)

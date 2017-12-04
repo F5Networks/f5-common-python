@@ -14,20 +14,20 @@
 #
 
 
-def set_global_settings_test(request, bigip):
+def set_global_settings_test(request, mgmt_root):
     def teardown():
         gs.usernamePrompt = 'Username'
         gs.update()
     request.addfinalizer(teardown)
-    gs = bigip.sys.global_settings.load()
+    gs = mgmt_root.tm.sys.global_settings.load()
     return gs
 
 
 class TestGlobal_Setting(object):
-    def test_RUL(self, request, bigip):
+    def test_RUL(self, request, mgmt_root):
         # Load
-        gs1 = set_global_settings_test(request, bigip)
-        gs2 = bigip.sys.global_settings.load()
+        gs1 = set_global_settings_test(request, mgmt_root)
+        gs2 = mgmt_root.tm.sys.global_settings.load()
         assert gs1.usernamePrompt == 'Username'
         assert gs1.usernamePrompt == gs2.usernamePrompt
 

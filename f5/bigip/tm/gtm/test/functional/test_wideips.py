@@ -67,7 +67,7 @@ class HelperTest(object):
             self.delete_resource(resource)
 
         resourcecollection =\
-            getattr(getattr(getattr(mgmt_root, 'gtm'), 'wideips'),
+            getattr(getattr(getattr(mgmt_root.tm, 'gtm'), 'wideips'),
                     self.lowered)
         resource = getattr(resourcecollection, self.urielementname())
         self.delete_resource(resource)
@@ -77,9 +77,9 @@ class HelperTest(object):
         request.addfinalizer(teardown)
         return created, resourcecollection
 
-    def test_MCURDL(self, request, bigip, **kwargs):
+    def test_MCURDL(self, request, mgmt_root, **kwargs):
         # Testing create
-        res, rescollection = self.setup_test(request, bigip, **kwargs)
+        res, rescollection = self.setup_test(request, mgmt_root, **kwargs)
         assert res.name == self.test_name
         assert res.fullPath == '/Common/'+self.test_name
         assert res.generation and isinstance(res.generation, int)
@@ -115,8 +115,8 @@ class HelperTest(object):
         res2 = p2.load(partition=self.partition, name=self.test_name)
         assert res.selfLink == res2.selfLink
 
-    def test_collection(self, request, bigip, **kwargs):
-        res, rescollection = self.setup_test(request, bigip, **kwargs)
+    def test_collection(self, request, mgmt_root, **kwargs):
+        res, rescollection = self.setup_test(request, mgmt_root, **kwargs)
         assert res.name == self.test_name
         assert res.fullPath == '/Common/'+self.test_name
         assert res.generation and isinstance(res.generation, int)
@@ -145,10 +145,10 @@ class HelperTest(object):
     reason='This collection exists on 12.0.0 or greater.'
 )
 class TestWideipAtype(object):
-    def test_MCURDL_and_collection(self, request, bigip):
+    def test_MCURDL_and_collection(self, request, mgmt_root):
         wideip = HelperTest('A_s')
-        wideip.test_MCURDL(request, bigip)
-        wideip.test_collection(request, bigip)
+        wideip.test_MCURDL(request, mgmt_root)
+        wideip.test_collection(request, mgmt_root)
 
 
 @pytest.mark.skipif(
@@ -157,10 +157,10 @@ class TestWideipAtype(object):
     reason='This collection exists on 12.0.0 or greater.'
 )
 class TestWideipAaaaType(object):
-    def test_MCURDL_and_collection(self, request, bigip):
+    def test_MCURDL_and_collection(self, request, mgmt_root):
         wideip = HelperTest('Aaaas')
-        wideip.test_MCURDL(request, bigip)
-        wideip.test_collection(request, bigip)
+        wideip.test_MCURDL(request, mgmt_root)
+        wideip.test_collection(request, mgmt_root)
 
 
 @pytest.mark.skipif(
@@ -169,10 +169,10 @@ class TestWideipAaaaType(object):
     reason='This collection exists on 12.0.0 or greater.'
 )
 class TestWideipCnameType(object):
-    def test_MCURDL_and_collection(self, request, bigip):
+    def test_MCURDL_and_collection(self, request, mgmt_root):
         wideip = HelperTest('Cnames')
-        wideip.test_MCURDL(request, bigip)
-        wideip.test_collection(request, bigip)
+        wideip.test_MCURDL(request, mgmt_root)
+        wideip.test_collection(request, mgmt_root)
 
 
 @pytest.mark.skipif(
@@ -181,10 +181,10 @@ class TestWideipCnameType(object):
     reason='This collection exists on 12.0.0 or greater.'
 )
 class TestWideipMxType(object):
-    def test_MCURDL_and_collection(self, request, bigip):
+    def test_MCURDL_and_collection(self, request, mgmt_root):
         wideip = HelperTest('Mxs')
-        wideip.test_MCURDL(request, bigip)
-        wideip.test_collection(request, bigip)
+        wideip.test_MCURDL(request, mgmt_root)
+        wideip.test_collection(request, mgmt_root)
 
 
 @pytest.mark.skipif(
@@ -193,10 +193,10 @@ class TestWideipMxType(object):
     reason='This collection exists on 12.0.0 or greater.'
 )
 class TestWideipNaptrType(object):
-    def test_MCURDL_and_collection(self, request, bigip):
+    def test_MCURDL_and_collection(self, request, mgmt_root):
         wideip = HelperTest('Naptrs')
-        wideip.test_MCURDL(request, bigip)
-        wideip.test_collection(request, bigip)
+        wideip.test_MCURDL(request, mgmt_root)
+        wideip.test_collection(request, mgmt_root)
 
 
 @pytest.mark.skipif(
@@ -205,10 +205,10 @@ class TestWideipNaptrType(object):
     reason='This collection exists on 12.0.0 or greater.'
 )
 class TestWideipSrvType(object):
-    def test_MCURDL_and_collection(self, request, bigip):
+    def test_MCURDL_and_collection(self, request, mgmt_root):
         wideip = HelperTest('Srvs')
-        wideip.test_MCURDL(request, bigip)
-        wideip.test_collection(request, bigip)
+        wideip.test_MCURDL(request, mgmt_root)
+        wideip.test_collection(request, mgmt_root)
 
 # End of v12.x Tests
 
