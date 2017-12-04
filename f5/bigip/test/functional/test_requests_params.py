@@ -20,13 +20,13 @@ PoolConfig = namedtuple('PoolConfig', 'partition name memberconfigs')
 MemberConfig = namedtuple('MemberConfig', 'mempartition memname')
 
 
-def test_get_collection(request, bigip, pool_factory, opt_release):
+def test_get_collection(request, mgmt_root, pool_factory, opt_release):
     Pool1MemberConfigs = (MemberConfig('Common', '192.168.15.15:80'),
                           MemberConfig('Common', '192.168.16.16:8080'),)
     Pool1Config = PoolConfig('Common', 'TEST', Pool1MemberConfigs)
     test_pools = (Pool1Config,)
     pool_registry, member_registry =\
-        pool_factory(bigip, request, test_pools)
+        pool_factory(mgmt_root, request, test_pools)
     selfLinks = []
     for pool_inst in list(itervalues(pool_registry)):
         for mem in pool_inst.members_s.get_collection():
@@ -39,23 +39,23 @@ def test_get_collection(request, bigip, pool_factory, opt_release):
         '?ver='+opt_release
 
 
-def test_get_dollar_filtered_collection(request, bigip, pool_factory):
-    if bigip.sys.folders.folder.exists(name='za', partition=''):
-        bigip.sys.folders.folder.load(name='za', partition='')
+def test_get_dollar_filtered_collection(request, mgmt_root, pool_factory):
+    if mgmt_root.tm.sys.folders.folder.exists(name='za', partition=''):
+        mgmt_root.tm.sys.folders.folder.load(name='za', partition='')
     else:
-        bigip.sys.folders.folder.create(name='za', subPath='/')
+        mgmt_root.tm.sys.folders.folder.create(name='za', subPath='/')
     Pool1Config = PoolConfig('Common', 'TEST', ((),))
     Pool2Config = PoolConfig('za', 'TEST', ((),))
     test_pools = (Pool1Config, Pool2Config)
     pool_registry, member_registry =\
-        pool_factory(bigip, request, test_pools)
+        pool_factory(mgmt_root, request, test_pools)
     rp = {'params': '$filter=partition+eq+za'}
-    pools_in_za = bigip.ltm.pools.get_collection(requests_params=rp)
+    pools_in_za = mgmt_root.tm.ltm.pools.get_collection(requests_params=rp)
     muri = pools_in_za[0]._meta_data['uri']
     assert muri.endswith('/mgmt/tm/ltm/pool/~za~TEST/')
 
 
-def test_get_dollar_select_collection_properties(request, bigip, mgmt_root):
+def test_get_dollar_select_collection_properties(request, mgmt_root):
     http_profiles = mgmt_root.tm.ltm.profile.https
     without_select = http_profiles.get_collection()
     with_select = http_profiles.get_collection(

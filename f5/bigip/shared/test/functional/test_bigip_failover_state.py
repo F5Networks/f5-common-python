@@ -20,10 +20,10 @@ from f5.sdk_exception import UnsupportedMethod
 @pytest.mark.skipif(pytest.config.getoption('--release') != '12.0.0',
                     reason='Needs v12 TMOS to pass')
 class TestBigIPFailoverState(object):
-    def test_load(self, request, bigip):
-        a = bigip.shared.bigip_failover_state.load()
+    def test_load(self, request, mgmt_root):
+        a = mgmt_root.shared.bigip_failover_state.load()
         assert hasattr(a, 'generation')
 
-    def test_update(self, request, bigip):
+    def test_update(self, request, mgmt_root):
         with pytest.raises(UnsupportedMethod):
-            bigip.shared.bigip_failover_state.update()
+            mgmt_root.shared.bigip_failover_state.update()

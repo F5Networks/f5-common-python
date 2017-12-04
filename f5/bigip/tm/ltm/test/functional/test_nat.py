@@ -19,9 +19,9 @@ from f5.sdk_exception import MissingRequiredCreationParameter
 from requests.exceptions import HTTPError
 
 
-def delete_nat(bigip, name, partition):
+def delete_nat(mgmt_root, name, partition):
     try:
-        nat = bigip.ltm.nats.nat.load(name=name, partition=partition)
+        nat = mgmt_root.tm.ltm.nats.nat.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -29,9 +29,9 @@ def delete_nat(bigip, name, partition):
     nat.delete()
 
 
-def setup_loadable_nat_test(request, bigip, nat):
+def setup_loadable_nat_test(request, mgmt_root, nat):
     def teardown():
-        delete_nat(bigip, 'nat1', 'Common')
+        delete_nat(mgmt_root, 'nat1', 'Common')
 
     request.addfinalizer(teardown)
 
@@ -41,28 +41,28 @@ def setup_loadable_nat_test(request, bigip, nat):
     assert nat1.name == 'nat1'
 
 
-def setup_create_test(request, bigip):
+def setup_create_test(request, mgmt_root):
     def teardown():
-        delete_nat(bigip, 'nat1', 'Common')
+        delete_nat(mgmt_root, 'nat1', 'Common')
     request.addfinalizer(teardown)
 
 
-def setup_create_two(request, bigip):
+def setup_create_two(request, mgmt_root):
     def teardown():
         for name in ['nat1', 'nat2']:
-            delete_nat(bigip, name, 'Common')
+            delete_nat(mgmt_root, name, 'Common')
     request.addfinalizer(teardown)
 
 
 class TestCreate(object):
-    def test_create_two(self, request, bigip):
-        setup_create_two(request, bigip)
+    def test_create_two(self, request, mgmt_root):
+        setup_create_two(request, mgmt_root)
 
-        n1 = bigip.ltm.nats.nat.create(
+        n1 = mgmt_root.tm.ltm.nats.nat.create(
             name='nat1', partition='Common',
             translationAddress='192.168.1.1',
             originatingAddress='192.168.2.1')
-        n2 = bigip.ltm.nats.nat.create(
+        n2 = mgmt_root.tm.ltm.nats.nat.create(
             name='nat2', partition='Common',
             translationAddress='192.168.1.2',
             originatingAddress='192.168.2.2')
@@ -70,20 +70,20 @@ class TestCreate(object):
         assert n1 is not n2
         assert n2.name != n1.name
 
-    def test_create_no_args(self, bigip):
+    def test_create_no_args(self, mgmt_root):
         '''Test that nat.create() with no options throws a ValueError '''
         with pytest.raises(MissingRequiredCreationParameter):
-            bigip.ltm.nats.nat.create()
+            mgmt_root.tm.ltm.nats.nat.create()
 
-    def test_create_min_args(self, request, bigip):
+    def test_create_min_args(self, request, mgmt_root):
         '''Test that nat.create() with only required arguments work.
 
         This will also test that the default values are set correctly and are
-        part of the nat object after creating the instance on the BigIP
+        part of the nat object after creating the instance on the mgmt_root
         '''
-        setup_create_test(request, bigip)
+        setup_create_test(request, mgmt_root)
 
-        nat1 = bigip.ltm.nats.nat.create(
+        nat1 = mgmt_root.tm.ltm.nats.nat.create(
             name='nat1', partition='Common',
             translationAddress='192.168.1.1',
             originatingAddress='192.168.2.1')
@@ -105,84 +105,84 @@ class TestCreate(object):
         assert nat1.unit is not None and isinstance(nat1.unit, int)
         assert nat1.vlansDisabled is True
 
-    def test_create_arp_enabled(self, request, bigip, NAT):
-        setup_create_test(request, bigip)
+    def test_create_arp_enabled(self, request, mgmt_root, NAT):
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         arp='enabled')
         assert n1.arp == 'enabled'
 
-    def test_create_arp_disabled(self, request, bigip, NAT):
-        setup_create_test(request, bigip)
+    def test_create_arp_disabled(self, request, mgmt_root, NAT):
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         arp='disabled')
         assert n1.arp == 'disabled'
 
-    def test_create_autolasthop_default(self, request, bigip, NAT):
-        setup_create_test(request, bigip)
+    def test_create_autolasthop_default(self, request, mgmt_root, NAT):
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         autoLasthop='default')
         assert n1.autoLasthop == 'default'
 
-    def test_create_autolasthop_enabled(self, request, bigip, NAT):
-        setup_create_test(request, bigip)
+    def test_create_autolasthop_enabled(self, request, mgmt_root, NAT):
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         autoLasthop='enabled')
         assert n1.autoLasthop == 'enabled'
 
-    def test_create_autolasthop_disabled(self, request, bigip, NAT):
-        setup_create_test(request, bigip)
+    def test_create_autolasthop_disabled(self, request, mgmt_root, NAT):
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         autoLasthop='disabled')
         assert n1.autoLasthop == 'disabled'
 
-    def test_create_enabled_true(self, request, bigip, NAT):
-        setup_create_test(request, bigip)
+    def test_create_enabled_true(self, request, mgmt_root, NAT):
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         enabled=True)
         assert n1.enabled is True
 
-    def itest_create_enabled_false(self, request, bigip, NAT):
+    def itest_create_enabled_false(self, request, mgmt_root, NAT):
         '''Test that you can set enabled to false and create nat as disabled
 
         This will fail until some fixups are made to the create function for
-        nat because in BIGIP you need to set disabled to True to disable it
+        nat because in mgmt_root you need to set disabled to True to disable it
         and not use enable at all.
         '''
-        setup_create_test(request, bigip)
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         enabled=False)
         assert n1.enabled is False
 
-    def test_create_disabled_true(self, request, bigip, NAT):
-        setup_create_test(request, bigip)
+    def test_create_disabled_true(self, request, mgmt_root, NAT):
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         disabled=True)
         assert n1.disabled is True
 
-    def test_create_disabled_false(self, request, bigip, NAT):
+    def test_create_disabled_false(self, request, mgmt_root, NAT):
         '''Test that you can set enabled to false and create nat as disabled
 
         This will fail until some fixups are made to the create function for
-        nat because in BIGIP you need to set disabled to True to disable it
+        nat because in mgmt_root you need to set disabled to True to disable it
         and not use enable at all.
         '''
-        setup_create_test(request, bigip)
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
@@ -199,21 +199,21 @@ class TestCreate(object):
         assert 'disabled' not in n1.raw
         assert n1.enabled is True
 
-    def test_create_inheritedtrafficgroup_true(self, request, bigip, NAT):
+    def test_create_inheritedtrafficgroup_true(self, request, mgmt_root, NAT):
         '''Test that you can set inheritedTrafficGroup to True on create
 
         This MUST be the string 'true' not the built-in True that you would
         think makes sense for a true/false setting like the other properties
         of NAT.
         '''
-        setup_create_test(request, bigip)
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         inheritedTrafficGroup='true')
         assert n1.inheritedTrafficGroup == 'true'
 
-    def test_create_inheritedtrafficgroup_false(self, request, bigip, NAT):
+    def test_create_inheritedtrafficgroup_false(self, request, mgmt_root, NAT):
         '''Test that you can set inheritedTrafficGroup to True on create
 
         This MUST be the string 'false' not the built-in True that you would
@@ -223,7 +223,7 @@ class TestCreate(object):
         This also requires that the trafficGroup parameter also be set or the
         setting will not take effect on the system and silently be ignored.
         '''
-        setup_create_test(request, bigip)
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
@@ -231,26 +231,26 @@ class TestCreate(object):
                         trafficGroup='/Common/traffic-group-1')
         assert n1.inheritedTrafficGroup == 'false'
 
-    def test_create_trafficgroup(self, request, bigip, NAT):
+    def test_create_trafficgroup(self, request, mgmt_root, NAT):
         '''Test that you can set the trafficgroup on create.
 
         Using the existing default group because we don't have the TG object
         done yet.
         '''
-        setup_create_test(request, bigip)
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         trafficGroup='/Common/traffic-group-1')
         assert n1.trafficGroup == '/Common/traffic-group-1'
 
-    def test_create_vlans_disabled(self, request, bigip, NAT):
+    def test_create_vlans_disabled(self, request, mgmt_root, NAT):
         '''Test that you can set the VLANs that you want to disable
 
         The default setting is disabled so we want to add some VLANs to the
         disabled list.  We are using one of the built in VLAN lists.
         '''
-        setup_create_test(request, bigip)
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
@@ -259,8 +259,8 @@ class TestCreate(object):
         assert '/Common/http-tunnel' in n1.vlans
         assert n1.vlansDisabled is True
 
-    def test_create_vlans_enabled(self, request, bigip, NAT):
-        setup_create_test(request, bigip)
+    def test_create_vlans_enabled(self, request, mgmt_root, NAT):
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
@@ -270,21 +270,21 @@ class TestCreate(object):
         assert '/Common/http-tunnel' in n1.vlans
         assert n1.vlansEnabled is True
 
-    def test_create_vlansenabled_true(self, request, bigip, NAT):
-        setup_create_test(request, bigip)
+    def test_create_vlansenabled_true(self, request, mgmt_root, NAT):
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
                         vlansEnabled=True)
         assert n1.vlansEnabled is True
 
-    def itest_create_vlansenabled_false(self, request, bigip, NAT):
+    def itest_create_vlansenabled_false(self, request, mgmt_root, NAT):
         '''Test setting vlansEnabled to False on create
 
         This has the same issue as the enable/disable properties for the nat
         object.  You need to use the vlansEnabled property to enable them.
         '''
-        setup_create_test(request, bigip)
+        setup_create_test(request, mgmt_root)
         n1 = NAT.create(name='nat1', partition='Common',
                         translationAddress='192.168.1.1',
                         originatingAddress='192.168.2.1',
@@ -300,9 +300,9 @@ class TestLoad(object):
             NAT.load(name='mynat', partition='Common')
             assert err.response.status == 404
 
-    def test_load(self, request, bigip, NAT):
-        setup_loadable_nat_test(request, bigip, NAT)
-        n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
+    def test_load(self, request, mgmt_root, NAT):
+        setup_loadable_nat_test(request, mgmt_root, NAT)
+        n1 = mgmt_root.tm.ltm.nats.nat.load(name='nat1', partition='Common')
         assert n1.name == 'nat1'
         assert n1.partition == 'Common'
         assert isinstance(n1.generation, int)
@@ -310,11 +310,11 @@ class TestLoad(object):
 
 class TestRefresh(object):
 
-    def test_refresh(self, request, bigip, NAT):
-        setup_loadable_nat_test(request, bigip, NAT)
+    def test_refresh(self, request, mgmt_root, NAT):
+        setup_loadable_nat_test(request, mgmt_root, NAT)
 
-        n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
-        n2 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
+        n1 = mgmt_root.tm.ltm.nats.nat.load(name='nat1', partition='Common')
+        n2 = mgmt_root.tm.ltm.nats.nat.load(name='nat1', partition='Common')
         assert n1.arp == 'enabled'
         assert n2.arp == 'enabled'
 
@@ -328,27 +328,27 @@ class TestRefresh(object):
 
 class TestDelete(object):
 
-    def test_delete(self, request, bigip, NAT):
-        setup_loadable_nat_test(request, bigip, NAT)
-        n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
+    def test_delete(self, request, mgmt_root, NAT):
+        setup_loadable_nat_test(request, mgmt_root, NAT)
+        n1 = mgmt_root.tm.ltm.nats.nat.load(name='nat1', partition='Common')
         n1.delete()
         del(n1)
         with pytest.raises(HTTPError) as err:
-            bigip.ltm.nats.nat.load(name='nat1', partition='Common')
+            mgmt_root.tm.ltm.nats.nat.load(name='nat1', partition='Common')
             assert err.response.status_code == 404
 
 
 class TestUpdate(object):
-    def test_update_with_args(self, request, bigip, NAT):
-        setup_loadable_nat_test(request, bigip, NAT)
-        n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
+    def test_update_with_args(self, request, mgmt_root, NAT):
+        setup_loadable_nat_test(request, mgmt_root, NAT)
+        n1 = mgmt_root.tm.ltm.nats.nat.load(name='nat1', partition='Common')
         assert n1.arp == 'enabled'
         n1.update(arp='disabled')
         assert n1.arp == 'disabled'
 
-    def test_update_parameters(self, request, bigip, NAT):
-        setup_loadable_nat_test(request, bigip, NAT)
-        n1 = bigip.ltm.nats.nat.load(name='nat1', partition='Common')
+    def test_update_parameters(self, request, mgmt_root, NAT):
+        setup_loadable_nat_test(request, mgmt_root, NAT)
+        n1 = mgmt_root.tm.ltm.nats.nat.load(name='nat1', partition='Common')
         assert n1.arp == 'enabled'
         n1.arp = 'disabled'
         n1.update()

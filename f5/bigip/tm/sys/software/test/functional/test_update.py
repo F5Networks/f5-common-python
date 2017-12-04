@@ -17,8 +17,8 @@ import pytest
 
 
 @pytest.fixture
-def cleaner(request, bigip):
-    initial = bigip.sys.software.update.load()
+def cleaner(request, mgmt_root):
+    initial = mgmt_root.tm.sys.software.update.load()
 
     def teardown():
         initial.update()
@@ -26,22 +26,22 @@ def cleaner(request, bigip):
 
 
 class TestUpdate(object):
-    def test_load(self, cleaner, bigip):
-        su = bigip.sys.software.update.load()
+    def test_load(self, cleaner, mgmt_root):
+        su = mgmt_root.tm.sys.software.update.load()
         assert su.autoCheck == 'enabled'
         su.refresh()
         assert su.autoCheck == 'enabled'
 
-    def test_update_autocheck(self, cleaner, bigip):
-        su = bigip.sys.software.update.load()
+    def test_update_autocheck(self, cleaner, mgmt_root):
+        su = mgmt_root.tm.sys.software.update.load()
         su.update(autoCheck='disabled')
         assert su.autoCheck == 'disabled'
         su.update(autoCheck='enabled')
         assert su.autoCheck == 'enabled'
 
-    def test_update_frequency(self, cleaner, bigip):
+    def test_update_frequency(self, cleaner, mgmt_root):
         frequencies = ['daily', 'monthly', 'weekly']
-        su = bigip.sys.software.update.load()
+        su = mgmt_root.tm.sys.software.update.load()
 
         for frequency in frequencies:
             su.update(frequency=frequency)

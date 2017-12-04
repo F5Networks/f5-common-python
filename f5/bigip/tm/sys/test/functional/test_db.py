@@ -15,14 +15,14 @@
 
 
 class TestDb(object):
-    def test_RL(self, bigip):
-        db = bigip.sys.dbs.db.load(name='license.operational')
+    def test_RL(self, mgmt_root):
+        db = mgmt_root.tm.sys.dbs.db.load(name='license.operational')
         assert db.value == 'true'
         db.refresh()
         assert db.value == 'true'
 
-    def test_update(self, bigip):
-        db1 = bigip.sys.dbs.db.load(name='iptunnel.configsync')
+    def test_update(self, mgmt_root):
+        db1 = mgmt_root.tm.sys.dbs.db.load(name='iptunnel.configsync')
         db1.update(value='enable')
         assert db1.value == 'enable'
         db1.update(value='disable')

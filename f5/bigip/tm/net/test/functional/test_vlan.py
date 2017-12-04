@@ -25,9 +25,9 @@ from requests.exceptions import HTTPError
 DESCRIPTION = "TESTDESCRIPTION"
 
 
-def delete_vlan(bigip, name, partition):
+def delete_vlan(mgmt_root, name, partition):
     try:
-        v = bigip.net.vlans.vlan.load(name=name, partition=partition)
+        v = mgmt_root.tm.net.vlans.vlan.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -35,25 +35,25 @@ def delete_vlan(bigip, name, partition):
     v.delete()
 
 
-def setup_basic_test(request, bigip, name, partition):
+def setup_basic_test(request, mgmt_root, name, partition):
     def teardown():
-        delete_vlan(bigip, name, partition)
+        delete_vlan(mgmt_root, name, partition)
 
     teardown()
-    v = bigip.net.vlans.vlan.create(name=name, partition=partition)
+    v = mgmt_root.tm.net.vlans.vlan.create(name=name, partition=partition)
     request.addfinalizer(teardown)
     return v
 
 
-def setup_interfaces_test(request, bigip, name, partition, iname='1.3'):
-    v = setup_basic_test(request, bigip, name, partition)
+def setup_interfaces_test(request, mgmt_root, name, partition, iname='1.3'):
+    v = setup_basic_test(request, mgmt_root, name, partition)
     i = v.interfaces_s.interfaces.create(name=iname)
     return i, v
 
 
-def setup_vlan_collection_get_test(request, bigip):
+def setup_vlan_collection_get_test(request, mgmt_root):
     def teardown():
-        vc = bigip.net.vlans
+        vc = mgmt_root.tm.net.vlans
         txt = 'cannot be deleted because it is in use by a self IP'
         for v in vc.get_collection():
             try:
@@ -70,9 +70,9 @@ def setup_vlan_collection_get_test(request, bigip):
 
 
 class TestVLANInterfacesCollection(object):
-    def test_get_collection(self, request, bigip):
+    def test_get_collection(self, request, mgmt_root):
         # Setup will create a VLAN and one interfaces
-        v1 = setup_basic_test(request, bigip, 'v1', 'Common')
+        v1 = setup_basic_test(request, mgmt_root, 'v1', 'Common')
         v1.interfaces_s.interfaces.create(name='1.3')
         ifcs = v1.interfaces_s.get_collection()
         i2 = ifcs[0]
@@ -84,8 +84,8 @@ class TestVLANInterfacesCollection(object):
 
 
 class TestVLANInterfaces(object):
-    def test_create_interfaces(self, request, bigip):
-        i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
+    def test_create_interfaces(self, request, mgmt_root):
+        i, _ = setup_interfaces_test(request, mgmt_root, 'v1', 'Common')
         assert i.name == '1.3'
 
     @pytest.mark.skipif(
@@ -94,14 +94,14 @@ class TestVLANInterfaces(object):
         ) < LooseVersion('11.6.0'),
         reason='tagMode is only allowed in 11.6.0 or greater.'
     )
-    def test_update_exclusive_attrs_11_6_and_greater(self, request, bigip):
+    def test_update_exclusive_attrs_11_6_and_greater(self, request, mgmt_root):
         '''Test that we remove the other exclusive args if we set one.
 
         The default interfaces that is made has the vlans set to tagged.
         We change it to untagged and make sure that the tagged is no longer
         an attribute.
         '''
-        ifc, _ = setup_interfaces_test(request, bigip, 'somevlan', 'Common')
+        ifc, _ = setup_interfaces_test(request, mgmt_root, 'somevlan', 'Common')
         ifc.untagged = True
         assert not hasattr(ifc, 'tagged')
         ifc.update()
@@ -119,14 +119,14 @@ class TestVLANInterfaces(object):
         ) >= LooseVersion('11.6.0'),
         reason='tagMode is not allowed in 11.5.4.'
     )
-    def test_update_exclusive_attrs_11_6_0_and_less(self, request, bigip):
+    def test_update_exclusive_attrs_11_6_0_and_less(self, request, mgmt_root):
         '''Test that we remove the other exclusive args if we set one.
 
         The default interfaces that is made has the vlans set to tagged.
         We change it to untagged and make sure that the tagged is no longer
         an attribute.
         '''
-        ifc, _ = setup_interfaces_test(request, bigip, 'somevlan', 'Common')
+        ifc, _ = setup_interfaces_test(request, mgmt_root, 'somevlan', 'Common')
         ifc.untagged = True
         assert not hasattr(ifc, 'tagged')
         ifc.update()
@@ -141,8 +141,8 @@ class TestVLANInterfaces(object):
         assert "'tagMode', is not allowed against the following version of " \
             'TMOS: 11.5.4' in ex.value.message
 
-    def test_update(self, request, bigip):
-        i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
+    def test_update(self, request, mgmt_root):
+        i, _ = setup_interfaces_test(request, mgmt_root, 'v1', 'Common')
         i.update(untagged=True)
         assert not hasattr(i, 'tagged')
         assert i.untagged is True
@@ -153,14 +153,14 @@ class TestVLANInterfaces(object):
         ) < LooseVersion('11.6.0'),
         reason='tagMode is only allowed in 11.6.0 or greater.'
     )
-    def test_update_mixed_attr_set_11_6_0_and_greater(self, request, bigip):
+    def test_update_mixed_attr_set_11_6_0_and_greater(self, request, mgmt_root):
         '''Test that we get an Exception because we have both exclusives set.
 
         This only happens when the user sets the attribute and then does the
         update with the other attribute set.  We don't actually know which one
         the user wants to set.
         '''
-        i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
+        i, _ = setup_interfaces_test(request, mgmt_root, 'v1', 'Common')
         i.untagged = True
         assert not hasattr(i, 'tagged')
         assert i.untagged is True
@@ -175,14 +175,14 @@ class TestVLANInterfaces(object):
         ) >= LooseVersion('11.6.0'),
         reason='tagMode is not allowed in 11.5.4 or less.'
     )
-    def test_update_mixed_attr_set_11_6_0_and_less(self, request, bigip):
+    def test_update_mixed_attr_set_11_6_0_and_less(self, request, mgmt_root):
         '''Test that we get an Exception because we have both exclusives set.
 
         This only happens when the user sets the attribute and then does the
         update with the other attribute set.  We don't actually know which one
         the user wants to set.
         '''
-        i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
+        i, _ = setup_interfaces_test(request, mgmt_root, 'v1', 'Common')
         i.untagged = True
         assert not hasattr(i, 'tagged')
         assert i.untagged is True
@@ -197,8 +197,8 @@ class TestVLANInterfaces(object):
         ) < LooseVersion('11.6.0'),
         reason='tagMode is only allowed in 11.6.0 or greater.'
     )
-    def test_update_without_tagmode_and_greater(self, request, bigip):
-        i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
+    def test_update_without_tagmode_and_greater(self, request, mgmt_root):
+        i, _ = setup_interfaces_test(request, mgmt_root, 'v1', 'Common')
         i.tagged = True
         with pytest.raises(MissingUpdateParameter):
             i.update()
@@ -209,25 +209,25 @@ class TestVLANInterfaces(object):
         ) >= LooseVersion('11.6.0'),
         reason='tagMode is not allowed in 11.5.4 or less.'
     )
-    def test_update_without_tagmode_and_less(self, request, bigip):
-        i, _ = setup_interfaces_test(request, bigip, 'v1', 'Common')
+    def test_update_without_tagmode_and_less(self, request, mgmt_root):
+        i, _ = setup_interfaces_test(request, mgmt_root, 'v1', 'Common')
         i.tagged = True
         i.update()
 
-    def test_load(self, request, bigip):
-        i1, v = setup_interfaces_test(request, bigip, 'v1', 'Common')
+    def test_load(self, request, mgmt_root):
+        i1, v = setup_interfaces_test(request, mgmt_root, 'v1', 'Common')
         i2 = v.interfaces_s.interfaces.load(name='1.3')
         assert i1.name == i2.name
         assert i1.generation == i2.generation
 
 
 class TestVLANCollection(object):
-    def test_get_collection(self, request, bigip):
-        setup_vlan_collection_get_test(request, bigip)
+    def test_get_collection(self, request, mgmt_root):
+        setup_vlan_collection_get_test(request, mgmt_root)
         vlans = ['v1', 'v2', 'v3']
         for vlan in vlans:
-            bigip.net.vlans.vlan.create(name=vlan)
-        vc = bigip.net.vlans.get_collection()
+            mgmt_root.tm.net.vlans.vlan.create(name=vlan)
+        vc = mgmt_root.tm.net.vlans.get_collection()
         assert len(vc) >= 3
         if len(vc) == 3:
             for v in vc:
@@ -235,8 +235,8 @@ class TestVLANCollection(object):
 
 
 class TestVLAN(object):
-    def test_create_no_args(self, bigip):
-        v1 = bigip.net.vlans.vlan
+    def test_create_no_args(self, mgmt_root):
+        v1 = mgmt_root.tm.net.vlans.vlan
         with pytest.raises(MissingRequiredCreationParameter):
             v1.create()
 
@@ -246,10 +246,10 @@ class TestVLAN(object):
         ) < LooseVersion('11.6.0'),
         reason='tagMode is only allowed in 11.6.0 or greater.'
     )
-    def test_CURDL_11_6_0_and_greater(self, request, bigip):
-        setup_vlan_collection_get_test(request, bigip)
+    def test_CURDL_11_6_0_and_greater(self, request, mgmt_root):
+        setup_vlan_collection_get_test(request, mgmt_root)
         # Create a VLAN and verify some of the attributes
-        v1 = bigip.net.vlans.vlan.create(name='v1', partition='Common')
+        v1 = mgmt_root.tm.net.vlans.vlan.create(name='v1', partition='Common')
         v1.interfaces_s.interfaces.create(
             name='1.3', tagged=True, tagMode='service')
         v1_ifcs = v1.interfaces_s.get_collection()
@@ -272,7 +272,7 @@ class TestVLAN(object):
         assert v1.generation == gen2
 
         # Load into a new variable
-        v2 = bigip.net.vlans.vlan.load(name='v1', partition='Common')
+        v2 = mgmt_root.tm.net.vlans.vlan.load(name='v1', partition='Common')
 
         # Update v1 again
         v1.description = DESCRIPTION + DESCRIPTION
@@ -288,22 +288,22 @@ class TestVLAN(object):
         ) >= LooseVersion('11.6.0'),
         reason='tagMode is not allowed in 11.5.4 or less.'
     )
-    def test_CURDL_11_6_0_and_less(self, request, bigip):
-        setup_vlan_collection_get_test(request, bigip)
+    def test_CURDL_11_6_0_and_less(self, request, mgmt_root):
+        setup_vlan_collection_get_test(request, mgmt_root)
         # Create a VLAN and verify some of the attributes
-        v1 = bigip.net.vlans.vlan.create(name='v1', partition='Common')
+        v1 = mgmt_root.tm.net.vlans.vlan.create(name='v1', partition='Common')
         with pytest.raises(TagModeDisallowedForTMOSVersion) as ex:
             v1.interfaces_s.interfaces.create(
                 name='1.3', tagged=True, tagMode='service')
         assert "'tagMode', is not allowed against the following version of " \
             'TMOS: 11.5.4' in ex.value.message
 
-    def test_load_subcollection(self, request, bigip):
+    def test_load_subcollection(self, request, mgmt_root):
         '''This tests for issue #148.
 
         Test that we we load a vlan object we can see the sub-s
         '''
-        setup_interfaces_test(request, bigip, 'v1', 'Common')
-        v2 = bigip.net.vlans.vlan.load(name='v1', partition='Common')
+        setup_interfaces_test(request, mgmt_root, 'v1', 'Common')
+        v2 = mgmt_root.tm.net.vlans.vlan.load(name='v1', partition='Common')
         v2_ifcs = v2.interfaces_s.get_collection()
         assert len(v2_ifcs) == 1

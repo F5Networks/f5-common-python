@@ -21,20 +21,20 @@ import time
 @pytest.mark.skipif(pytest.config.getoption('--release') != '12.1.0',
                     reason='Needs v12.1 TMOS to pass')
 class TestUcs(object):
-    def test_ucs_LR(self, bigip):
-        f = bigip.sys.ucs.load()
+    def test_ucs_LR(self, mgmt_root):
+        f = mgmt_root.tm.sys.ucs.load()
 
         # Just in case our test unit does not have any ucs we create one
         try:
             f.items
         except LazyAttributesRequired:
-            bigip.sys.ucs.exec_cmd('save', name='dummyucs.ucs')
+            mgmt_root.tm.sys.ucs.exec_cmd('save', name='dummyucs.ucs')
             time.sleep(1)
             f.refresh()
         finally:
             ucs1 = len(f.items)
         assert ucs1 >= 0
-        bigip.sys.ucs.exec_cmd('save', name='foobar.ucs')
+        mgmt_root.tm.sys.ucs.exec_cmd('save', name='foobar.ucs')
         time.sleep(1)
         f.refresh()
         ucs2 = len(f.items)

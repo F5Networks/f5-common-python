@@ -19,7 +19,7 @@ V11_SUPPORTED = ['11.5.4', '11.6.0', '11.6.1', '11.6.2']
 V12_SUPPORTED = ['12.0.0', '12.1.0']
 
 
-def setup_sshd_test(request, bigip):
+def setup_sshd_test(request, mgmt_root):
     def teardown():
         d.allow = ['ALL']
         d.banner = 'disabled'
@@ -33,16 +33,16 @@ def setup_sshd_test(request, bigip):
 
         d.update()
     request.addfinalizer(teardown)
-    d = bigip.sys.sshd.load()
+    d = mgmt_root.tm.sys.sshd.load()
     return d
 
 
 @pytest.mark.skipif(pytest.config.getoption('--release') not in V11_SUPPORTED,
                     reason='Needs v11 TMOS to pass')
 class TestSshd11(object):
-    def test_load(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_load(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         assert ssh1.allow == ssh2.allow
         assert ssh1.banner == ssh2.banner
@@ -50,9 +50,9 @@ class TestSshd11(object):
         assert ssh1.logLevel == ssh2.logLevel
         assert ssh1.login == ssh2.login
 
-    def test_update_allow(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_allow(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         ssh1.allow = ['192.168.1.1']
         ssh1.update()
@@ -63,9 +63,9 @@ class TestSshd11(object):
         ssh2.refresh()
         assert ['192.168.1.1'] == ssh2.allow
 
-    def test_update_banner(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_banner(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         banners = ['enabled', 'disabled']
 
@@ -79,9 +79,9 @@ class TestSshd11(object):
             ssh2.refresh()
             assert banner == ssh2.banner
 
-    def test_update_bannerText(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_bannerText(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         ssh1.bannerText = 'foo banner'
         ssh1.update()
@@ -92,9 +92,9 @@ class TestSshd11(object):
         ssh2.refresh()
         assert 'foo banner' == ssh2.bannerText
 
-    def test_update_inactivityTimeout(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_inactivityTimeout(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         ssh1.inactivityTimeout = 10
         ssh1.update()
@@ -105,9 +105,9 @@ class TestSshd11(object):
         ssh2.refresh()
         assert 10 == ssh2.inactivityTimeout
 
-    def test_update_logLevel(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_logLevel(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         levels = ['debug', 'debug1', 'debug2', 'debug3', 'error', 'fatal',
                   'info', 'quiet', 'verbose']
@@ -122,9 +122,9 @@ class TestSshd11(object):
             ssh2.refresh()
             assert level == ssh2.logLevel
 
-    def test_update_login(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_login(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         logins = ['disabled', 'enabled']
 
@@ -142,9 +142,9 @@ class TestSshd11(object):
 @pytest.mark.skipif(pytest.config.getoption('--release') not in V12_SUPPORTED,
                     reason='Needs v12 TMOS to pass')
 class TestSshd12(object):
-    def test_load(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_load(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         assert ssh1.allow == ssh2.allow
         assert ssh1.banner == ssh2.banner
@@ -153,9 +153,9 @@ class TestSshd12(object):
         assert ssh1.login == ssh2.login
         assert ssh1.port == ssh2.port
 
-    def test_update_allow(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_allow(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         ssh1.allow = ['192.168.1.1']
         ssh1.update()
@@ -166,9 +166,9 @@ class TestSshd12(object):
         ssh2.refresh()
         assert ['192.168.1.1'] == ssh2.allow
 
-    def test_update_banner(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_banner(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         banners = ['enabled', 'disabled']
 
@@ -182,9 +182,9 @@ class TestSshd12(object):
             ssh2.refresh()
             assert banner == ssh2.banner
 
-    def test_update_bannerText(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_bannerText(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         ssh1.bannerText = 'foo banner'
         ssh1.update()
@@ -195,9 +195,9 @@ class TestSshd12(object):
         ssh2.refresh()
         assert 'foo banner' == ssh2.bannerText
 
-    def test_update_inactivityTimeout(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_inactivityTimeout(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         ssh1.inactivityTimeout = 10
         ssh1.update()
@@ -208,9 +208,9 @@ class TestSshd12(object):
         ssh2.refresh()
         assert 10 == ssh2.inactivityTimeout
 
-    def test_update_logLevel(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_logLevel(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         levels = ['debug', 'debug1', 'debug2', 'debug3', 'error', 'fatal',
                   'info', 'quiet', 'verbose']
@@ -225,9 +225,9 @@ class TestSshd12(object):
             ssh2.refresh()
             assert level == ssh2.logLevel
 
-    def test_update_login(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_login(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         logins = ['disabled', 'enabled']
 
@@ -241,9 +241,9 @@ class TestSshd12(object):
             ssh2.refresh()
             assert login == ssh2.login
 
-    def test_update_port(self, request, bigip):
-        ssh1 = setup_sshd_test(request, bigip)
-        ssh2 = setup_sshd_test(request, bigip)
+    def test_update_port(self, request, mgmt_root):
+        ssh1 = setup_sshd_test(request, mgmt_root)
+        ssh2 = setup_sshd_test(request, mgmt_root)
 
         ssh1.port = 1234
         ssh1.update()

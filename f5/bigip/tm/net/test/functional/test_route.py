@@ -25,9 +25,9 @@ SELF_IP = "192.168.100.1/24"
 GW_IP = "192.168.100.254"
 
 
-def delete_selfip(bigip, name, partition):
+def delete_selfip(mgmt_root, name, partition):
     try:
-        s = bigip.net.selfips.selfip.load(name=name, partition=partition)
+        s = mgmt_root.tm.net.selfips.selfip.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -35,9 +35,9 @@ def delete_selfip(bigip, name, partition):
     s.delete()
 
 
-def delete_vlan(bigip, name, partition):
+def delete_vlan(mgmt_root, name, partition):
     try:
-        s = bigip.net.vlans.vlan.load(name=name, partition=partition)
+        s = mgmt_root.tm.net.vlans.vlan.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -45,9 +45,9 @@ def delete_vlan(bigip, name, partition):
     s.delete()
 
 
-def delete_routes(bigip, name, partition):
+def delete_routes(mgmt_root, name, partition):
     try:
-        s = bigip.net.routes.route.load(name=name, partition=partition)
+        s = mgmt_root.tm.net.routes.route.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -55,9 +55,9 @@ def delete_routes(bigip, name, partition):
     s.delete()
 
 
-def delete_pools(bigip, name, partition):
+def delete_pools(mgmt_root, name, partition):
     try:
-        s = bigip.ltm.pools.pool.load(name=name, partition=partition)
+        s = mgmt_root.tm.ltm.pools.pool.load(name=name, partition=partition)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -65,51 +65,51 @@ def delete_pools(bigip, name, partition):
     s.delete()
 
 
-def setup_route_test(request, bigip, partition, name, network):
+def setup_route_test(request, mgmt_root, partition, name, network):
     def teardown():
-        delete_routes(bigip, name, partition)
-        delete_pools(bigip, POOL_NAME, partition)
-        delete_selfip(bigip, name, partition)
-        delete_vlan(bigip, VLAN_NAME, partition)
+        delete_routes(mgmt_root, name, partition)
+        delete_pools(mgmt_root, POOL_NAME, partition)
+        delete_selfip(mgmt_root, name, partition)
+        delete_vlan(mgmt_root, VLAN_NAME, partition)
     request.addfinalizer(teardown)
 
     # Need to create a VLAN interface, Pool and SelfIP for testing gateways
-    pools = bigip.ltm.pools
+    pools = mgmt_root.tm.ltm.pools
     pools.pool.create(partition='Common', name=POOL_NAME)
 
-    vlans = bigip.net.vlans
+    vlans = mgmt_root.tm.net.vlans
     vlans.vlan.create(partition=partition, name=VLAN_NAME)
 
-    selfips = bigip.net.selfips
+    selfips = mgmt_root.tm.net.selfips
     selfips.selfip.create(partition=partition, name=name,
                           address=SELF_IP, vlan=VLAN_NAME)
 
-    routes = bigip.net.routes
+    routes = mgmt_root.tm.net.routes
     route = routes.route.create(partition=partition, name=name,
                                 network=network, blackhole=True)
     return route, routes
 
 
 class TestRoute(object):
-    def test_missing_create_param(self, bigip):
+    def test_missing_create_param(self, mgmt_root):
         # Test that the gw types raise an error
         with pytest.raises(MissingRequiredCreationParameter):
-            bigip.net.routes.route.create(
+            mgmt_root.tm.net.routes.route.create(
                 partition='Common', name='test-route',
                 network='192.168.1.1/32'
             )
         # Test that the other required args raise an error
         with pytest.raises(MissingRequiredCreationParameter):
-            bigip.net.routes.route.create(
+            mgmt_root.tm.net.routes.route.create(
                 name='test-route', network='192.168.1.1/32', gw='192.168.1.1')
 
-    def test_CURDL(self, request, bigip):
+    def test_CURDL(self, request, mgmt_root):
         partition = 'Common'
         name = 'test-route'
         network = '192.168.90.0/24'
 
         # We assume that setup and teardown will create/delete
-        r1, rc1 = setup_route_test(request, bigip, partition, name, network)
+        r1, rc1 = setup_route_test(request, mgmt_root, partition, name, network)
         r2 = rc1.route.load(partition=partition, name=name)
         assert r1.name == name
         assert r1.partition == partition

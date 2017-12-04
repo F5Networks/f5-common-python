@@ -17,8 +17,8 @@
 TESTDESCRIPTION = "TESTDESCRIPTION"
 
 
-def setup_basic_test(request, bigip):
-    monitor1 = bigip.ltm.monitor
+def setup_basic_test(request, mgmt_root):
+    monitor1 = mgmt_root.tm.ltm.monitor
     return monitor1
 
 
@@ -44,25 +44,25 @@ def delete_resource(resources):
             resource.delete()
 
 
-def setup_http_test(request, bigip, partition, name):
+def setup_http_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.https
+    hc1 = mgmt_root.tm.ltm.monitor.https
     http1 = hc1.http.create(name=name, partition=partition)
     return http1, hc1
 
 
 class TestMonitor(object):
-    def test_get_collection(self, request, bigip):
-        m1 = setup_basic_test(request, bigip)
+    def test_get_collection(self, request, mgmt_root):
+        m1 = setup_basic_test(request, mgmt_root)
         list_of_references = m1.get_collection()
         assert len(list_of_references) == 39
 
 
 class TestMonitorHTTP(object):
-    def test_http_create_refresh_update_delete_load(self, request, bigip):
-        http1, hc1 = setup_http_test(request, bigip, 'Common', 'test1')
+    def test_http_create_refresh_update_delete_load(self, request, mgmt_root):
+        http1, hc1 = setup_http_test(request, mgmt_root, 'Common', 'test1')
         assert http1.name == 'test1'
         http1.description = TESTDESCRIPTION
         http1.update()
@@ -77,18 +77,18 @@ class TestMonitorHTTP(object):
 # End HTTP Tests
 # Begin HTTPS Tests
 
-def setup_https_test(request, bigip, partition, name):
+def setup_https_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.https_s
+    hc1 = mgmt_root.tm.ltm.monitor.https_s
     https1 = hc1.https.create(name=name, partition=partition)
     return https1, hc1
 
 
 class TestMonitorHTTPS(object):
-    def test_https_create_refresh_update_delete_load(self, request, bigip):
-        https1, hc1 = setup_https_test(request, bigip, 'Common', 'httpstest')
+    def test_https_create_refresh_update_delete_load(self, request, mgmt_root):
+        https1, hc1 = setup_https_test(request, mgmt_root, 'Common', 'httpstest')
         assert https1.name == 'httpstest'
         https1.description = TESTDESCRIPTION
         https1.update()
@@ -103,18 +103,18 @@ class TestMonitorHTTPS(object):
 # End HTTPS Tests
 # Begin Diameter Tests
 
-def setup_diameter_test(request, bigip, partition, name):
+def setup_diameter_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.diameters
+    hc1 = mgmt_root.tm.ltm.monitor.diameters
     diameter1 = hc1.diameter.create(name=name, partition=partition)
     return diameter1, hc1
 
 
 class TestMonitorDiameter(object):
-    def test_diameter_create_refresh_update_delete_load(self, request, bigip):
-        diameter1, hc1 = setup_diameter_test(request, bigip, 'Common',
+    def test_diameter_create_refresh_update_delete_load(self, request, mgmt_root):
+        diameter1, hc1 = setup_diameter_test(request, mgmt_root, 'Common',
                                              'diametertest')
         assert diameter1.name == 'diametertest'
         diameter1.description = TESTDESCRIPTION
@@ -130,18 +130,18 @@ class TestMonitorDiameter(object):
 # End Diameter Tests
 # Begin DNS Tests
 
-def setup_dns_test(request, bigip, partition, name, qname):
+def setup_dns_test(request, mgmt_root, partition, name, qname):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.dns_s
+    hc1 = mgmt_root.tm.ltm.monitor.dns_s
     dns1 = hc1.dns.create(name=name, partition=partition, qname=qname)
     return dns1, hc1
 
 
 class TestMonitorDNS(object):
-    def test_dns_create_refresh_update_delete_load(self, request, bigip):
-        dns1, hc1 = setup_dns_test(request, bigip, 'Common', 'dnstest', 'aqna')
+    def test_dns_create_refresh_update_delete_load(self, request, mgmt_root):
+        dns1, hc1 = setup_dns_test(request, mgmt_root, 'Common', 'dnstest', 'aqna')
         assert dns1.name == 'dnstest'
         dns1.description = TESTDESCRIPTION
         dns1.update()
@@ -156,18 +156,18 @@ class TestMonitorDNS(object):
 # End DNS Tests
 # Begin External
 
-def setup_external_test(request, bigip, partition, name):
+def setup_external_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.externals
+    hc1 = mgmt_root.tm.ltm.monitor.externals
     external1 = hc1.external.create(name=name, partition=partition)
     return external1, hc1
 
 
 class TestMonitorExternal(object):
-    def test_external_create_refresh_update_delete_load(self, request, bigip):
-        external1, hc1 = setup_external_test(request, bigip, 'Common',
+    def test_external_create_refresh_update_delete_load(self, request, mgmt_root):
+        external1, hc1 = setup_external_test(request, mgmt_root, 'Common',
                                              'externaltest')
         assert external1.name == 'externaltest'
         external1.description = TESTDESCRIPTION
@@ -183,18 +183,18 @@ class TestMonitorExternal(object):
 # End External Tests
 # Begin FirePass
 
-def setup_firepass_test(request, bigip, partition, name):
+def setup_firepass_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.firepass_s
+    hc1 = mgmt_root.tm.ltm.monitor.firepass_s
     firepass1 = hc1.firepass.create(name=name, partition=partition)
     return firepass1, hc1
 
 
 class TestMonitorFirePass(object):
-    def test_firepass_create_refresh_update_delete_load(self, request, bigip):
-        firepass1, hc1 = setup_firepass_test(request, bigip, 'Common',
+    def test_firepass_create_refresh_update_delete_load(self, request, mgmt_root):
+        firepass1, hc1 = setup_firepass_test(request, mgmt_root, 'Common',
                                              'firepasstest')
         assert firepass1.name == 'firepasstest'
         firepass1.description = TESTDESCRIPTION
@@ -210,18 +210,18 @@ class TestMonitorFirePass(object):
 # End FirePass Tests
 # Begin FTP Tests
 
-def setup_ftp_test(request, bigip, partition, name):
+def setup_ftp_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.ftps
+    hc1 = mgmt_root.tm.ltm.monitor.ftps
     ftp1 = hc1.ftp.create(name=name, partition=partition)
     return ftp1, hc1
 
 
 class TestMonitorFTP(object):
-    def test_ftp_create_refresh_update_delete_load(self, request, bigip):
-        ftp1, hc1 = setup_ftp_test(request, bigip, 'Common', 'ftptest')
+    def test_ftp_create_refresh_update_delete_load(self, request, mgmt_root):
+        ftp1, hc1 = setup_ftp_test(request, mgmt_root, 'Common', 'ftptest')
         assert ftp1.name == 'ftptest'
         ftp1.description = TESTDESCRIPTION
         ftp1.update()
@@ -236,11 +236,11 @@ class TestMonitorFTP(object):
 # End FTP Tests
 # Begin GateWay-ICMP
 
-def setup_gateway_icmp_test(request, bigip, partition, name):
+def setup_gateway_icmp_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.gateway_icmps
+    hc1 = mgmt_root.tm.ltm.monitor.gateway_icmps
     gateway_icmp1 = hc1.gateway_icmp.create(name=name, partition=partition)
     return gateway_icmp1, hc1
 
@@ -248,10 +248,10 @@ def setup_gateway_icmp_test(request, bigip, partition, name):
 class TestMonitorGateWay_ICMP(object):
     def test_gateway_icmp_create_refresh_update_delete_load(self,
                                                             request,
-                                                            bigip):
+                                                            mgmt_root):
         gateway_icmp1, hc1 =\
             setup_gateway_icmp_test(request,
-                                    bigip,
+                                    mgmt_root,
                                     'Common',
                                     'gateway_icmptest')
         assert gateway_icmp1.name == 'gateway_icmptest'
@@ -269,18 +269,18 @@ class TestMonitorGateWay_ICMP(object):
 # End GateWay-ICMP
 # Begin ICMP
 
-def setup_icmp_test(request, bigip, partition, name):
+def setup_icmp_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.icmps
+    hc1 = mgmt_root.tm.ltm.monitor.icmps
     icmp1 = hc1.icmp.create(name=name, partition=partition)
     return icmp1, hc1
 
 
 class TestMonitorICMP(object):
-    def test_icmp_create_refresh_update_delete_load(self, request, bigip):
-        icmp1, hc1 = setup_icmp_test(request, bigip, 'Common', 'icmptest')
+    def test_icmp_create_refresh_update_delete_load(self, request, mgmt_root):
+        icmp1, hc1 = setup_icmp_test(request, mgmt_root, 'Common', 'icmptest')
         assert icmp1.name == 'icmptest'
         icmp1.description = TESTDESCRIPTION
         icmp1.update()
@@ -295,18 +295,18 @@ class TestMonitorICMP(object):
 # End ICMP
 # Begin IMAP
 
-def setup_imap_test(request, bigip, partition, name):
+def setup_imap_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.imaps
+    hc1 = mgmt_root.tm.ltm.monitor.imaps
     imap1 = hc1.imap.create(name=name, partition=partition)
     return imap1, hc1
 
 
 class TestMonitorIMAP(object):
-    def test_imap_create_refresh_update_delete_load(self, request, bigip):
-        imap1, hc1 = setup_imap_test(request, bigip, 'Common', 'imaptest')
+    def test_imap_create_refresh_update_delete_load(self, request, mgmt_root):
+        imap1, hc1 = setup_imap_test(request, mgmt_root, 'Common', 'imaptest')
         assert imap1.name == 'imaptest'
         imap1.description = TESTDESCRIPTION
         imap1.update()
@@ -321,19 +321,19 @@ class TestMonitorIMAP(object):
 # End IMAP
 # Begin InBand
 
-def setup_inband_test(request, bigip, partition, name):
+def setup_inband_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.inbands
+    hc1 = mgmt_root.tm.ltm.monitor.inbands
     inband1 = hc1.inband.create(name=name, partition=partition)
     return inband1, hc1
 
 
 class TestMonitorInBand(object):
-    def test_inband_create_refresh_update_delete_load(self, request, bigip):
+    def test_inband_create_refresh_update_delete_load(self, request, mgmt_root):
         inband1, hc1 =\
-            setup_inband_test(request, bigip, 'Common', 'inbandtest')
+            setup_inband_test(request, mgmt_root, 'Common', 'inbandtest')
         assert inband1.name == 'inbandtest'
         inband1.description = TESTDESCRIPTION
         inband1.update()
@@ -348,18 +348,18 @@ class TestMonitorInBand(object):
 # End InBand
 # Begin LDAP
 
-def setup_ldap_test(request, bigip, partition, name):
+def setup_ldap_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.ldaps
+    hc1 = mgmt_root.tm.ltm.monitor.ldaps
     ldap1 = hc1.ldap.create(name=name, partition=partition)
     return ldap1, hc1
 
 
 class TestMonitorLDAP(object):
-    def test_ldap_create_refresh_update_delete_load(self, request, bigip):
-        ldap1, hc1 = setup_ldap_test(request, bigip, 'Common', 'ldaptest')
+    def test_ldap_create_refresh_update_delete_load(self, request, mgmt_root):
+        ldap1, hc1 = setup_ldap_test(request, mgmt_root, 'Common', 'ldaptest')
         assert ldap1.name == 'ldaptest'
         ldap1.description = TESTDESCRIPTION
         ldap1.update()
@@ -374,11 +374,11 @@ class TestMonitorLDAP(object):
 # Begin Module-Score
 
 
-def setup_module_score_test(request, bigip, partition, name, snmpaddr):
+def setup_module_score_test(request, mgmt_root, partition, name, snmpaddr):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.module_scores
+    hc1 = mgmt_root.tm.ltm.monitor.module_scores
     creation_params = {'name': name,
                        'partition': partition,
                        'snmp-ip-address': snmpaddr}
@@ -388,10 +388,10 @@ def setup_module_score_test(request, bigip, partition, name, snmpaddr):
 
 class TestMonitorModule_Score(object):
     def test_module_score_create_refresh_update_delete_load(self, request,
-                                                            bigip):
+                                                            mgmt_root):
         module_score1, hc1 =\
             setup_module_score_test(request,
-                                    bigip,
+                                    mgmt_root,
                                     'Common',
                                     'module_scoretest',
                                     '9.9.9.9')
@@ -410,11 +410,11 @@ class TestMonitorModule_Score(object):
 # End Module-Score
 # Begin MSSQL
 
-def setup_mssql_test(request, bigip, partition, name):
+def setup_mssql_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.mssqls
+    hc1 = mgmt_root.tm.ltm.monitor.mssqls
     creation_params = {'name': name,
                        'partition': partition}
     mssql1 = hc1.mssql.create(**creation_params)
@@ -422,8 +422,8 @@ def setup_mssql_test(request, bigip, partition, name):
 
 
 class TestMonitorMSSQL(object):
-    def test_mssql_create_refresh_update_delete_load(self, request, bigip):
-        mssql1, hc1 = setup_mssql_test(request, bigip, 'Common', 'mssqltest')
+    def test_mssql_create_refresh_update_delete_load(self, request, mgmt_root):
+        mssql1, hc1 = setup_mssql_test(request, mgmt_root, 'Common', 'mssqltest')
         assert mssql1.name == 'mssqltest'
         mssql1.description = TESTDESCRIPTION
         mssql1.update()
@@ -438,11 +438,11 @@ class TestMonitorMSSQL(object):
 # End MSSQL
 # Begin MYSQL
 
-def setup_mysql_test(request, bigip, partition, name):
+def setup_mysql_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.mysqls
+    hc1 = mgmt_root.tm.ltm.monitor.mysqls
     creation_params = {'name': name,
                        'partition': partition}
     mysql1 = hc1.mysql.create(**creation_params)
@@ -450,8 +450,8 @@ def setup_mysql_test(request, bigip, partition, name):
 
 
 class TestMonitorMYSQL(object):
-    def test_mysql_create_refresh_update_delete_load(self, request, bigip):
-        mysql1, hc1 = setup_mysql_test(request, bigip, 'Common', 'mysqltest')
+    def test_mysql_create_refresh_update_delete_load(self, request, mgmt_root):
+        mysql1, hc1 = setup_mysql_test(request, mgmt_root, 'Common', 'mysqltest')
         assert mysql1.name == 'mysqltest'
         mysql1.description = TESTDESCRIPTION
         mysql1.update()
@@ -466,11 +466,11 @@ class TestMonitorMYSQL(object):
 # Begin NNTP
 
 
-def setup_nntp_test(request, bigip, partition, name):
+def setup_nntp_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.nntps
+    hc1 = mgmt_root.tm.ltm.monitor.nntps
     creation_params = {'name': name,
                        'partition': partition}
     nntp1 = hc1.nntp.create(**creation_params)
@@ -478,8 +478,8 @@ def setup_nntp_test(request, bigip, partition, name):
 
 
 class TestMonitorNNTP(object):
-    def test_nntp_create_refresh_update_delete_load(self, request, bigip):
-        nntp1, hc1 = setup_nntp_test(request, bigip, 'Common', 'nntptest')
+    def test_nntp_create_refresh_update_delete_load(self, request, mgmt_root):
+        nntp1, hc1 = setup_nntp_test(request, mgmt_root, 'Common', 'nntptest')
         assert nntp1.name == 'nntptest'
         nntp1.description = TESTDESCRIPTION
         nntp1.update()
@@ -494,11 +494,11 @@ class TestMonitorNNTP(object):
 # End NNTP
 # Begin NONE
 '''
-def setup_none_test(request, bigip, partition, name):
+def setup_none_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.nones
+    hc1 = mgmt_root.tm.ltm.monitor.nones
     none1 = hc1.none
     creation_params = {'name': name,
                        'partition': partition}
@@ -508,8 +508,8 @@ def setup_none_test(request, bigip, partition, name):
 
 class TestMonitorNONE(object):
     def test_none_create_refresh_update_delete_load(self, request,
-                                                            bigip):
-        none1, hc1 = setup_none_test(request, bigip, 'Common', 'nonetest')
+                                                            mgmt_root):
+        none1, hc1 = setup_none_test(request, mgmt_root, 'Common', 'nonetest')
         assert none1.name == 'nonetest'
         none1.description = TESTDESCRIPTION
         none1.update()
@@ -526,11 +526,11 @@ class TestMonitorNONE(object):
 # Begin Oracle
 
 
-def setup_oracle_test(request, bigip, partition, name):
+def setup_oracle_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.oracles
+    hc1 = mgmt_root.tm.ltm.monitor.oracles
     creation_params = {'name': name,
                        'partition': partition}
     oracle1 = hc1.oracle.create(**creation_params)
@@ -538,9 +538,9 @@ def setup_oracle_test(request, bigip, partition, name):
 
 
 class TestMonitorOracle(object):
-    def test_oracle_create_refresh_update_delete_load(self, request, bigip):
+    def test_oracle_create_refresh_update_delete_load(self, request, mgmt_root):
         oracle1, hc1 =\
-            setup_oracle_test(request, bigip, 'Common', 'oracletest')
+            setup_oracle_test(request, mgmt_root, 'Common', 'oracletest')
         assert oracle1.name == 'oracletest'
         oracle1.description = TESTDESCRIPTION
         oracle1.update()
@@ -555,11 +555,11 @@ class TestMonitorOracle(object):
 # End Oracle
 # Begin POP3
 
-def setup_pop3_test(request, bigip, partition, name):
+def setup_pop3_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.pop3s
+    hc1 = mgmt_root.tm.ltm.monitor.pop3s
     creation_params = {'name': name,
                        'partition': partition}
     pop31 = hc1.pop3.create(**creation_params)
@@ -567,8 +567,8 @@ def setup_pop3_test(request, bigip, partition, name):
 
 
 class TestMonitorPOP3(object):
-    def test_pop3_create_refresh_update_delete_load(self, request, bigip):
-        pop31, hc1 = setup_pop3_test(request, bigip, 'Common', 'pop3test')
+    def test_pop3_create_refresh_update_delete_load(self, request, mgmt_root):
+        pop31, hc1 = setup_pop3_test(request, mgmt_root, 'Common', 'pop3test')
         assert pop31.name == 'pop3test'
         pop31.description = TESTDESCRIPTION
         pop31.update()
@@ -583,11 +583,11 @@ class TestMonitorPOP3(object):
 # End POP3
 # Begin PostGRESQL
 
-def setup_postgresql_test(request, bigip, partition, name):
+def setup_postgresql_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.postgresqls
+    hc1 = mgmt_root.tm.ltm.monitor.postgresqls
     creation_params = {'name': name,
                        'partition': partition}
     postgresql1 = hc1.postgresql.create(**creation_params)
@@ -596,9 +596,9 @@ def setup_postgresql_test(request, bigip, partition, name):
 
 class TestMonitorPostGRESQL(object):
     def test_postgresql_create_refresh_update_delete_load(self, request,
-                                                          bigip):
+                                                          mgmt_root):
         postgresql1, hc1 =\
-            setup_postgresql_test(request, bigip, 'Common', 'postgresqltest')
+            setup_postgresql_test(request, mgmt_root, 'Common', 'postgresqltest')
         assert postgresql1.name == 'postgresqltest'
         postgresql1.description = TESTDESCRIPTION
         postgresql1.update()
@@ -614,11 +614,11 @@ class TestMonitorPostGRESQL(object):
 # End PostGRESQL
 # Begin Radius
 
-def setup_radius_test(request, bigip, partition, name):
+def setup_radius_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.radius_s
+    hc1 = mgmt_root.tm.ltm.monitor.radius_s
     creation_params = {'name': name,
                        'partition': partition}
     radius1 = hc1.radius.create(**creation_params)
@@ -626,9 +626,9 @@ def setup_radius_test(request, bigip, partition, name):
 
 
 class TestMonitorRadius(object):
-    def test_radius_create_refresh_update_delete_load(self, request, bigip):
+    def test_radius_create_refresh_update_delete_load(self, request, mgmt_root):
         radius1, hc1 =\
-            setup_radius_test(request, bigip, 'Common', 'radiustest')
+            setup_radius_test(request, mgmt_root, 'Common', 'radiustest')
         assert radius1.name == 'radiustest'
         radius1.description = TESTDESCRIPTION
         radius1.update()
@@ -643,11 +643,11 @@ class TestMonitorRadius(object):
 # End Radius
 # Begin Radius_Accounting
 
-def setup_radius_accounting_test(request, bigip, partition, name):
+def setup_radius_accounting_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.radius_accountings
+    hc1 = mgmt_root.tm.ltm.monitor.radius_accountings
     creation_params = {'name': name,
                        'partition': partition}
     radius_accounting1 = hc1.radius_accounting.create(**creation_params)
@@ -656,10 +656,10 @@ def setup_radius_accounting_test(request, bigip, partition, name):
 
 class TestMonitorRadius_Accounting(object):
     def test_radius_accounting_create_refresh_update_delete_load(self, request,
-                                                                 bigip):
+                                                                 mgmt_root):
         radius_accounting1, hc1 =\
             setup_radius_accounting_test(request,
-                                         bigip,
+                                         mgmt_root,
                                          'Common',
                                          'radius_accountingtest')
         assert radius_accounting1.name == 'radius_accountingtest'
@@ -678,11 +678,11 @@ class TestMonitorRadius_Accounting(object):
 # End Radius_Accounting
 # Begin Real_Server
 
-def setup_real_server_test(request, bigip, partition, name):
+def setup_real_server_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.real_servers
+    hc1 = mgmt_root.tm.ltm.monitor.real_servers
     creation_params = {'name': name,
                        'partition': partition}
     real_server1 = hc1.real_server.create(**creation_params)
@@ -691,9 +691,9 @@ def setup_real_server_test(request, bigip, partition, name):
 
 class TestMonitorReal_Server(object):
     def test_real_server_create_refresh_update_delete_load(self, request,
-                                                           bigip):
+                                                           mgmt_root):
         real_server1, hc1 =\
-            setup_real_server_test(request, bigip, 'Common', 'real_servertest')
+            setup_real_server_test(request, mgmt_root, 'Common', 'real_servertest')
         assert real_server1.name == 'real_servertest'
         real_server1.description = TESTDESCRIPTION
         real_server1.update()
@@ -709,11 +709,11 @@ class TestMonitorReal_Server(object):
 # End Real_Server
 # Begin RPC
 
-def setup_rpc_test(request, bigip, partition, name):
+def setup_rpc_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.rpcs
+    hc1 = mgmt_root.tm.ltm.monitor.rpcs
     creation_params = {'name': name,
                        'partition': partition}
     rpc1 = hc1.rpc.create(**creation_params)
@@ -721,8 +721,8 @@ def setup_rpc_test(request, bigip, partition, name):
 
 
 class TestMonitorRPC(object):
-    def test_rpc_create_refresh_update_delete_load(self, request, bigip):
-        rpc1, hc1 = setup_rpc_test(request, bigip, 'Common', 'rpctest')
+    def test_rpc_create_refresh_update_delete_load(self, request, mgmt_root):
+        rpc1, hc1 = setup_rpc_test(request, mgmt_root, 'Common', 'rpctest')
         assert rpc1.name == 'rpctest'
         rpc1.description = TESTDESCRIPTION
         rpc1.update()
@@ -737,11 +737,11 @@ class TestMonitorRPC(object):
 # End RPC
 # Begin SASP
 
-def setup_sasp_test(request, bigip, partition, name, primaryAddress='1.1.1.1'):
+def setup_sasp_test(request, mgmt_root, partition, name, primaryAddress='1.1.1.1'):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.sasps
+    hc1 = mgmt_root.tm.ltm.monitor.sasps
     creation_params = {'name': name,
                        'partition': partition,
                        'primaryAddress': primaryAddress}
@@ -750,8 +750,8 @@ def setup_sasp_test(request, bigip, partition, name, primaryAddress='1.1.1.1'):
 
 
 class TestMonitorSASP(object):
-    def test_sasp_create_refresh_update_delete_load(self, request, bigip):
-        sasp1, hc1 = setup_sasp_test(request, bigip, 'Common', 'sasptest')
+    def test_sasp_create_refresh_update_delete_load(self, request, mgmt_root):
+        sasp1, hc1 = setup_sasp_test(request, mgmt_root, 'Common', 'sasptest')
         assert sasp1.name == 'sasptest'
         sasp1.description = TESTDESCRIPTION
         sasp1.update()
@@ -766,11 +766,11 @@ class TestMonitorSASP(object):
 # End SASP
 # Begin Scripted
 
-def setup_scripted_test(request, bigip, partition, name):
+def setup_scripted_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.scripteds
+    hc1 = mgmt_root.tm.ltm.monitor.scripteds
     creation_params = {'name': name,
                        'partition': partition}
     scripted1 = hc1.scripted.create(**creation_params)
@@ -778,9 +778,9 @@ def setup_scripted_test(request, bigip, partition, name):
 
 
 class TestMonitorScripted(object):
-    def test_scripted_create_refresh_update_delete_load(self, request, bigip):
+    def test_scripted_create_refresh_update_delete_load(self, request, mgmt_root):
         scripted1, hc1 =\
-            setup_scripted_test(request, bigip, 'Common', 'scriptedtest')
+            setup_scripted_test(request, mgmt_root, 'Common', 'scriptedtest')
         assert scripted1.name == 'scriptedtest'
         scripted1.description = TESTDESCRIPTION
         scripted1.update()
@@ -796,11 +796,11 @@ class TestMonitorScripted(object):
 # End Scripted
 # Begin SIP
 
-def setup_sip_test(request, bigip, partition, name):
+def setup_sip_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.sips
+    hc1 = mgmt_root.tm.ltm.monitor.sips
     creation_params = {'name': name,
                        'partition': partition}
     sip1 = hc1.sip.create(**creation_params)
@@ -808,8 +808,8 @@ def setup_sip_test(request, bigip, partition, name):
 
 
 class TestMonitorSIP(object):
-    def test_sip_create_refresh_update_delete_load(self, request, bigip):
-        sip1, hc1 = setup_sip_test(request, bigip, 'Common', 'siptest')
+    def test_sip_create_refresh_update_delete_load(self, request, mgmt_root):
+        sip1, hc1 = setup_sip_test(request, mgmt_root, 'Common', 'siptest')
         assert sip1.name == 'siptest'
         sip1.description = TESTDESCRIPTION
         sip1.update()
@@ -824,11 +824,11 @@ class TestMonitorSIP(object):
 # End SIP
 # Begin SMB
 
-def setup_smb_test(request, bigip, partition, name):
+def setup_smb_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.smbs
+    hc1 = mgmt_root.tm.ltm.monitor.smbs
     creation_params = {'name': name,
                        'partition': partition}
     smb1 = hc1.smb.create(**creation_params)
@@ -836,8 +836,8 @@ def setup_smb_test(request, bigip, partition, name):
 
 
 class TestMonitorSMB(object):
-    def test_smb_create_refresh_update_delete_load(self, request, bigip):
-        smb1, hc1 = setup_smb_test(request, bigip, 'Common', 'smbtest')
+    def test_smb_create_refresh_update_delete_load(self, request, mgmt_root):
+        smb1, hc1 = setup_smb_test(request, mgmt_root, 'Common', 'smbtest')
         assert smb1.name == 'smbtest'
         smb1.description = TESTDESCRIPTION
         smb1.update()
@@ -852,11 +852,11 @@ class TestMonitorSMB(object):
 # End SMB
 # Begin SMTP
 
-def setup_smtp_test(request, bigip, partition, name):
+def setup_smtp_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.smtps
+    hc1 = mgmt_root.tm.ltm.monitor.smtps
     creation_params = {'name': name,
                        'partition': partition}
     smtp1 = hc1.smtp.create(**creation_params)
@@ -864,8 +864,8 @@ def setup_smtp_test(request, bigip, partition, name):
 
 
 class TestMonitorSMTP(object):
-    def test_smtp_create_refresh_update_delete_load(self, request, bigip):
-        smtp1, hc1 = setup_smtp_test(request, bigip, 'Common', 'smtptest')
+    def test_smtp_create_refresh_update_delete_load(self, request, mgmt_root):
+        smtp1, hc1 = setup_smtp_test(request, mgmt_root, 'Common', 'smtptest')
         assert smtp1.name == 'smtptest'
         smtp1.description = TESTDESCRIPTION
         smtp1.update()
@@ -880,11 +880,11 @@ class TestMonitorSMTP(object):
 # End SMTP
 # Begin SNMP_DCA
 
-def setup_snmp_dca_test(request, bigip, partition, name):
+def setup_snmp_dca_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.snmp_dcas
+    hc1 = mgmt_root.tm.ltm.monitor.snmp_dcas
     creation_params = {'name': name,
                        'partition': partition}
     snmp_dca1 = hc1.snmp_dca.create(**creation_params)
@@ -892,9 +892,9 @@ def setup_snmp_dca_test(request, bigip, partition, name):
 
 
 class TestMonitorSNMP_DCA(object):
-    def test_snmp_dca_create_refresh_update_delete_load(self, request, bigip):
+    def test_snmp_dca_create_refresh_update_delete_load(self, request, mgmt_root):
         snmp_dca1, hc1 =\
-            setup_snmp_dca_test(request, bigip, 'Common', 'snmp_dcatest')
+            setup_snmp_dca_test(request, mgmt_root, 'Common', 'snmp_dcatest')
         assert snmp_dca1.name == 'snmp_dcatest'
         snmp_dca1.description = TESTDESCRIPTION
         snmp_dca1.update()
@@ -909,11 +909,11 @@ class TestMonitorSNMP_DCA(object):
 # End SNMP_DCA
 # Begin SNMP_DCA_Base
 
-def setup_snmp_dca_base_test(request, bigip, partition, name):
+def setup_snmp_dca_base_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.snmp_dca_bases
+    hc1 = mgmt_root.tm.ltm.monitor.snmp_dca_bases
     creation_params = {'name': name,
                        'partition': partition}
     snmp_dca_base1 = hc1.snmp_dca_base.create(**creation_params)
@@ -922,10 +922,10 @@ def setup_snmp_dca_base_test(request, bigip, partition, name):
 
 class TestMonitorSNMP_DCA_Base(object):
     def test_snmp_dca_base_create_refresh_update_delete_load(self, request,
-                                                             bigip):
+                                                             mgmt_root):
         snmp_dca_base1, hc1 =\
             setup_snmp_dca_base_test(request,
-                                     bigip,
+                                     mgmt_root,
                                      'Common',
                                      'snmp_dca_basetest')
         assert snmp_dca_base1.name == 'snmp_dca_basetest'
@@ -944,11 +944,11 @@ class TestMonitorSNMP_DCA_Base(object):
 # End SNMP_DCA_Base
 # Begin SOAP
 
-def setup_soap_test(request, bigip, partition, name):
+def setup_soap_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.soaps
+    hc1 = mgmt_root.tm.ltm.monitor.soaps
     creation_params = {'name': name,
                        'partition': partition}
     soap1 = hc1.soap.create(**creation_params)
@@ -956,8 +956,8 @@ def setup_soap_test(request, bigip, partition, name):
 
 
 class TestMonitorSOAP(object):
-    def test_soap_create_refresh_update_delete_load(self, request, bigip):
-        soap1, hc1 = setup_soap_test(request, bigip, 'Common', 'soaptest')
+    def test_soap_create_refresh_update_delete_load(self, request, mgmt_root):
+        soap1, hc1 = setup_soap_test(request, mgmt_root, 'Common', 'soaptest')
         assert soap1.name == 'soaptest'
         soap1.description = TESTDESCRIPTION
         soap1.update()
@@ -972,11 +972,11 @@ class TestMonitorSOAP(object):
 # End SOAP
 # Begin TCP
 
-def setup_tcp_test(request, bigip, partition, name):
+def setup_tcp_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.tcps
+    hc1 = mgmt_root.tm.ltm.monitor.tcps
     creation_params = {'name': name,
                        'partition': partition}
     tcp1 = hc1.tcp.create(**creation_params)
@@ -984,8 +984,8 @@ def setup_tcp_test(request, bigip, partition, name):
 
 
 class TestMonitorTCP(object):
-    def test_tcp_create_refresh_update_delete_load(self, request, bigip):
-        tcp1, hc1 = setup_tcp_test(request, bigip, 'Common', 'tcptest')
+    def test_tcp_create_refresh_update_delete_load(self, request, mgmt_root):
+        tcp1, hc1 = setup_tcp_test(request, mgmt_root, 'Common', 'tcptest')
         assert tcp1.name == 'tcptest'
         tcp1.description = TESTDESCRIPTION
         tcp1.update()
@@ -1000,11 +1000,11 @@ class TestMonitorTCP(object):
 # End TCP
 # Begin TCP_Echo
 
-def setup_tcp_echo_test(request, bigip, partition, name):
+def setup_tcp_echo_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.tcp_echos
+    hc1 = mgmt_root.tm.ltm.monitor.tcp_echos
     creation_params = {'name': name,
                        'partition': partition}
     tcp_echo1 = hc1.tcp_echo.create(**creation_params)
@@ -1012,9 +1012,9 @@ def setup_tcp_echo_test(request, bigip, partition, name):
 
 
 class TestMonitorTCP_Echo(object):
-    def test_tcp_echo_create_refresh_update_delete_load(self, request, bigip):
+    def test_tcp_echo_create_refresh_update_delete_load(self, request, mgmt_root):
         tcp_echo1, hc1 =\
-            setup_tcp_echo_test(request, bigip, 'Common', 'tcp_echotest')
+            setup_tcp_echo_test(request, mgmt_root, 'Common', 'tcp_echotest')
         assert tcp_echo1.name == 'tcp_echotest'
         tcp_echo1.description = TESTDESCRIPTION
         tcp_echo1.update()
@@ -1029,11 +1029,11 @@ class TestMonitorTCP_Echo(object):
 # End TCP_Echo
 # Begin TCP_Half_Open
 
-def setup_tcp_half_open_test(request, bigip, partition, name):
+def setup_tcp_half_open_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.tcp_half_opens
+    hc1 = mgmt_root.tm.ltm.monitor.tcp_half_opens
     creation_params = {'name': name,
                        'partition': partition}
     tcp_half_open1 = hc1.tcp_half_open.create(**creation_params)
@@ -1042,10 +1042,10 @@ def setup_tcp_half_open_test(request, bigip, partition, name):
 
 class TestMonitorTCP_Half_Open(object):
     def test_tcp_half_open_create_refresh_update_delete_load(self, request,
-                                                             bigip):
+                                                             mgmt_root):
         tcp_half_open1, hc1 =\
             setup_tcp_half_open_test(request,
-                                     bigip,
+                                     mgmt_root,
                                      'Common',
                                      'tcp_half_opentest')
         assert tcp_half_open1.name == 'tcp_half_opentest'
@@ -1063,11 +1063,11 @@ class TestMonitorTCP_Half_Open(object):
 # End TCP_Half_Open
 # Begin UDP
 
-def setup_udp_test(request, bigip, partition, name):
+def setup_udp_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.udps
+    hc1 = mgmt_root.tm.ltm.monitor.udps
     creation_params = {'name': name,
                        'partition': partition}
     udp1 = hc1.udp.create(**creation_params)
@@ -1075,8 +1075,8 @@ def setup_udp_test(request, bigip, partition, name):
 
 
 class TestMonitorUDP(object):
-    def test_udp_create_refresh_update_delete_load(self, request, bigip):
-        udp1, hc1 = setup_udp_test(request, bigip, 'Common', 'udptest')
+    def test_udp_create_refresh_update_delete_load(self, request, mgmt_root):
+        udp1, hc1 = setup_udp_test(request, mgmt_root, 'Common', 'udptest')
         assert udp1.name == 'udptest'
         udp1.description = TESTDESCRIPTION
         udp1.update()
@@ -1091,11 +1091,11 @@ class TestMonitorUDP(object):
 # End UDP
 # Begin Virtual_Location
 
-def setup_virtual_location_test(request, bigip, partition, name, pool='tp1'):
+def setup_virtual_location_test(request, mgmt_root, partition, name, pool='tp1'):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.virtual_locations
+    hc1 = mgmt_root.tm.ltm.monitor.virtual_locations
     creation_params = {'name': name,
                        'partition': partition,
                        'pool': pool}
@@ -1105,10 +1105,10 @@ def setup_virtual_location_test(request, bigip, partition, name, pool='tp1'):
 
 class TestMonitorVirtual_Location(object):
     def test_virtual_location_create_refresh_update_delete_load(self, request,
-                                                                bigip):
+                                                                mgmt_root):
         virtual_location1, hc1 =\
             setup_virtual_location_test(request,
-                                        bigip,
+                                        mgmt_root,
                                         'Common',
                                         'virtual_locationtest')
         assert virtual_location1.name == 'virtual_locationtest'
@@ -1127,11 +1127,11 @@ class TestMonitorVirtual_Location(object):
 # End Virtual_Location
 # Begin WAP
 
-def setup_wap_test(request, bigip, partition, name):
+def setup_wap_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.waps
+    hc1 = mgmt_root.tm.ltm.monitor.waps
     creation_params = {'name': name,
                        'partition': partition}
     wap1 = hc1.wap.create(**creation_params)
@@ -1139,8 +1139,8 @@ def setup_wap_test(request, bigip, partition, name):
 
 
 class TestMonitorWAP(object):
-    def test_wap_create_refresh_update_delete_load(self, request, bigip):
-        wap1, hc1 = setup_wap_test(request, bigip, 'Common', 'waptest')
+    def test_wap_create_refresh_update_delete_load(self, request, mgmt_root):
+        wap1, hc1 = setup_wap_test(request, mgmt_root, 'Common', 'waptest')
         assert wap1.name == 'waptest'
         wap1.description = TESTDESCRIPTION
         wap1.update()
@@ -1155,11 +1155,11 @@ class TestMonitorWAP(object):
 # End WAP
 # Begin WMI
 
-def setup_wmi_test(request, bigip, partition, name):
+def setup_wmi_test(request, mgmt_root, partition, name):
     def teardown():
         delete_resource(hc1)
     request.addfinalizer(teardown)
-    hc1 = bigip.ltm.monitor.wmis
+    hc1 = mgmt_root.tm.ltm.monitor.wmis
     creation_params = {'name': name,
                        'partition': partition}
     wmi1 = hc1.wmi.create(**creation_params)
@@ -1167,8 +1167,8 @@ def setup_wmi_test(request, bigip, partition, name):
 
 
 class TestMonitorWMI(object):
-    def test_wmi_create_refresh_update_delete_load(self, request, bigip):
-        wmi1, hc1 = setup_wmi_test(request, bigip, 'Common', 'wmitest')
+    def test_wmi_create_refresh_update_delete_load(self, request, mgmt_root):
+        wmi1, hc1 = setup_wmi_test(request, mgmt_root, 'Common', 'wmitest')
         assert wmi1.name == 'wmitest'
         wmi1.description = TESTDESCRIPTION
         wmi1.update()

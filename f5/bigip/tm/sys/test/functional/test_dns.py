@@ -14,22 +14,22 @@
 #
 
 
-def setup_dns_test(request, bigip):
+def setup_dns_test(request, mgmt_root):
     def teardown():
         d.nameServers = servers
         d.update()
     request.addfinalizer(teardown)
-    d = bigip.sys.dns.load()
+    d = mgmt_root.tm.sys.dns.load()
     servers = d.nameServers
     return d, servers
 
 
 class TestDns(object):
-    def test_RUL(self, request, bigip):
+    def test_RUL(self, request, mgmt_root):
         # Load
         ip = '192.168.100.85'
-        dns1, orig_servers = setup_dns_test(request, bigip)
-        dns2 = bigip.sys.dns.load()
+        dns1, orig_servers = setup_dns_test(request, mgmt_root)
+        dns2 = mgmt_root.tm.sys.dns.load()
         assert len(dns1.nameServers) == len(dns2.nameServers)
 
         # Update

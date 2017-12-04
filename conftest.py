@@ -188,11 +188,10 @@ def USER(bigip):
     return n
 
 
-def _delete_pools_members(bigip, pool_records):
+def _delete_pools_members(mgmt_root, pool_records):
     for pr in pool_records:
-        if bigip.ltm.pools.pool.exists(partition=pr.partition, name=pr.name):
-            pool_inst = bigip.ltm.pools.pool.load(partition=pr.partition,
-                                                  name=pr.name)
+        if mgmt_root.tm.ltm.pools.pool.exists(partition=pr.partition, name=pr.name):
+            pool_inst = mgmt_root.tm.ltm.pools.pool.load(partition=pr.partition, name=pr.name)
             members_list = pool_inst.members_s.get_collection()
             pool_inst.delete()
             for mem_inst in members_list:
@@ -201,14 +200,13 @@ def _delete_pools_members(bigip, pool_records):
 
 @pytest.fixture
 def pool_factory():
-    def _setup_boilerplate(bigip, request, pool_records):
-        _delete_pools_members(bigip, pool_records)
+    def _setup_boilerplate(mgmt_root, request, pool_records):
+        _delete_pools_members(mgmt_root, pool_records)
         pool_registry = {}
         members_registry = {}
         for pr in pool_records:
             pool_registry[pr.name] =\
-                bigip.ltm.pools.pool.create(partition=pr.partition,
-                                            name=pr.name)
+                mgmt_root.tm.ltm.pools.pool.create(partition=pr.partition, name=pr.name)
             if pr.memberconfigs != (tuple(),):
                 members_collection = pool_registry[pr.name].members_s
                 for memconf in pr.memberconfigs:

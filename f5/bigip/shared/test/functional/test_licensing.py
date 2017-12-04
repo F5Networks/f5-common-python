@@ -18,20 +18,20 @@ from f5.sdk_exception import UnsupportedMethod
 
 
 class TestActivation(object):
-    def test_load(self, request, bigip):
-        a = bigip.shared.licensing.activation.load()
+    def test_load(self, request, mgmt_root):
+        a = mgmt_root.tm.shared.licensing.activation.load()
         assert hasattr(a, 'generation')
 
-    def test_update(self, request, bigip):
+    def test_update(self, request, mgmt_root):
         with pytest.raises(UnsupportedMethod):
-            bigip.shared.licensing.activation.update()
+            mgmt_root.tm.shared.licensing.activation.update()
 
 
 class TestRegistration(object):
-    def test_load(self, request, bigip):
-        reg = bigip.shared.licensing.registration.load()
+    def test_load(self, request, mgmt_root):
+        reg = mgmt_root.tm.shared.licensing.registration.load()
         assert hasattr(reg, 'generation')
 
-    def test_update(self, request, bigip):
+    def test_update(self, request, mgmt_root):
         with pytest.raises(UnsupportedMethod):
-            bigip.shared.licensing.registration.update()
+            mgmt_root.tm.shared.licensing.registration.update()

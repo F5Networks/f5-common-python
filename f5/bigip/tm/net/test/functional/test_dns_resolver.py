@@ -14,23 +14,23 @@
 #
 
 
-def setup_test(request, bigip, name):
+def setup_test(request, mgmt_root, name):
     def teardown():
         if dns1.exists(name=name):
             dns1.delete()
 
     request.addfinalizer(teardown)
-    dc1 = bigip.net.dns_resolvers
+    dc1 = mgmt_root.tm.net.dns_resolvers
     dr1 = dc1.dns_resolver
     dns1 = dr1.create(name=name)
     return dc1, dns1
 
 
 class TestDnsResolver(object):
-    def test_CURDL(self, request, bigip):
+    def test_CURDL(self, request, mgmt_root):
 
         # Test create
-        dc1, dns1 = setup_test(request, bigip, name='test_dns_resolver')
+        dc1, dns1 = setup_test(request, mgmt_root, name='test_dns_resolver')
         assert dns1.name == 'test_dns_resolver'
 
         # Test update

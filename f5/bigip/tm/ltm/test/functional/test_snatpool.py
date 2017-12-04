@@ -14,31 +14,31 @@
 #
 
 
-def setup(request, bigip, name, partition, ipaddr):
+def setup(request, mgmt_root, name, partition, ipaddr):
     def teardown():
         if sp.exists(name=name, partition=partition):
             sp.delete()
     request.addfinalizer(teardown)
 
-    spc = bigip.ltm.snatpools
+    spc = mgmt_root.tm.ltm.snatpools
     sp = spc.snatpool.create(name=name, partition=partition, members=[ipaddr])
     return spc, sp
 
 
 class TestSnatpools(object):
-    def test_get_collection(self, request, bigip):
+    def test_get_collection(self, request, mgmt_root):
         spc, sp = setup(
-            request, bigip, 'test-snatpool', 'Common', '192.168.101.1')
+            request, mgmt_root, 'test-snatpool', 'Common', '192.168.101.1')
         sps = spc.get_collection()
         assert len(sps) >= 1
         assert [s for s in sps if s.name == 'test-snatpool']
 
 
 class TestSnatpool(object):
-    def test_CURDLE(self, request, bigip):
+    def test_CURDLE(self, request, mgmt_root):
         # Assume create and delete are tested by setup/teardown
         spc, sp1 = setup(
-            request, bigip, 'test-snatpool', 'Common', '192.168.101.1')
+            request, mgmt_root, 'test-snatpool', 'Common', '192.168.101.1')
 
         # Exists
         assert spc.snatpool.exists(name='test-snatpool', partition='Common')

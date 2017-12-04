@@ -27,54 +27,54 @@ def delete_resource(resource):
             raise
 
 
-def setup_tunnel_test(request, bigip, name, partition, ip, profile):
+def setup_tunnel_test(request, mgmt_root, name, partition, ip, profile):
     def teardown():
         delete_resource(tunnel)
     request.addfinalizer(teardown)
 
-    tunnel = bigip.net.tunnels.tunnels.tunnel.create(
+    tunnel = mgmt_root.tm.net.tunnels.tunnels.tunnel.create(
         name=name, partition=partition, localAddress=ip, profile=profile)
     return tunnel
 
 
-def setup_gre_test(request, bigip, name, partition):
+def setup_gre_test(request, mgmt_root, name, partition):
     def teardown():
         delete_resource(gre)
     request.addfinalizer(teardown)
 
-    gre = bigip.net.tunnels.gres.gre.create(
+    gre = mgmt_root.tm.net.tunnels.gres.gre.create(
         name=name, partition=partition)
     return gre
 
 
-def setup_vxlan_test(request, bigip, name, partition):
+def setup_vxlan_test(request, mgmt_root, name, partition):
     def teardown():
         delete_resource(vxlan)
     request.addfinalizer(teardown)
 
-    vxlan = bigip.net.tunnels.vxlans.vxlan.create(
+    vxlan = mgmt_root.tm.net.tunnels.vxlans.vxlan.create(
         name=name, partition=partition)
     return vxlan
 
 
 class TestTunnels(object):
-    def test_tunnel_list(self, bigip):
-        tunnels = bigip.net.tunnels.tunnels.get_collection()
+    def test_tunnel_list(self, mgmt_root):
+        tunnels = mgmt_root.tm.net.tunnels.tunnels.get_collection()
         assert len(tunnels)
         for tunnel in tunnels:
             assert tunnel.generation
 
 
 class TestTunnel(object):
-    def test_tunnel_CURDL(self, request, bigip):
+    def test_tunnel_CURDL(self, request, mgmt_root):
         # Create and Delete are tested by the setup/teardown
         t1 = setup_tunnel_test(
-            request, bigip, 'tunnel-test', 'Common',
+            request, mgmt_root, 'tunnel-test', 'Common',
             '192.168.1.1', '/Common/gre'
         )
 
         # Load
-        t2 = bigip.net.tunnels.tunnels.tunnel.load(
+        t2 = mgmt_root.tm.net.tunnels.tunnels.tunnel.load(
             name='tunnel-test', partition='Common')
         assert t1.name == 'tunnel-test'
         assert t1.name == t2.name
@@ -93,13 +93,13 @@ class TestTunnel(object):
 
 
 class TestGre(object):
-    def test_gre_CURDL(self, request, bigip):
+    def test_gre_CURDL(self, request, mgmt_root):
         # Create and Delete are tested by the setup/teardown
-        g1 = setup_gre_test(request, bigip, 'gre-test', 'Common')
+        g1 = setup_gre_test(request, mgmt_root, 'gre-test', 'Common')
         assert g1.name == 'gre-test'
 
         # Load
-        g2 = bigip.net.tunnels.gres.gre.load(
+        g2 = mgmt_root.tm.net.tunnels.gres.gre.load(
             name='gre-test', partition='Common')
         assert g1.name == g2.name
         assert g1.generation == g2.generation
@@ -117,13 +117,13 @@ class TestGre(object):
 
 
 class TestVxlan(object):
-    def test_vxlan_CURDL(self, request, bigip):
+    def test_vxlan_CURDL(self, request, mgmt_root):
         # Create and Delete are tested by the setup/teardown
-        vx1 = setup_vxlan_test(request, bigip, 'vxlan-test', 'Common')
+        vx1 = setup_vxlan_test(request, mgmt_root, 'vxlan-test', 'Common')
         assert vx1.name == 'vxlan-test'
 
         # Load
-        vx2 = bigip.net.tunnels.vxlans.vxlan.load(
+        vx2 = mgmt_root.tm.net.tunnels.vxlans.vxlan.load(
             name='vxlan-test', partition='Common')
         assert vx1.name == vx2.name
         assert vx1.generation == vx2.generation
