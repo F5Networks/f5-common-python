@@ -41,6 +41,7 @@ class BaseManagement(object):
             timeout=kwargs.pop('timeout', 30),
             port=kwargs.pop('port', 443),
             icontrol_version=kwargs.pop('icontrol_version', ''),
+            verify=kwargs.pop('verify', False),
             token=kwargs.pop('token', False)
         )
         if kwargs:
@@ -57,6 +58,7 @@ class BaseManagement(object):
             username=kwargs['username'],
             password=kwargs['password'],
             timeout=kwargs['timeout'],
+            verify=kwargs['verify'],
             token=kwargs['token']
         )
 
