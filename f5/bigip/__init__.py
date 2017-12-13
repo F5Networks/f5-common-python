@@ -24,16 +24,10 @@ except ImportError:
     import urllib.parse as urlparse
 
 try:
-    import eventlet
-
-    # Workaround for bug 401 addressed here
-    # https://github.com/eventlet/eventlet/issues/401#issuecomment-325015989
-    #
-    # This seems to happen on containers often.
-    eventlet.hubs.get_hub()
-    HAS_EVENTLET = True
+    import signal
+    HAS_SIGNAL = True
 except ImportError:
-    HAS_EVENTLET = False
+    HAS_SIGNAL = False
 
 from f5.bigip.cm import Cm
 from f5.bigip.resource import PathElement
@@ -48,6 +42,10 @@ from f5.bigip.tm.sys import Sys
 from f5.bigip.tm import Tm
 from f5.bigip.tm.transaction import Transactions
 from f5.sdk_exception import TimeoutError
+
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Timed out waiting for response")
 
 
 class BaseManagement(PathElement):
@@ -115,13 +113,11 @@ class BaseManagement(PathElement):
     def _get_tmos_version(self):
         connect = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['uri'] + 'tm/sys/'
-        if HAS_EVENTLET:
-            eventlet.monkey_patch()
-            try:
-                with eventlet.Timeout(self.args['timeout']):
-                    response = connect.get(base_uri)
-            except eventlet.Timeout:
-                raise TimeoutError("Timed out waiting for response")
+        if HAS_SIGNAL:
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(self.args['timeout'])
+            response = connect.get(base_uri)
+            signal.alarm(0)
         else:
             response = connect.get(base_uri)
         ver = response.json()
