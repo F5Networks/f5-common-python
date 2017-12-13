@@ -115,7 +115,7 @@ class BaseManagement(PathElement):
         base_uri = self._meta_data['uri'] + 'tm/sys/'
         if HAS_SIGNAL:
             signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(self.args['timeout'])
+            signal.alarm(int(self.args['timeout']))
             response = connect.get(base_uri)
             signal.alarm(0)
         else:
