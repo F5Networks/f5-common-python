@@ -1,5 +1,5 @@
 f5.bigip.tm.net
-=======================
+===============
 
 Module contents
 ---------------
@@ -20,6 +20,7 @@ Module contents
         route
         route_domain
         selfip
+        trunk
         tunnels
         vlan
 
@@ -67,6 +68,12 @@ selfip
 ~~~~~~
 
 .. automodule:: f5.bigip.tm.net.selfip
+    :members:
+
+trunk
+~~~~~
+
+.. automodule:: f5.bigip.tm.net.trunk
     :members:
 
 tunnels

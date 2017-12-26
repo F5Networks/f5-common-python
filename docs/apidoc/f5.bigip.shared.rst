@@ -13,20 +13,34 @@ Module Contents
 
     .. autosummary::
 
-        bigip_failover_state
-        licensing
+        authn
+        authz
+        file_transfer
+        iapp
 
 Submodules
 ----------
 
-bigip_failover_state
-~~~~~~~~~~~~~~~~~~~~
+authn
+~~~~~
 
-.. automodule:: f5.bigip.shared.bigip_failover_state
+.. automodule:: f5.bigip.shared.authn
     :members:
 
-licensing
-~~~~~~~~~
+authz
+~~~~~
 
-.. automodule:: f5.bigip.shared.licensing
+.. automodule:: f5.bigip.shared.authz
+    :members:
+
+file_transfer
+~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.shared.file_transfer
+    :members:
+
+iapp
+~~~~
+
+.. automodule:: f5.bigip.shared.iapp
     :members:

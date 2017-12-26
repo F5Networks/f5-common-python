@@ -63,7 +63,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'F5 Python SDK'
-copyright = u'2016, F5 Networks'
+copyright = u'2017, F5 Networks'
 author = u'F5 Networks'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -100,6 +100,8 @@ rst_epilog = """
 .. |create| replace:: :meth:`~f5.bigip.resource.Resource.create`
 
 .. |update| replace:: :meth:`~f5.bigip.resource.Resource.update`
+
+.. |modify| replace:: :meth:`~f5.bigip.resource.ResourceBase.modify`
 
 .. |refresh| replace:: :meth:`~f5.bigip.resource.Resource.refresh`
 

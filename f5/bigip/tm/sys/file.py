@@ -34,6 +34,7 @@ from f5.sdk_exception import UnsupportedMethod
 
 
 class File(OrganizingCollection):
+    """BIG-IP® System sys file collection."""
     def __init__(self, sys):
         super(File, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [
@@ -46,6 +47,7 @@ class File(OrganizingCollection):
 
 
 class Data_Groups(Collection):
+    """BIG-IP® System sys file data-groups collection."""
     def __init__(self, File):
         super(Data_Groups, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Data_Group]
@@ -54,6 +56,7 @@ class Data_Groups(Collection):
 
 
 class Data_Group(Resource):
+    """BIG-IP® System sys file data-groups resource."""
     def __init__(self, data_groups):
         super(Data_Group, self).__init__(data_groups)
         self._meta_data['required_json_kind'] =\
@@ -78,6 +81,7 @@ class Data_Group(Resource):
 
 
 class Ifiles(Collection):
+    """BIG-IP® System sys file iFiles collection."""
     def __init__(self, File):
         super(Ifiles, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Ifile]
@@ -86,6 +90,7 @@ class Ifiles(Collection):
 
 
 class Ifile(Resource):
+    """BIG-IP® System sys file iFiles resource."""
     def __init__(self, ifiles):
         super(Ifile, self).__init__(ifiles)
         self._meta_data['required_json_kind'] =\
@@ -104,6 +109,7 @@ class Ifile(Resource):
 
 
 class Ssl_Certs(Collection):
+    """BIG-IP® System sys file ssl-certs collection."""
     def __init__(self, File):
         super(Ssl_Certs, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Ssl_Cert]
@@ -112,6 +118,7 @@ class Ssl_Certs(Collection):
 
 
 class Ssl_Cert(Resource):
+    """BIG-IP® System sys file ssl-certs resource."""
     def __init__(self, ssl_certs):
         super(Ssl_Cert, self).__init__(ssl_certs)
         self._meta_data['required_json_kind'] =\
@@ -130,6 +137,7 @@ class Ssl_Cert(Resource):
 
 
 class Ssl_Crls(Collection):
+    """BIG-IP® System sys file ssl-crls collection."""
     def __init__(self, File):
         super(Ssl_Crls, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Ssl_Crl]
@@ -138,6 +146,7 @@ class Ssl_Crls(Collection):
 
 
 class Ssl_Crl(Resource):
+    """BIG-IP® System sys file ssl-crls resource."""
     def __init__(self, ssl_crls):
         super(Ssl_Crl, self).__init__(ssl_crls)
         self._meta_data['required_json_kind'] =\
@@ -156,6 +165,7 @@ class Ssl_Crl(Resource):
 
 
 class Ssl_Csrs(Collection):
+    """BIG-IP® System sys file ssl-csrs collection."""
     def __init__(self, File):
         super(Ssl_Csrs, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Ssl_Csr]
@@ -165,6 +175,7 @@ class Ssl_Csrs(Collection):
 
 
 class Ssl_Csr(Resource):
+    """BIG-IP® System sys file ssl-csrs resource."""
     def __init__(self, ssl_csrs):
         super(Ssl_Csr, self).__init__(ssl_csrs)
         self._meta_data['required_json_kind'] =\
@@ -183,6 +194,7 @@ class Ssl_Csr(Resource):
 
 
 class Ssl_Keys(Collection):
+    """BIG-IP® System sys file ssl-keys collection."""
     def __init__(self, File):
         super(Ssl_Keys, self).__init__(File)
         self._meta_data['allowed_lazy_attributes'] = [Ssl_Key]
@@ -191,6 +203,7 @@ class Ssl_Keys(Collection):
 
 
 class Ssl_Key(Resource):
+    """BIG-IP® System sys file ssl-keys resource."""
     def __init__(self, ssl_keys):
         super(Ssl_Key, self).__init__(ssl_keys)
         self._meta_data['required_json_kind'] =\

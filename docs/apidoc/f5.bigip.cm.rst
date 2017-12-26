@@ -13,9 +13,7 @@ Module Contents
 
     .. autosummary::
 
-        device
-        device_group
-        traffic_group
+        system
 
 Subpackages
 -----------
@@ -26,22 +24,10 @@ Subpackages
 Submodules
 ----------
 
-device
+system
 ~~~~~~
 
-.. automodule:: f5.bigip.cm.device
-    :members:
-
-device_group
-~~~~~~~~~~~~
-
-.. automodule:: f5.bigip.cm.device_group
-    :members:
-
-traffic_group
-~~~~~~~~~~~~~
-
-.. automodule:: f5.bigip.cm.traffic_group
+.. automodule:: f5.bigip.cm.system
     :members:
 
 .. toctree::
