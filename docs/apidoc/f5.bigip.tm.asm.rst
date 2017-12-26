@@ -1,0 +1,75 @@
+f5.bigip.tm.asm
+===============
+
+Module contents
+---------------
+
+.. automodule:: f5.bigip.tm.asm
+    :members:
+
+    Submodule List
+    ~~~~~~~~~~~~~~
+    .. py:currentmodule:: f5.bigip.tm.asm
+
+    .. autosummary::
+
+        attack_types
+        file_transfer
+        policy_templates
+        signature_sets
+        signature_statuses
+        signature_update
+        signatures
+        tasks
+
+
+Submodules
+----------
+
+attack_types
+~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.asm.attack_types
+    :members:
+
+file_transfer
+~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.asm.file_transfer
+    :members:
+
+policy_templates
+~~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.asm.policy_templates
+    :members:
+
+signature_sets
+~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.asm.signature_sets
+    :members:
+
+signature_statuses
+~~~~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.asm.signature_statuses
+    :members:
+
+signature_udpate
+~~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.asm.signature_update
+    :members:
+
+signatures
+~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.asm.signatures
+    :members:
+
+tasks
+~~~~~
+
+.. automodule:: f5.bigip.tm.asm.tasks
+    :members:

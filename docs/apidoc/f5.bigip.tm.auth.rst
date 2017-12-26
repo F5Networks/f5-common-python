@@ -13,16 +13,80 @@ Module Contents
 
     .. autosummary::
 
+        cert_ldap
+        ldap
+        partition
         password_policy
+        radius
+        radius_server
+        remote_role
+        remote_user
+        source
+        tacacs
         user
+
 
 Submodules
 ----------
+
+cert_ldap
+~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.auth.cert_ldap
+    :members:
+
+ldap
+~~~~
+
+.. automodule:: f5.bigip.tm.auth.ldap
+    :members:
+
+partition
+~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.auth.partition
+    :members:
 
 password_policy
 ~~~~~~~~~~~~~~~
 
 .. automodule:: f5.bigip.tm.auth.password_policy
+    :members:
+
+radius
+~~~~~~
+
+.. automodule:: f5.bigip.tm.auth.radius
+    :members:
+
+radius_server
+~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.auth.radius_server
+    :members:
+
+remote_role
+~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.auth.remote_role
+    :members:
+
+remote_user
+~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.auth.remote_user
+    :members:
+
+source
+~~~~~~
+
+.. automodule:: f5.bigip.tm.auth.source
+    :members:
+
+tacacs
+~~~~~~
+
+.. automodule:: f5.bigip.tm.auth.tacacs
     :members:
 
 user

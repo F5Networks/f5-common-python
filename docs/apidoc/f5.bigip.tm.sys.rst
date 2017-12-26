@@ -16,6 +16,7 @@ Module contents
         application
         config
         crypto
+        daemon_log_settings
         db
         dns
         failover
@@ -23,9 +24,18 @@ Module contents
         folder
         global_settings
         httpd
+        icall
+        management_ip
+        management_route
         ntp
         performance
+        provision
+        sflow
+        snmp
         sshd
+        syslog
+        ucs
+
 
 
 Subpackages
@@ -54,6 +64,12 @@ crypto
 ~~~~~~
 
 .. automodule:: f5.bigip.tm.sys.crypto
+    :members:
+
+daemon_log_settings
+~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.daemon_log_settings
     :members:
 
 db
@@ -98,6 +114,24 @@ httpd
 .. automodule:: f5.bigip.tm.sys.httpd
     :members:
 
+icall
+~~~~~
+
+.. automodule:: f5.bigip.tm.sys.icall
+    :members:
+
+management_ip
+~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.management_ip
+    :members:
+
+management_route
+~~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.management_route
+    :members:
+
 ntp
 ~~~
 
@@ -110,13 +144,38 @@ performance
 .. automodule:: f5.bigip.tm.sys.performance
     :members:
 
+provision
+~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.provision
+    :members:
+
+sflow
+~~~~~
+
+.. automodule:: f5.bigip.tm.sys.sflow
+    :members:
+
+snmp
+~~~~
+
+.. automodule:: f5.bigip.tm.sys.snmp
+    :members:
+
 sshd
 ~~~~
 
 .. automodule:: f5.bigip.tm.sys.sshd
     :members:
 
+syslog
+~~~~~~
 
+.. automodule:: f5.bigip.tm.sys.syslog
+    :members:
 
+ucs
+~~~
 
-
+.. automodule:: f5.bigip.tm.sys.ucs
+    :members:

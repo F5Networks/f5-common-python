@@ -31,6 +31,7 @@ from f5.bigip.resource import Resource
 
 
 class Ifiles(Collection):
+    """BIG-IP® LTM iFiles collection"""
     def __init__(self, ltm):
         super(Ifiles, self).__init__(ltm)
         self._meta_data['allowed_lazy_attributes'] = [Ifile]
@@ -39,6 +40,7 @@ class Ifiles(Collection):
 
 
 class Ifile(Resource):
+    """BIG-IP® LTM iFiles resource"""
     def __init__(self, ifile_s):
         super(Ifile, self).__init__(ifile_s)
         self._meta_data['required_json_kind'] = 'tm:ltm:ifile:ifilestate'

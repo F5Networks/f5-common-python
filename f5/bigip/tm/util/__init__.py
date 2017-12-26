@@ -40,6 +40,7 @@ from f5.bigip.tm.util.Unix_Rm import Unix_Rm
 
 
 class Util(PathElement):
+    """BIG-IP® System Utility (util) collection."""
     def __init__(self, bigip):
         super(Util, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
