@@ -10,17 +10,27 @@ f5.bigip.tm
 
     .. autosummary::
 
+        asm
         auth
         cm
         gtm
         ltm
         net
+        security
         shared
         sys
         transaction
+        util
+        vcmp
 
 Subpackages
 -----------
+
+asm
+~~~
+
+.. automodule:: f5.bigip.tm.asm
+    :members:
 
 auth
 ~~~~
@@ -52,6 +62,12 @@ net
 .. automodule:: f5.bigip.tm.net
     :members:
 
+security
+~~~~~~~~
+
+.. automodule:: f5.bigip.tm.security
+    :members:
+
 shared
 ~~~~~~
 
@@ -68,6 +84,18 @@ transaction
 ~~~~~~~~~~~
 
 .. automodule:: f5.bigip.tm.transaction
+    :members:
+
+util
+~~~~
+
+.. automodule:: f5.bigip.tm.util
+    :members:
+
+vcmp
+~~~~
+
+.. automodule:: f5.bigip.tm.vcmp
     :members:
 
 

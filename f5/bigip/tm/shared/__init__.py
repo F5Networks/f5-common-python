@@ -33,6 +33,7 @@ from f5.bigip.tm.shared.licensing import Licensing
 
 
 class Shared(PathElement):
+    """BIG-IP® System Shared Utility (shared) collection."""
     def __init__(self, bigip):
         super(Shared, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [

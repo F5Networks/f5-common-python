@@ -9,12 +9,20 @@ Module contents
 
     Submodule List
     ~~~~~~~~~~~~~~
-    .. py:currentmodule:: f5.bigip.tm.gtm.
+    .. py:currentmodule:: f5.bigip.tm.gtm
 
     .. autosummary::
 
         datacenter
+        global_settings
+        listener
+        pool
+        region
         rule
+        server
+        topology
+        wideip
+
 
 Submodules
 ----------
@@ -25,15 +33,50 @@ datacenter
 .. automodule:: f5.bigip.tm.gtm.datacenter
     :members:
 
+global_settings
+~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.gtm.global_settings
+    :members:
+
+listener
+~~~~~~~~
+
+.. automodule:: f5.bigip.tm.gtm.listener
+    :members:
+
+pool
+~~~~
+
+.. automodule:: f5.bigip.tm.gtm.pool
+    :members:
+
+region
+~~~~~~
+
+.. automodule:: f5.bigip.tm.gtm.region
+    :members:
+
 rule
 ~~~~
 
 .. automodule:: f5.bigip.tm.gtm.rule
     :members:
 
+server
+~~~~~~
 
+.. automodule:: f5.bigip.tm.gtm.server
+    :members:
 
+topology
+~~~~~~~~
 
+.. automodule:: f5.bigip.tm.gtm.topology
+    :members:
 
+wideip
+~~~~~~
 
-
+.. automodule:: f5.bigip.tm.gtm.wideip
+    :members:

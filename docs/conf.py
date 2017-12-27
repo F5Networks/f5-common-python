@@ -63,7 +63,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'F5 Python SDK'
-copyright = u'2016, F5 Networks'
+copyright = u'2017, F5 Networks'
 author = u'F5 Networks'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -83,6 +83,8 @@ rst_epilog = """
 
 .. |Resource Section| replace:: :ref:`Resource <resource_section>`
 
+.. |Unnamed Resource Section| replace:: :ref:`Unnamed Resource <unnamed_resource_section>`
+
 .. |Subcollection Section| replace:: :ref:`Subcollection <subcollection_section>`
 
 .. |Subcollection Resource Section| replace:: :ref:`Subcollection Resource <subcollection_resource_section>`
@@ -93,13 +95,19 @@ rst_epilog = """
 
 .. |Resource| replace:: :class:`~f5.bigip.resource.Resource`
 
+.. |Unnamed Resource| replace:: :class:`~f5.bigip.resource.UnnamedResource`
+
 .. |Subcollection| replace:: :class:`~f5.bigip.resource.Subcollection`
 
 .. |Subcollection Resource| replace:: :class:`~f5.bigip.resource.SubcollectionResource`
 
 .. |create| replace:: :meth:`~f5.bigip.resource.Resource.create`
 
+.. |exec_cmd| replace:: :meth:`~f5.bigip.mixins.CommandExecutionMixin.exec_cmd`
+
 .. |update| replace:: :meth:`~f5.bigip.resource.Resource.update`
+
+.. |modify| replace:: :meth:`~f5.bigip.resource.ResourceBase.modify`
 
 .. |refresh| replace:: :meth:`~f5.bigip.resource.Resource.refresh`
 
