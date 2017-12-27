@@ -53,6 +53,7 @@ A set of basic REST endpoints can be derived from the object's URI and ``kind`` 
   - |Organizing Collection Section|
   - |Collection Section|
   - |Resource Section|
+  - |Unnamed Resource Section|
   - |Subcollection Section|
   - |Subcollection Resource Section|
 
@@ -79,6 +80,8 @@ Almost all iControl® REST API entries contain a parameter named ``kind``. This 
     +---------------------+--------------------------+-------------------------------------------------+
     | ``state``           | |Resource|               | |create|, |update|, |refresh|, |delete|,        |
     |                     |                          | |load|, |exists|                                |
+    +---------------------+--------------------------+-------------------------------------------------|
+    | ``state``           | |Unnamed Resource|       | |update|, |refresh|, |load|, |exists|
     +---------------------+--------------------------+-------------------------------------------------+
     | ``stats``           | |Resource|               | |refresh|, |load|, |exists|                     |
     +---------------------+--------------------------+-------------------------------------------------+
@@ -93,6 +96,8 @@ Methods
 | Method    | HTTP Command  | Action(s)                                                         |
 +===========+===============+===================================================================+
 | |create|  | POST          | | creates a new resource on the device with its own URI           |
++-----------+---------------+-------------------------------------------------------------------+
+| |exec_cmd|| POST          | | executes commands on applicable unnamed resources               |
 +-----------+---------------+-------------------------------------------------------------------+
 | |update|  | PUT           | | submits a new configuration to the device resource; sets the    |
 |           |               | | Resource attributes to the state reported by the device         |

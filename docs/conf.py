@@ -83,6 +83,8 @@ rst_epilog = """
 
 .. |Resource Section| replace:: :ref:`Resource <resource_section>`
 
+.. |Unnamed Resource Section| replace:: :ref:`Unnamed Resource <unnamed_resource_section>`
+
 .. |Subcollection Section| replace:: :ref:`Subcollection <subcollection_section>`
 
 .. |Subcollection Resource Section| replace:: :ref:`Subcollection Resource <subcollection_resource_section>`
@@ -93,11 +95,15 @@ rst_epilog = """
 
 .. |Resource| replace:: :class:`~f5.bigip.resource.Resource`
 
+.. |Unnamed Resource| replace:: :class:`~f5.bigip.resource.UnnamedResource`
+
 .. |Subcollection| replace:: :class:`~f5.bigip.resource.Subcollection`
 
 .. |Subcollection Resource| replace:: :class:`~f5.bigip.resource.SubcollectionResource`
 
 .. |create| replace:: :meth:`~f5.bigip.resource.Resource.create`
+
+.. |exec_cmd| replace:: :meth:`~f5.bigip.mixins.CommandExecutionMixin.exec_cmd`
 
 .. |update| replace:: :meth:`~f5.bigip.resource.Resource.update`
 

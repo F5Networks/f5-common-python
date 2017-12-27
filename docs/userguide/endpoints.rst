@@ -19,6 +19,7 @@ We'll start exploring the iControl® REST API's endpoints with an example detail
     OC              |Organizing Collection Section|
     Coll            |Collection Section|
     Resource        |Resource Section|
+    Unnamed Resrc   |Unnamed Resource Section|
     SC              |Subcollection Section|
     SubColl Resrc   |Subcollection Resource Section|
     =============   ==================================================
@@ -34,6 +35,7 @@ Endpoints
     endpoints/organizing_collection
     endpoints/collection
     endpoints/resource
+    endpoints/unnamed_resource
     endpoints/subcollection
     endpoints/subcollection_resource
 
