@@ -21,6 +21,7 @@ Because the REST API endpoints have a hierarchical structure, you need to load/c
     OC              :ref:`Organizing Collection <oc_section>`
     Coll            :ref:`Collection <coll_section>`
     Resource        :ref:`Resource <res_section>`
+    Unnamed Resrc   :ref:`Unnamed Resource <unnamed_resource_section>`
     SC              :ref:`Subcollection <subcoll_section>`
     SubColl Resrc   :ref:`Subcollection Resource <subcollres_section>`
     =============   ==================================================
@@ -155,6 +156,23 @@ In the example above, we instantiated the class :class:`f5.bigip.tm.ltm.pool.Poo
             u'linkQosToClient': u'pass-through'
         }
 
+
+.. _unnamed_resource_section:
+
+|Unnamed Resource Section|
+--------------------------
+
+In the SDK, we refer to a single instance of a configuratino object with no name field as an :dfn:`unnamed resource`. Unnamed resources cannot be created or deleted, but they can be loaded, updated, etc.
+
+.. topic:: Example: Load the ``httpd`` unnamed resource settings
+
+    .. code-block:: python
+
+        >>> httpd = b.tm.sys.httpd.load()
+        >>> httpd.maxClients = 5
+        >>> httpd.update()
+
+In the example above, we instantiated the class :class:`f5.bigip.tm.sys.httpd` and used it to update the max clients to 5.
 
 .. _subcoll_section:
 

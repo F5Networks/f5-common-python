@@ -88,7 +88,7 @@ Coding Example
 
         # Make sure it is gone
 
-        if mgmt_rt.tm.ltm.pools.pool.exists(partition='Common', name='mypool'):
+        if mgmt.tm.ltm.pools.pool.exists(partition='Common', name='mypool'):
             raise Exception("Object should have been deleted")
 
 
