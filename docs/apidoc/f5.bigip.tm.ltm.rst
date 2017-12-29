@@ -14,7 +14,11 @@ Module contents
 
     .. autosummary::
 
+        auth
         data_group
+        default_node_monitor
+        ifile
+        lsn_pools
         monitor
         nat
         node
@@ -26,6 +30,7 @@ Module contents
         snat
         snat_translation
         snatpool
+        traffic_class
         virtual
         virtual_address
 
@@ -33,10 +38,34 @@ Module contents
 Submodules
 ----------
 
+auth
+~~~~
+
+.. automodule:: f5.bigip.tm.ltm.auth
+    :members:
+
 data_group
 ~~~~~~~~~~
 
 .. automodule:: f5.bigip.tm.ltm.data_group
+    :members:
+
+default_node_monitor
+~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.ltm.default_node_monitor
+    :members:
+
+ifile
+~~~~~
+
+.. automodule:: f5.bigip.tm.ltm.ifile
+    :members:
+
+lsn_pools
+~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.ltm.lsn_pools
     :members:
 
 monitor
@@ -103,6 +132,12 @@ snatpool
 ~~~~~~~~
 
 .. automodule:: f5.bigip.tm.ltm.snatpool
+    :members:
+
+traffic_class
+~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.ltm.traffic_class
     :members:
 
 virtual

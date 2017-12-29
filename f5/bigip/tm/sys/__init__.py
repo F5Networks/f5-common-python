@@ -54,6 +54,7 @@ from f5.bigip.tm.sys.ucs import Ucs
 
 
 class Sys(OrganizingCollection):
+    """BIG-IP® System (sys) organizing collection."""
     def __init__(self, tm):
         super(Sys, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [

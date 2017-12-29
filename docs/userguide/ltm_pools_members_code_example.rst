@@ -64,12 +64,12 @@ Coding Example
         members = pool_1.members_s
         member = pool_1.members_s.members
 
-        m1 = pool_1.members_s.members.create(partition='Common', name='m1:80')
-        m2 = pool_1.members_s.members.create(partition='Common', name='m2:80')
+        m1 = pool_1.members_s.members.create(partition='Common', name='192.168.101.50:80')
+        m2 = pool_1.members_s.members.create(partition='Common', name='192.168.101.51:80')
 
         # load the pool members
-        m1 = pool_1.members_s.members.load(partition='Common', name='m1:80')
-        m2 = pool_1.members_s.members.load(partition='Common', name='m2:80')
+        m1 = pool_1.members_s.members.load(partition='Common', name='192.168.101.50:80')
+        m2 = pool_1.members_s.members.load(partition='Common', name='192.168.101.50:80')
 
         # Get all of the pool members for pool_1 and print their names
 
@@ -80,7 +80,7 @@ Coding Example
         m1.delete()
 
         # Make sure it is gone
-        if pool_1.members_s.members.exists(partition='Common', name='m1:80'):
+        if pool_1.members_s.members.exists(partition='Common', name='192.168.101.50:80'):
             raise Exception("Object should have been deleted")
 
         # We are done with this pool so remove it from BIG-IP®
@@ -88,7 +88,7 @@ Coding Example
 
         # Make sure it is gone
 
-        if mgmt_rt.tm.ltm.pools.pool.exists(partition='Common', name='mypool'):
+        if mgmt.tm.ltm.pools.pool.exists(partition='Common', name='mypool'):
             raise Exception("Object should have been deleted")
 
 

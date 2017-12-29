@@ -86,6 +86,7 @@ class Madm(PathElement, FileDownloadMixin):
 
 
 class Ucs_Uploads(PathElement, FileUploadMixin):
+    """A ucs file upload resource"""
     def __init__(self, file_transfer):
         super(Ucs_Uploads, self).__init__(file_transfer)
 
@@ -102,6 +103,7 @@ class Ucs_Uploads(PathElement, FileUploadMixin):
 
 
 class Ucs_Downloads(PathElement, FileDownloadMixin):
+    """A ucs file download resource"""
     def __init__(self, file_transfer):
         super(Ucs_Downloads, self).__init__(file_transfer)
 
