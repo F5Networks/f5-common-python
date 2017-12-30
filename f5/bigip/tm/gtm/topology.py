@@ -146,6 +146,10 @@ class Topology(Resource):
 
         return self._load(**kwargs)
 
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
     def refresh(self, **kwargs):
         """Refresh is not supported for Topology
 
