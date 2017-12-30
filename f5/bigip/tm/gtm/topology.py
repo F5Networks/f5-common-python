@@ -147,6 +147,9 @@ class Topology(Resource):
         return self._load(**kwargs)
 
     def exists(self, **kwargs):
+        """Providing a partition is not necessary on topology; causes errors"""
+        if 'partition' in kwargs:
+            kwargs.pop('partition')
         kwargs['transform_name'] = True
         return self._exists(**kwargs)
 
