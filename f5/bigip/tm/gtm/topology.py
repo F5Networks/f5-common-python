@@ -146,6 +146,12 @@ class Topology(Resource):
 
         return self._load(**kwargs)
 
+    def exists(self, **kwargs):
+        """Providing a partition is not necessary on topology; causes errors"""
+        kwargs.pop('partition', None)
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
     def refresh(self, **kwargs):
         """Refresh is not supported for Topology
 
