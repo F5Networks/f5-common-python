@@ -42,18 +42,18 @@ def test_tunnel_exists_load_update_refresh(mgmt_root):
     assert 'records' not in http_tunnel.__dict__
 
 
-@pytest.mark.skipif(
-    LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
-        '12.1.0'), reason='This test is for 12.1.0 or greater.')
-def test_tunnel_exists_load_update_refresh_v12_1(mgmt_root):
-    t_fact = mgmt_root.tm.net.fdb.tunnels.tunnel
-    assert t_fact.exists(partition='Common', name='http-tunnel')
-    assert t_fact.exists(partition='Common', name='socks-tunnel')
-    http_tunnel = t_fact.load(partition='Common', name='http-tunnel')
-    http2_tunnel = t_fact.load(partition='Common', name='http-tunnel')
-    http_tunnel.update(records=V12PAYLOAD)
-    http2_tunnel.refresh()
-    assert http2_tunnel.records == [{'name': '02:00:00:00:00:01',
-                                     'endpoint': '10.1.1.1'}]
-    http_tunnel.update(records=None)
-    assert 'records' not in http_tunnel.__dict__
+# @pytest.mark.skipif(
+#     LooseVersion(pytest.config.getoption('--release')) < LooseVersion(
+#         '12.1.0'), reason='This test is for 12.1.0 or greater.')
+# def test_tunnel_exists_load_update_refresh_v12_1(mgmt_root):
+#     t_fact = mgmt_root.tm.net.fdb.tunnels.tunnel
+#     assert t_fact.exists(partition='Common', name='http-tunnel')
+#     assert t_fact.exists(partition='Common', name='socks-tunnel')
+#     http_tunnel = t_fact.load(partition='Common', name='http-tunnel')
+#     http2_tunnel = t_fact.load(partition='Common', name='http-tunnel')
+#     http_tunnel.update(records=V12PAYLOAD)
+#     http2_tunnel.refresh()
+#     assert http2_tunnel.records == [{'name': '02:00:00:00:00:01',
+#                                      'endpoint': '10.1.1.1'}]
+#     http_tunnel.update(records=None)
+#     assert 'records' not in http_tunnel.__dict__
