@@ -38,7 +38,7 @@ class Fdb(OrganizingCollection):
     def __init__(self, net):
         super(Fdb, self).__init__(net)
         self._meta_data['allowed_lazy_attributes'] = [Tunnels]
-        self._meta_data['icontrol_version'] = '11.5.0'
+        # self._meta_data['icontrol_version'] = '11.5.0'
 
 
 class Tunnel(Resource):
@@ -46,9 +46,11 @@ class Tunnel(Resource):
     def __init__(self, Tunnels):
         super(Tunnel, self).__init__(Tunnels)
         self._meta_data['required_json_kind'] = "tm:net:fdb:tunnel:tunnelstate"
+        self._meta_data['attribute_registry'] = {
+            'tm:net:fdb:tunnel:records:recordscollectionstate': Records_s}
         # Setting this here to be explicit, even though it is set via
         # the super call from its containing object.
-        self._meta_data['icontrol_version'] = '11.5.0'
+        # self._meta_data['icontrol_version'] = '11.5.0'
 
 
 class Tunnels(Collection):
@@ -60,4 +62,24 @@ class Tunnels(Collection):
             {'tm:net:fdb:tunnel:tunnelstate': Tunnel}
         # Setting this here to be explicit, even though it is set via
         # the super call from its containing object.
-        self._meta_data['icontrol_version'] = '11.5.0'
+        # self._meta_data['icontrol_version'] = '11.5.0'
+
+
+class Records_s(Collection):
+    """BIG-IP® Tunnel records collection."""
+    def __init__(self, tunnel):
+        super(Records_s, self).__init__(tunnel)
+        self._meta_data['allowed_lazy_attributes'] = [Records]
+        self._meta_data['required_json_kind'] =\
+            'tm:net:fdb:tunnel:records:recordscollectionstate'
+        self._meta_data['attribute_registry'] =\
+            {'tm:net:fdb:tunnel:records:recordsstate': Records}
+
+
+class Records(Resource):
+    """BIG-IP® LTM pool members sub-collection resource"""
+    def __init__(self, records_s):
+        super(Records, self).__init__(records_s)
+        self._meta_data['required_json_kind'] =\
+            'tm:net:fdb:tunnel:records:recordsstate'
+        self._meta_data['required_creation_parameters'].update(('name',))
