@@ -27,6 +27,7 @@ REST Kind
     ``tm:net:fdb:*``
 """
 
+from distutils.version import LooseVersion
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection

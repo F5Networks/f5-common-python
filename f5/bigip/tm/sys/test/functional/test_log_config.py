@@ -15,7 +15,7 @@
 
 import pytest
 
-# from distutils.version import LooseVersion
+from distutils.version import LooseVersion
 from f5.sdk_exception import MissingRequiredCreationParameter
 from requests import HTTPError
 
@@ -46,6 +46,12 @@ def setup_basic_filter_test(request, mgmt_root, name, partition):
     return filter1
 
 
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) < LooseVersion('12.0.0'),
+    reason='Filters not supported before 12.0'
+)
 class TestFilters(object):
     def test_create_no_args(self, mgmt_root):
         with pytest.raises(MissingRequiredCreationParameter):
@@ -147,6 +153,12 @@ def setup_alertd_test(request, mgmt_root):
     return a
 
 
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) < LooseVersion('11.6.0'),
+    reason='Alertd not supported before 11.6.0'
+)
 class TestDestinationAlertd(object):
     def test_RUL(self, request, mgmt_root):
         # Load
@@ -248,6 +260,12 @@ def setup_basic_arcsight_test(request, mgmt_root, name, partition):
     return dest1
 
 
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) < LooseVersion('11.6.0'),
+    reason='Arcsight not supported before 11.6.0'
+)
 class TestDestinationArcsight(object):
     def test_create_arcsight_no_args(self, mgmt_root):
         with pytest.raises(MissingRequiredCreationParameter):
@@ -311,6 +329,12 @@ def setup_basic_mgmtport_test(request, mgmt_root, name, partition, address, port
     return dest1
 
 
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) < LooseVersion('12.0.0'),
+    reason='MgmtPort not supported before 12.0'
+)
 class TestDestinationMgmtPort(object):
     def test_create_mgmtport_no_args(self, mgmt_root):
         with pytest.raises(MissingRequiredCreationParameter):
@@ -379,6 +403,12 @@ def setup_basic_splunk_test(request, mgmt_root, name, partition):
     return dest1
 
 
+@pytest.mark.skipif(
+    LooseVersion(
+        pytest.config.getoption('--release')
+    ) < LooseVersion('11.6.0'),
+    reason='Splunk not supported before 11.6.0'
+)
 class TestDestinationSplunk(object):
     def test_create_splunk_no_args(self, mgmt_root):
         with pytest.raises(MissingRequiredCreationParameter):
