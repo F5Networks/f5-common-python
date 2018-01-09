@@ -26,12 +26,13 @@ GUI Path
 REST Kind
     ``tm:security:firewall:*``
 """
+from distutils.version import LooseVersion
 from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
-from f5.bigip.resource import Resource, UnnamedResource
+from f5.bigip.resource import Resource
+from f5.bigip.resource import UnnamedResource
 from f5.sdk_exception import NonExtantFirewallRule
-from distutils.version import LooseVersion
 
 
 class Firewall(OrganizingCollection):

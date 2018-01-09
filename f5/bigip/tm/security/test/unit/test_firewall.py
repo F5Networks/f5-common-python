@@ -18,12 +18,11 @@ import pytest
 
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.security.firewall import Address_List
+from f5.bigip.tm.security.firewall import Policy
 from f5.bigip.tm.security.firewall import Port_List
 from f5.bigip.tm.security.firewall import Rule
 from f5.bigip.tm.security.firewall import Rule_List
 from f5.bigip.tm.security.firewall import Rules_s
-from f5.bigip.tm.security.firewall import Policy
-from f5.bigip.tm.security.firewall import Global_Rules
 from f5.sdk_exception import MissingRequiredCreationParameter
 
 from six import iterkeys

@@ -28,9 +28,9 @@ REST Kind
 """
 
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.tm.security.analytics import Analytics
 from f5.bigip.tm.security.dos import Dos
 from f5.bigip.tm.security.firewall import Firewall
-from f5.bigip.tm.security.analytics import Analytics
 
 
 class Security(OrganizingCollection):

@@ -18,10 +18,10 @@ import pytest
 from distutils.version import LooseVersion
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.security.firewall import Address_List
+from f5.bigip.tm.security.firewall import Policy
 from f5.bigip.tm.security.firewall import Port_List
 from f5.bigip.tm.security.firewall import Rule
 from f5.bigip.tm.security.firewall import Rule_List
-from f5.bigip.tm.security.firewall import Policy
 from f5.sdk_exception import ExclusiveAttributesPresent
 from f5.sdk_exception import NonExtantFirewallRule
 from requests.exceptions import HTTPError

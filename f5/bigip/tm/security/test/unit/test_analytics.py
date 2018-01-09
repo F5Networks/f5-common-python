@@ -13,8 +13,6 @@
 # limitations under the License.
 #
 
-import pytest
-import mock
 from f5.bigip import ManagementRoot
 
 

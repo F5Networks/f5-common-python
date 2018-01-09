@@ -13,8 +13,6 @@
 # limitations under the License.
 #
 
-import pytest
-
 
 class TestAnalytics(object):
     _enable_settings = {"aclRules": {"collectClientIp": "enabled"}}
