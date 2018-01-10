@@ -26,13 +26,13 @@ GUI Path
 REST Kind
     ``tm:security:firewall:*``
 """
+from distutils.version import LooseVersion
 from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
+from f5.bigip.resource import UnnamedResource
 from f5.sdk_exception import NonExtantFirewallRule
-
-from distutils.version import LooseVersion
 
 
 class Firewall(OrganizingCollection):
@@ -43,7 +43,9 @@ class Firewall(OrganizingCollection):
         self._meta_data['allowed_lazy_attributes'] = [
             Address_Lists,
             Port_Lists,
-            Rule_Lists]
+            Rule_Lists,
+            Policy_s,
+            Global_Rules]
 
 
 class Address_Lists(Collection):
@@ -198,3 +200,35 @@ class Rule(Resource, CheckExistenceMixin):
 
         return self._check_existence_by_collection(
             self._meta_data['container'], kwargs['name'])
+
+
+class Policy_s(Collection):
+    """BIG-IP® AFM® Policy collection"""
+    def __init__(self, firewall):
+        super(Policy_s, self).__init__(firewall)
+        self._meta_data['allowed_lazy_attributes'] = [Policy]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:firewall:policy:policystate':
+                Policy}
+
+
+class Policy(Resource):
+    """BIG-IP® AFM® Policy resource"""
+    def __init__(self, policy_s):
+        super(Policy, self).__init__(policy_s)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:firewall:policy:policystate'
+        self._meta_data['required_creation_parameters'].update(('partition',))
+        self._meta_data['required_load_parameters'].update(('partition',))
+        self._meta_data['allowed_lazy_attributes'] = [Rules_s]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:firewall:rule-list:rules:rulescollectionstate':
+                Rules_s}
+
+
+class Global_Rules(UnnamedResource):
+    """BIG-IP® AFM® Global Rules resource"""
+    def __init__(self, global_rules):
+        super(Global_Rules, self).__init__(global_rules)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:firewall:global-rules:global-rulesstate'

@@ -18,6 +18,7 @@ import pytest
 from distutils.version import LooseVersion
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.security.firewall import Address_List
+from f5.bigip.tm.security.firewall import Policy
 from f5.bigip.tm.security.firewall import Port_List
 from f5.bigip.tm.security.firewall import Rule
 from f5.bigip.tm.security.firewall import Rule_List
@@ -61,6 +62,14 @@ def rule(rulelst):
     r1 = rulelst.rules_s.rule.create(**param_set)
     yield r1
     r1.delete()
+
+
+@pytest.fixture(scope='function')
+def policy(mgmt_root):
+    p1 = mgmt_root.tm.security.firewall.policy_s.policy.create(
+        name='fake_policy', partition='Common')
+    yield p1
+    p1.delete()
 
 
 class TestAddressList(object):
@@ -477,3 +486,86 @@ class TestRules(object):
         assert isinstance(rc, list)
         assert len(rc)
         assert isinstance(rc[0], Rule)
+
+
+class TestPolicy(object):
+    def test_create_req_args(self, mgmt_root):
+        p1 = mgmt_root.tm.security.firewall.policy_s.policy.create(
+            name='fake_policy', partition='Common')
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/policy/~Common~fake_policy'
+        assert p1.name == 'fake_policy'
+        assert p1.partition == 'Common'
+        assert p1.selfLink.startswith(URI)
+        assert not hasattr(p1, 'description')
+        p1.delete()
+
+    def test_refresh(self, mgmt_root, policy):
+        p1 = policy
+        p2 = mgmt_root.tm.security.firewall.policy_s.policy.load(
+            name='fake_policy', partition='Common')
+        assert p1.name == p2.name
+        assert p1.kind == p2.kind
+        assert p1.selfLink == p2.selfLink
+        assert not hasattr(p1, 'description')
+        assert not hasattr(p2, 'description')
+        p2.modify(description=DESC)
+        p1.modify(description=DESC)
+        assert hasattr(p2, 'description')
+        assert p2.description == DESC
+        p1.refresh()
+        assert p1.selfLink == p2.selfLink
+        assert hasattr(p1, 'description')
+        assert p1.description == p2.description
+
+    def test_delete(self, mgmt_root):
+        p = mgmt_root.tm.security.firewall.policy_s.policy
+        p1 = p.create(name='delete_me', partition='Common')
+        p1.delete()
+        with pytest.raises(HTTPError) as err:
+            mgmt_root.tm.security.firewall.policy_s.policy.load(
+                name='delete_me', partition='Common')
+        assert err.value.response.status_code == 404
+
+    def test_load_no_object(self, mgmt_root):
+        p = mgmt_root.tm.security.firewall.policy_s.policy
+        with pytest.raises(HTTPError) as err:
+            p.load(name='not_exists', partition='Common')
+        assert err.value.response.status_code == 404
+
+    def test_load_and_update(self, mgmt_root, policy):
+        p1 = policy
+        URI = 'https://localhost/mgmt/tm/security/' \
+              'firewall/policy/~Common~fake_policy'
+        assert p1.name == 'fake_policy'
+        assert p1.partition == 'Common'
+        assert p1.selfLink.startswith(URI)
+        assert not hasattr(p1, 'description')
+        p1.description = DESC
+        p1.update()
+        assert hasattr(p1, 'description')
+        assert p1.description == DESC
+        p = mgmt_root.tm.security.firewall.policy_s.policy
+        p2 = p.load(name='fake_policy', partition='Common')
+        assert p1.name == p2.name
+        assert p1.partition == p2.partition
+        assert p1.selfLink == p2.selfLink
+        assert hasattr(p2, 'description')
+        assert p1.description == p2.description
+
+    def test_policies_collection(self, mgmt_root, policy):
+        pc = mgmt_root.tm.security.firewall.policy_s.get_collection()
+        assert isinstance(pc, list)
+        assert len(pc)
+        assert isinstance(pc[0], Policy)
+
+
+class TestGlobalRules(object):
+    def test_modify_req_args(self, mgmt_root, policy):
+        rules = mgmt_root.tm.security.firewall. \
+            global_rules.load(partition='Common')
+        assert "enforcedPolicy" not in rules.__dict__
+        rules.modify(enforcedPolicy='fake_policy', partition='Common')
+        assert rules.enforcedPolicy == "/Common/fake_policy"
+        rules.modify(enforcedPolicy='none', partition='Common')
+        assert "enforcedPolicy" not in rules.__dict__
