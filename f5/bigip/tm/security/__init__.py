@@ -30,11 +30,11 @@ REST Kind
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.security.dos import Dos
 from f5.bigip.tm.security.firewall import Firewall
-
+from f5.bigip.tm.security.protocol_inspection import Protocol_Inspection
 
 class Security(OrganizingCollection):
     """BIG-IP® Security organizing collection."""
 
     def __init__(self, tm):
         super(Security, self).__init__(tm)
-        self._meta_data['allowed_lazy_attributes'] = [Dos, Firewall]
+        self._meta_data['allowed_lazy_attributes'] = [Dos, Firewall, Protocol_Inspection]
