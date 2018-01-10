@@ -16,6 +16,7 @@
 import pytest
 from requests.exceptions import HTTPError
 
+from distutils.version import LooseVersion
 from f5.bigip.tm.security.protocol_inspection import Compliance
 from f5.bigip.tm.security.protocol_inspection import Profile
 from f5.bigip.tm.security.protocol_inspection import Signature
@@ -41,6 +42,10 @@ def signature(mgmt_root):
     r1.delete()
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.1.0'),
+    reason='This collection is fully implemented on 13.1.0 or greater.'
+)
 class TestProfile(object):
     """Profile functional tests"""
 
@@ -112,6 +117,10 @@ class TestProfile(object):
         assert isinstance(rc[0], Profile)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.1.0'),
+    reason='This collection is fully implemented on 13.1.0 or greater.'
+)
 class TestSignature(object):
     """Signature functional tests"""
 
@@ -185,6 +194,10 @@ class TestSignature(object):
         assert isinstance(sigc[0], Signature)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.1.0'),
+    reason='This collection is fully implemented on 13.1.0 or greater.'
+)
 class TestCompliance(object):
     """Compliance functional tests"""
 
