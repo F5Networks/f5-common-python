@@ -33,6 +33,7 @@ from f5.bigip.tm.security.dos import Dos
 from f5.bigip.tm.security.firewall import Firewall
 from f5.bigip.tm.security.protocol_inspection import Protocol_Inspection
 
+
 class Security(OrganizingCollection):
     """BIG-IP® Security organizing collection."""
 
