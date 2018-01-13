@@ -25,6 +25,7 @@ except ImportError:
 
 try:
     import signal
+    from signal import SIGALRM
     HAS_SIGNAL = True
 except ImportError:
     HAS_SIGNAL = False
@@ -114,7 +115,7 @@ class BaseManagement(PathElement):
         connect = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['uri'] + 'tm/sys/'
         if HAS_SIGNAL:
-            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.signal(SIGALRM, timeout_handler)
             signal.alarm(int(self.args['timeout']))
             response = connect.get(base_uri)
             signal.alarm(0)
