@@ -47,6 +47,7 @@ from f5.bigip.tm.sys.ntp import Ntp
 from f5.bigip.tm.sys.performance import Performances
 from f5.bigip.tm.sys.provision import Provision
 from f5.bigip.tm.sys.sflow import Sflow
+from f5.bigip.tm.sys.smtp_server import Smtp_Servers
 from f5.bigip.tm.sys.snmp import Snmp
 from f5.bigip.tm.sys.software import Software
 from f5.bigip.tm.sys.sshd import Sshd
@@ -78,6 +79,7 @@ class Sys(OrganizingCollection):
             Performances,
             Provision,
             Sflow,
+            Smtp_Servers,
             Snmp,
             Software,
             Sshd,
