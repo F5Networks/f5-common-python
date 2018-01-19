@@ -30,6 +30,7 @@ REST Kind
 from distutils.version import LooseVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import UnsupportedMethod
 
 
 def fqdn_name(partition, value):
@@ -111,6 +112,23 @@ class Devices(Resource):
         self._meta_data['required_json_kind'] =\
             'tm:cm:device-group:devices:devicesstate'
 
+    def _fixup_name(self, kwargs):
+        # Name munging is required < 11.6.0 and on versions (and sub versions)
+        # of 11.6.1.
+        # TODO(Remove this when 11.6.1 is no longer supported)
+        if 'name' in kwargs:
+            kwargs['name'] = fqdn_name('Common', kwargs['name'])
+        else:
+            self.__dict__['name'] = fqdn_name('Common', self.__dict__['name'])
+
+    def update(self, **kwargs):
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__)
+
+    def modify(self, **kwargs):
+        raise UnsupportedMethod(
+            "%s does not support the modify method" % self.__class__.__name__)
+
     def create(self, **kwargs):
         # Name munging is required < 11.6.0 and on versions (and sub versions)
         # of 11.6.1.
@@ -123,14 +141,12 @@ class Devices(Resource):
             self._fixup_name(kwargs)
         return self._create(**kwargs)
 
-    def _fixup_name(self, kwargs):
+    def exists(self, **kwargs):
         # Name munging is required < 11.6.0 and on versions (and sub versions)
         # of 11.6.1.
         # TODO(Remove this when 11.6.1 is no longer supported)
-        if 'name' in kwargs:
-            kwargs['name'] = fqdn_name('Common', kwargs['name'])
-        else:
-            self.__dict__['name'] = fqdn_name('Common', self.__dict__['name'])
+        kwargs['partition'] = 'Common'
+        return self._exists(**kwargs)
 
     def delete(self, **kwargs):
         # Name munging is required < 11.6.0 and on versions (and sub versions)

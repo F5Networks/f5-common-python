@@ -50,6 +50,10 @@ class TestDeviceGroup(object):
         dg2 = mgmt_root.tm.cm.device_groups.device_group.load(name=dg1.name)
         assert dg1.generation == dg2.generation
 
+        # Exists
+        exists = mgmt_root.tm.cm.device_groups.device_group.exists(name=dg1.name)
+        assert exists is True
+
         # Update
         dg1.update(description=TEST_DESCR)
         assert dg1.generation > dg2.generation
@@ -69,6 +73,11 @@ class TestDeviceGroup(object):
         d1 = dg1.devices_s.devices.create(
             name=this_device.name)
         assert len(dg1.devices_s.get_collection()) == 1
+
+        # Exists
+        exists = dg1.devices_s.devices.exists(name=this_device.name)
+        assert exists is True
+
         # This needs to be in this format due to the change between
         # 11.6.0 Final and other versions.
         assert this_device.name in d1.name
