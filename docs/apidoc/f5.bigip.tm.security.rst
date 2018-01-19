@@ -13,12 +13,20 @@ Module contents
 
     .. autosummary::
 
+        analytics
         dos
         firewall
+        protocol_inspection
 
 
 Submodules
 ----------
+
+analytics
+~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.security.analytics
+    :members:
 
 dos
 ~~~
@@ -30,4 +38,10 @@ firewall
 ~~~~~~~~
 
 .. automodule:: f5.bigip.tm.security.firewall
+    :members:
+
+protocol_inspection
+~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.security.protocol_inspection
     :members:

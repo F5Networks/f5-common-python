@@ -31,6 +31,7 @@ Module contents
         performance
         provision
         sflow
+        smtp_server
         snmp
         sshd
         syslog
@@ -154,6 +155,12 @@ sflow
 ~~~~~
 
 .. automodule:: f5.bigip.tm.sys.sflow
+    :members:
+
+smtp_server
+~~~~~~~~~~~
+
+.. automodule:: f5.bigip.tm.sys.smtp_server
     :members:
 
 snmp
