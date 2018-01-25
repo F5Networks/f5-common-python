@@ -291,16 +291,15 @@ class TestResourceCreate(object):
         assert 'disabled' not in kwargs['json']
 
     def test_reduce_boolean_same_value(self, fake_vs):
-        with pytest.raises(BooleansToReduceHaveSameValue) as ex:
+        with pytest.raises(ExclusiveAttributesPresent) as ex:
             fake_vs.create(
                 partition='Common',
                 name='test_create',
                 enabled=True,
                 disabled=True
             )
-        msg = 'Boolean pair, enabled and disabled, have same value: True. ' \
-            'If both are given to this method, they cannot be the same, as ' \
-            'this method cannot decide which one should be True.'
+        msg = 'Mutually exclusive arguments submitted. The following ' \
+              'arguments cannot be set together: "disabled, enabled".'
         assert msg == str(ex.value)
 
 
