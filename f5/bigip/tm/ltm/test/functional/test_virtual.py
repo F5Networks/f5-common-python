@@ -35,6 +35,16 @@ def basic_rule(mgmt_root):
 
 
 @pytest.fixture
+def basic_vlan(mgmt_root):
+    vlan1 = mgmt_root.tm.net.vlans.vlan.create(
+        name='testvlan',
+        partition='Common'
+    )
+    yield vlan1
+    vlan1.delete()
+
+
+@pytest.fixture
 def virtual_setup(mgmt_root):
     vs_kwargs = {'name': 'vs', 'partition': 'Common'}
     vs = mgmt_root.tm.ltm.virtuals.virtual
@@ -116,6 +126,35 @@ class TestVirtual(object):
 
     def test_virtual_no_rules(self, virtual_setup, basic_rule):
         assert len(virtual_setup.rules) == 0
+
+    def test_virtual_state_toggle(self, virtual_setup):
+        virtual_setup.disabled = True
+        virtual_setup.update()
+        assert hasattr(virtual_setup, 'disabled')
+        assert not hasattr(virtual_setup, 'enabled')
+
+        virtual_setup.enabled = True
+        virtual_setup.update()
+        assert hasattr(virtual_setup, 'enabled')
+        assert not hasattr(virtual_setup, 'disabled')
+
+    def test_virtual_vlan_toggle(self, virtual_setup, basic_vlan):
+        virtual_setup.vlansEnabled = True
+        virtual_setup.update()
+        assert hasattr(virtual_setup, 'vlansEnabled')
+        assert not hasattr(virtual_setup, 'vlansDisabled')
+        assert not hasattr(virtual_setup, 'vlans')
+
+        virtual_setup.vlans = ['/Common/testvlan']
+        virtual_setup.update()
+        assert hasattr(virtual_setup, 'vlans')
+
+        virtual_setup.vlansDisabled = True
+        virtual_setup.vlans = []
+        virtual_setup.update()
+        assert hasattr(virtual_setup, 'vlansDisabled')
+        assert not hasattr(virtual_setup, 'vlansEnabled')
+        assert not hasattr(virtual_setup, 'vlans')
 
     def test_virtual_modify2(self, virtual_setup, basic_rule):
         virtual_setup.modify(rules=[basic_rule.name])
