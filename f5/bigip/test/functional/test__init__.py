@@ -42,3 +42,9 @@ def test_hard_timeout():
     with pytest.raises(TimeoutError) as ex:
         ManagementRoot('10.255.255.1', 'foo', 'bar', port=81, timeout=1)
     assert str(ex.value) == 'Timed out waiting for response'
+
+
+def test_icontrol_debug_tracing(opt_bigip, opt_username, opt_password, opt_port):
+    m = ManagementRoot(opt_bigip, opt_username, opt_password, port=opt_port)
+    m._debug
+    assert len(m._debug) > 0

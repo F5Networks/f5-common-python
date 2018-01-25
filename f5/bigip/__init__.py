@@ -140,6 +140,13 @@ class BaseManagement(PathElement):
             self._meta_data['tmos_version'] = self._get_tmos_version()
         return self._meta_data['tmos_version']
 
+    @property
+    def _debug(self):
+        result = []
+        if self.icrs._debug:
+            result += self.icrs._debug
+        return result
+
 
 class ManagementRoot(BaseManagement):
     """An interface to a single BIG-IP"""
