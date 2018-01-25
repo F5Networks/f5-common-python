@@ -19,3 +19,4 @@ using the configuration utility (the GUI). More useful still would be if you are
    odata_queries
    rest_proxies
    further_reading
+   debugging_api_calls
