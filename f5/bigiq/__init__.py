@@ -75,3 +75,10 @@ class ManagementRoot(PathElement):
         response = connect.get(base_uri)
         version = response.json()['version']
         self._meta_data['tmos_version'] = version
+
+    @property
+    def _debug(self):
+        result = []
+        if self.icrs._debug:
+            result += self.icrs._debug
+        return result
