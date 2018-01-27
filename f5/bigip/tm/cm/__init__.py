@@ -30,6 +30,7 @@ from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.cm.device import Devices
 from f5.bigip.tm.cm.device_group import Device_Groups
+from f5.bigip.tm.cm.failover_status import Failover_Status
 from f5.bigip.tm.cm.sync_status import Sync_Status
 from f5.bigip.tm.cm.traffic_group import Traffic_Groups
 from f5.bigip.tm.cm.trust import Add_To_Trust
@@ -42,7 +43,13 @@ class Cm(OrganizingCollection, CommandExecutionMixin):
     def __init__(self, cm):
         super(Cm, self).__init__(cm)
         self._meta_data['allowed_lazy_attributes'] = [
-            Devices, Device_Groups, Traffic_Groups, Trust_Domains,
-            Sync_Status, Add_To_Trust, Remove_From_Trust,
+            Devices,
+            Device_Groups,
+            Traffic_Groups,
+            Trust_Domains,
+            Failover_Status,
+            Sync_Status,
+            Add_To_Trust,
+            Remove_From_Trust,
         ]
         self._meta_data['allowed_commands'].append('run')
