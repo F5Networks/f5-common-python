@@ -17,7 +17,7 @@ import mock
 import pytest
 
 from f5.bigip import ManagementRoot
-from f5.bigip.tm.util.Qkview import Qkview
+from f5.bigip.tm.util.qkview import Qkview
 
 
 @pytest.fixture

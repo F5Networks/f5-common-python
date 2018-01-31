@@ -66,10 +66,8 @@ def setup_policy_test(request, mgmt_root, partition, name,
     reason='Policies Changed in 12.1 to require workflows.'
 )
 class TestPolicy_legacy(object):
-    def test_policy_create_refresh_update_delete_load(self, setup, request,
-                                                      mgmt_root):
-        policy1, pc1 = setup_policy_test(request, mgmt_root, 'Common',
-                                         'poltest1')
+    def test_policy_create_refresh_update_delete_load(self, setup, request, mgmt_root):
+        policy1, pc1 = setup_policy_test(request, mgmt_root, 'Common', 'poltest1')
         assert policy1.name == 'poltest1'
         policy1.strategy = '/Common/all-match'
         policy1.update()
@@ -394,8 +392,7 @@ class TestPolicy(object):
             ex2.value.message
 
     def test_policy_draft_to_publish_and_back(self, setup, request, mgmt_root):
-        pol, pc = setup_policy_test(request, mgmt_root, 'Common',
-                                    'draft-policy', subPath='Drafts')
+        pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'draft-policy', subPath='Drafts')
         assert pol.status == 'draft'
         pol.publish()
         assert pol.status == 'published'
@@ -408,39 +405,6 @@ class TestPolicy(object):
 
         pol2 = pc.policy.load(name='draft-policy', partition='Common')
         assert pol2.description == 'foo'
-
-
-@pytest.mark.skipif(
-    LooseVersion(
-        pytest.config.getoption('--release')
-    ) <= LooseVersion('12.1.1'),
-    reason='Bug exists where not attr is not honored from request.'
-)
-def test_policy_condition_python_keyword(setup, request, mgmt_root):
-    full_pol_dict = json.load(
-        open(os.path.join(CURDIR, 'full_policy.json')))
-    empty_pol_dict = copy.deepcopy(full_pol_dict)
-    empty_pol_dict['rules'] = []
-    pol, pc = setup_policy_test(request, mgmt_root, 'Common', 'racetest')
-    # Start out with an empty policy (no rules)
-    pol.refresh()
-    assert pol.rules_s.rules.exists(name='test_rule') is False
-    assert list(pol.rules_s.get_collection()) == []
-    # Update policy to have rules, which have conditions and actions
-    pol.update(**full_pol_dict)
-    rule = pol.rules_s.rules.load(name='test_rule')
-    cond = rule.conditions_s.conditions.load(name='0')
-    assert cond.not_ is True
-    # The following operation does not make any change to the
-    # specified rule. This has been verified on 11.6.0, 11.6.1, and 12.1.1
-    # This test will be skipped since this bug still exists on those
-    # versions
-    cond.not_ = False
-    cond.update()
-    # When not is False, it is not included in response from device
-    assert hasattr(cond, 'not_') is False
-    cond.modify(not_=True)
-    assert cond.not_ is True
 
 
 def test_policy_condition_python_keyword_get_collection(

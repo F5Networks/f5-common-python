@@ -28,19 +28,18 @@ REST Kind
 """
 
 from f5.bigip.resource import PathElement
-from f5.bigip.tm.util.Bash import Bash
-from f5.bigip.tm.util.Clientssl_Ciphers import Clientssl_Ciphers
-from f5.bigip.tm.util.Dig import Dig
-from f5.bigip.tm.util.Get_Dossier import Get_Dossier
-from f5.bigip.tm.util.Qkview import Qkview
-from f5.bigip.tm.util.Serverssl_Ciphers import Serverssl_Ciphers
-from f5.bigip.tm.util.Unix_Ls import Unix_Ls
-from f5.bigip.tm.util.Unix_Mv import Unix_Mv
-from f5.bigip.tm.util.Unix_Rm import Unix_Rm
+from f5.bigip.tm.util.bash import Bash
+from f5.bigip.tm.util.clientssl_ciphers import Clientssl_Ciphers
+from f5.bigip.tm.util.dig import Dig
+from f5.bigip.tm.util.get_dossier import Get_Dossier
+from f5.bigip.tm.util.qkview import Qkview
+from f5.bigip.tm.util.serverssl_ciphers import Serverssl_Ciphers
+from f5.bigip.tm.util.unix_ls import Unix_Ls
+from f5.bigip.tm.util.unix_mv import Unix_Mv
+from f5.bigip.tm.util.unix_rm import Unix_Rm
 
 
 class Util(PathElement):
-    """BIG-IP® System Utility (util) collection."""
     def __init__(self, bigip):
         super(Util, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [

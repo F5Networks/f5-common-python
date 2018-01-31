@@ -13,12 +13,12 @@
 # limitations under the License.
 #
 
-from distutils.version import LooseVersion
+import os
 import pytest
 
+from distutils.version import LooseVersion
 from f5.sdk_exception import UtilError
 from icontrol.session import iControlUnexpectedHTTPError
-import os
 from tempfile import NamedTemporaryFile
 
 

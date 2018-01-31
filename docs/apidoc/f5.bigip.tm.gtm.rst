@@ -16,6 +16,7 @@ Module contents
         datacenter
         global_settings
         listener
+        monitor
         pool
         region
         rule
@@ -43,6 +44,12 @@ listener
 ~~~~~~~~
 
 .. automodule:: f5.bigip.tm.gtm.listener
+    :members:
+
+monitor
+~~~~~~~
+
+.. automodule:: f5.bigip.tm.gtm.monitor
     :members:
 
 pool

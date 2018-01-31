@@ -17,7 +17,7 @@ import mock
 import pytest
 
 from f5.bigip import ManagementRoot
-from f5.bigip.tm.util.Clientssl_Ciphers import Clientssl_Ciphers
+from f5.bigip.tm.util.clientssl_ciphers import Clientssl_Ciphers
 from f5.sdk_exception import MissingRequiredCommandParameter
 
 

@@ -286,9 +286,7 @@ class FileUploadMixin(object):
             else:
                 end = start + current_bytes
             headers = {
-                'Content-Range': '%s-%s/%s' % (start,
-                                               end - 1,
-                                               size),
+                'Content-Range': '%s-%s/%s' % (start, end - 1, size),
                 'Content-Type': 'application/octet-stream'}
             data = {
                 'data': file_slice,
@@ -418,9 +416,7 @@ class AsmFileMixin(object):
             else:
                 end = start + current_bytes
             headers = {
-                'Content-Range': '%s-%s/%s' % (start,
-                                               end - 1,
-                                               size),
+                'Content-Range': '%s-%s/%s' % (start, end - 1, size),
                 'Content-Type': 'application/octet-stream'}
             data = {'data': file_slice,
                     'headers': headers,
@@ -470,3 +466,23 @@ class CheckExistenceMixin(object):
         for item in coll:
             if item.name == item_name:
                 return item
+
+
+class UpdateMonitorMixin(object):
+    def update(self, **kwargs):
+        """Change the configuration of the resource on the device.
+
+        This method uses Http PUT alter the service state on the device.
+
+        The attributes of the instance will be packaged as a dictionary.  That
+        dictionary will be updated with kwargs.  It is then submitted as JSON
+        to the device.  Various edge cases are handled:
+
+        * read-only attributes that are unchangeable are removed
+        * ``defaultsFrom`` attribute is removed from JSON before the PUT
+
+        :param kwargs: keys and associated values to alter on the device
+
+        """
+        self.__dict__.pop('defaultsFrom', '')
+        self._update(**kwargs)

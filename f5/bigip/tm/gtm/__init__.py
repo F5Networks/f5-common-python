@@ -32,6 +32,7 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.gtm.datacenter import Datacenters
 from f5.bigip.tm.gtm.global_settings import Global_Settings
 from f5.bigip.tm.gtm.listener import Listeners
+from f5.bigip.tm.gtm.monitor import Monitor
 from f5.bigip.tm.gtm.pool import Pools
 from f5.bigip.tm.gtm.region import Regions
 from f5.bigip.tm.gtm.rule import Rules
@@ -48,6 +49,7 @@ class Gtm(OrganizingCollection):
             Datacenters,
             Global_Settings,
             Listeners,
+            Monitor,
             Pools,
             Regions,
             Rules,
