@@ -59,34 +59,34 @@ Methods:
     self.__dict__ to {'deleted': True}
 
 Available Classes:
-    * PathElement -- the most fundamental class it represent URI elements that
-      serve only as place-holders.  All other Resources inherit from
-      PathElement, though the inheritance may be indirect. PathElement provides
-      a constructor to match its call in LazyAttributeMixin.__getattr__. The
-      expected behavior is that all resource subclasses depend on this
-      constructor to correctly set their self._meta_data['uri'].  See
-      _set_meta_data_uri for the logic underlying self._meta_data['uri']
-      construction.
-    * ResourceBase -- only `refresh` is generally supported in all resource
-      types, this class provides `refresh`. ResourceBase objects are usually
-      instantiated via setting lazy attributes.
-      All ResourceBase objects (except BIG-IPs) have a container (BIG-IPs
-      contain themselves).  The container is the object the ResourceBase is an
-      attribute of.
-    * OrganizingCollection -- These resources support lists of "reference"
-      "links". These are json blobs without a Python class representation.
-        Example URI_path:  /mgmt/tm/ltm/
-    * Collection -- These resources support lists of ResourceBase Objects.
-        Example URI_path:  /mgmt/tm/ltm/nat
-    * Resource -- These resources are the only resources that support
-      `create`, `update`, and `delete` operations.  Because they support HTTP
-      post (via _create) they uniquely depend on 2 uri's, a uri that supports
-      the creating post, and the returned uri of the newly created resource.
-        Example URI_path:  /mgmt/tm/ltm/nat/~Common~testnat1
-    * UnnamedResource -- Some resources correspond to URIs that do not have
-      unique names, therefore the class does _not_ support create-or-delete,
-      and supports a customized 'load' that doesn't require name/partition
-      parameters.
+  * PathElement -- the most fundamental class it represent URI elements that
+    serve only as place-holders.  All other Resources inherit from
+    PathElement, though the inheritance may be indirect. PathElement provides
+    a constructor to match its call in LazyAttributeMixin.__getattr__. The
+    expected behavior is that all resource subclasses depend on this
+    constructor to correctly set their self._meta_data['uri'].  See
+    _set_meta_data_uri for the logic underlying self._meta_data['uri']
+    construction.
+  * ResourceBase -- only `refresh` is generally supported in all resource
+    types, this class provides `refresh`. ResourceBase objects are usually
+    instantiated via setting lazy attributes.
+    All ResourceBase objects (except BIG-IPs) have a container (BIG-IPs
+    contain themselves).  The container is the object the ResourceBase is an
+    attribute of.
+  * OrganizingCollection -- These resources support lists of "reference"
+    "links". These are json blobs without a Python class representation.
+    Example URI_path:  /mgmt/tm/ltm/
+  * Collection -- These resources support lists of ResourceBase Objects.
+    Example URI_path:  /mgmt/tm/ltm/nat
+  * Resource -- These resources are the only resources that support
+    `create`, `update`, and `delete` operations.  Because they support HTTP
+    post (via _create) they uniquely depend on 2 uri's, a uri that supports
+    the creating post, and the returned uri of the newly created resource.
+    Example URI_path:  /mgmt/tm/ltm/nat/~Common~testnat1
+  * UnnamedResource -- Some resources correspond to URIs that do not have
+    unique names, therefore the class does _not_ support create-or-delete,
+    and supports a customized 'load' that doesn't require name/partition
+    parameters.
 """
 try:
     from collections import OrderedDict
@@ -156,7 +156,6 @@ class PathElement(LazyAttributeMixin):
     those elements and does not support any of the CURDLE methods that
     the other objects do.
     """
-
     def __init__(self, container):
         self._meta_data = {
             'container': container,
@@ -279,13 +278,12 @@ class PathElement(LazyAttributeMixin):
         return force
 
     def _check_generation(self):
-        '''Check that the generation on the BIG-IP® matches the object
+        """Check that the generation on the BIG-IP® matches the object
 
         This will do a get to the objects URI and check that the generation
         returned in the JSON matches the one the object currently has.  If it
         does not it will raise the `GenerationMismatch` exception.
-        '''
-
+        """
         session = self._meta_data['bigip']._meta_data['icr_session']
         response = session.get(self._meta_data['uri'])
         current_gen = response.json().get('generation', None)
@@ -357,14 +355,15 @@ class ResourceBase(PathElement, ToDictMixin):
 
     .. code-block:: python
 
-        bigip.ltm = LTM(bigip)
-        bigip.ltm.nats
-        nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3', '1.2.3.4')
+       bigip.ltm = LTM(bigip)
+       bigip.ltm.nats
+       nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3', '1.2.3.4')
 
     This can be shortened to just the last line:
 
     .. code-block:: python
-        nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3', '1.2.3.4')
+
+       nat1 = bigip.ltm.nats.nat.create('Foo', 'Bar', '0.1.2.3', '1.2.3.4')
 
     Critically this enforces a convention relating device published uris to
     API objects, in a hierarchy similar to the uri paths.  I.E. the uri
@@ -385,7 +384,6 @@ class ResourceBase(PathElement, ToDictMixin):
     that represents objects in a hierarchical relationship similar to the
     device's uri path hierarchy.
     """
-
     def _modify(self, **patch):
         """Wrapped with modify, override in a subclass to customize."""
 
@@ -409,7 +407,6 @@ class ResourceBase(PathElement, ToDictMixin):
         """Modify the configuration of the resource on device based on patch
 
         """
-
         self._modify(**patch)
 
     def _check_for_boolean_pair_reduction(self, kwargs):
@@ -430,7 +427,7 @@ class ResourceBase(PathElement, ToDictMixin):
         return requests_params, update_uri, session, read_only
 
     def _prepare_request_json(self, kwargs):
-        '''Prepare request args for sending to device as JSON.'''
+        """Prepare request args for sending to device as JSON."""
 
         # Check for python keywords in dict
         kwargs = self._check_for_python_keywords(kwargs)
@@ -445,7 +442,7 @@ class ResourceBase(PathElement, ToDictMixin):
         return kwargs
 
     def _iter_list_for_dicts(self, check_list):
-        '''Iterate over list to find dicts and check for python keywords.'''
+        """Iterate over list to find dicts and check for python keywords."""
 
         list_copy = copy.deepcopy(check_list)
         for index, elem in enumerate(check_list):
@@ -458,7 +455,7 @@ class ResourceBase(PathElement, ToDictMixin):
         return list_copy
 
     def _check_for_python_keywords(self, kwargs):
-        '''When Python keywords seen, mutate to remove trailing underscore.'''
+        """When Python keywords seen, mutate to remove trailing underscore."""
 
         kwargs_copy = copy.deepcopy(kwargs)
         for key, val in iteritems(kwargs):
@@ -607,11 +604,13 @@ class ResourceBase(PathElement, ToDictMixin):
         Various edge cases are handled:
         * read-only attributes that are unchangeable are removed
 
-        :param kwargs: keys and associated values to alter on the device
-        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
-        be passed to the underlying requests.session.put method where it will
-        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
+        Args:
+            kwargs (dict): Arbitrary number of keyword arguments.
+                Keys and associated values to alter on the device.
 
+                If kwargs has a ``requests_params`` key the corresponding dict will
+                be passed to the underlying ``requests.session.put`` method where it will
+                be handled according to that API.
         """
         # Need to implement checking for valid params here.
         self._update(**kwargs)
@@ -657,7 +656,8 @@ class ResourceBase(PathElement, ToDictMixin):
     def create(self, **kwargs):
         """Implement this by overriding it in a subclass of `Resource`
 
-        :raises: InvalidResource
+        Raises:
+            InvalidResource: If method is used.
         """
         error_message = "Only Resources support 'create'."
         raise InvalidResource(error_message)
@@ -665,7 +665,8 @@ class ResourceBase(PathElement, ToDictMixin):
     def delete(self, **kwargs):
         """Implement this by overriding it in a subclass of `Resource`
 
-        :raises: InvalidResource
+        Raises:
+            InvalidResource: If method is used.
         """
         error_message = "Only Resources support 'delete'."
         raise InvalidResource(error_message)
@@ -729,9 +730,9 @@ class ResourceBase(PathElement, ToDictMixin):
 class OrganizingCollection(ResourceBase):
     """Base class for objects that collect resources under them.
 
-    ``OrganizingCollection`` objects fulfill the following functions:
+    ``OrganizingCollection`` objects fulfill the following functions,
 
-    * represent a uri path fragment immediately 'below' /mgmt/tm
+    * represent a uri path fragment immediately 'below' ``/mgmt/tm``
     * provide a list of dictionaries that contain uri's to other
       resources on the device.
     """
@@ -739,7 +740,8 @@ class OrganizingCollection(ResourceBase):
     def get_collection(self, **kwargs):
         """Call to obtain a list of the reference dicts in the instance `items`
 
-        :returns: List of self.items
+        Returns:
+            list: List of self.items
         """
         self.refresh(**kwargs)
         return self.items
@@ -804,8 +806,9 @@ class Resource(ResourceBase):
     """Base class to represent a Configurable Resource on the device.
 
     .. warning::
-        Objects instantiated from subclasses of Resource do NOT contain a URI
-        (self._meta_data['uri']) at instantiation!
+
+       Objects instantiated from subclasses of Resource do NOT contain a URI
+       (self._meta_data['uri']) at instantiation!
 
     Resource objects provide the interface for the Creation of new services on
     the device. Once a new service has been created, (via ``self.create`` or
@@ -818,8 +821,9 @@ class Resource(ResourceBase):
     ``self._meta_data['uri']`` MUST not be changed after creation or load.
 
     .. note::
-        creation query args, and creation hash fragments are stored as
-        separate _meta_data values.
+
+       creation query args, and creation hash fragments are stored as
+       separate _meta_data values.
 
     By "Configurable" we mean that submitting JSON via the PUT method to the
     URI managed by subclasses of Resource, changes the state of the
@@ -924,11 +928,9 @@ class Resource(ResourceBase):
         are contained in **kwargs  the function
         raises exception.
 
-        Note: This check will only trigger
-              if rqset is not empty.
+        This check will only trigger if rqset is not empty.
 
         Raises:
-
              MissingRequiredCreationParameter
         """
         rqset = self._meta_data['minimum_additional_parameters']
@@ -991,13 +993,17 @@ class Resource(ResourceBase):
             Object._meta_data['bigip']._meta_data['hostname'], and without
             query args, or hash fragments.
 
-        :param kwargs: All the key-values needed to create the resource
-        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
-        be passed to the underlying requests.session.post method where it will
-        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-        :returns: ``self`` - A python object that represents the object's
-                  configuration and state on the BIG-IP®.
+        Args:
+            \*\*kwargs (dict): Arbitrary number of keyword arguments.
+                All the key-values needed to create the resource.
 
+                If kwargs has a ``requests_params`` key the corresponding dict will
+                be passed to the underlying ``requests.session.post`` method where it
+                will be handled according to that API.
+
+        Returns:
+            Resource: A python object that represents the object's configuration
+                and state on the BIG-IP®.
         """
         return self._create(**kwargs)
 
@@ -1039,17 +1045,22 @@ class Resource(ResourceBase):
 
         This method uses HTTP GET to obtain a resource from the BIG-IP®.
 
-        ..
-            The URI of the target service is constructed from the instance's
-            container and **kwargs.
-            kwargs typically requires the keys "name" and "partition".
-            this may, or may not, be true for a specific service.
+        The URI of the target service is constructed from the instance's
+        container and ``**kwargs``.
 
-        :param kwargs: typically contains "name" and "partition"
-        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
-        be passed to the underlying requests.session.get method where it will
-        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-        :returns: a Resource Instance (with a populated _meta_data['uri'])
+        ``kwargs`` typically requires the keys ``name`` and ``partition``.
+        this may, or may not, be true for a specific service.
+
+        Args:
+            \*\*kwargs (dict): Arbitrary number of keyword arguments.
+                If kwargs has a ``requests_params`` key the corresponding dict will
+                be passed to the underlying ``requests.session.get`` method where it will
+                be handled according to that API.
+
+                Use the method above to pass query args
+
+        Returns:
+            Resource: A Resource Instance with a populated ``_meta_data['uri']``
         """
         return self._load(**kwargs)
 
@@ -1077,10 +1088,15 @@ class Resource(ResourceBase):
         After this method is called, and status_code 200 response is received
         ``instance.__dict__`` is replace with ``{'deleted': True}``
 
-        :param kwargs: The only current use is to pass kwargs to the requests
-        API. If kwargs has a 'requests_params' key the corresponding dict will
-        be passed to the underlying requests.session.delete method where it
-        will be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
+        Args:
+            \*\*kwargs (dict): Arbitrary number of keyword arguments.
+                The only current use is to pass kwargs to the requests API.
+
+                If kwargs has a ``requests_params`` key the corresponding dict will
+                be passed to the underlying ``requests.session.delete`` method where it
+                will be handled according to that API.
+
+                Use the method above to pass query args.
         """
         # Need to implement checking for ? here.
         self._delete(**kwargs)
@@ -1097,13 +1113,19 @@ class Resource(ResourceBase):
 
         For any other errors are raised as-is.
 
-        :param kwargs: Keyword arguments required to get objects
-        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
-        be passed to the underlying requests.session.get method where it will
-        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-        :returns: bool -- The objects exists on BIG-IP® or not.
-        :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
-                 code 404.
+        Args:
+            \*\*kwargs (dict): Arbitrary number of keyword arguments.
+                If kwargs has a ``requests_params`` key the corresponding dict will
+                be passed to the underlying ``requests.session.get`` method where it will
+                be handled according to that API.
+
+                Use the method above to pass query args.
+
+        Returns:
+             bool: True is the object exists. False otherwise.
+
+        Raises:
+             requests.HTTPError: Any HTTP error that was not status code 404.
         """
         return self._exists(**kwargs)
 
@@ -1130,16 +1152,17 @@ class UnnamedResource(ResourceBase):
     """This makes a resource object work if there is no name.
 
     These objects do not support create or delete and are often found
-    as Resources that are under an organizing collection.  For example
-    the `mgmt/tm/sys/global-settings` is one of these and has a kind of
-    `tm:sys:global-settings:global-settingsstate` and the URI does not
-    match the kind.
+    as Resources that are under an organizing collection.
+
+    For example the ``mgmt/tm/sys/global-settings`` is one of these and has a kind of
+    ``tm:sys:global-settings:global-settingsstate`` and the URI does not match the kind.
     """
 
     def create(self, **kwargs):
         """Create is not supported for unnamed resources
 
-        :raises: UnsupportedMethod
+        Raises:
+            UnsupportedMethod: If the method is used
         """
         raise UnsupportedMethod(
             "%s does not support the create method" % self.__class__.__name__
@@ -1148,7 +1171,8 @@ class UnnamedResource(ResourceBase):
     def delete(self, **kwargs):
         """Delete is not supported for unnamed resources
 
-        :raises: UnsupportedMethod
+        Raises:
+            UnsupportedMethod: If the method is used
         """
         raise UnsupportedMethod(
             "%s does not support the delete method" % self.__class__.__name__
@@ -1166,7 +1190,8 @@ class Stats(UnnamedResource):
     def modify(self, **kwargs):
         """Modify is not supported for stats resources
 
-        :raises: UnsupportedMethod
+        Raises:
+            UnsupportedMethod: If the method is used
         """
         raise UnsupportedMethod(
             "%s does not support the modify method" % self.__class__.__name__
@@ -1231,23 +1256,26 @@ class AsmResource(Resource):
 
         This method uses HTTP GET to obtain a resource from the BIG-IP®.
 
-        ..
-            The URI of the target service is constructed from the instance's
-            container and **kwargs.
-            kwargs typically for ASM requires "id" in majority of cases,
-            as object links in ASM are using hash(id) instead of names,
-            this may, or may not, be true for a specific service.
+        The URI of the target service is constructed from the instance's
+        container and ``\*\*kwargs``.
 
-        :param kwargs: typically contains "id"
-        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
-        be passed to the underlying requests.session.get method where it will
-        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-        :returns: a Resource Instance (with a populated _meta_data['uri'])
+        kwargs typically for ASM requires "id" in majority of cases,
+        as object links in ASM are using hash(id) instead of names,
+        this may, or may not, be true for a specific service.
+
+        Args:
+            \*\*kwargs (dict): Arbitrary number of keyword arguments.
+                If kwargs has a ``requests_params`` key the corresponding dict will
+                be passed to the underlying ``requests.session.get`` method where it will
+                be handled according to that API.
+
+        Returns:
+            Resource: ``Resource`` instance with a populated _meta_data['uri']
         """
         return self._load(**kwargs)
 
     def _delete(self, **kwargs):
-        """wrapped with delete, override that in a subclass to customize """
+        """Wrapped with delete, override that in a subclass to customize """
         requests_params = self._handle_requests_params(kwargs)
 
         delete_uri = self._meta_data['uri']
@@ -1264,10 +1292,11 @@ class AsmResource(Resource):
         After this method is called, and status_code 200 or 201 response is
         received ``instance.__dict__`` is replace with ``{'deleted': True}``
 
-        :param kwargs: The only current use is to pass kwargs to the requests
-        API. If kwargs has a 'requests_params' key the corresponding dict will
-        be passed to the underlying requests.session.delete method where it
-        will be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
+        Args:
+            kwargs (dict): Arbitrary number of keyword arguments.
+                If kwargs has a ``requests_params`` key the corresponding dict will
+                be passed to the underlying ``requests.session.delete`` method where it
+                will be handled according to that API.
         """
         # Need to implement checking for ? here.
         self._delete(**kwargs)
@@ -1284,13 +1313,19 @@ class AsmResource(Resource):
 
         For any other errors are raised as-is.
 
-        :param kwargs: Keyword arguments required to get objects
-        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
-        be passed to the underlying requests.session.get method where it will
-        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-        :returns: bool -- The objects exists on BIG-IP® or not.
-        :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
-                 code 404.
+        Args:
+            \*\*kwargs (dict): Arbitrary number of keyword arguments.
+                Keyword arguments required to get objects
+
+                If kwargs has a ``requests_param`` key the corresponding dict will
+                be passed to the underlying ``requests.session.get`` method where it will
+                be handled according to that API.
+
+        Returns:
+            bool: True is the object exists: False otherwise.
+
+        Raises:
+            requests.HTTPError: Any HTTP error that was not status code 404.
         """
         requests_params = self._handle_requests_params(kwargs)
         self._check_load_parameters(**kwargs)
@@ -1314,7 +1349,8 @@ class AsmResource(Resource):
     def update(self, **kwargs):
         """Update is not supported for ASM Resources
 
-                :raises: UnsupportedOperation
+        Raises:
+            UnsupportedOperation: If method is used.
         """
         raise UnsupportedOperation(
             "%s does not support the update method" % self.__class__.__name__
@@ -1478,13 +1514,19 @@ class TaskResource(Resource):
 
         For any other errors are raised as-is.
 
-        :param kwargs: Keyword arguments required to get objects
-        NOTE: If kwargs has a 'requests_params' key the corresponding dict will
-        be passed to the underlying requests.session.get method where it will
-        be handled according to that API. THIS IS HOW TO PASS QUERY-ARGS!
-        :returns: bool -- The objects exists on BIG-IP® or not.
-        :raises: :exc:`requests.HTTPError`, Any HTTP error that was not status
-                 code 404.
+        Args:
+            \*\*kwargs (dict): Arbitrary number of keyword arguments.
+                Keyword arguments required to get objects.
+
+                If kwargs has a ``requests_params`` key the corresponding dict will
+                be passed to the underlying ``requests.session.get`` method where it will
+                be handled according to that API.
+
+        Returns:
+            bool: True if the objects exists. False otherwise.
+
+        Raises:
+            requests.HTTPError: Any HTTP error that was not status code 404.
         """
         requests_params = self._handle_requests_params(kwargs)
         self._check_load_parameters(**kwargs)
@@ -1508,7 +1550,8 @@ class TaskResource(Resource):
     def update(self, **kwargs):
         """Update is not supported for ASM Resources
 
-                :raises: UnsupportedOperation
+        Raises:
+            UnsupportedOperation: If method is used.
         """
         raise UnsupportedOperation(
             "%s does not support the update method" % self.__class__.__name__

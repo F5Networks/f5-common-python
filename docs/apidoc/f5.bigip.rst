@@ -62,14 +62,13 @@ f5.bigip module
     .. autosummary::
 
         mixins.ToDictMixin
-        mixins.LazyAttributesMixin
+        mixins.LazyAttributeMixin
         mixins.ExclusiveAttributesMixin
         mixins.CheckExistenceMixin
         mixins.CommandExecutionMixin
         mixins.DeviceMixin
         mixins.FileDownloadMixin
         mixins.FileUploadMixin
-        mixins.UnnamedResourceMixin
         mixins.AsmFileMixin
         mixins.LazyAttributesRequired
 

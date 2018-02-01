@@ -17,7 +17,7 @@ import mock
 import pytest
 
 from f5.bigip import ManagementRoot
-from f5.bigip.tm.util.Bash import Bash
+from f5.bigip.tm.util.bash import Bash
 
 
 @pytest.fixture

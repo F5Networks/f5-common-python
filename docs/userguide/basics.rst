@@ -1,7 +1,8 @@
 Basic Concepts
 ==============
 
-Familiarizing yourself with the following underlying basic concepts will help you get up and running with the SDK.
+Familiarizing yourself with the following underlying basic concepts will help you get up
+and running with the SDK.
 
 .. include:: SDK_plural_note.rst
 
@@ -61,30 +62,43 @@ A set of basic REST endpoints can be derived from the object's URI and ``kind`` 
 Dynamic Attributes
 ------------------
 
-The python object's attribute can be created dynamically based on the JSON returned when querying the REST API.
+The python object's attribute can be created dynamically based on the JSON returned when
+querying the REST API.
 
 .. _kind_params_section:
 
 iControl® REST ``kind`` Parameters
 ----------------------------------
 
-Almost all iControl® REST API entries contain a parameter named ``kind``. This parameter provides information about the object that lets you know what you should expect to follow it. The iControl® REST API uses three types of ``kind``: ``collectionstate``, ``state``, and ``stats``.
+Almost all iControl® REST API entries contain a parameter named ``kind``. This parameter
+provides information about the object that lets you know what you should expect to follow
+it. The iControl® REST API uses three types of ``kind``: ``collectionstate``, ``state``,
+and ``stats``.
 
 .. table::
 
-    +---------------------+--------------------------+-------------------------------------------------+
-    | ``kind``            | Associated Objects       | Methods                                         |
-    +=====================+==========================+=================================================+
-    | ``collectionstate`` | |Organizing Collection|, | |exists|                                        |
-    |                     | |Collection|             |                                                 |
-    +---------------------+--------------------------+-------------------------------------------------+
-    | ``state``           | |Resource|               | |create|, |update|, |refresh|, |delete|,        |
-    |                     |                          | |load|, |exists|                                |
-    +---------------------+--------------------------+-------------------------------------------------|
-    | ``state``           | |Unnamed Resource|       | |update|, |refresh|, |load|, |exists|
-    +---------------------+--------------------------+-------------------------------------------------+
-    | ``stats``           | |Resource|               | |refresh|, |load|, |exists|                     |
-    +---------------------+--------------------------+-------------------------------------------------+
+   +---------------------+---------------------------+------------------------------------------+
+   | Kind                | Associated Objects        | Methods                                  |
+   +=====================+===========================+==========================================+
+   | ``collectionstate`` | * |Organizing Collection| | |exists|                                 |
+   |                     | * |Collection|            |                                          |
+   +---------------------+---------------------------+------------------------------------------+
+   | ``state``           | |Resource|                | * |create|                               |
+   |                     |                           | * |update|                               |
+   |                     |                           | * |refresh|                              |
+   |                     |                           | * |delete|                               |
+   |                     |                           | * |load|                                 |
+   |                     |                           | * |exists|                               |
+   +---------------------+---------------------------+------------------------------------------+
+   | ``state``           | |Unnamed Resource|        | * |update|                               |
+   |                     |                           | * |refresh|                              |
+   |                     |                           | * |load|                                 |
+   |                     |                           | * |exists|                               |
+   +---------------------+---------------------------+------------------------------------------+
+   | ``stats``           | |Resource|                | * |refresh|                              |
+   |                     |                           | * |load|                                 |
+   |                     |                           | * |exists|                               |
+   +---------------------+---------------------------+------------------------------------------+
 
 
 .. _methods_section:
@@ -92,32 +106,34 @@ Almost all iControl® REST API entries contain a parameter named ``kind``. This 
 Methods
 -------
 
-+-----------+---------------+-------------------------------------------------------------------+
-| Method    | HTTP Command  | Action(s)                                                         |
-+===========+===============+===================================================================+
-| |create|  | POST          | | creates a new resource on the device with its own URI           |
-+-----------+---------------+-------------------------------------------------------------------+
-| |exec_cmd|| POST          | | executes commands on applicable unnamed resources               |
-+-----------+---------------+-------------------------------------------------------------------+
-| |update|  | PUT           | | submits a new configuration to the device resource; sets the    |
-|           |               | | Resource attributes to the state reported by the device         |
-+-----------+---------------+-------------------------------------------------------------------+
-| |modify|  | PATCH         | | submits a new configuration to the device resource; sets only   |
-|           |               | | the attributes specified in `modify` method. This is different  |
-|           |               | | from `update` because update will change all the attributes, not|
-|           |               | | only the ones that you specify.                                 |
-+-----------+---------------+-------------------------------------------------------------------+
-| |refresh| | GET           | | obtains the state of a device resource; sets the representing   |
-|           |               | | Python Resource Object; tracks device state via its attributes  |
-+-----------+---------------+-------------------------------------------------------------------+
-| |delete|  | DELETE        | | removes the resource from the device, sets ``self.__dict__``    |
-|           |               | | to ``{'deleted': True}``                                        |
-+-----------+---------------+-------------------------------------------------------------------+
-| |load|    | GET           | | obtains the state of an existing resource on the device; sets   |
-|           |               | | the Resource attributes to match that state                     |
-+-----------+---------------+-------------------------------------------------------------------+
-| |exists|  | GET           | | checks for the existence of an object on the BIG-IP®            |
-+-----------+---------------+-------------------------------------------------------------------+
+.. table::
+
+   +-----------+---------------+-------------------------------------------------------------------+
+   | Method    | HTTP Command  | Action(s)                                                         |
+   +===========+===============+===================================================================+
+   | |create|  | POST          | | creates a new resource on the device with its own URI           |
+   +-----------+---------------+-------------------------------------------------------------------+
+   | |exec_cmd|| POST          | | executes commands on applicable unnamed resources               |
+   +-----------+---------------+-------------------------------------------------------------------+
+   | |update|  | PUT           | | submits a new configuration to the device resource; sets the    |
+   |           |               | | Resource attributes to the state reported by the device         |
+   +-----------+---------------+-------------------------------------------------------------------+
+   | |modify|  | PATCH         | | submits a new configuration to the device resource; sets only   |
+   |           |               | | the attributes specified in `modify` method. This is different  |
+   |           |               | | from `update` because update will change all the attributes, not|
+   |           |               | | only the ones that you specify.                                 |
+   +-----------+---------------+-------------------------------------------------------------------+
+   | |refresh| | GET           | | obtains the state of a device resource; sets the representing   |
+   |           |               | | Python Resource Object; tracks device state via its attributes  |
+   +-----------+---------------+-------------------------------------------------------------------+
+   | |delete|  | DELETE        | | removes the resource from the device, sets ``self.__dict__``    |
+   |           |               | | to ``{'deleted': True}``                                        |
+   +-----------+---------------+-------------------------------------------------------------------+
+   | |load|    | GET           | | obtains the state of an existing resource on the device; sets   |
+   |           |               | | the Resource attributes to match that state                     |
+   +-----------+---------------+-------------------------------------------------------------------+
+   | |exists|  | GET           | | checks for the existence of an object on the BIG-IP®            |
+   +-----------+---------------+-------------------------------------------------------------------+
 
 .. note::
 

@@ -17,7 +17,7 @@ import mock
 import pytest
 
 from f5.bigip import ManagementRoot
-from f5.bigip.tm.util.Dig import Dig
+from f5.bigip.tm.util.dig import Dig
 
 
 @pytest.fixture

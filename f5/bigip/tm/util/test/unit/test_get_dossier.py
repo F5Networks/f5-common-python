@@ -17,7 +17,7 @@ import mock
 import pytest
 
 from f5.bigip import ManagementRoot
-from f5.bigip.tm.util.Get_Dossier import Get_Dossier
+from f5.bigip.tm.util.get_dossier import Get_Dossier
 
 
 @pytest.fixture
