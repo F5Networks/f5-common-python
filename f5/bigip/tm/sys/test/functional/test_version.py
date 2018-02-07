@@ -15,12 +15,8 @@
 
 
 def setup_version_test(request, mgmt_root):
-    def teardown():
-        v.entries = entries
-        v.update()
-    request.addfinalizer(teardown)
     v = mgmt_root.tm.sys.version.load()
-    entries = v.entries
+    entries = v.entries    
     return v, entries
 
 
