@@ -16,7 +16,7 @@
 
 def setup_version_test(request, mgmt_root):
     v = mgmt_root.tm.sys.version.load()
-    entries = v.entries    
+    entries = v.entries
     return v, entries
 
 
