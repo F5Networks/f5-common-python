@@ -53,7 +53,7 @@ from f5.bigip.tm.sys.software import Software
 from f5.bigip.tm.sys.sshd import Sshd
 from f5.bigip.tm.sys.syslog import Syslog
 from f5.bigip.tm.sys.ucs import Ucs
-
+from f5.bigip.tm.sys.version import Version
 
 class Sys(OrganizingCollection):
     """BIG-IP® System (sys) organizing collection."""
@@ -84,5 +84,6 @@ class Sys(OrganizingCollection):
             Software,
             Sshd,
             Syslog,
-            Ucs
+            Ucs,
+            Version
         ]
