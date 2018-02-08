@@ -15,14 +15,17 @@
 
 
 def setup_version_test(request, mgmt_root):
+    def teardown():
+        v.selfLink = selflink
+    request.addfinalizer(teardown)
     v = mgmt_root.tm.sys.version.load()
-    entries = v.entries
-    return v, entries
+    selflink = v.selfLink
+    return v, selflink
 
 
 class TestVersion(object):
     def test_entry(self, request, mgmt_root):
         # Load
-        ver1, orig_entries = setup_version_test(request, mgmt_root)
+        ver1, orig_link = setup_version_test(request, mgmt_root)
         ver2 = mgmt_root.tm.sys.version.load()
-        assert len(ver1.entries) == len(ver2.entries)
+        assert len(ver1.selfLink) == len(ver2.selfLink)
