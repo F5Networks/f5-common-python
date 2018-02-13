@@ -48,7 +48,6 @@ def test_file_upload_70a(tmpdir, fakeicontrolsession):
     ftu.upload_file(filepath.__str__(), chunk_size=20)
     session_mock = mr._meta_data['icr_session']
     for i in range(3):
-        print(i)
         d = session_mock.post.call_args_list[i][1]['data']
         assert d == b'aaaaaaaaaaaaaaaaaaaa'
     lchunk = session_mock.post.call_args_list[3][1]['data']

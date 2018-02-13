@@ -95,8 +95,7 @@ def test_CURDL_datagroup(request, mgmt_root):
     # Upload the file
     mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
     tpath_name = 'file:/var/config/rest/downloads/{0}'.format(ntf_basename)
-    dg1 = setup_datagroup_test(request, mgmt_root, ntf_basename, tpath_name,
-                               )
+    dg1 = setup_datagroup_test(request, mgmt_root, ntf_basename, tpath_name)
     assert dg1.name == ntf_basename
 
     # Load Object
@@ -115,6 +114,10 @@ def test_CURDL_datagroup(request, mgmt_root):
     # Refresh dg2 and make sure revision matches dg3
     dg2.refresh()
     assert dg2.revision == dg3.revision
+
+    dg4 = mgmt_root.tm.sys.file.data_groups.data_group.load(name=ntf_basename)
+    dg4.modify(sourcePath=tpath_name)
+    assert dg1.revision != dg4.revision
 
 
 def setup_ifile_test(request, mgmt_root, name, sourcepath, **kwargs):

@@ -45,11 +45,6 @@ def test_dg_create_missing_arg(FakeSysDatagroup):
         assert 'type' in ex.value.message
 
 
-def test_dg_modify(FakeSysDatagroup):
-    with pytest.raises(UnsupportedMethod):
-        FakeSysDatagroup.modify(value='Fake')
-
-
 @pytest.fixture
 def FakeSysIfile():
     fake_ifile_s = mock.MagicMock()
