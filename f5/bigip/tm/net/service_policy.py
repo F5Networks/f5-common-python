@@ -15,16 +15,16 @@
 # limitations under the License.
 #
 
-"""Directory: net module: timer-policy.
+"""Directory: net module: service-policy.
 
 REST URI
-    ``https://localhost/mgmt/tm/net/timer-policy``
+    ``https://localhost/mgmt/tm/net/service-policy``
 
 GUI Path
-    ``Network --> Service Policies --> Timer Policies``
+    ``Network --> Service Policies --> Service Policies``
 
 REST Kind
-    ``tm:net:timer-policy:*``
+    ``tm:net:service-policy:*``
 """
 
 
@@ -32,18 +32,18 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 
 
-class Timer_Policys(Collection):
+class Service_Policys(Collection):
     def __init__(self, net):
-        super(Timer_Policys, self).__init__(net)
+        super(Service_Policys, self).__init__(net)
         self._meta_data['minimum_version'] = '12.0.0'
-        self._meta_data['allowed_lazy_attributes'] = [Timer_Policy]
+        self._meta_data['allowed_lazy_attributes'] = [Service_Policy]
         self._meta_data['attribute_registry'] = {
-            'tm:net:timer-policy:timer-policystate': Timer_Policy
+            'tm:net:service-policy:service-policystate': Service_Policy
         }
 
 
-class Timer_Policy(Resource):
-    def __init__(self, timer_policys):
-        super(Timer_Policy, self).__init__(timer_policys)
+class Service_Policy(Resource):
+    def __init__(self, service_policys):
+        super(Service_Policy, self).__init__(service_policys)
         self._meta_data['minimum_version'] = '12.0.0'
-        self._meta_data['required_json_kind'] = "tm:net:timer-policy:timer-policystate"
+        self._meta_data['required_json_kind'] = "tm:net:service-policy:service-policystate"
