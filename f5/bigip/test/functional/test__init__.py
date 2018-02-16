@@ -45,6 +45,5 @@ def test_hard_timeout():
 
 
 def test_icontrol_debug_tracing(opt_bigip, opt_username, opt_password, opt_port):
-    m = ManagementRoot(opt_bigip, opt_username, opt_password, port=opt_port)
-    m._debug
-    assert len(m._debug) > 0
+    m = ManagementRoot(opt_bigip, opt_username, opt_password, port=opt_port, debug=True)
+    assert len(m.debug_output) > 0

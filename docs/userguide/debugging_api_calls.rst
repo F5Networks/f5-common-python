@@ -31,7 +31,7 @@ Consider the following SDK usage
 .. code-block:: python
 
    from f5.bigip import ManagementRoot
-   mgmt = ManagementRoot('localhost', 'admin', 'admin', port=10443, token=True)
+   mgmt = ManagementRoot('localhost', 'admin', 'admin', port=10443, token=True, debug=True)
    resource = mgmt.tm.ltm.pools.pool.create(name='foobar')
 
 This SDK call communicates with a BIG-IP to create an LTM pool. What if you needed to recreate
@@ -47,7 +47,7 @@ let's print each of them.
 
 .. code-block:: python
 
-   for x in mgmt._debug:
+   for x in mgmt.debug_output:
        print(x)
 
 When this is done, we will be presented with output that resembles the following (printed for readability).
@@ -92,3 +92,15 @@ handy is in the process of debugging errors, or, in implementing new functionali
 
 You can copy and paste the commands as they are printed and use them to issue the same API calls the the
 equivalent SDK code does.
+
+Enabling and disabling
+----------------------
+
+The debug logging can also be enabled and disabled as desired. To do this, you can set the ``debug`` property
+of the ``ManagementRoot`` object to either a truth-like or false-like value. These include,
+
+**Truth**
+'y', 'yes', 'on', '1', 'true', 't', 1, 1.0, True
+
+**False**
+'n', 'no', 'off', '0', 'false', 'f', 0, 0.0, False
