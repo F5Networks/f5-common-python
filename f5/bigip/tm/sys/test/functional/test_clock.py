@@ -21,7 +21,4 @@ def test_clock_load(request, mgmt_root):
         bigipclock = str(Stats(mgmt_root.tm.sys.clock.load()).stat.fullDate['description'])
         bigipdate = bigipclock.split("T")[0]
 
-        localclock = datetime.now()
-        localdate = localclock.strftime("%Y-%m-%d")
-
-        assert bigipdate[:7] == localdate[:7]
+        assert bigipdate == datetime.strptime(bigipdate, "%Y-%m-%d").strftime('%Y-%m-%d')
