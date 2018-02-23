@@ -29,6 +29,7 @@ REST Kind
 
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.sys.application import Application
+from f5.bigip.tm.sys.clock import Clock
 from f5.bigip.tm.sys.config import Config
 from f5.bigip.tm.sys.crypto import Crypto
 from f5.bigip.tm.sys.daemon_log_settings import Daemon_Log_Settings
@@ -62,6 +63,7 @@ class Sys(OrganizingCollection):
         super(Sys, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
             Application,
+            Clock,
             Config,
             Crypto,
             Daemon_Log_Settings,
