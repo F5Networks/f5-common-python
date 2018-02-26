@@ -41,6 +41,7 @@ from f5.bigip.tm.sys.folder import Folders
 from f5.bigip.tm.sys.global_settings import Global_Settings
 from f5.bigip.tm.sys.httpd import Httpd
 from f5.bigip.tm.sys.icall import Icall
+from f5.bigip.tm.sys.license import License
 from f5.bigip.tm.sys.log_config import Log_Config
 from f5.bigip.tm.sys.management_ip import Management_Ips
 from f5.bigip.tm.sys.management_route import Management_Routes
@@ -75,6 +76,7 @@ class Sys(OrganizingCollection):
             Global_Settings,
             Httpd,
             Icall,
+            License,
             Log_Config,
             Management_Ips,
             Management_Routes,
