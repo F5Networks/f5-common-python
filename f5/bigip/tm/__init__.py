@@ -18,6 +18,7 @@
 
 from f5.bigip.resource import OrganizingCollection
 
+from f5.bigip.tm.analytics import Analytics
 from f5.bigip.tm.asm import Asm
 from f5.bigip.tm.auth import Auth
 from f5.bigip.tm.cm import Cm
@@ -37,6 +38,7 @@ class Tm(OrganizingCollection):
     def __init__(self, bigip):
         super(Tm, self).__init__(bigip)
         self._meta_data['allowed_lazy_attributes'] = [
+            Analytics,
             Asm,
             Auth,
             Cm,
