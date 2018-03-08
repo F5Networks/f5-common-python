@@ -36,6 +36,7 @@ from f5.bigip.tm.sys.daemon_log_settings import Daemon_Log_Settings
 from f5.bigip.tm.sys.db import Dbs
 from f5.bigip.tm.sys.dns import Dns
 from f5.bigip.tm.sys.failover import Failover
+from f5.bigip.tm.sys.feature_module import Feature_Module
 from f5.bigip.tm.sys.file import File
 from f5.bigip.tm.sys.folder import Folders
 from f5.bigip.tm.sys.global_settings import Global_Settings
@@ -71,6 +72,7 @@ class Sys(OrganizingCollection):
             Dbs,
             Dns,
             Failover,
+            Feature_Module,
             File,
             Folders,
             Global_Settings,
