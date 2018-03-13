@@ -19,13 +19,15 @@ import pytest
 
 from f5.bigip.tm.sys.cluster import Cluster
 from f5.bigip.tm.sys.cluster import Default
-from f5.sdk_exception import UnsupportedMethod, InvalidResource
+from f5.sdk_exception import UnsupportedMethod
+from f5.sdk_exception import InvalidResource
 
 
 @pytest.fixture
 def FakeCluster():
     fake_sys = mock.MagicMock()
     return Cluster(fake_sys)
+
 
 @pytest.fixture
 def FakeClusterDefault():
@@ -44,10 +46,12 @@ def test_delete_raises(FakeCluster):
         FakeCluster.delete()
     assert str(EIO.value) == "Only Resources support 'delete'."
 
+
 def test_default_create_raises(FakeClusterDefault):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeClusterDefault.create()
     assert str(EIO.value) == "Default does not support the create method"
+
 
 def test_default_delete_raises(FakeClusterDefault):
     with pytest.raises(UnsupportedMethod) as EIO:

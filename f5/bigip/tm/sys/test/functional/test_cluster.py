@@ -15,6 +15,7 @@
 
 from icontrol.exceptions import iControlUnexpectedHTTPError
 
+
 def test_cluster_load(request, mgmt_root):
         # Load will produce exception on non-cluster BIGIP.l
         # iControlUnexpectedHTTPError: 404 Unexpected Error: Not Found for uri:

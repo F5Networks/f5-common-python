@@ -27,7 +27,8 @@ REST Kind
     ``tm:sys:cluster:*``
 """
 
-from f5.bigip.resource import OrganizingCollection, UnnamedResource
+from f5.bigip.resource import OrganizingCollection
+from f5.bigip.resource import UnnamedResource
 
 
 class Cluster(OrganizingCollection):
@@ -37,6 +38,7 @@ class Cluster(OrganizingCollection):
         self._meta_data['required_json_kind'] =\
             "tm:sys:cluster:clustercollectionstate"
         self._meta_data['allowed_lazy_attributes'] = [Default]
+
 
 class Default(UnnamedResource):
     """BIG-IP® Analytics settings resource"""
