@@ -19,8 +19,8 @@ import pytest
 
 from f5.bigip.tm.sys.cluster import Cluster
 from f5.bigip.tm.sys.cluster import Default
-from f5.sdk_exception import UnsupportedMethod
 from f5.sdk_exception import InvalidResource
+from f5.sdk_exception import UnsupportedMethod
 
 
 @pytest.fixture
