@@ -70,7 +70,7 @@ class BaseManagement(object):
         result = iControlRESTSession(**params)
         result.debug = kwargs['debug']
         return result
-    
+
     def configure_meta_data(self, *args, **kwargs):
         self._meta_data = {
             'allowed_lazy_attributes': [Tm, Cm, Shared],
