@@ -42,7 +42,9 @@ class BaseManagement(object):
             port=kwargs.pop('port', 443),
             icontrol_version=kwargs.pop('icontrol_version', ''),
             verify=kwargs.pop('verify', False),
-            token=kwargs.pop('token', False)
+            token=kwargs.pop('token', False),
+            auth_provider=kwargs.pop('auth_provider', None),
+            debug=kwargs.pop('debug', False)
         )
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
@@ -54,13 +56,20 @@ class BaseManagement(object):
         return result
 
     def _get_icr_session(self, *args, **kwargs):
-        return iControlRESTSession(
+        params = dict(
             username=kwargs['username'],
             password=kwargs['password'],
             timeout=kwargs['timeout'],
-            verify=kwargs['verify'],
-            token=kwargs['token']
+            verify=kwargs['verify']
         )
+        if kwargs['auth_provider']:
+            params['auth_provider'] = kwargs['auth_provider']
+        else:
+            params['token'] = kwargs['token']
+
+        result = iControlRESTSession(**params)
+        result.debug = kwargs['debug']
+        return result
 
     def configure_meta_data(self, *args, **kwargs):
         self._meta_data = {
@@ -135,7 +144,8 @@ class ManagementProxy(object):
             mgmt.args['hostname'],
             mgmt.args['username'],
             mgmt.args['password'],
-            port=mgmt.args['port']
+            port=mgmt.args['port'],
+            auth_provider=mgmt.args['auth_provider']
         )
         bigip.icrs = mgmt.icrs
         uri = ''.join([
