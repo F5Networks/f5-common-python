@@ -130,7 +130,6 @@ class RegularManagementRoot(BaseManagement, PathElement):
 
 class ManagementProxy(object):
     def __new__(cls, *args, **kwargs):
-        print 'Creating management proxy'
         proxy_to = kwargs.pop('proxy_to', None)
         device_group = kwargs.pop('device_group', 'cm-cloud-managed-devices')
 
