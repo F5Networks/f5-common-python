@@ -59,9 +59,5 @@ class Security(OrganizingCollection):
             Protected_Servers,
             Protocol_Inspection,
             Scrubber,
-	    Shared_Objects,
-            ]
-<<<<<<< HEAD
-=======
-
->>>>>>> Flatrock: Adding support for shared_objects
+            Shared_Objects,
+        ]

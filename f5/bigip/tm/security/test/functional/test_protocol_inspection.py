@@ -210,8 +210,8 @@ class TestCompliance(object):
 
 
 @pytest.mark.skipif(
-    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.1.0'),
-    reason='This collection is fully implemented on 13.1.0 or greater.'
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('14.0.0'),
+    reason='This collection is fully implemented on 14.0.0 or greater.'
 )
 class TestStaging(object):
     """Staging functional tests"""
@@ -223,8 +223,8 @@ class TestStaging(object):
 
 
 @pytest.mark.skipif(
-    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.1.0'),
-    reason='This collection is fully implemented on 13.1.0 or greater.'
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('14.0.0'),
+    reason='This collection is fully implemented on 14.0.0 or greater.'
 )
 class TestLearningSuggestions(object):
     """TestLearningSuggestions functional tests"""
