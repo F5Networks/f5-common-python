@@ -15,16 +15,20 @@
 
 import mock
 import pytest
+from six import iterkeys
+
 
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.security.protocol_inspection import Compliance
 from f5.bigip.tm.security.protocol_inspection import Compliances
+from f5.bigip.tm.security.protocol_inspection import Learning_Suggestions
 from f5.bigip.tm.security.protocol_inspection import Profile
+from f5.bigip.tm.security.protocol_inspection import Profile_Status
 from f5.bigip.tm.security.protocol_inspection import Signature
-
+from f5.bigip.tm.security.protocol_inspection import Staging
+from f5.sdk_exception import InvalidCommand
 from f5.sdk_exception import MissingRequiredCreationParameter
-
-from six import iterkeys
+from f5.sdk_exception import UnsupportedMethod
 
 
 @pytest.fixture
@@ -39,6 +43,13 @@ def FakeSignature():
     fake_col = mock.MagicMock()
     fake_signature = Signature(fake_col)
     return fake_signature
+
+
+@pytest.fixture
+def FakeProfileStatus():
+    fake_stat = mock.MagicMock()
+    fake_profile_status = Profile_Status(fake_stat)
+    return fake_profile_status
 
 
 def MakeCompliancelist(fakeicontrolsession):
@@ -95,3 +106,41 @@ class TestCompliance(object):
         assert isinstance(pc, Compliances)
         assert kind in list(iterkeys(test_meta))
         assert Compliance in test_meta2
+
+
+@pytest.fixture
+def FakeLearningSuggestion():
+    fake_stat = mock.MagicMock()
+    fake_learning_Suggestion = Learning_Suggestions(fake_stat)
+    return fake_learning_Suggestion
+
+
+class TestLearningSuggestion(object):
+    def test_command(self):
+        fl = FakeLearningSuggestion()
+        with pytest.raises(InvalidCommand) as err:
+            fl.exec_cmd('run', online=True, standby=True)
+            assert 'The command value run does not exist.' \
+                   in err.value.message
+
+
+@pytest.fixture
+def FakeStaging():
+    fake_stat = mock.MagicMock()
+    fake_staging = Staging(fake_stat)
+    return fake_staging
+
+
+class TestStaging(object):
+    def test_command(self):
+        fl = FakeStaging()
+        with pytest.raises(InvalidCommand) as err:
+            fl.exec_cmd('run', online=True, standby=True)
+            assert 'The command value run does not exist.' \
+                   in err.value.message
+
+
+def test_profile_status_update_raises(FakeProfileStatus):
+    with pytest.raises(UnsupportedMethod) as EIO:
+        FakeProfileStatus.update()
+    assert str(EIO.value) == "Stats do not support create, only load and refresh"

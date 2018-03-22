@@ -207,3 +207,46 @@ class TestCompliance(object):
         assert isinstance(compc, list)
         assert len(compc)
         assert isinstance(compc[0], Compliance)
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.1.0'),
+    reason='This collection is fully implemented on 13.1.0 or greater.'
+)
+class TestStaging(object):
+    """Staging functional tests"""
+
+    def test_staging(self, mgmt_root):
+        kind = 'tm:security:protocol-inspection:staging:stagingcollectionstats'
+        st = str(mgmt_root.tm.security.protocol_inspection.staging.load().kind)
+        assert kind == st
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.1.0'),
+    reason='This collection is fully implemented on 13.1.0 or greater.'
+)
+class TestLearningSuggestions(object):
+    """TestLearningSuggestions functional tests"""
+
+    def test_learning_suggestion(self, mgmt_root):
+        kind = 'tm:security:protocol-inspection:'\
+               'learning-suggestions:learning-suggestionscollectionstats'
+        st = str(mgmt_root.tm.security.protocol_inspection.
+                 learning_suggestions.load().kind)
+        assert kind == st
+
+
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.1.0'),
+    reason='This collection is fully implemented on 13.1.0 or greater.'
+)
+class TestProfileStatus(object):
+    """Profile Status functional tests"""
+
+    def test_profile_status(self, mgmt_root):
+        kind = 'tm:security:protocol-inspection:'\
+               'profile-status:profile-statusstats'
+        st = str(mgmt_root.tm.security.protocol_inspection.
+                 profile_status.load().kind)
+        assert kind == st

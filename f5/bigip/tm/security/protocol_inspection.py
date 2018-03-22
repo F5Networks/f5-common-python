@@ -29,9 +29,11 @@ REST Kind
     ``tm:security:protocol-inspection*``
 """
 
+from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
+from f5.bigip.resource import UnnamedResource
 from f5.sdk_exception import UnsupportedMethod
 
 
@@ -42,7 +44,10 @@ class Protocol_Inspection(OrganizingCollection):
         self._meta_data['allowed_lazy_attributes'] = [
             Profiles,
             Compliances,
+            Profile_Status,
+            Learning_Suggestions,
             Signatures,
+            Staging
         ]
 
 
@@ -96,6 +101,47 @@ class Compliance(Resource):
         raise UnsupportedMethod(
             "%s does not support the delete method" % self.__class__.__name__
         )
+
+
+class Learning_Suggestions(UnnamedResource, CommandExecutionMixin):
+    """BIG-IP® Protocol Inspection Compliance resource"""
+    def __init__(self, protocol_inspection):
+        super(Learning_Suggestions, self).__init__(protocol_inspection)
+        self._meta_data['obj_has_stats'] = True
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['required_json_kind'] = \
+            'tm:security:protocol-inspection:learning-suggestion:learning-suggestionsstats'
+        self._meta_data['allowed_commands'].append('publish')
+        self._meta_data['allowed_commands'].append('delete')
+
+
+class Staging(UnnamedResource, CommandExecutionMixin):
+    """BIG-IP® Protocol Inspection Compliance resource"""
+    def __init__(self, protocol_inspection):
+        super(Staging, self).__init__(protocol_inspection)
+        self._meta_data['obj_has_stats'] = True
+        self._meta_data['required_load_parameters'] = set()
+        self._meta_data['required_json_kind'] = \
+            'tm:security:protocol-inspection:staging:stagingstats'
+        self._meta_data['allowed_commands'].append('start')
+        self._meta_data['allowed_commands'].append('stop')
+
+
+class Profile_Status(UnnamedResource):
+    """BIG-IP® Protocol Inspection Compliance resource"""
+    def __init__(self, protocol_inspection):
+        super(Profile_Status, self).__init__(protocol_inspection)
+        self._meta_data['obj_has_stats'] = True
+        self._meta_data['required_json_kind'] = \
+            'tm:security:protocol-inspection:profile-status:profile-statusstats'
+
+    def update(self, **kwargs):
+        '''Update is not supported.
+
+        :raises: :exc:`~f5.BIG-IP.resource.UnsupportedMethod`
+        '''
+        raise UnsupportedMethod(
+            'Stats do not support create, only load and refresh')
 
 
 class Signatures(Collection):
