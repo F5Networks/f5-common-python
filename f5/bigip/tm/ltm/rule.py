@@ -29,13 +29,14 @@ REST Kind
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.bigip.resource import Stats
 
 
 class Rules(Collection):
     """BIG-IP® LTM rule collection"""
     def __init__(self, ltm):
         super(Rules, self).__init__(ltm)
-        self._meta_data['allowed_lazy_attributes'] = [Rule]
+        self._meta_data['allowed_lazy_attributes'] = [Rule, Stats]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:rule:rulestate': Rule}
 

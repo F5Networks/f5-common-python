@@ -31,6 +31,7 @@ from requests.exceptions import HTTPError
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.bigip.resource import Stats
 from f5.sdk_exception import MemberStateModifyUnsupported
 
 
@@ -38,7 +39,7 @@ class Pools(Collection):
     """BIG-IP® LTM pool collection"""
     def __init__(self, ltm):
         super(Pools, self).__init__(ltm)
-        self._meta_data['allowed_lazy_attributes'] = [Pool]
+        self._meta_data['allowed_lazy_attributes'] = [Pool, Stats]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:pool:poolstate': Pool}
 
