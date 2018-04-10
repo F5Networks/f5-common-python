@@ -32,6 +32,7 @@ from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.ltm.auth import Auth
 from f5.bigip.tm.ltm.data_group import Data_Group
 from f5.bigip.tm.ltm.default_node_monitor import Default_Node_Monitor
+from f5.bigip.tm.ltm.dns import Dns
 from f5.bigip.tm.ltm.ifile import Ifiles
 from f5.bigip.tm.ltm.lsn_pools import LSN_Log_Profiles
 from f5.bigip.tm.ltm.lsn_pools import LSN_Pools
@@ -59,6 +60,7 @@ class Ltm(OrganizingCollection):
             Auth,
             Data_Group,
             Default_Node_Monitor,
+            Dns,
             Ifiles,
             LSN_Log_Profiles,
             LSN_Pools,

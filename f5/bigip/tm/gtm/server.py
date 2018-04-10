@@ -69,7 +69,22 @@ class Virtual_Server(Resource):
     """BIG-IP® GTM virtual server resource"""
     def __init__(self, virtual_servers_s):
         super(Virtual_Server, self).__init__(virtual_servers_s)
-        self._meta_data['required_creation_parameters'].update((
-            'destination',))
+        self._meta_data['required_creation_parameters'].update(('destination',))
         self._meta_data['required_json_kind'] = \
             'tm:gtm:server:virtual-servers:virtual-serversstate'
+
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)

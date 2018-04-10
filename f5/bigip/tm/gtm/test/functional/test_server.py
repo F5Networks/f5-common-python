@@ -26,8 +26,7 @@ from six import iteritems
 
 def delete_server(mgmt_root, name):
     try:
-        foo = mgmt_root.tm.gtm.servers.server.load(
-            name=name)
+        foo = mgmt_root.tm.gtm.servers.server.load(name=name)
     except HTTPError as err:
         if err.response.status_code != 404:
             raise
@@ -270,6 +269,24 @@ class TestVirtualServerSubCollection(object):
         assert vs1.generation and isinstance(vs1.generation, int)
         assert vs1.kind == 'tm:gtm:server:virtual-servers:virtual-serversstate'
         assert vs1.selfLink.startswith(link)
+
+    @pytest.mark.skipif(pytest.config.getoption('--release') < '12.0.0',
+                        reason='11.x was buggy. Only test 12.x')
+    def test_create_req_arg_remote_like_name(self, request, mgmt_root):
+        setup_create_vs_test(request, mgmt_root, 'fake_serv1')
+        s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
+        vs = s1.virtual_servers_s
+        vs1 = vs.virtual_server.create(name='/mouse/vs1', destination='5.5.5.5:80')
+        link = 'https://localhost/mgmt/tm/gtm/server/~Common~fake_serv1/virtual-servers/~mouse~vs1'
+        assert vs1.name == '/mouse/vs1'
+        assert vs1.kind == 'tm:gtm:server:virtual-servers:virtual-serversstate'
+        assert vs1.selfLink.startswith(link)
+
+        vs1.update(destination='5.5.5.5:8000')
+        vs1.delete()
+
+        # Create so that pytest cleanup will succeed
+        vs.virtual_server.create(name='/mouse/vs1', destination='5.5.5.5:80')
 
     def test_create_optional_args(self, request, mgmt_root):
         setup_create_vs_test(request, mgmt_root, 'vs1')
