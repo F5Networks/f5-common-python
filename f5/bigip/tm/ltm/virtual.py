@@ -33,6 +33,7 @@ from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.bigip.resource import Stats
 from f5.sdk_exception import NonExtantVirtualPolicy
 from f5.sdk_exception import UnregisteredKind
 from f5.sdk_exception import URICreationCollision
@@ -44,7 +45,7 @@ class Virtuals(Collection):
     """BIG-IP® LTM virtual collection"""
     def __init__(self, ltm):
         super(Virtuals, self).__init__(ltm)
-        self._meta_data['allowed_lazy_attributes'] = [Virtual]
+        self._meta_data['allowed_lazy_attributes'] = [Virtual, Stats]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:virtual:virtualstate': Virtual}
 
