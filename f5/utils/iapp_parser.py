@@ -27,8 +27,8 @@ class IappParser(object):
         'role-acl'
     ]
 
-    tcl_list_for_attr_re = '{(\s*(\w+)?\s*)+}'
-    tcl_list_for_section_re = '(\s*\w+\s*)+'
+    tcl_list_for_attr_re = r'{(\s*(\w+)?\s*)+}'
+    tcl_list_for_section_re = r'(\s*\w+\s*)+'
     section_map = {
         'html-help': 'htmlHelp',
         'role-acl': 'roleAcl'
@@ -136,7 +136,7 @@ class IappParser(object):
         :raises: NonextantSectionException
         '''
 
-        sec_start_re = '%s\s*\{' % section
+        sec_start_re = r'%s\s*\{' % section
 
         found = re.search(sec_start_re, self.template_str)
         if found:
@@ -153,9 +153,9 @@ class IappParser(object):
         :raises: NonextantTemplateNameException
         '''
 
-        start_pattern = "sys application template\s+" \
-                        "(\/[\w\.\-]+\/)?" \
-                        "(?P<name>[\w\.\-]+)\s*\{"
+        start_pattern = r"sys application template\s+" \
+                        r"(\/[\w\.\-]+\/)?" \
+                        r"(?P<name>[\w\.\-]+)\s*\{"
 
         template_start = re.search(start_pattern, self.template_str)
         if template_start:
@@ -170,7 +170,7 @@ class IappParser(object):
         :returns: string of attribute value
         '''
 
-        attr_re = '%s\s+.*' % attr
+        attr_re = r'{0}\s+.*'.format(attr)
 
         attr_found = re.search(attr_re, self.template_str)
         if attr_found:
@@ -200,9 +200,9 @@ class IappParser(object):
     def _add_cli_scripts(self):
         '''Add the found external sections to the templ_dict.'''
 
-        pattern = "cli script\s+" \
-                  "(\/[\w\.\-]+\/)?" \
-                  "(?P<name>[\w\.\-]+)\s*\{"
+        pattern = r"cli script\s+" \
+                  r"(\/[\w\.\-]+\/)?" \
+                  r"(?P<name>[\w\.\-]+)\s*\{"
         sections = re.finditer(pattern, self.template_str)
 
         for section in sections:

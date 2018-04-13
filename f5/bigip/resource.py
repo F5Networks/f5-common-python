@@ -288,10 +288,10 @@ class PathElement(LazyAttributeMixin):
         response = session.get(self._meta_data['uri'])
         current_gen = response.json().get('generation', None)
         if current_gen is not None and current_gen != self.generation:
-            error_message = ("The generation of the object on the BigIP " +
-                             "(" + str(current_gen) + ")" +
-                             " does not match the current object" +
-                             "(" + str(self.generation) + ")")
+            error_message = ("The generation of the object on the BigIP "
+                             + "(" + str(current_gen) + ")"
+                             + " does not match the current object"
+                             + "(" + str(self.generation) + ")")
             raise GenerationMismatch(error_message)
 
     def _handle_requests_params(self, kwargs):
@@ -974,7 +974,7 @@ class Resource(ResourceBase):
         return result
 
     def create(self, **kwargs):
-        """Create the resource on the BIG-IP®.
+        r"""Create the resource on the BIG-IP®.
 
         Uses HTTP POST to the `collection` URI to create a resource associated
         with a new unique URI on the device.
@@ -1041,7 +1041,7 @@ class Resource(ResourceBase):
         return self._produce_instance(response)
 
     def load(self, **kwargs):
-        """Load an already configured service into this instance.
+        r"""Load an already configured service into this instance.
 
         This method uses HTTP GET to obtain a resource from the BIG-IP®.
 
@@ -1081,7 +1081,7 @@ class Resource(ResourceBase):
             self.__dict__ = {'deleted': True}
 
     def delete(self, **kwargs):
-        """Delete the resource on the BIG-IP®.
+        r"""Delete the resource on the BIG-IP®.
 
         Uses HTTP DELETE to delete the resource on the BIG-IP®.
 
@@ -1103,7 +1103,7 @@ class Resource(ResourceBase):
         # Need to implement correct teardown here.
 
     def exists(self, **kwargs):
-        """Check for the existence of the named object on the BIG-IP
+        r"""Check for the existence of the named object on the BIG-IP
 
         Sends an HTTP GET to the URI of the named object and if it fails with
         a :exc:~requests.HTTPError` exception it checks the exception for
@@ -1252,7 +1252,7 @@ class AsmResource(Resource):
         return self._produce_instance(response)
 
     def load(self, **kwargs):
-        """Load an already configured service into this instance.
+        r"""Load an already configured service into this instance.
 
         This method uses HTTP GET to obtain a resource from the BIG-IP®.
 
@@ -1303,7 +1303,7 @@ class AsmResource(Resource):
         # Need to implement correct teardown here.
 
     def exists(self, **kwargs):
-        """Check for the existence of the ASM object on the BIG-IP
+        r"""Check for the existence of the ASM object on the BIG-IP
 
         Sends an HTTP GET to the URI of the ASM object and if it fails with
         a :exc:~requests.HTTPError` exception it checks the exception for
@@ -1504,7 +1504,7 @@ class TaskResource(Resource):
         # Need to implement correct teardown here.
 
     def exists(self, **kwargs):
-        """Check for the existence of the Task object on the BIG-IP
+        r"""Check for the existence of the Task object on the BIG-IP
 
         Sends an HTTP GET to the URI of the ASM object and if it fails with
         a :exc:~requests.HTTPError` exception it checks the exception for

@@ -22,9 +22,10 @@ import tempfile
 
 
 pytestmark = pytest.mark.skipif(
-    not symbols or
-    symbols and not hasattr(symbols, 'run_hardware_tests') or
-    symbols and hasattr(symbols, 'run_hardware_tests') and symbols.modules['run_hardware_tests'] is False,
+    not symbols
+    or symbols and not hasattr(symbols, 'run_hardware_tests')
+    or symbols and hasattr(symbols, 'run_hardware_tests')
+    and symbols.modules['run_hardware_tests'] is False,
     reason='This series of tests requires a hardware BIG-IP be specified.'
 )
 
