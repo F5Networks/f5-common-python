@@ -49,18 +49,33 @@ class Providers(OrganizingCollection):
 class Tmos_s(Collection):
     def __init__(self, providers):
         super(Tmos_s, self).__init__(providers)
-        self._meta_data['required_json_kind'] = 'cm:system:authn:providers:tmos:mcpremoteprovidercollectionstate'
+        if (self._meta_data['bigip']._meta_data['tmos_version'] < '13.1.0'):
+            # Starting from bigip v13.1.0 tmos resources 'kind' was changed
+            # from 'mcpremoteproviderstate' to 'authproviderstate'
+            # and tmos collection 'kind'
+            # from 'mcpremoteprovidercollectionstate' to 'mcpremoteproviderstate"
+            self._meta_data['required_json_kind'] = 'cm:system:authn:providers:tmos:mcpremoteprovidercollectionstate'
+            self._meta_data['attribute_registry'] = {
+                'cm:system:authn:providers:tmos:mcpremoteproviderstate': Tmos
+            }
+        else:
+            self._meta_data['required_json_kind'] = 'cm:system:authn:providers:tmos:authprovidercollectionstate'
+            self._meta_data['attribute_registry'] = {
+                'cm:system:authn:providers:tmos:authproviderstate': Tmos
+            }
         self._meta_data['allowed_lazy_attributes'] = [Tmos]
-        self._meta_data['attribute_registry'] = {
-            'cm:system:authn:providers:tmos:mcpremoteproviderstate': Tmos
-        }
 
 
 class Tmos(Resource):
     def __init__(self, tokens):
         super(Tmos, self).__init__(tokens)
-        self._meta_data['required_json_kind'] = 'cm:system:authn:providers:tmos:mcpremoteproviderstate'
-        self._meta_data['required_load_parameters'] = set(('id',))
+        if (self._meta_data['bigip']._meta_data['tmos_version'] < '13.1.0'):
+            # Starting from bigip v13.1.0 tmos resource 'kind' was changed
+            # from 'mcpremoteproviderstate' to 'authproviderstate'
+            self._meta_data['required_json_kind'] = 'cm:system:authn:providers:tmos:mcpremoteproviderstate'
+        else:
+            self._meta_data['required_json_kind'] = 'ccm:system:authn:providers:tmos:authproviderstate'
+            self._meta_data['required_load_parameters'] = set(('id',))
 
     def create(self, **kwargs):
         raise UnsupportedMethod(

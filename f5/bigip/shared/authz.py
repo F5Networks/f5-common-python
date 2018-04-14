@@ -27,7 +27,8 @@ class Authz(OrganizingCollection):
     def __init__(self, shared):
         super(Authz, self).__init__(shared)
         self._meta_data['allowed_lazy_attributes'] = [
-            Tokens_s
+            Tokens_s,
+            Users_s
         ]
 
 
@@ -38,6 +39,16 @@ class Tokens_s(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Token]
         self._meta_data['attribute_registry'] = {
             'shared:authz:tokens:authtokenitemstate': Token
+        }
+
+
+class Users_s(Collection):
+    def __init__(self, authz):
+        super(Users_s, self).__init__(authz)
+        self._meta_data['required_json_kind'] = 'shared:authz:users:userscollectionstate'
+        self._meta_data['allowed_lazy_attributes'] = [User]
+        self._meta_data['attribute_registry'] = {
+            'shared:authz:tokens:usersworkerstate': User
         }
 
 
@@ -82,3 +93,10 @@ class Token(Resource):
             raise ConstraintError(
                 "The provided timeout must be a number between 1 and 36000."
             )
+
+
+class User(Resource):
+    def __init__(self, users):
+        super(User, self).__init__(users)
+        self._meta_data['required_json_kind'] = 'shared:authz:users:usersworkerstate'
+        self._meta_data['required_creation_parameters'] = {'name', 'password'}
