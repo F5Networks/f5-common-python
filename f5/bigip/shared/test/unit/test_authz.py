@@ -14,6 +14,7 @@
 #
 
 from f5.bigip.shared.authz import Token
+from f5.bigip.shared.authz import User
 from f5.sdk_exception import ConstraintError
 from f5.sdk_exception import MissingRequiredCreationParameter
 
@@ -25,6 +26,13 @@ import pytest
 def FakeToken():
     mo = mock.MagicMock()
     resource = Token(mo)
+    return resource
+
+
+@pytest.fixture
+def FakeUser():
+    mo = mock.MagicMock()
+    resource = User(mo)
     return resource
 
 
@@ -40,3 +48,9 @@ class TestToken(object):
     def test_create_no_args(self, FakeToken):
         with pytest.raises(MissingRequiredCreationParameter):
             FakeToken.create()
+
+
+class TestUser(object):
+    def test_create_user_no_args(self, FakeUser):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeUser.create()

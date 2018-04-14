@@ -17,7 +17,9 @@
 import pytest
 
 from distutils.version import LooseVersion
+from f5.sdk_exception import MissingRequiredCreationParameter
 from requests.exceptions import HTTPError
+
 
 pytestmark = pytest.mark.skipif(
     LooseVersion(pytest.config.getoption('--release'))
@@ -41,6 +43,14 @@ def token(mgmt_root, users_link):
         token='T1234512345123451234512345',
         user=users_link
     )
+    yield resource
+    resource.delete()
+
+
+@pytest.fixture(scope='function')
+def user(mgmt_root):
+    collection = mgmt_root.shared.authz.users_s
+    resource = collection.user.create(name='user12345', password='f5pass12345')
     yield resource
     resource.delete()
 
@@ -73,3 +83,28 @@ class TestAuthz(object):
         col = mgmt_root.shared.authz.tokens_s.get_collection()
         assert isinstance(col, list)
         assert len(col) > 0
+
+    def test_user_create(self, user):
+        assert user.kind == 'shared:authz:users:usersworkerstate'
+
+    def test_user_modify_password(self, mgmt_root, user):
+        collection = mgmt_root.shared.authz.users_s
+        resource = collection.user.load(name='user12345')
+        if LooseVersion(pytest.config.getoption('--release')) > LooseVersion('12.1.0'):
+            # In 12.x.x there were no 'encryptedPassword' parameter
+            # on the response to shared/authz/users/user
+            oldPasswd = resource.encryptedPassword
+            resource.modify(name='user12345', password='f5site02')
+            newPasswd = resource.encryptedPassword
+            assert oldPasswd != newPasswd
+        else:
+            # In case of 12.x.x versions just make sure modify is not raising
+            # any exceptions and the user still exists after modification
+            resource.modify(name='user12345', password='f5site02')
+            exists = collection.user.exists(name='user12345')
+            assert exists is True
+
+    def test_user_create_no_password(self, mgmt_root):
+        with pytest.raises(MissingRequiredCreationParameter):
+            collection = mgmt_root.shared.authz.users_s
+            collection.user.create(name='user12345')
