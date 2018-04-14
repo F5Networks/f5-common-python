@@ -412,8 +412,7 @@ class TestCommunity(object):
 
 class TestUser(object):
     @pytest.mark.skipif(
-        LooseVersion(pytest.config.getoption('--release')) >
-        LooseVersion('12.0.0'),
+        LooseVersion(pytest.config.getoption('--release')) > LooseVersion('12.0.0'),
         reason='Skip this test if v12.1.0 or above is set.'
     )
     def test_user_create_refresh_update_delete_load(
@@ -465,8 +464,7 @@ class TestUser(object):
         assert user2.selfLink == user1.selfLink
 
     @pytest.mark.skipif(
-        LooseVersion(pytest.config.getoption('--release')) <
-        LooseVersion('12.1.0'),
+        LooseVersion(pytest.config.getoption('--release')) < LooseVersion('12.1.0'),
         reason='Skip if the version is NOT 12.1.0 or above'
     )
     def test_user_create_refresh_delete_load_12_1_0(
@@ -529,13 +527,10 @@ class TestUser(object):
 
 class TestTrap(object):
     @pytest.mark.skipif(
-        LooseVersion(pytest.config.getoption('--release')) >
-        LooseVersion('12.0.0'),
+        LooseVersion(pytest.config.getoption('--release')) > LooseVersion('12.0.0'),
         reason='Skip this test if v12.1.0 or above is set.'
     )
-    def test_trap_create_refresh_update_delete_load(
-            self, request, mgmt_root, setup_device_snapshot
-    ):
+    def test_trap_create_refresh_update_delete_load(self, request, mgmt_root, setup_device_snapshot):
         trap1, t1 = setup_trap_test(
             request=request,
             mgmt_root=mgmt_root,
@@ -577,12 +572,10 @@ class TestTrap(object):
         assert trap2.selfLink == trap1.selfLink
 
     @pytest.mark.skipif(
-        LooseVersion(pytest.config.getoption('--release')) <
-        LooseVersion('12.1.0'),
+        LooseVersion(pytest.config.getoption('--release')) < LooseVersion('12.1.0'),
         reason='Skip if the version is NOT 12.1.0 or above'
     )
-    def test_trap_create_refresh_delete_load_12_1_0(
-            self, request, mgmt_root, setup_device_snapshot):
+    def test_trap_create_refresh_delete_load_12_1_0(self, request, mgmt_root, setup_device_snapshot):
         trap1, t1 = setup_trap_test(
             request=request,
             mgmt_root=mgmt_root,
@@ -618,9 +611,7 @@ class TestTrap(object):
         assert trap1.selfLink.startswith(link1)
         assert trap2.selfLink.startswith(link2)
 
-    def test_trap_create_bad_version(
-            self, request, mgmt_root, setup_device_snapshot
-    ):
+    def test_trap_create_bad_version(self, request, mgmt_root, setup_device_snapshot):
         badVals = ['ads', 12, '12', '#^$%&#%', '', -1, '-1']
         for badVal in badVals:
             with pytest.raises(iControlUnexpectedHTTPError) as err:
@@ -635,9 +626,7 @@ class TestTrap(object):
                 )
             assert 'expected one of the following' in str(err.value)
 
-    def test_trap_create_bad_port(
-            self, request, mgmt_root, setup_device_snapshot
-    ):
+    def test_trap_create_bad_port(self, request, mgmt_root, setup_device_snapshot):
         """Test digit service ports
 
         The port can be a valid digit between 0 and 65,535. This matches
@@ -663,9 +652,7 @@ class TestTrap(object):
                     )
                 assert 'invalid or ambiguous service' in str(err.value)
 
-    def test_trap_create_named_port(
-            self, request, mgmt_root, setup_device_snapshot
-    ):
+    def test_trap_create_named_port(self, request, mgmt_root, setup_device_snapshot):
         """Test named service ports
 
         The port can be a valid service name instead of a digit. This differs
@@ -689,9 +676,7 @@ class TestTrap(object):
                     version=version
                 )
 
-    def test_trap_create_named_port_v3(
-            self, request, mgmt_root, setup_device_snapshot
-    ):
+    def test_trap_create_named_port_v3(self, request, mgmt_root, setup_device_snapshot):
         """Test named service ports
 
         The port can be a valid service name instead of a digit. This differs
