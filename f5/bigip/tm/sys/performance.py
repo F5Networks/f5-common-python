@@ -44,8 +44,7 @@ class Performances(Collection):
         :raises: :exc:`~f5.BIG-IP.resource.UnsupportedOperation`
         '''
         raise UnsupportedOperation(
-            "The iControl REST URI mgmt/sys/performance/ does not respond " +
-            "GET requests."
+            "The iControl REST URI mgmt/sys/performance/ does not respond GET requests."
         )
 
 
@@ -62,5 +61,4 @@ class All_Stats(UnnamedResource):
 
         :raises: :exc:`~f5.BIG-IP.resource.UnsupportedOperation`
         '''
-        raise UnsupportedOperation(
-            'Stats do not support create, only load and refresh')
+        raise UnsupportedOperation('Stats do not support create, only load and refresh')
