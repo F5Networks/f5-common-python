@@ -41,6 +41,19 @@ class TestVirtualAddress_s(object):
         assert len(vac) >= 1
         assert [va for va in vac if va.name == '0.0.0.0']
 
+    def test_stats(self, request, mgmt_root, opt_release):
+        setup_virtual_address_s_test(request, mgmt_root, 'va_vs_test-1', 'Common')
+        va_stats = mgmt_root.tm.ltm.virtual_address_s.stats.load()
+        assert 'https://localhost/mgmt/tm/ltm/virtual-address/' +\
+            '~Common~0.0.0.0/stats' in va_stats.entries
+        va_nested_stats = va_stats.entries['https://localhost/mgmt/tm/' +\
+            'ltm/virtual-address/~Common~0.0.0.0/stats']['nestedStats']
+        assert va_nested_stats['selfLink'] == 'https://localhost/mgmt/tm/' +\
+            'ltm/virtual-address/~Common~0.0.0.0/stats?ver=' + opt_release
+        entries = va_nested_stats['entries']
+        assert entries['tmName']['description'] == '/Common/0.0.0.0'
+        assert entries['status.enabledState']['description'] == 'enabled'
+
 
 class TestVirtualAddress(object):
     def test_CURDLE(self, request, mgmt_root):

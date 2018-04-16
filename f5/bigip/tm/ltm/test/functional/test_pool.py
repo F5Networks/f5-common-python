@@ -259,7 +259,7 @@ class TestPoolMembersCollection(object):
                                    "'user-up' or 'user-down'"
 
 
-class TestPoolStats(object):
+class TestPoolsStats(object):
     def test_get_pools_stats(self, request, mgmt_root, opt_release):
         m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
                              'Common')
@@ -269,7 +269,7 @@ class TestPoolStats(object):
         pool_nested_stats = pools_stats.entries['https://localhost/mgmt/tm/' +\
             'ltm/pool/~Common~membertestpool1/stats']['nestedStats']
         assert pool_nested_stats['selfLink'] == 'https://localhost/mgmt/tm/' +\
-            'ltm/pool/~Common~membertestpool1/stats?var=' + opt_release
+            'ltm/pool/~Common~membertestpool1/stats?ver=' + opt_release
         entries = pool_nested_stats['entries']
         assert entries['tmName']['description'] == '/Common/membertestpool1'
         assert entries['status.enabledState']['description'] == 'enabled'
