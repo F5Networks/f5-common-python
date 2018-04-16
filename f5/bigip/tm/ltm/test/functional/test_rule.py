@@ -180,12 +180,11 @@ class TestRulesStats(object):
     def test_stats(self, request, mgmt_root, opt_release):
         setup_basic_test(request, mgmt_root, 'rule1', 'Common')
         rules_stats = mgmt_root.tm.ltm.rules.stats.load()
-        assert 'https://localhost/mgmt/tm/ltm/rule/' +\
-            '~Common~rule1:CLIENT_ACCEPTED/stats' in rules_stats.entries
-        rule_nested_stats = rules_stats.entries['https://localhost/mgmt/tm/' +\
-            'ltm/rule/~Common~rule1:CLIENT_ACCEPTED/stats']['nestedStats']
-        assert rule_nested_stats['selfLink'] == 'https://localhost/mgmt/tm/' +\
-            'ltm/rule/~Common~rule1:CLIENT_ACCEPTED/stats?ver=' + opt_release
+        stats_link = 'https://localhost/mgmt/tm/ltm/rule/' +\
+            '~Common~rule1:CLIENT_ACCEPTED/stats'
+        assert stats_link in rules_stats.entries
+        rule_nested_stats = rules_stats.entries[stats_link]['nestedStats']
+        assert rule_nested_stats['selfLink'] == stats_link+'?ver='+opt_release
         entries = rule_nested_stats['entries']
         assert entries['tmName']['description'] == '/Common/rule1'
         assert entries['totalExecutions']['value'] == 0
