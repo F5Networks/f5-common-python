@@ -47,9 +47,9 @@ class Providers(OrganizingCollection):
 
 
 class Tmos_s(Collection):
-    def __init__(self, providers):
-        super(Tmos_s, self).__init__(providers)
-        if (self._meta_data['bigip']._meta_data['tmos_version'] < '13.1.0'):
+    def __init__(self, container):
+        super(Tmos_s, self).__init__(container)
+        if container._meta_data['bigip']._meta_data['tmos_version'] < '13.1.0':
             # Starting from bigip v13.1.0 tmos resources 'kind' was changed
             # from 'mcpremoteproviderstate' to 'authproviderstate'
             # and tmos collection 'kind'
@@ -67,9 +67,9 @@ class Tmos_s(Collection):
 
 
 class Tmos(Resource):
-    def __init__(self, tokens):
-        super(Tmos, self).__init__(tokens)
-        if (self._meta_data['bigip']._meta_data['tmos_version'] < '13.1.0'):
+    def __init__(self, container):
+        super(Tmos, self).__init__(container)
+        if container._meta_data['bigip']._meta_data['tmos_version'] < '13.1.0':
             # Starting from bigip v13.1.0 tmos resource 'kind' was changed
             # from 'mcpremoteproviderstate' to 'authproviderstate'
             self._meta_data['required_json_kind'] = 'cm:system:authn:providers:tmos:mcpremoteproviderstate'

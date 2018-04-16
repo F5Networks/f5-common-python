@@ -44,7 +44,7 @@ from inspect import getframeinfo as gfi
 from . import build_expectations
 
 from . terminal import terminal
-from . build_exceptions import TestError
+from . build_exceptions import ErrorInTest
 
 # Globals:
 builds = build_expectations.Builds()
@@ -128,7 +128,7 @@ This object attr is immutable.
         if opts:
             if not isinstance(opts, tuple) or \
                     not isinstance(opts[0][0], OperationSettings):
-                raise TestError(msg=err_msg, frame=gfi(cf()),
+                raise ErrorInTest(msg=err_msg, frame=gfi(cf()),
                                 errnum=errno.ESPIPE)
             self.__expected_opts = opts
 
@@ -180,7 +180,7 @@ tests that are lined up.
                 pkg_search = dist + "/rpms/build/*.rpm"
                 pkg_re = re.compile('el(\d+)\.noarch')
             else:
-                raise TestError(opt.os_type, frame=gfi(cf()),
+                raise ErrorInTest(opt.os_type, frame=gfi(cf()),
                                 errnum=errno.ESPIPE,
                                 msg='opt.os_type(%s) is not recognized!')
             entropy = glob.glob(pkg_search)
@@ -208,7 +208,7 @@ tests that are lined up.
                         break
                     if not found:
                         self._set_failure_reason = \
-                            TestError(opt.os_type, opt.version,
+                            ErrorInTest(opt.os_type, opt.version,
                                       frame=gfi(cf()), errno=errno.ESPIPE,
                                       msg='No pkg found built for')
                         print(str(self.failure_reason))
@@ -266,7 +266,7 @@ Outside:
             msg = "Failed to build docker container to test with"
         if frame:
             self._set_failure_reason = \
-                TestError(pkg.pkg, msg=msg, frame=frame, errnum=errno.ESPIPE)
+                ErrorInTest(pkg.pkg, msg=msg, frame=frame, errnum=errno.ESPIPE)
             raise self.failure_reason
 
 
@@ -301,13 +301,13 @@ on its own.
     try:
         tests = InstallTest()
         tests.execute_tests()
-    except TestError as Error:
+    except ErrorInTest as Error:
         print(str(Error))
         exit(1)
         traceback.print_exc()
     except Exception as Error:
         print(str(Error))
-        TestError(Error, frame=gfi(cf()), errno=-1)
+        ErrorInTest(Error, frame=gfi(cf()), errno=-1)
         print(str(Error))
         traceback.print_exc()
 
