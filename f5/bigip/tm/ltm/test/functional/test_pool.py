@@ -260,16 +260,15 @@ class TestPoolMembersCollection(object):
 
 
 class TestPoolsStats(object):
-    def test_get_pools_stats(self, request, mgmt_root, opt_release):
+    def test_stats(self, request, mgmt_root, opt_release):
         m1, pool = setup_member_test(request, mgmt_root, 'membertestpool1',
-                             'Common')
+                                     'Common')
         pools_stats = mgmt_root.tm.ltm.pools.stats.load()
-        assert 'https://localhost/mgmt/tm/ltm/pool/' +\
-            '~Common~membertestpool1/stats' in pools_stats.entries
-        pool_nested_stats = pools_stats.entries['https://localhost/mgmt/tm/' +\
-            'ltm/pool/~Common~membertestpool1/stats']['nestedStats']
-        assert pool_nested_stats['selfLink'] == 'https://localhost/mgmt/tm/' +\
-            'ltm/pool/~Common~membertestpool1/stats?ver=' + opt_release
+        stats_link = 'https://localhost/mgmt/tm/ltm/pool/' +\
+            '~Common~membertestpool1/stats'
+        assert stats_link in pools_stats.entries
+        pool_nested_stats = pools_stats.entries[stats_link]['nestedStats']
+        assert pool_nested_stats['selfLink'] == stats_link+'?ver='+opt_release
         entries = pool_nested_stats['entries']
         assert entries['tmName']['description'] == '/Common/membertestpool1'
         assert entries['status.enabledState']['description'] == 'enabled'

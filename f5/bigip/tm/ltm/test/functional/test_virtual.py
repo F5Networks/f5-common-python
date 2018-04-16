@@ -256,15 +256,14 @@ class TestPolicies(object):
 
 
 class TestVirtualsStats(object):
-    def test_get_virtuals_stats(self, request, mgmt_root, opt_release):
+    def test_stats(self, request, mgmt_root, opt_release):
         setup_virtual_test(request, mgmt_root, 'Common', 'tv1')
         vs_stats = mgmt_root.tm.ltm.virtuals.stats.load()
-        assert 'https://localhost/mgmt/tm/ltm/virtual/' +\
-            '~Common~tv1/stats' in vs_stats.entries
-        vs_nested_stats = vs_stats.entries['https://localhost/mgmt/tm/' +\
-            'ltm/virtual/~Common~tv1/stats']['nestedStats']
-        assert vs_nested_stats['selfLink'] == 'https://localhost/mgmt/tm/' +\
-            'ltm/virtual/~Common~tv1/stats?ver=' + opt_release
+        stats_link = 'https://localhost/mgmt/tm/ltm/virtual/' +\
+            '~Common~tv1/stats'
+        assert stats_link in vs_stats.entries
+        vs_nested_stats = vs_stats.entries[stats_link]['nestedStats']
+        assert vs_nested_stats['selfLink'] == stats_link+'?ver='+opt_release
         entries = vs_nested_stats['entries']
         assert entries['tmName']['description'] == '/Common/tv1'
         assert entries['status.enabledState']['description'] == 'enabled'
