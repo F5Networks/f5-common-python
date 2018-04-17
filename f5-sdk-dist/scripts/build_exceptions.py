@@ -108,7 +108,7 @@ Raised when there is an issue producing the .rpm package for Redhat builds.
         super(RedhatError, self).__init__(*args, **kargs)
 
 
-class TestError(BuildError):
+class ErrorInTest(BuildError):
     """TestError
 
 An Error occurred during testing...
@@ -117,7 +117,7 @@ An Error occurred during testing...
 
     def __init__(self, *args, **kargs):
         # exception-specific logic here...
-        super(TestError, self).__init__(*args, **kargs)
+        super(ErrorInTest, self).__init__(*args, **kargs)
 
 
 # vim: set fileencoding=utf-8

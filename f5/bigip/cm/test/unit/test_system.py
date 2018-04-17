@@ -23,7 +23,13 @@ import pytest
 @pytest.fixture
 def FakeTmos():
     mo = mock.MagicMock()
+    r = {'tmos_version': '11.6.0'}
+    m = mock.MagicMock()
+    m.__getitem__.side_effect = r.__getitem__
+    m.__iter__.side_effect = r.__iter__
+    mo._meta_data['bigip']._meta_data = m
     resource = Tmos(mo)
+
     return resource
 
 
