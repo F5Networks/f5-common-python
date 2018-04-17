@@ -30,13 +30,14 @@ REST Kind
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.bigip.resource import Stats
 
 
 class Virtual_Address_s(Collection):
     """BIG-IP® LTM virtual address collection."""
     def __init__(self, ltm):
         super(Virtual_Address_s, self).__init__(ltm)
-        self._meta_data['allowed_lazy_attributes'] = [Virtual_Address]
+        self._meta_data['allowed_lazy_attributes'] = [Virtual_Address, Stats]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:virtual-address:virtual-addressstate': Virtual_Address}
 
