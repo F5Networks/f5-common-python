@@ -253,3 +253,17 @@ class TestPolicies(object):
         pclst = v1.policies_s.get_collection()
         assert len(pclst) > 0
         assert isinstance(pclst[0], Policies)
+
+
+class TestVirtualsStats(object):
+    def test_stats(self, request, mgmt_root, opt_release):
+        setup_virtual_test(request, mgmt_root, 'Common', 'tv1')
+        vs_stats = mgmt_root.tm.ltm.virtuals.stats.load()
+        stats_link = 'https://localhost/mgmt/tm/ltm/virtual/' +\
+            '~Common~tv1/stats'
+        assert stats_link in vs_stats.entries
+        vs_nested_stats = vs_stats.entries[stats_link]['nestedStats']
+        assert vs_nested_stats['selfLink'] == stats_link+'?ver='+opt_release
+        entries = vs_nested_stats['entries']
+        assert entries['tmName']['description'] == '/Common/tv1'
+        assert entries['status.enabledState']['description'] == 'enabled'

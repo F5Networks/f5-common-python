@@ -210,3 +210,15 @@ class TestNodes(object):
         nodes = sc.get_collection()
         assert len(nodes) >= 1
         assert [n for n in nodes if n.name == 'node1']
+
+    def test_stats(self, request, mgmt_root, opt_release):
+        setup_node_test(request, mgmt_root, 'Common', 'node1', '192.168.100.1')
+        nodes_stats = mgmt_root.tm.ltm.nodes.stats.load()
+        stats_link = 'https://localhost/mgmt/tm/ltm/node/' +\
+            '~Common~node1/stats'
+        assert stats_link in nodes_stats.entries
+        node_nested_stats = nodes_stats.entries[stats_link]['nestedStats']
+        assert node_nested_stats['selfLink'] == stats_link+'?ver='+opt_release
+        entries = node_nested_stats['entries']
+        assert entries['tmName']['description'] == '/Common/node1'
+        assert entries['status.enabledState']['description'] == 'enabled'
