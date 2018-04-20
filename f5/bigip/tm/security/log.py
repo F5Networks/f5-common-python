@@ -99,7 +99,7 @@ class Application(Resource, CheckExistenceMixin):
         if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
             return self._exists_11_6(**kwargs)
         else:
-            return super(Application, self)._load(**kwargs)
+            return super(Application, self)._exists(**kwargs)
 
     def _exists_11_6(self, **kwargs):
         """Check rule existence on device."""
@@ -174,7 +174,7 @@ class Network(Resource, CheckExistenceMixin):
         if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
             return self._exists_11_6(**kwargs)
         else:
-            return super(Network, self)._load(**kwargs)
+            return super(Network, self)._exists(**kwargs)
 
     def _exists_11_6(self, **kwargs):
         """Check rule existence on device."""
@@ -249,7 +249,7 @@ class Protocol_Dns(Resource, CheckExistenceMixin):
         if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
             return self._exists_11_6(**kwargs)
         else:
-            return super(Protocol_Dns, self)._load(**kwargs)
+            return super(Protocol_Dns, self)._exists(**kwargs)
 
     def _exists_11_6(self, **kwargs):
         """Check rule existence on device."""
@@ -324,7 +324,7 @@ class Protocol_Sip(Resource, CheckExistenceMixin):
         if LooseVersion(self.tmos_ver) == LooseVersion('11.6.0'):
             return self._exists_11_6(**kwargs)
         else:
-            return super(Protocol_Sip, self)._load(**kwargs)
+            return super(Protocol_Sip, self)._exists(**kwargs)
 
     def _exists_11_6(self, **kwargs):
         """Check rule existence on device."""
