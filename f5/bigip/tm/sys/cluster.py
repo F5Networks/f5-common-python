@@ -28,6 +28,7 @@ REST Kind
 """
 
 from f5.bigip.resource import OrganizingCollection
+from f5.bigip.resource import Stats
 from f5.bigip.resource import UnnamedResource
 
 
@@ -37,7 +38,7 @@ class Cluster(OrganizingCollection):
         super(Cluster, self).__init__(sys)
         self._meta_data['required_json_kind'] =\
             "tm:sys:cluster:clustercollectionstate"
-        self._meta_data['allowed_lazy_attributes'] = [Default]
+        self._meta_data['allowed_lazy_attributes'] = [Default, Stats]
 
 
 class Default(UnnamedResource):
@@ -46,3 +47,4 @@ class Default(UnnamedResource):
         super(Default, self).__init__(settings)
         self._meta_data['required_json_kind'] = \
             'tm:sys:cluster:clusterstate'
+        self._meta_data['allowed_lazy_attributes'] = [Stats]
