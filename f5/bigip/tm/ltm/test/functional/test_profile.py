@@ -26,10 +26,11 @@ TESTDESCRIPTION = "TESTDESCRIPTION"
 
 # Helper class to limit code repetition
 class HelperTest(object):
-    def __init__(self, collection_name):
+    def __init__(self, collection_name, **kwargs):
         self.partition = 'Common'
         self.lowered = collection_name.lower()
         self.test_name = 'test.' + self.urielementname()
+        self.stats = kwargs.pop('stats', False)
 
     def urielementname(self):
         if self.lowered[-2:] == '_s':
@@ -478,7 +479,6 @@ class TestHttp(object):
     def test_MCURDL(self, request, mgmt_root):
         http = HelperTest('Https')
         http.test_MCURDL(request, mgmt_root)
-
 
 # End HTTP tests
 

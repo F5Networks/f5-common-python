@@ -30,6 +30,7 @@ REST Kind
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
+from f5.bigip.resource import Stats
 from f5.sdk_exception import MissingUpdateParameter
 from f5.sdk_exception import UnsupportedOperation
 
@@ -443,7 +444,7 @@ class Https(Collection):
     """BIG-IP® Http profile collection."""
     def __init__(self, profile):
         super(Https, self).__init__(profile)
-        self._meta_data['allowed_lazy_attributes'] = [Http]
+        self._meta_data['allowed_lazy_attributes'] = [Http, Stats]
         self._meta_data['attribute_registry'] = \
             {'tm:ltm:profile:http:httpstate': Http}
 
