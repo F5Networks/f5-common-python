@@ -125,6 +125,7 @@ class TestLSNPool(object):
             name='lsnlogpool1')
 
         setup_create_test(request, mgmt_root, 'lsnpool1')
+
         default_pub = '/Common/local-db-publisher'
         pool1 = mgmt_root.tm.ltm.lsn_pools.lsn_pool.create(name='lsnpool1',
                                                            logProfile=logprofile1.name,
