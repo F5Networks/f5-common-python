@@ -224,6 +224,22 @@ class MembersResource_v11(Resource):
         self._meta_data['required_json_kind'] = \
             'tm:gtm:pool:members:membersstate'
 
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
+
 
 class MembersResourceA(Resource):
     """v12.x BIG-IP® GTM A pool members resource"""
@@ -290,6 +306,22 @@ class MembersResourceA(Resource):
 
         else:
             return self._create(**kwargs)
+
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
 
 
 class MembersResourceAAAA(Resource):
@@ -358,6 +390,22 @@ class MembersResourceAAAA(Resource):
         else:
             return self._create(**kwargs)
 
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
+
 
 class MembersResourceCname(Resource):
     """v12.x BIG-IP® GTM CNAME pool members resource"""
@@ -367,6 +415,22 @@ class MembersResourceCname(Resource):
         self._meta_data['required_json_kind'] = \
             'tm:gtm:pool:cname:members:membersstate'
 
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
+
 
 class MembersResourceMx(Resource):
     """v12.x BIG-IP® GTM MX pool members resource"""
@@ -375,6 +439,22 @@ class MembersResourceMx(Resource):
         super(MembersResourceMx, self).__init__(members_s)
         self._meta_data['required_json_kind'] = \
             'tm:gtm:pool:mx:members:membersstate'
+
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
 
 
 class MembersResourceNaptr(Resource):
@@ -387,6 +467,22 @@ class MembersResourceNaptr(Resource):
         self._meta_data['required_creation_parameters'].update(
             ('flags', 'service'))
 
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
+
 
 class MembersResourceSrv(Resource):
     """v12.x BIG-IP® GTM SRV pool members resource"""
@@ -397,6 +493,22 @@ class MembersResourceSrv(Resource):
             'tm:gtm:pool:srv:members:membersstate'
         self._meta_data['required_creation_parameters'].update(
             ('port',))
+
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
 
 
 class PoolCollection(Collection):
