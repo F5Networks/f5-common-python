@@ -33,6 +33,7 @@ from f5.bigip.tm.security.dos import Dos
 from f5.bigip.tm.security.firewall import Firewall
 from f5.bigip.tm.security.log import Log
 from f5.bigip.tm.security.protocol_inspection import Protocol_Inspection
+from f5.bigip.tm.security.ip_intelligence import Ip_Intelligence
 
 
 class Security(OrganizingCollection):
@@ -46,4 +47,5 @@ class Security(OrganizingCollection):
             Firewall,
             Log,
             Protocol_Inspection,
+	    Ip_Intelligence,
         ]
