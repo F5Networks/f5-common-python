@@ -72,6 +72,14 @@ def policy(mgmt_root):
     p1.delete()
 
 
+@pytest.fixture(scope='function')
+def dsnresolver(mgmt_root):
+    d1 = mgmt_root.tm.net.dns_resolvers.dns_resolver.create(
+        name='fake_dnsresolver', partition='Common')
+    yield d1
+    d1.delete()
+
+
 class TestAddressList(object):
     def test_create_missing_mandatory_attr_raises(self, mgmt_root):
         ac = mgmt_root.tm.security.firewall.address_lists
@@ -569,3 +577,17 @@ class TestGlobalRules(object):
         assert rules.enforcedPolicy == "/Common/fake_policy"
         rules.modify(enforcedPolicy='none', partition='Common')
         assert "enforcedPolicy" not in rules.__dict__
+
+
+@pytest.mark.skipif(
+    pytest.config.getoption('--release') < '12.0.0',
+    reason='This test will only work from version 12.0.X i.e Cascade.'
+    )
+class TestGlobalFqdnPolicy(object):
+    def test_modify_req_args(self, mgmt_root, dsnresolver):
+        policy = mgmt_root.tm.security.firewall.global_fqdn_policy.load(partition='Common')
+        assert "dnsResolver" not in policy.__dict__
+        policy.modify(dnsResolver='fake_dnsresolver', partition='Common')
+        assert policy.dnsResolver == "/Common/fake_dnsresolver"
+        policy.modify(dnsResolver='none', partition='Common')
+        assert "dnsResolver" not in policy.__dict__

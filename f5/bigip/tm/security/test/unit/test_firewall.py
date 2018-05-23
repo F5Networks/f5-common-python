@@ -83,6 +83,14 @@ def MakeGlobalRules(fakeicontrolsession):
     return p
 
 
+def MakeGlobalFqdnPolicy(fakeicontrolsession):
+    b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+    p = b.tm.security.firewall.global_fqdn_policy
+    p._meta_data['uri'] = \
+        'https://192.168.1.1:443/mgmt/tm/security/firewall/global-fqdn-policy/'
+    return p
+
+
 class TestAddressList(object):
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
@@ -184,3 +192,13 @@ class TestGlobalRules(object):
         rules = b.tm.security.firewall.global_rules
         rules_kind = rules._meta_data["required_json_kind"]
         assert rules_kind == kind
+
+
+class TestGlobalFqdnPolicy(object):
+    def test_global_fqdn_policy(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        b._meta_data['tmos_version'] = '12.0.0'
+        kind = "tm:security:firewall:global-fqdn-policy:global-fqdn-policystate"
+        policy = b.tm.security.firewall.global_fqdn_policy
+        policy_kind = policy._meta_data["required_json_kind"]
+        assert policy_kind == kind
