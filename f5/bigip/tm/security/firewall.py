@@ -45,7 +45,8 @@ class Firewall(OrganizingCollection):
             Port_Lists,
             Rule_Lists,
             Policy_s,
-            Global_Rules]
+            Global_Rules,
+            Global_Fqdn_Policy]
 
 
 class Address_Lists(Collection):
@@ -232,3 +233,12 @@ class Global_Rules(UnnamedResource):
         super(Global_Rules, self).__init__(global_rules)
         self._meta_data['required_json_kind'] = \
             'tm:security:firewall:global-rules:global-rulesstate'
+
+
+class Global_Fqdn_Policy(UnnamedResource):
+    """BIG-IP® AFM® Global FQDN policy resource"""
+    def __init__(self, global_fqdn_policy):
+        super(Global_Fqdn_Policy, self).__init__(global_fqdn_policy)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:firewall:global-fqdn-policy:global-fqdn-policystate'
+        self._meta_data['minimum_version'] = '12.0.0'
