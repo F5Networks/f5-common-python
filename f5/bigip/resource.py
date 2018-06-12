@@ -683,14 +683,30 @@ class ResourceBase(PathElement, ToDictMixin):
         # Post-process the response
         new_instance._local_update(response.json())
 
-        if new_instance.kind != new_instance._meta_data['required_json_kind'] \
-           and new_instance.kind != "tm:transaction:commandsstate":
-            error_message = "For instances of type '%r' the corresponding"\
-                " kind must be '%r' but creation returned JSON with kind: %r"\
-                % (new_instance.__class__.__name__,
-                   new_instance._meta_data['required_json_kind'],
-                   new_instance.kind)
-            raise KindTypeMismatch(error_message)
+        # Allow for example files, which are KindTypeMismatches
+        if hasattr(new_instance, 'selfLink'):
+            if new_instance.kind != new_instance._meta_data[
+                'required_json_kind'] \
+                    and new_instance.kind != "tm:transaction:commandsstate" \
+                    and 'example' not in new_instance.selfLink.split('/')[-1]:
+                error_message = "For instances of type '%r' the corresponding" \
+                                " kind must be '%r' but creation returned JSON with kind: %r" \
+                                % (new_instance.__class__.__name__,
+                                   new_instance._meta_data[
+                                       'required_json_kind'],
+                                   new_instance.kind)
+                raise KindTypeMismatch(error_message)
+        else:
+            if new_instance.kind != new_instance._meta_data[
+                'required_json_kind'] \
+                    and new_instance.kind != "tm:transaction:commandsstate":
+                error_message = "For instances of type '%r' the corresponding" \
+                                " kind must be '%r' but creation returned JSON with kind: %r" \
+                                % (new_instance.__class__.__name__,
+                                   new_instance._meta_data[
+                                       'required_json_kind'],
+                                   new_instance.kind)
+                raise KindTypeMismatch(error_message)
 
         # Update the object to have the correct functional uri.
         new_instance._activate_URI(new_instance.selfLink)
