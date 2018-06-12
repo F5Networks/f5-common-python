@@ -46,7 +46,7 @@ class TestDosVisCommonOC(object):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
         t1 = b.tm.analytics.dos_vis_common
         assert isinstance(t1, OrganizingCollection)
-        assert hasattr(t1, 'generate_report_s')
+        assert hasattr(t1, 'generate_reports')
         assert hasattr(t1, 'report_results_s')
 
 
@@ -61,13 +61,13 @@ class TestGenerateReport(object):
 
     def test_create_two(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
-        t1 = b.tm.analytics.dos_vis_common.generate_report_s.generate_report
-        t2 = b.tm.analytics.dos_vis_common.generate_report_s.generate_report
+        t1 = b.tm.analytics.dos_vis_common.generate_reports.generate_report
+        t2 = b.tm.analytics.dos_vis_common.generate_reports.generate_report
         assert t1 is t2
 
     def test_collection(self, fakeicontrolsession):
         b = ManagementRoot('192.168.1.1', 'admin', 'admin')
-        t = b.tm.analytics.dos_vis_common.generate_report_s
+        t = b.tm.analytics.dos_vis_common.generate_reports
         test_meta = t._meta_data['attribute_registry']
         test_meta2 = t._meta_data['allowed_lazy_attributes']
         kind = 'tm:analytics:dos-vis-common:generate-report:avrgeneratereporttaskitemstate'

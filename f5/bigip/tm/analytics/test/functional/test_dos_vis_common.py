@@ -23,7 +23,7 @@ from f5.bigip.tm.analytics.dos_vis_common import Report_Results
 
 @pytest.fixture(scope='function')
 def generate_report(mgmt_root):
-    task = mgmt_root.tm.analytics.dos_vis_common.generate_report_s.generate_report.create(
+    task = mgmt_root.tm.analytics.dos_vis_common.generate_reports.generate_report.create(
         reportFeatures=['entities-count'],
         viewDimensions=[{'dimensionName': 'dos-profile'}],
     )
@@ -38,7 +38,7 @@ def generate_report(mgmt_root):
 
 @pytest.fixture(scope='function')
 def get_reports(mgmt_root):
-    task = mgmt_root.tm.analytics.dos_vis_common.generate_report_s.load()
+    task = mgmt_root.tm.analytics.dos_vis_common.generate_reports.load()
     while True:
         task.refresh()
         if task.status in ['FINISHED', 'FAILURE']:
@@ -69,7 +69,7 @@ class TestGenerateReport(object):
 class TestGenerateReportCollection(object):
     def test_collection_gen_rep(self, generate_report, mgmt_root):
         rep1 = generate_report
-        reports = mgmt_root.tm.analytics.dos_vis_common.generate_report_s.get_collection()
+        reports = mgmt_root.tm.analytics.dos_vis_common.generate_reports.get_collection()
         assert isinstance(reports[0], Generate_Report)
         assert rep1.id in [report.id for report in reports]
 

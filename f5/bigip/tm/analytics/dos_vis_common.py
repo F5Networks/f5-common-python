@@ -55,8 +55,8 @@ class Generate_Reports(Collection):
 
 class Generate_Report(AvrResource):
     """BIG-IP® AVR Generate Report Resource."""
-    def __init__(self, generate_report_s):
-        super(Generate_Report, self).__init__(generate_report_s)
+    def __init__(self, generate_reports):
+        super(Generate_Report, self).__init__(generate_reports)
         self._meta_data['required_json_kind'] =\
             'tm:analytics:dos-vis-common:generate-report:avrgeneratereporttaskitemstate'
         self._meta_data['required_creation_parameters'] = {'viewDimensions',
