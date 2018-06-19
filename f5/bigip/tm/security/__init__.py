@@ -29,12 +29,16 @@ REST Kind
 
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.security.analytics import Analytics
+from f5.bigip.tm.security.blacklist_publisher import Blacklist_Publisher
 from f5.bigip.tm.security.dos import Dos
 from f5.bigip.tm.security.firewall import Firewall
+from f5.bigip.tm.security.flowspec_route_injector import Flowspec_Route_Injector
 from f5.bigip.tm.security.ip_intelligence import Ip_Intelligence
 from f5.bigip.tm.security.log import Log
 from f5.bigip.tm.security.nat import Nat
+from f5.bigip.tm.security.protected_servers import Protected_Servers
 from f5.bigip.tm.security.protocol_inspection import Protocol_Inspection
+from f5.bigip.tm.security.scrubber import Scrubber
 
 
 class Security(OrganizingCollection):
@@ -44,10 +48,14 @@ class Security(OrganizingCollection):
         super(Security, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
             Analytics,
+            Blacklist_Publisher,
             Dos,
             Firewall,
+            Flowspec_Route_Injector,
             Ip_Intelligence,
             Log,
             Nat,
+            Protected_Servers,
             Protocol_Inspection,
-            ]
+            Scrubber,
+        ]
