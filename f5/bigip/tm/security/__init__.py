@@ -39,6 +39,7 @@ from f5.bigip.tm.security.nat import Nat
 from f5.bigip.tm.security.protected_servers import Protected_Servers
 from f5.bigip.tm.security.protocol_inspection import Protocol_Inspection
 from f5.bigip.tm.security.scrubber import Scrubber
+from f5.bigip.tm.security.shared_objects import Shared_Objects
 
 
 class Security(OrganizingCollection):
@@ -58,4 +59,5 @@ class Security(OrganizingCollection):
             Protected_Servers,
             Protocol_Inspection,
             Scrubber,
-        ]
+	    Shared_Objects,
+            ]
