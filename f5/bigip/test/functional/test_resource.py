@@ -29,4 +29,3 @@ def test_load_example_resource(request, mgmt_root):
     assert x.kind == 'tm:ltm:pool:poolcollectionstate'
     assert x.kind != 'tm:ltm:pool:poolstate'
     assert x.items[0].get('name') is None
-    assert x.items[0].get('loadBalancingMode') == 'round-robin'
