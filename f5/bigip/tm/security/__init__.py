@@ -61,3 +61,7 @@ class Security(OrganizingCollection):
             Scrubber,
 	    Shared_Objects,
             ]
+<<<<<<< HEAD
+=======
+
+>>>>>>> Flatrock: Adding support for shared_objects
