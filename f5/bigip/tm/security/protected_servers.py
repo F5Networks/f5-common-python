@@ -60,7 +60,7 @@ class Traffic_Matching_Criteria(Resource):
         super(Traffic_Matching_Criteria, self).__init__(traffic_matching_criteria_s)
         self._meta_data['required_json_kind'] = \
             'tm:security:protected-servers:traffic-matching-criteria:traffic-matching-criteriastate'
-        self._meta_data['required_creation_parameters'].update((''))
+        self._meta_data['required_creation_parameters'].update(('partition', ))
 
 
 class Netflow_Protected_Server_s(Collection):
