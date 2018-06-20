@@ -32,6 +32,7 @@ from f5.bigip.tm.sys.application import Application
 from f5.bigip.tm.sys.clock import Clock
 from f5.bigip.tm.sys.cluster import Cluster
 from f5.bigip.tm.sys.config import Config
+from f5.bigip.tm.sys.connection import Connection
 from f5.bigip.tm.sys.crypto import Crypto
 from f5.bigip.tm.sys.daemon_log_settings import Daemon_Log_Settings
 from f5.bigip.tm.sys.db import Dbs
@@ -71,6 +72,7 @@ class Sys(OrganizingCollection):
             Clock,
             Cluster,
             Config,
+            Connection,
             Crypto,
             Daemon_Log_Settings,
             Dbs,
