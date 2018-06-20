@@ -42,6 +42,7 @@ from f5.bigip.tm.sys.feature_module import Feature_Module
 from f5.bigip.tm.sys.file import File
 from f5.bigip.tm.sys.folder import Folders
 from f5.bigip.tm.sys.global_settings import Global_Settings
+from f5.bigip.tm.sys.hardware import Hardware
 from f5.bigip.tm.sys.host_info import Host_Info
 from f5.bigip.tm.sys.httpd import Httpd
 from f5.bigip.tm.sys.icall import Icall
@@ -80,6 +81,7 @@ class Sys(OrganizingCollection):
             File,
             Folders,
             Global_Settings,
+            Hardware,
             Host_Info,
             Httpd,
             Icall,
