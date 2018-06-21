@@ -134,6 +134,10 @@ class MissingRequiredReadParameter(F5SDKError):
     pass
 
 
+class MissingRequiredRequestsParameter(F5SDKError):
+    """Raises this when a request parameter is required"""
+
+
 class MissingUpdateParameter(F5SDKError):
     """Raises this when update requires specific parameters together."""
     pass
