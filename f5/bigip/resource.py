@@ -120,6 +120,7 @@ from f5.sdk_exception import KindTypeMismatch
 from f5.sdk_exception import MissingRequiredCommandParameter
 from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import MissingRequiredReadParameter
+from f5.sdk_exception import MissingRequiredRequestsParameter
 from f5.sdk_exception import RequestParamKwargCollision
 from f5.sdk_exception import UnregisteredKind
 from f5.sdk_exception import UnsupportedMethod
@@ -816,6 +817,34 @@ class Collection(ResourceBase):
                     error_message = '%r is not registered!' % kind
                     raise UnregisteredKind(error_message)
         return list_of_contents
+
+    def _delete_collection(self, **kwargs):
+        """wrapped with delete_collection, override that in a sublcass to customize """
+        error_message = "The request must include \"requests_params\": {\"params\": \"options=<glob pattern>\"} as kwarg"
+        try:
+            if kwargs['requests_params']['params'].split('=')[0] != 'options':
+                raise MissingRequiredRequestsParameter(error_message)
+        except KeyError:
+            raise
+
+        requests_params = self._handle_requests_params(kwargs)
+        delete_uri = self._meta_data['uri']
+        session = self._meta_data['bigip']._meta_data['icr_session']
+
+        session.delete(delete_uri, **requests_params)
+
+    def delete_collection(self, **kwargs):
+        """One can not simply delete a collection.
+
+        This is to support odata usage via the options request parameter:
+
+        ``requests_params={'params': 'options=glob_pattern'}``
+
+        where glob_pattern can be used to delete one or all of a particular
+        collection. Not submitting the requests params will fail, and specifying
+        patterns that match default resources will fail as well.
+        """
+        self._delete_collection(**kwargs)
 
 
 class Resource(ResourceBase):

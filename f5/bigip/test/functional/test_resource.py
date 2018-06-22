@@ -15,6 +15,7 @@
 
 import pytest
 
+from f5.sdk_exception import MissingRequiredRequestsParameter
 from icontrol.exceptions import iControlUnexpectedHTTPError
 
 
@@ -29,3 +30,20 @@ def test_load_example_resource(request, mgmt_root):
     assert x.kind == 'tm:ltm:pool:poolcollectionstate'
     assert x.kind != 'tm:ltm:pool:poolstate'
     assert x.items[0].get('name') is None
+
+
+def test_missing_required_requests_parameters(request, mgmt_root):
+    with pytest.raises(MissingRequiredRequestsParameter) as error:
+        # SHould be options, not option
+        mgmt_root.tm.ltm.profile.tcps.delete_collection(requests_params={'params': 'option=*'})
+    assert 'The request must include "requests_params": {"params": "options=' in str(error.value.message)
+
+    with pytest.raises(KeyError) as error:
+        # Should be params, not param
+        mgmt_root.tm.ltm.profile.tcps.delete_collection(requests_params={'param': 'option=*'})
+    assert 'params' in str(error.value.message)
+
+    with pytest.raises(KeyError) as error:
+        # request_params should be present
+        mgmt_root.tm.ltm.profile.tcps.delete_collection()
+    assert 'requests_params' in str(error.value.message)
