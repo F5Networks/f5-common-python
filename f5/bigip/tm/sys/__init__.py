@@ -51,6 +51,7 @@ from f5.bigip.tm.sys.license import License
 from f5.bigip.tm.sys.log_config import Log_Config
 from f5.bigip.tm.sys.management_ip import Management_Ips
 from f5.bigip.tm.sys.management_route import Management_Routes
+from f5.bigip.tm.sys.memory import Memory
 from f5.bigip.tm.sys.ntp import Ntp
 from f5.bigip.tm.sys.performance import Performances
 from f5.bigip.tm.sys.provision import Provision
@@ -92,6 +93,7 @@ class Sys(OrganizingCollection):
             Disk,
             Management_Ips,
             Management_Routes,
+            Memory,
             Ntp,
             Performances,
             Provision,
