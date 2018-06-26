@@ -62,10 +62,10 @@ class BaseManagement(object):
         return result
 
     def _get_icr_session(self):
-        result = iControlRESTSession(self.args['username'], \
-                                     self.args['password'], \
-                                     timeout=self.args['timeout'], \
-                                     auth_provider=self.args['auth_provider'], \
+        result = iControlRESTSession(self.args['username'],
+                                     self.args['password'],
+                                     timeout=self.args['timeout'],
+                                     auth_provider=self.args['auth_provider'],
                                      verify=self.args['verify'])
         result.debug = self.args['debug']
         return result
@@ -178,7 +178,7 @@ class ManagementProxy(object):
         devices = mgmt.shared.resolver.device_groups.cm_bigip_allbigipdevices.devices_s
         collection = devices.get_collection(
             requests_params={
-                'params' : '$filter=hostname+eq+\'{0}\'&$select=uuid'.format(proxy_to)
+                'params': '$filter=hostname+eq+\'{0}\'&$select=uuid'.format(proxy_to)
             }
         )
         if len(collection) > 1:
@@ -199,7 +199,7 @@ class ManagementProxy(object):
         devices = mgmt.shared.resolver.device_groups.cm_bigip_allbigipdevices.devices_s
         collection = devices.get_collection(
             requests_params={
-                'params' : '$filter=uuid+eq+\'{0}\''.format(uuid)
+                'params': '$filter=uuid+eq+\'{0}\''.format(uuid)
             }
         )
         if len(collection) > 1:
