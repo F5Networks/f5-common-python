@@ -57,11 +57,11 @@ def timeout_handler(signum, frame):
 class BaseManagement(PathElement):
     def __init__(self, hostname, username, password, **kwargs):
         icrs = kwargs.pop('icrs', None)
-        
+
         self.args = self.parse_arguments(
             hostname, username, password, **kwargs
         )
-        
+
         if icrs:
             self.icrs = icrs
         else:
