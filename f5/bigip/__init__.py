@@ -23,10 +23,15 @@ try:
 except ImportError:
     import urllib.parse as urlparse
 
+from os import environ
+
 try:
-    import signal
-    from signal import SIGALRM
-    HAS_SIGNAL = True
+    if environ.get('F5_NO_SIGNAL') == '1':
+        HAS_SIGNAL = False
+    else:
+        import signal
+        from signal import SIGALRM
+        HAS_SIGNAL = True
 except ImportError:
     HAS_SIGNAL = False
 
@@ -51,10 +56,16 @@ def timeout_handler(signum, frame):
 
 class BaseManagement(PathElement):
     def __init__(self, hostname, username, password, **kwargs):
+        icrs = kwargs.pop('icrs', None)
+        
         self.args = self.parse_arguments(
             hostname, username, password, **kwargs
         )
-        self.icrs = self._get_icr_session(**self.args)
+        
+        if icrs:
+            self.icrs = icrs
+        else:
+            self.icrs = self._get_icr_session(**self.args)
         self.configure_meta_data(**self.args)
         self.set_icr_metadata(self.icrs)
 
