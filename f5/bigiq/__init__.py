@@ -77,7 +77,6 @@ class BaseManagement(object):
             'hostname': self._args['hostname'],
             'port': self._args['port'],
             'uri': 'https://{0}:{1}/mgmt/'.format(self._args['hostname'], self._args['port']),
-								
             'device_name': None,
             'local_ip': None,
             'bigip': self,
