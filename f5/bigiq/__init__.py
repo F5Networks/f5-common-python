@@ -16,7 +16,7 @@
 #
 
 
-#from f5.bigip import BaseManagement as BigipBaseManagement
+from f5.bigip import BaseManagement as BigipBaseManagement
 from f5.bigiq.cm import Cm
 from f5.bigiq.resource import PathElement
 from f5.bigiq.shared import Shared
@@ -24,27 +24,26 @@ from f5.bigiq.tm import Tm
 from f5.sdk_exception import F5SDKError
 from icontrol.session import iControlRESTSession
 
-from bigip_override import BaseManagement as BigipBaseManagement
-
 import re
 
 
 class BaseManagement(object):
     def __init__(self, hostname, username, password, **kwargs):
         icrs = kwargs.pop('icrs', None)
-        
-        self._args = self.__parse_arguments(
+
+        self.args = BaseManagement.__parse_arguments(
             hostname, username, password, **kwargs
         )
-        
+
         if icrs:
             self.icrs = icrs
         else:
             self.icrs = self._get_icr_session()
-            
+
         self._configure_meta_data()
 
-    def __parse_arguments(self, hostname, username, password, **kwargs):
+    @staticmethod
+    def __parse_arguments(hostname, username, password, **kwargs):
         result = dict(
             hostname=hostname,
             username=username,
@@ -63,27 +62,26 @@ class BaseManagement(object):
         return result
 
     def _get_icr_session(self):
-        result = iControlRESTSession(self._args['username'], \
-                                     self._args['password'], \
-                                     timeout=self._args['timeout'], \
-                                     auth_provider=self._args['auth_provider'], \
-                                     verify=self._args['verify'])
-        result.debug = self._args['debug']
+        result = iControlRESTSession(self.args['username'], \
+                                     self.args['password'], \
+                                     timeout=self.args['timeout'], \
+                                     auth_provider=self.args['auth_provider'], \
+                                     verify=self.args['verify'])
+        result.debug = self.args['debug']
         return result
-    
+
     def _configure_meta_data(self):
         self._meta_data = {
             'allowed_lazy_attributes': [Shared, Cm, Tm],
-            'hostname': self._args['hostname'],
-            'port': self._args['port'],
-            'uri': 'https://{0}:{1}/mgmt/'.format(self._args['hostname'], self._args['port']),
-								
+            'hostname': self.args['hostname'],
+            'port': self.args['port'],
+            'uri': 'https://{0}:{1}/mgmt/'.format(self.args['hostname'], self.args['port']),
             'device_name': None,
             'local_ip': None,
             'bigip': self,
-            'icontrol_version': self._args['icontrol_version'],
-            'username': self._args['username'],
-            'password': self._args['password'],
+            'icontrol_version': self.args['icontrol_version'],
+            'username': self.args['username'],
+            'password': self.args['password'],
             'tmos_version': None,
             'icr_session': self.icrs,
         }
@@ -105,7 +103,7 @@ class RegularManagementRoot(BaseManagement, PathElement):
 
     def _set_metadata_uri(self, hostname):
         self._meta_data['uri'] = 'https://{0}:{1}/mgmt/'.format(
-            hostname, self._args['port']
+            hostname, self.args['port']
         )
 
     def post_configuration_setup(self):
@@ -137,6 +135,7 @@ class RegularManagementRoot(BaseManagement, PathElement):
 class ManagementProxy(object):
     def __new__(cls, hostname, username, password, **kwargs):
         proxy_to = kwargs.pop('proxy_to', None)
+        enable_proxy = kwargs.pop('enable_proxy', True)
         device_group = kwargs.pop('device_group', 'cm-bigip-allBigIpDevices')
 
         mgmt = ManagementRoot(hostname, username, password, **kwargs)
@@ -146,16 +145,20 @@ class ManagementProxy(object):
                 "The specified device was missing a UUID. "
                 "This should not happen!"
             )
+        if enable_proxy:
+            cls._enable_rest_proxy(mgmt, uuid)
+
         bigip = BigipBaseManagement(
-            mgmt._args['hostname'],
-            mgmt._args['username'],
-            mgmt._args['password'],
-            port=mgmt._args['port'],
-            auth_provider=mgmt._args['auth_provider'],
+            mgmt.args['hostname'],
+            mgmt.args['username'],
+            mgmt.args['password'],
+            port=mgmt.args['port'],
+            auth_provider=mgmt.args['auth_provider'],
             icrs=mgmt.icrs
         )
-        bigip._meta_data['uri'] = 'https://{0}:{1}/mgmt/shared/resolver/device-groups/{2}/devices/{3}/rest-proxy/mgmt/' \
-            .format(mgmt._args['hostname'], mgmt._args['port'], device_group, uuid)
+        bigip._meta_data['uri'] = \
+            'https://{0}:{1}/mgmt/shared/resolver/device-groups/{2}/devices/{3}/rest-proxy/mgmt/' \
+            .format(mgmt.args['hostname'], mgmt.args['port'], device_group, uuid)
         bigip.post_configuration_setup()
         return bigip
 
@@ -166,19 +169,17 @@ class ManagementProxy(object):
                 "An identifier to a device to proxy to must be provided."
             )
 
-        if re.search(r'([0-9-a-z]+\-){4}[0-9-a-z]+', proxy_to, re.I):
+        if re.search(r'^([0-9a-z]+\-){4}[0-9a-z]+$', proxy_to, re.I):
             return proxy_to
         return ManagementProxy._get_device_uuid(mgmt, proxy_to)
 
     @staticmethod
     def _get_device_uuid(mgmt, proxy_to):
-        dg = mgmt.shared.resolver.device_groups
-        collection = dg.cm_bigip_allbigipdevices.devices_s.get_collection(
-            requests_params=dict(
-                params="$filter=hostname+eq+'{0}'&$select=uuid".format(
-                    proxy_to
-                )
-            )
+        devices = mgmt.shared.resolver.device_groups.cm_bigip_allbigipdevices.devices_s
+        collection = devices.get_collection(
+            requests_params={
+                'params' : '$filter=hostname+eq+\'{0}\'&$select=uuid'.format(proxy_to)
+            }
         )
         if len(collection) > 1:
             raise F5SDKError(
@@ -192,6 +193,29 @@ class ManagementProxy(object):
         else:
             resource = collection.pop()
             return resource.pop('uuid', None)
+
+    @staticmethod
+    def _enable_rest_proxy(mgmt, uuid):
+        devices = mgmt.shared.resolver.device_groups.cm_bigip_allbigipdevices.devices_s
+        collection = devices.get_collection(
+            requests_params={
+                'params' : '$filter=uuid+eq+\'{0}\''.format(uuid)
+            }
+        )
+        if len(collection) > 1:
+            raise F5SDKError(
+                "More that one managed device was found with this UUID. "
+                "This should never happen."
+            )
+        elif len(collection) == 0:
+            raise F5SDKError(
+                "No device was found with that UUID"
+            )
+        else:
+            device = collection.pop()
+            if not device.properties.get('isRestProxyEnabled'):
+                device.properties['isRestProxyEnabled'] = True
+                device.modify(properties=device.properties)
 
 
 class ManagementRoot(BaseManagement, PathElement):
