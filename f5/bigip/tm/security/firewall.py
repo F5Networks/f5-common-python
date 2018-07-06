@@ -124,13 +124,13 @@ class Rule_List(Resource):
 
 class Rules_s(Collection):
     """BIG-IP® AFM® Rules sub-collection."""
-    def __init__(self, rule_list):
-        super(Rules_s, self).__init__(rule_list)
+    def __init__(self, policy):
+        super(Rules_s, self).__init__(policy)
         self._meta_data['required_json_kind'] = \
-            'tm:security:firewall:rule-list:rules:rulescollectionstate'
+            'tm:security:firewall:policy:rules:rulescollectionstate'
         self._meta_data['allowed_lazy_attributes'] = [Rule]
         self._meta_data['attribute_registry'] = \
-            {'tm:security:firewall:rule-list:rules:rulesstate':
+            {'tm:security:firewall:policy:rules:rulesstate':
                 Rule}
 
 
@@ -148,7 +148,7 @@ class Rule(Resource, CheckExistenceMixin):
     def __init__(self, rules_s):
         super(Rule, self).__init__(rules_s)
         self._meta_data['required_json_kind'] = \
-            'tm:security:firewall:rule-list:rules:rulesstate'
+            'tm:security:firewall:policy:rules:rulesstate'
         self._meta_data['required_creation_parameters'].update(('action',))
         self._meta_data['exclusive_attributes'].append(
             ('place-after', 'place-before'))
@@ -223,7 +223,7 @@ class Policy(Resource):
         self._meta_data['required_load_parameters'].update(('partition',))
         self._meta_data['allowed_lazy_attributes'] = [Rules_s]
         self._meta_data['attribute_registry'] = \
-            {'tm:security:firewall:rule-list:rules:rulescollectionstate':
+            {'tm:security:firewall:policy:rules:rulescollectionstate':
                 Rules_s}
 
 
