@@ -64,6 +64,7 @@ class Profile(OrganizingCollection):
             Ipsecalgs,
             Mblbs,
             Mssqls,
+            Netflows,
             Ntlms,
             Ocsp_Stapling_Params_s,
             One_Connects,
@@ -597,6 +598,23 @@ class Mssql(Resource):
         super(Mssql, self).__init__(Mssqls)
         self._meta_data['required_json_kind'] = \
             'tm:ltm:profile:mssql:mssqlstate'
+
+
+class Netflows(Collection):
+    """BIG-IP® Netflow profile collection."""
+    def __init__(self, profile):
+        super(Netflows, self).__init__(profile)
+        self._meta_data['allowed_lazy_attributes'] = [Netflow]
+        self._meta_data['attribute_registry'] = \
+            {'tm:ltm:profile:netflow:netflowstate': Netflow}
+
+
+class Netflow(Resource):
+    """BIG-IP® Netflow resource."""
+    def __init__(self, Netflows):
+        super(Netflow, self).__init__(Netflows)
+        self._meta_data['required_json_kind'] = \
+            'tm:ltm:profile:netflow:netflowstate'
 
 
 class Ntlms(Collection):

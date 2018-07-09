@@ -645,6 +645,19 @@ class TestMssql(object):
 
 # End Mssql tests
 
+# Begin Netflow tests
+
+@pytest.mark.skipif(pytest.config.getoption('--release')
+                    < LooseVersion('13.0.0'),
+                    reason='Needs minimum of v13 TMOS to pass')
+class TestNetflow(object):
+    def test_netflow_MCURDL(self, request, mgmt_root):
+        netflow = HelperTest('Netflows')
+        netflow.test_MCURDL(request, mgmt_root)
+
+
+# End Netflow tests
+
 # Begin Ntlm tests
 
 
