@@ -995,6 +995,11 @@ class Resource(ResourceBase):
                     "resource, the _meta_data['uri'] is %s and it should"\
                     " not be changed." % (self._meta_data['uri'])
             raise URICreationCollision(error)
+
+        # Forcing Common partition if not supplied to normalize API behavior on fullPath (Issue 1464)
+        if 'partition' not in kwargs:
+            kwargs['partition'] = 'Common'
+
         self._check_exclusive_parameters(**kwargs)
         requests_params = self._handle_requests_params(kwargs)
         self._minimum_one_is_missing(**kwargs)
@@ -1072,6 +1077,11 @@ class Resource(ResourceBase):
                     "resource, the _meta_data['uri'] is %s and it should"\
                     " not be changed." % (self._meta_data['uri'])
             raise URICreationCollision(error)
+
+        # Forcing Common partition if not supplied to normalize API behavior on fullPath (Issue 1464)
+        if 'partition' not in kwargs:
+            kwargs['partition'] = 'Common'
+
         requests_params = self._handle_requests_params(kwargs)
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
@@ -1177,6 +1187,11 @@ class Resource(ResourceBase):
     def _exists(self, **kwargs):
         """wrapped with exists, override that in a subclass to customize """
         requests_params = self._handle_requests_params(kwargs)
+
+        # Forcing Common partition if not supplied to normalize API behavior on fullPath (Issue 1464)
+        if 'partition' not in kwargs:
+            kwargs['partition'] = 'Common'
+
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
         session = self._meta_data['bigip']._meta_data['icr_session']
