@@ -142,7 +142,7 @@ class TestRuleList(object):
 class TestRulesSubcollection(object):
     def test_rule_subcollection(self, fakeicontrolsession):
         pc = Rules_s(Makerulelist(fakeicontrolsession))
-        kind = 'tm:security:firewall:rule-list:rules:rulesstate'
+        kind = 'tm:security:firewall:policy:rules:rulesstate'
         test_meta = pc._meta_data['attribute_registry']
         test_meta2 = pc._meta_data['allowed_lazy_attributes']
         assert isinstance(pc, Rules_s)
@@ -177,7 +177,7 @@ class TestPolicy(object):
 class TestPolicyRuleSubCollection(object):
     def test_policy_rule_subcollection(self, fakeicontrolsession):
         pc = Rules_s(MakePolicyRules(fakeicontrolsession))
-        kind = 'tm:security:firewall:rule-list:rules:rulesstate'
+        kind = 'tm:security:firewall:policy:rules:rulesstate'
         test_meta = pc._meta_data['attribute_registry']
         test_meta2 = pc._meta_data['allowed_lazy_attributes']
         assert isinstance(pc, Rules_s)
