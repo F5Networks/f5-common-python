@@ -188,6 +188,13 @@ class Members(Resource):
         requests_params = self._handle_requests_params(kwargs)
         self._check_load_parameters(**kwargs)
         kwargs['uri_as_parts'] = True
+
+        # Forcing Common partition if not supplied to normalize API behavior on fullPath (Issue 1464)
+        # Adding here to pool members as this is overridden from resource; this will fix exists false checks
+        # when partition is not supplied as well
+        if 'partition' not in kwargs:
+            kwargs['partition'] = 'Common'
+
         session = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['container']._meta_data['uri']
         kwargs.update(requests_params)
