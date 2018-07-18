@@ -54,3 +54,6 @@ docs/venv/*
 
 # iControl REST logs
 logs
+
+# Locally built RPMS
+f5-sdk-dist/rpms/
