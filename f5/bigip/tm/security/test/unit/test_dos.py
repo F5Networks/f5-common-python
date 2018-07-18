@@ -19,6 +19,7 @@ import pytest
 from f5.bigip import ManagementRoot
 from f5.bigip.tm.security.dos import Application
 from f5.bigip.tm.security.dos import Applications
+from f5.bigip.tm.security.dos import Device_Config
 from f5.bigip.tm.security.dos import Dos_Network
 from f5.bigip.tm.security.dos import Dos_Networks
 from f5.bigip.tm.security.dos import Profile
@@ -27,7 +28,10 @@ from f5.bigip.tm.security.dos import Protocol_Dns_s
 from f5.bigip.tm.security.dos import Protocol_Sip
 from f5.bigip.tm.security.dos import Protocol_Sips
 
+
 from f5.sdk_exception import MissingRequiredCreationParameter
+from f5.sdk_exception import MissingRequiredReadParameter
+from f5.sdk_exception import UnsupportedOperation
 
 from six import iterkeys
 
@@ -37,6 +41,13 @@ def FakeProfile():
     fake_profiles = mock.MagicMock()
     fake_profile = Profile(fake_profiles)
     return fake_profile
+
+
+@pytest.fixture
+def FakeDeviceConfig():
+    fake_device_configs = mock.MagicMock()
+    fake_device_config = Device_Config(fake_device_configs)
+    return fake_device_config
 
 
 def Makeprofile(fakeicontrolsession):
@@ -150,3 +161,19 @@ class TestProtocolSipSubcollection(object):
         pc = Protocol_Sips(Makeprofile(fakeicontrolsession))
         with pytest.raises(MissingRequiredCreationParameter):
             pc.protocol_sip.create()
+
+
+class TestDosDeviceConfig(object):
+    def test_create_raises(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        with pytest.raises(UnsupportedOperation):
+            b.tm.security.dos.device_configs.device_config.create()
+
+    def test_delete_raises(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        with pytest.raises(UnsupportedOperation):
+            b.tm.security.dos.device_configs.device_config.delete()
+
+    def test_load_no_args(self, FakeDeviceConfig):
+        with pytest.raises(MissingRequiredReadParameter):
+            FakeDeviceConfig.load()

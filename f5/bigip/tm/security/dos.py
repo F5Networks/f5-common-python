@@ -32,6 +32,8 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
 from f5.sdk_exception import NonExtantApplication
+from f5.sdk_exception import UnsupportedOperation
+
 
 from distutils.version import LooseVersion
 
@@ -41,7 +43,9 @@ class Dos(OrganizingCollection):
 
     def __init__(self, security):
         super(Dos, self).__init__(security)
-        self._meta_data['allowed_lazy_attributes'] = [Profiles]
+        self._meta_data['allowed_lazy_attributes'] = [
+            Profiles,
+            Device_Configs]
 
 
 class Profiles(Collection):
@@ -297,3 +301,38 @@ class Protocol_Sip(Resource, CheckExistenceMixin):
 
         return self._check_existence_by_collection(
             self._meta_data['container'], kwargs['name'])
+
+
+class Device_Configs(Collection):
+    """BIG-IP® Dos Device collection"""
+    def __init__(self, dos):
+        super(Device_Configs, self).__init__(dos)
+        self._meta_data['allowed_lazy_attributes'] = [Device_Config]
+        self._meta_data['attribute_registry'] = \
+            {'tm:security:dos:device-config:device-configstate': Device_Config}
+
+
+class Device_Config(Resource):
+    """BIG-IP® Dos Device resource"""
+    def __init__(self, device_configs):
+        super(Device_Config, self).__init__(device_configs)
+        self._meta_data['required_json_kind'] = \
+            'tm:security:dos:device-config:device-configstate'
+
+    def create(self, **kwargs):
+        """Create is not supported for Device_Config
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the update method" % self.__class__.__name__
+        )
+
+    def delete(self, **kwargs):
+        """Delete is not supported for Device_Config
+
+        :raises: UnsupportedOperation
+        """
+        raise UnsupportedOperation(
+            "%s does not support the delete method" % self.__class__.__name__
+        )

@@ -27,6 +27,7 @@ from requests.exceptions import HTTPError
 
 DESC = 'TESTCHANGEDIT'
 ATCK = [{'name': 'tcp-rst-flood', 'rateLimit': 100, 'rateThreshold': 50}]
+DIV_ATCK = [{'name': 'tcp-syn-flood', 'defaultInternalRateLimit': 100, 'detectionThresholdPps': 10}]
 
 
 @pytest.fixture(scope='function')
@@ -35,6 +36,13 @@ def dos_profile(mgmt_root):
         name='fake_dos', partition='Common')
     yield profile
     profile.delete()
+
+
+@pytest.fixture(scope='function')
+def dos_device_config(mgmt_root):
+    device_config = mgmt_root.tm.security.dos.device_configs.device_config.load(
+        name='dos-device-config', partition='Common')
+    yield device_config
 
 
 class TestDosProfiles(object):
@@ -602,3 +610,28 @@ class TestProtocolSip(object):
         assert isinstance(rc, list)
         assert len(rc)
         assert isinstance(rc[0], Protocol_Sip)
+
+
+class TestDeviceConfig(object):
+    """Dos device config functional tests, cant create or delete"""
+    def test_load_req_arg(self, dos_device_config):
+        r1 = dos_device_config
+        URI = 'https://localhost/mgmt/tm/security/dos/device-config/~Common' \
+              '~dos-device-config'
+        assert r1.name == 'dos-device-config'
+        assert r1.partition == 'Common'
+        assert r1.selfLink.startswith(URI)
+
+    def test_load_and_update(self, dos_device_config, mgmt_root):
+        r1 = dos_device_config
+        r2 = mgmt_root.tm.security.dos.device_configs.device_config.load(name='dos-device-config', partition='Common')
+        assert r1.name == r2.name
+        assert r1.selfLink == r2.selfLink
+        assert r1.dosDeviceVector == r2.dosDeviceVector
+        r2.dosDeviceVector = DIV_ATCK
+        r2.update()
+        assert r1.selfLink == r2.selfLink
+        assert r1.name == r2.name
+        assert r1.dosDeviceVector != r2.dosDeviceVector
+        r1.refresh()
+        assert r1.dosDeviceVector == r2.dosDeviceVector
