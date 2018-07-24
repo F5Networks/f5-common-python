@@ -37,3 +37,17 @@ def test_delete_raises(FakeLicense):
     with pytest.raises(UnsupportedMethod) as EIO:
         FakeLicense.delete()
     assert str(EIO.value) == "License does not support the delete method"
+
+
+def test_exec_install(FakeLicense):
+    assert "install" in FakeLicense._meta_data['allowed_commands']
+    FakeLicense._meta_data['bigip']._meta_data.__getitem__.return_value = "14.0.0"
+    FakeLicense._exec_cmd = mock.MagicMock()
+    version_dict = {"13.1.0": 13, "14.0.0": 14}
+
+    def get_version(version):
+        return version_dict[version]
+
+    License.LooseVersion = mock.MagicMock(side_effect=get_version)
+    FakeLicense.exec_cmd("install", registrationKey='1234-56789-0')
+    FakeLicense._exec_cmd.assert_called_with("install", registrationKey='1234-56789-0')

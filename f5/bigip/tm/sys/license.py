@@ -41,7 +41,7 @@ class License(UnnamedResource, CommandExecutionMixin):
         super(License, self).__init__(sys)
         self._meta_data['required_json_kind'] =\
             "tm:sys:license:licensestats"
-        self._meta_data['allowed_commands'].append('revoke')
+        self._meta_data['allowed_commands'].extend(['revoke', 'install'])
 
     def exec_cmd(self, command, **kwargs):
         self._is_allowed_command(command)
