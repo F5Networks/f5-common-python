@@ -55,6 +55,7 @@ from f5.bigip.tm.sys.memory import Memory
 from f5.bigip.tm.sys.ntp import Ntp
 from f5.bigip.tm.sys.performance import Performances
 from f5.bigip.tm.sys.provision import Provision
+from f5.bigip.tm.sys.service import Service
 from f5.bigip.tm.sys.sflow import Sflow
 from f5.bigip.tm.sys.smtp_server import Smtp_Servers
 from f5.bigip.tm.sys.snmp import Snmp
@@ -97,6 +98,7 @@ class Sys(OrganizingCollection):
             Ntp,
             Performances,
             Provision,
+            Service,
             Sflow,
             Smtp_Servers,
             Snmp,
