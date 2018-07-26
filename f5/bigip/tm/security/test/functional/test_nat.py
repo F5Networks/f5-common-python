@@ -158,6 +158,22 @@ class TestSrcTranslation(object):
         assert len(src)
         assert isinstance(src[0], Source_Translation)
 
+    def test_src_translation_collection_reset_stats(self, mgmt_root):
+        src_coll = mgmt_root.tm.security.nat.source_translations
+        src_coll_reset_stats = src_coll.exec_cmd('reset-stats')
+        assert src_coll_reset_stats.command == 'reset-stats'
+        assert src_coll_reset_stats.kind == 'tm:security:nat:source-translation:reset-statsstate'
+
+    def test_src_translation_reset_stats(self, mgmt_root, srctranslation):
+        s1 = srctranslation
+        assert s1.name == 'fake_src'
+        assert s1.partition == 'Common'
+        src_coll = mgmt_root.tm.security.nat.source_translations
+        src_coll_reset_stats = src_coll.exec_cmd('reset-stats', name='fake_src')
+        assert src_coll_reset_stats.command == 'reset-stats'
+        assert src_coll_reset_stats.kind == 'tm:security:nat:source-translation:reset-statsstate'
+        assert src_coll_reset_stats.name == s1.name
+
 
 @pytest.mark.skipif(
     LooseVersion(pytest.config.getoption('--release')) < LooseVersion('12.1.0'),
@@ -263,6 +279,22 @@ class TestDstTranslation(object):
         assert isinstance(dst, list)
         assert len(dst)
         assert isinstance(dst[0], Destination_Translation)
+
+    def test_dst_translation_collection_reset_stats(self, mgmt_root):
+        dst_coll = mgmt_root.tm.security.nat.destination_translations
+        dst_coll_reset_stats = dst_coll.exec_cmd('reset-stats')
+        assert dst_coll_reset_stats.command == 'reset-stats'
+        assert dst_coll_reset_stats.kind == 'tm:security:nat:destination-translation:reset-statsstate'
+
+    def test_dst_translation_reset_stats(self, mgmt_root, dsttranslation):
+        d1 = dsttranslation
+        assert d1.name == 'fake_dst'
+        assert d1.partition == 'Common'
+        dst_coll = mgmt_root.tm.security.nat.destination_translations
+        dst_coll_reset_stats = dst_coll.exec_cmd('reset-stats', name='fake_dst')
+        assert dst_coll_reset_stats.command == 'reset-stats'
+        assert dst_coll_reset_stats.kind == 'tm:security:nat:destination-translation:reset-statsstate'
+        assert dst_coll_reset_stats.name == d1.name
 
 
 @pytest.mark.skipif(
