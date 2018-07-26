@@ -27,6 +27,7 @@ REST Kind
     ``tm:security:nat:*``
 """
 from f5.bigip.mixins import CheckExistenceMixin
+from f5.bigip.mixins import CommandExecutionMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
@@ -99,7 +100,7 @@ class Rule(Resource, CheckExistenceMixin):
         return super(Rule, self)._load(**kwargs)
 
 
-class Source_Translations(Collection):
+class Source_Translations(Collection, CommandExecutionMixin):
     """BIG-IP® AFM® Nat Source Translation collection"""
 
     def __init__(self, nat):
@@ -108,9 +109,10 @@ class Source_Translations(Collection):
         self._meta_data['attribute_registry'] = \
             {'tm:security:nat:source-translation:source-translationstate':
                 Source_Translation}
+        self._meta_data['allowed_commands'].append('reset-stats')
 
 
-class Source_Translation(Resource):
+class Source_Translation(Resource, CommandExecutionMixin):
     def __init__(self, source_translations):
         super(Source_Translation, self).__init__(source_translations)
         self._meta_data['required_json_kind'] = \
@@ -119,9 +121,10 @@ class Source_Translation(Resource):
             ('partition',))
         self._meta_data['required_load_parameters'].update(
             ('partition',))
+        self._meta_data['allowed_commands'].append('reset-stats')
 
 
-class Destination_Translations(Collection):
+class Destination_Translations(Collection, CommandExecutionMixin):
     """BIG-IP® AFM® Nat Destination Translation collection"""
 
     def __init__(self, nat):
@@ -130,9 +133,10 @@ class Destination_Translations(Collection):
         self._meta_data['attribute_registry'] = \
             {'tm:security:nat:destination-translation:destination-translationstate':
                 Destination_Translation}
+        self._meta_data['allowed_commands'].append('reset-stats')
 
 
-class Destination_Translation(Resource):
+class Destination_Translation(Resource, CommandExecutionMixin):
     def __init__(self, destination_translations):
         super(Destination_Translation, self).__init__(destination_translations)
         self._meta_data['required_json_kind'] = \
@@ -141,6 +145,7 @@ class Destination_Translation(Resource):
             ('partition',))
         self._meta_data['required_load_parameters'].update(
             ('partition',))
+        self._meta_data['allowed_commands'].append('reset-stats')
 
 
 class Policy_s(Collection):

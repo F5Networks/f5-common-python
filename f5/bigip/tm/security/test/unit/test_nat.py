@@ -22,6 +22,7 @@ from f5.bigip.tm.security.nat import Policy
 from f5.bigip.tm.security.nat import Rule
 from f5.bigip.tm.security.nat import Rules_s
 from f5.bigip.tm.security.nat import Source_Translation
+from f5.sdk_exception import InvalidCommand
 from f5.sdk_exception import MissingRequiredCreationParameter
 
 from six import iterkeys
@@ -60,7 +61,7 @@ def MakeSrcTranslation(fakeicontrolsession):
     p = a.tm.security.nat.source_translations.source_translation
     p._meta_data['uri'] = \
         'https://192.168.1.1:443/mgmt/tm/security/nat/source-translation/~Common' \
-        '~testsrctranslatiom/'
+        '~testsrctranslation/'
     return p
 
 
@@ -102,6 +103,11 @@ class TestSrcTranslation(object):
             b.tm.security.nat.source_translations.source_translation.create(
                 name='destined_to_fail')
 
+    def test_invalid_cmd(self, FakeSrcTranslation):
+        FakeSrcTranslation._meta_data['tmos_version'] = '12.1.0'
+        with pytest.raises(InvalidCommand):
+            FakeSrcTranslation.exec_cmd('restart', name='fake_src')
+
 
 class TestDstTranslation(object):
     def test_create_two(self, fakeicontrolsession):
@@ -121,6 +127,11 @@ class TestDstTranslation(object):
         with pytest.raises(MissingRequiredCreationParameter):
             b.tm.security.nat.destination_translations.destination_translation.create(
                 name='destined_to_fail')
+
+    def test_invalid_cmd(self, FakeDstTranslation):
+        FakeDstTranslation._meta_data['tmos_version'] = '12.1.0'
+        with pytest.raises(InvalidCommand):
+            FakeDstTranslation.exec_cmd('restart', name='fake_dst')
 
 
 class TestPolicy(object):
