@@ -15,8 +15,8 @@
 
 import pytest
 
-from f5.sdk_exception import MissingRequiredCreationParameter
 from f5.sdk_exception import NodeStateModifyUnsupported
+from f5.sdk_exception import RequiredOneOf
 
 
 TESTDESCRIPTION = "TESTDESCRIPTION"
@@ -40,7 +40,7 @@ def setup_node_test(request, mgmt_root, partition, name, addr):
 class TestNode(object):
     def test_create_missing_args(self, mgmt_root):
         n1 = mgmt_root.tm.ltm.nodes.node
-        with pytest.raises(MissingRequiredCreationParameter):
+        with pytest.raises(RequiredOneOf):
             n1.create(name="n1", partition='Common')
 
     def test_CURDLE(self, request, mgmt_root):
