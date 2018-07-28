@@ -46,6 +46,6 @@ class License(UnnamedResource, CommandExecutionMixin):
     def exec_cmd(self, command, **kwargs):
         self._is_allowed_command(command)
         self._check_command_parameters(**kwargs)
-        if LooseVersion(self._meta_data['bigip']._meta_data['tmos_version']) < LooseVersion('13.1.0'):
+        if LooseVersion(self._meta_data['bigip']._meta_data['tmos_version']) < LooseVersion('13.1.0') and command == 'revoke':
             raise UnsupportedTmosVersion('%s is not supported until version 13.1' % command)
         return self._exec_cmd(command, **kwargs)
