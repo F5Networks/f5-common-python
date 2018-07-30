@@ -31,6 +31,8 @@ from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
 from f5.bigip.resource import Stats
 from f5.sdk_exception import NodeStateModifyUnsupported
+from f5.sdk_exception import RequiredOneOf
+from six import iterkeys
 
 
 class Nodes(Collection):
@@ -47,11 +49,21 @@ class Node(Resource):
     def __init__(self, nodes):
         super(Node, self).__init__(nodes)
         self._meta_data['required_json_kind'] = 'tm:ltm:node:nodestate'
-        self._meta_data['required_creation_parameters'].update(
-            ('partition', 'address',)
-        )
+        self._meta_data['required_creation_parameters'] = set()
         self._meta_data['read_only_attributes'].append('ephemeral')
         self._meta_data['read_only_attributes'].append('address')
+
+    def create(self, **kwargs):
+        required_one_of = [
+            ['name', 'address'],
+            ['name', 'fqdn']
+        ]
+        args = set(iterkeys(kwargs))
+        has_any = [set(x).issubset(args) for x in required_one_of]
+        if len([x for x in has_any if x is True]) == 1:
+            return self._create(**kwargs)
+
+        raise RequiredOneOf(required_one_of)
 
     def update(self, **kwargs):
         """Call this to change the configuration of the service on the device.
