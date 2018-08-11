@@ -62,6 +62,8 @@ class Node(Resource):
         has_any = [set(x).issubset(args) for x in required_one_of]
         if len([x for x in has_any if x is True]) == 1:
             return self._create(**kwargs)
+        elif 'address' in kwargs and kwargs['address'] == 'any6' and 'fqdn' in kwargs:
+            return self._create(**kwargs)
 
         raise RequiredOneOf(required_one_of)
 
