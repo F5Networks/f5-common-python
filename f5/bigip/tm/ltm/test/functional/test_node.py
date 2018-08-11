@@ -15,6 +15,7 @@
 
 import pytest
 
+from distutils.version import LooseVersion
 from f5.sdk_exception import NodeStateModifyUnsupported
 from f5.sdk_exception import RequiredOneOf
 
@@ -202,6 +203,38 @@ class TestNode(object):
             n1.modify(session='monitor-enabled')
         assert "The node resource does not support a" in str(ex.value)
 
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) < LooseVersion('12.0.0'),
+        reason='This test only works on version 12.0.0 or greater'
+    )
+    def test_create_fqdn_with_address(self, request, mgmt_root):
+        def teardown():
+            if mgmt_root.tm.ltm.nodes.node.exists(name='foo.example', partition='Common'):
+                loaded_node = mgmt_root.tm.ltm.nodes.node.load(
+                    name='foo.example', partition='Common')
+                loaded_node.delete()
+        request.addfinalizer(teardown)
+        params = {
+            "name": "foo.example",
+            "address": "any6",
+            "fqdn": {
+                "addressFamily": "ipv4",
+                "autopopulate": "enabled",
+                "downInterval": 5,
+                "interval": 3600,
+                "tmName": "foo.bar.com"
+            },
+            "ratio": 1,
+            "session": "user-enabled",
+            "state": "user-up"
+        }
+
+        n1 = mgmt_root.tm.ltm.nodes.node.create(**params)
+        n2 = mgmt_root.tm.ltm.nodes.node.load(name=n1.name, partition=n1.partition)
+        assert n1.name == 'foo.example'
+        assert n2.name == n1.name
+        assert n1.generation == n2.generation
+
 
 class TestNodes(object):
     def test_get_collection(self, request, mgmt_root):
@@ -218,7 +251,7 @@ class TestNodes(object):
             '~Common~node1/stats'
         assert stats_link in nodes_stats.entries
         node_nested_stats = nodes_stats.entries[stats_link]['nestedStats']
-        assert node_nested_stats['selfLink'] == stats_link+'?ver='+opt_release
+        assert node_nested_stats['selfLink'].startswith(stats_link)
         entries = node_nested_stats['entries']
         assert entries['tmName']['description'] == '/Common/node1'
         assert entries['status.enabledState']['description'] == 'enabled'
