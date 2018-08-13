@@ -15,6 +15,8 @@
 
 import pytest
 
+
+from distutils.version import LooseVersion
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.security.flowspec_route_injector import Neighbor
 from f5.bigip.tm.security.flowspec_route_injector import Profile
@@ -45,6 +47,10 @@ def neighbor(mgmt_root):
     p1.delete()
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('14.0.0'),
+    reason='This collection is fully implemented on 14.0.0 or greater.'
+)
 class TestProfile(object):
     def test_create_req_args(self, mgmt_root):
         n = {'name': '1.1.1.1', 'local-address': '2.2.2.2', 'local-as': '20', 'remote-as': '30'}
@@ -118,6 +124,10 @@ class TestProfile(object):
         assert isinstance(pc[0], Profile)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('14.0.0'),
+    reason='This collection is fully implemented on 14.0.0 or greater.'
+)
 class TestNeighbor(object):
     def test_mandatory_attribute_missing(self, mgmt_root):
         n = {'name': '1.1.1.1', 'local-address': '2.2.2.2', 'local-as': '20', 'remote-as': '30'}

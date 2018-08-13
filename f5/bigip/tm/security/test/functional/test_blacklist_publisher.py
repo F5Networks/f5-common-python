@@ -15,6 +15,8 @@
 
 import pytest
 
+
+from distutils.version import LooseVersion
 from f5.bigip.tm.security.blacklist_publisher import Category
 from f5.bigip.tm.security.blacklist_publisher import Profile
 from requests.exceptions import HTTPError
@@ -38,6 +40,10 @@ def category(mgmt_root):
     c1.delete()
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.0.0'),
+    reason='This collection is fully implemented on 13.0.0 or greater.'
+)
 class TestBlProfile(object):
     def test_create_missing_mandatory_attr_raises(self, mgmt_root):
         p1 = mgmt_root.tm.security.blacklist_publisher.profile_s.profile
@@ -128,6 +134,10 @@ class TestBlProfile(object):
         assert isinstance(prof[0], Profile)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.0.0'),
+    reason='This collection is fully implemented on 13.0.0 or greater.'
+)
 class TestBlCategory(object):
     def test_create_missing_mandatory_attr_raises(self, mgmt_root):
         c1 = mgmt_root.tm.security.blacklist_publisher.category_s.category

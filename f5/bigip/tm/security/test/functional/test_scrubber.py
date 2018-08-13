@@ -15,6 +15,7 @@
 
 import pytest
 
+from distutils.version import LooseVersion
 from f5.bigip.resource import MissingRequiredCreationParameter
 from f5.bigip.tm.security.scrubber import Profile
 from f5.bigip.tm.security.scrubber import Scrubber_Categories
@@ -108,6 +109,10 @@ def scrubber_rd_network_prefix(mgmt_root):
     rd1.delete()
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.0.0'),
+    reason='This collection is fully implemented on 13.0.0 or greater.'
+)
 class TestProfile(object):
     def test_load_no_object(self, mgmt_root):
         p = mgmt_root.tm.security.scrubber.profile_s.profile
@@ -138,6 +143,10 @@ class TestProfile(object):
         assert isinstance(pc[0], Profile)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.0.0'),
+    reason='This collection is fully implemented on 13.0.0 or greater.'
+)
 class TestScrubberCategories(object):
     def test_mandatory_attribute_missing(self, mgmt_root):
         p1 = mgmt_root.tm.security.scrubber.profile_s.profile.load(name='scrubber-profile-default', partition='Common')
@@ -229,6 +238,10 @@ class TestScrubberCategories(object):
         assert isinstance(cat_col[0], Scrubber_Categories)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.0.0'),
+    reason='This collection is fully implemented on 13.0.0 or greater.'
+)
 class TestScrubberVS(object):
     def test_mandatory_attribute_missing(self, mgmt_root):
         p1 = mgmt_root.tm.security.scrubber.profile_s.profile.load(name='scrubber-profile-default', partition='Common')
@@ -322,6 +335,10 @@ class TestScrubberVS(object):
         assert isinstance(vs_col[0], Scrubber_Virtual_Server)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.0.0'),
+    reason='This collection is fully implemented on 13.0.0 or greater.'
+)
 class TestScrubberNPS(object):
     def test_mandatory_attribute_missing(self, mgmt_root):
         p1 = mgmt_root.tm.security.scrubber.profile_s.profile.load(name='scrubber-profile-default', partition='Common')
@@ -415,6 +432,10 @@ class TestScrubberNPS(object):
         assert isinstance(nps_col[0], Scrubber_Netflow_Protected_Server)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.0.0'),
+    reason='This collection is fully implemented on 13.0.0 or greater.'
+)
 class TestScrubberRtDomain(object):
     def test_mandatory_attribute_missing(self, mgmt_root):
         p1 = mgmt_root.tm.security.scrubber.profile_s.profile.load(name='scrubber-profile-default', partition='Common')
@@ -504,6 +525,10 @@ class TestScrubberRtDomain(object):
         assert isinstance(rd_col[0], Scrubber_Rt_Domain)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('13.0.0'),
+    reason='This collection is fully implemented on 13.0.0 or greater.'
+)
 class TestScrubberRdNetworkPrefix(object):
     def test_mandatory_attribute_missing(self, mgmt_root):
         p1 = mgmt_root.tm.security.scrubber.profile_s.profile.load(name='scrubber-profile-default', partition='Common')

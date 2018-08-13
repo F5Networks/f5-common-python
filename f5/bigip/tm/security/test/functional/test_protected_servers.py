@@ -15,6 +15,8 @@
 
 import pytest
 
+
+from distutils.version import LooseVersion
 from f5.bigip.tm.security.protected_servers import Netflow_Protected_Server
 from f5.bigip.tm.security.protected_servers import Traffic_Matching_Criteria
 from requests.exceptions import HTTPError
@@ -39,6 +41,10 @@ def netflow_protected_server(mgmt_root, traffic_matching_criteria):
     nps1.delete()
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('14.0.0'),
+    reason='This collection is fully implemented on 14.0.0 or greater.'
+)
 class TestTrafficMatchingCriteria(object):
     def test_create_req_args(self, mgmt_root):
         tmc1 = mgmt_root.tm.security.protected_servers.traffic_matching_criteria_s.traffic_matching_criteria.create(
@@ -125,6 +131,10 @@ class TestTrafficMatchingCriteria(object):
         assert isinstance(tmc[0], Traffic_Matching_Criteria)
 
 
+@pytest.mark.skipif(
+    LooseVersion(pytest.config.getoption('--release')) < LooseVersion('14.0.0'),
+    reason='This collection is fully implemented on 14.0.0 or greater.'
+)
 class TestNetflowProtectedServer(object):
     def test_create_req_args(self, mgmt_root, traffic_matching_criteria):
         tmc = traffic_matching_criteria
