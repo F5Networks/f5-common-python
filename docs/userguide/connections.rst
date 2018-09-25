@@ -19,6 +19,7 @@ You can, however, supply one or more of the following kwargs (defaults listed):
     port             443
     icontrol_version ''
     token            False
+    token_to_use     None
     verify           False
     auth_provider    None
     ================ =====
@@ -29,6 +30,13 @@ You can, however, supply one or more of the following kwargs (defaults listed):
 
         >>> from f5.bigip import ManagementRoot
         >>> mgmt = ManagementRoot('192.168.1.1.', 'user', 'pass', port=4443, token=True)
+
+.. topic:: Example: Use existing authentication token
+
+    .. code-block:: python
+
+        >>> from f5.bigip import ManagementRoot
+        >>> mgmt = ManagementRoot('192.168.1.1', 'user', 'pass', token=True, token_to_use='424CC392BC96AC52A19D32DF65BB1BC80F0EC63F629471C3AFA8A055C52F391B2DC124E17A5E8D8C7F3E91E1D1909629B6BF124747DEF879A1F028129E5486F4'
 
 .. topic:: Example: Enable cert verification
 
