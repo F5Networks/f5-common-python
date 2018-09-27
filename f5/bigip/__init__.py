@@ -64,6 +64,7 @@ class BaseManagement(PathElement):
             port=kwargs.pop('port', 443),
             icontrol_version=kwargs.pop('icontrol_version', ''),
             token=kwargs.pop('token', False),
+            token_to_use=kwargs.pop('token_to_use', None),
             verify=kwargs.pop('verify', False),
             auth_provider=kwargs.pop('auth_provider', None),
             debug=kwargs.pop('debug', False)
@@ -82,7 +83,8 @@ class BaseManagement(PathElement):
             username=kwargs['username'],
             password=kwargs['password'],
             timeout=kwargs['timeout'],
-            verify=kwargs['verify']
+            verify=kwargs['verify'],
+            token_to_use=kwargs['token_to_use']
         )
         if kwargs['auth_provider']:
             params['auth_provider'] = kwargs['auth_provider']
