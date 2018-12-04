@@ -29,6 +29,7 @@ REST Kind
 
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.analytics.dos_vis_common import Dos_Vis_Common
+from f5.bigip.tm.analytics.protocol_inspection import Protocol_Inspection
 
 
 class Analytics(OrganizingCollection):
@@ -41,4 +42,5 @@ class Analytics(OrganizingCollection):
         super(Analytics, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
             Dos_Vis_Common,
+            Protocol_Inspection
         ]
