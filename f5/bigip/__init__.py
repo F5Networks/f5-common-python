@@ -23,12 +23,12 @@ try:
 except ImportError:
     import urllib.parse as urlparse
 
-try:
-    import signal
-    from signal import SIGALRM
-    HAS_SIGNAL = True
-except ImportError:
-    HAS_SIGNAL = False
+# try:
+#     import signal
+#     from signal import SIGALRM
+#     HAS_SIGNAL = True
+# except ImportError:
+#     HAS_SIGNAL = False
 
 from f5.bigip.cm import Cm
 from f5.bigip.resource import PathElement
@@ -116,13 +116,23 @@ class BaseManagement(PathElement):
     def _get_tmos_version(self):
         connect = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['uri'] + 'tm/sys/'
-        if HAS_SIGNAL:
-            signal.signal(SIGALRM, timeout_handler)
-            signal.alarm(int(self.args['timeout']))
-            response = connect.get(base_uri)
-            signal.alarm(0)
-        else:
-            response = connect.get(base_uri)
+        # try:
+        #     if HAS_SIGNAL:
+        #         signal.signal(SIGALRM, timeout_handler)
+        #         signal.alarm(int(self.args['timeout']))
+        #         response = connect.get(base_uri)
+        #         signal.alarm(0)
+        #     else:
+        #         response = connect.get(base_uri)
+        # except ValueError:
+        #     # Flask raises this when running F5-SDK in an instance
+        #     response = connect.get(base_uri)
+
+        ##
+        # Adding while commenting out SIGALRM - JER 2/8/2019
+        response = connect.get(base_uri)
+        ##
+
         ver = response.json()
         version = urlparse.parse_qs(
             urlparse.urlparse(ver['selfLink']).query)['ver'][0]
