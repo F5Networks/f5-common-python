@@ -17,8 +17,8 @@ from f5.utils.responses.handlers import Stats
 
 
 def test_clock_load(request, mgmt_root):
-        # Load
-        bigipclock = str(Stats(mgmt_root.tm.sys.clock.load()).stat.fullDate['description'])
-        bigipdate = bigipclock.split("T")[0]
+    # Load
+    bigipclock = str(Stats(mgmt_root.tm.sys.clock.load()).stat.fullDate['description'])
+    bigipdate = bigipclock.split("T")[0]
 
-        assert bigipdate == datetime.strptime(bigipdate, "%Y-%m-%d").strftime('%Y-%m-%d')
+    assert bigipdate == datetime.strptime(bigipdate, "%Y-%m-%d").strftime('%Y-%m-%d')

@@ -285,7 +285,7 @@ class HelperTest(object):
         session.post.side_effect = error
         memres._meta_data['bigip']._meta_data['icr_session'] = session
         with pytest.raises(HTTPError) as err:
-                memres.create(name='fake', partition='fakepart')
+            memres.create(name='fake', partition='fakepart')
         assert err.value.response.status_code == 500
 
     def test_404_response_v12_1(self, fakeicontrolsession_v12):
