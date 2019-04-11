@@ -1,6 +1,6 @@
 # coding=utf-8
 #
-# Copyright 2016 F5 Networks Inc.
+# Copyright 2019 F5 Networks Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ class File(OrganizingCollection):
         super(File, self).__init__(sys)
         self._meta_data['allowed_lazy_attributes'] = [
             Data_Groups,
+            External_Monitors,
             Ifiles,
             Ssl_Certs,
             Ssl_Csrs,
@@ -70,6 +71,25 @@ class Data_Group(Resource):
             if 'type' in self.__dict__:
                 del self.__dict__['type']
         return self._update(**kwargs)
+
+
+class External_Monitors(Collection):
+    """BIG-IP® System sys file data-groups collection."""
+    def __init__(self, File):
+        super(External_Monitors, self).__init__(File)
+        self._meta_data['allowed_lazy_attributes'] = [External_Monitor]
+        self._meta_data['attribute_registry'] =\
+            {'tm:sys:file:external-monitor:external-monitorstate': External_Monitor}
+
+
+class External_Monitor(Resource):
+    """BIG-IP® System sys file data-groups resource."""
+    def __init__(self, external_monitors):
+        super(External_Monitor, self).__init__(external_monitors)
+        self._meta_data['required_json_kind'] =\
+            'tm:sys:file:external-monitor:external-monitorstate'
+        self._meta_data['required_creation_parameters'].update(
+            ('name', 'sourcePath'))
 
 
 class Ifiles(Collection):

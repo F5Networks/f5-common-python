@@ -90,7 +90,7 @@ def test_CURDL_datagroup(request, mgmt_root):
     # Create
     ntf = NamedTemporaryFile(delete=False)
     ntf_basename = os.path.basename(ntf.name)
-    ntf.write('"name1" := "value1",')
+    ntf.write(b'"name1" := "value1",')
     ntf.seek(0)
     # Upload the file
     mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
@@ -103,7 +103,7 @@ def test_CURDL_datagroup(request, mgmt_root):
     assert dg1.name == dg2.name
 
     # Rewrite the contents and update the object
-    ntf.write('"name2" := "value2",')
+    ntf.write(b'"name2" := "value2",')
     ntf.seek(0)
     mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
 
@@ -118,6 +118,55 @@ def test_CURDL_datagroup(request, mgmt_root):
     dg4 = mgmt_root.tm.sys.file.data_groups.data_group.load(name=ntf_basename)
     dg4.modify(sourcePath=tpath_name)
     assert dg1.revision != dg4.revision
+
+
+def setup_externalmonitor_test(request, mgmt_root, name, sourcepath, **kwargs):
+    em1 = mgmt_root.tm.sys.file.external_monitors.external_monitor.create(name=name,
+                                                                          sourcePath=sourcepath,
+                                                                          **kwargs)
+
+    def teardown():
+        # Remove the ifile.
+        try:
+            em1.delete()
+        except HTTPError as err:
+            if err.response.status_code != 404:
+                raise
+
+    request.addfinalizer(teardown)
+
+    return em1
+
+
+def test_CURDL_externalmonitor(request, mgmt_root):
+    # Create
+    ntf = NamedTemporaryFile(delete=False)
+    ntf_basename = os.path.basename(ntf.name)
+    ntf.write(b'this is a test file')
+    ntf.seek(0)
+    # Upload the file
+    mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
+
+    tpath_name = 'file:/var/config/rest/downloads/{0}'.format(ntf_basename)
+    em1 = setup_externalmonitor_test(request, mgmt_root, ntf_basename, tpath_name)
+    assert em1.name == ntf_basename
+
+    # Load Object
+    em2 = mgmt_root.tm.sys.file.external_monitors.external_monitor.load(name=ntf_basename)
+    assert em1.name == em2.name
+
+    # Rewrite file contents and Update Object
+    ntf.write(b'this is still a test file')
+    ntf.seek(0)
+    mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
+
+    em3 = mgmt_root.tm.sys.file.external_monitors.external_monitor.load(name=ntf_basename)
+    em3.update(sourcePath=tpath_name)
+    assert em1.revision != em3.revision
+
+    # Refresh em2 and make sure revision matches em3
+    em2.refresh()
+    assert em2.revision == em3.revision
 
 
 def setup_ifile_test(request, mgmt_root, name, sourcepath, **kwargs):
@@ -141,14 +190,13 @@ def test_CURDL_ifile(request, mgmt_root):
     # Create
     ntf = NamedTemporaryFile(delete=False)
     ntf_basename = os.path.basename(ntf.name)
-    ntf.write('this is a test file')
+    ntf.write(b'this is a test file')
     ntf.seek(0)
     # Upload the file
     mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
 
     tpath_name = 'file:/var/config/rest/downloads/{0}'.format(ntf_basename)
-    if1 = setup_ifile_test(request, mgmt_root, ntf_basename, tpath_name,
-                           )
+    if1 = setup_ifile_test(request, mgmt_root, ntf_basename, tpath_name)
     assert if1.name == ntf_basename
 
     # Load Object
@@ -156,7 +204,7 @@ def test_CURDL_ifile(request, mgmt_root):
     assert if1.name == if2.name
 
     # Rewrite file contents and Update Object
-    ntf.write('this is still a test file')
+    ntf.write(b'this is still a test file')
     ntf.seek(0)
     mgmt_root.shared.file_transfer.uploads.upload_file(ntf.name)
 
