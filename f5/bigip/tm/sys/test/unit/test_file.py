@@ -17,6 +17,7 @@ import mock
 import pytest
 
 from f5.bigip.tm.sys.file import Data_Group
+from f5.bigip.tm.sys.file import External_Monitor
 from f5.bigip.tm.sys.file import Ifile
 from f5.bigip.tm.sys.file import Ssl_Cert
 from f5.bigip.tm.sys.file import Ssl_Crl
@@ -41,8 +42,26 @@ def test_dg_create_no_args(FakeSysDatagroup):
 def test_dg_create_missing_arg(FakeSysDatagroup):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysDatagroup.create(name='test_dg')
-        assert 'sourcePath' in ex.value.message
-        assert 'type' in ex.value.message
+    assert 'sourcePath' in str(ex.value)
+    assert 'type' in str(ex.value)
+
+
+@pytest.fixture
+def FakeSysExternalMonitor():
+    fake_em_s = mock.MagicMock()
+    fake_em = External_Monitor(fake_em_s)
+    return fake_em
+
+
+def test_em_create_no_args(FakeSysExternalMonitor):
+    with pytest.raises(MissingRequiredCreationParameter):
+        FakeSysExternalMonitor.create()
+
+
+def test_em_create_missing_arg(FakeSysExternalMonitor):
+    with pytest.raises(MissingRequiredCreationParameter) as ex:
+        FakeSysExternalMonitor.create(name='test_em')
+    assert 'sourcePath' in str(ex.value)
 
 
 @pytest.fixture
@@ -60,7 +79,7 @@ def test_ifile_create_no_args(FakeSysIfile):
 def test_ifile_create_missing_arg(FakeSysIfile):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysIfile.create(name='test_ifile')
-        assert 'sourcePath' in ex.value.message
+    assert 'sourcePath' in str(ex.value)
 
 
 def test_ifile_modify(FakeSysIfile):
@@ -83,7 +102,7 @@ def test_cert_create_no_args(FakeSysCert):
 def test_cert_create_missing_arg(FakeSysCert):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysCert.create(name='test_cert')
-        assert 'sourcePath' in ex.value.message
+    assert 'sourcePath' in str(ex.value)
 
 
 def test_cert_modify(FakeSysCert):
@@ -106,7 +125,7 @@ def test_crl_create_no_args(FakeSysCrl):
 def test_crl_create_missing_arg(FakeSysCrl):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysCrl.create(name='test_crl')
-        assert 'sourcePath' in ex.value.message
+    assert 'sourcePath' in str(ex.value)
 
 
 def test_crl_modify(FakeSysCrl):
@@ -134,7 +153,7 @@ def test_csr_modify(FakeSysCsr):
 def test_csr_create_missing_arg(FakeSysCsr):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysCsr.create(name='test_csr')
-        assert 'sourcePath' in ex.value.message
+    assert 'sourcePath' in str(ex.value)
 
 
 @pytest.fixture
@@ -152,7 +171,7 @@ def test_key_create_no_args(FakeSysKey):
 def test_key_create_missing_arg(FakeSysKey):
     with pytest.raises(MissingRequiredCreationParameter) as ex:
         FakeSysKey.create(name='test_key')
-        assert 'sourcePath' in ex.value.message
+    assert 'sourcePath' in str(ex.value)
 
 
 def test_key_modify(FakeSysKey):
