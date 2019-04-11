@@ -76,13 +76,13 @@ def register_collection_atoms(collection):
         logging.debug(ex)
         return resource_registry
     for resource in resources:
-            try:
-                resource_registry[resource.selfLink] = resource
-            except KeyError as ex:
-                raise ex
-            except UnsupportedTmosVersion as ex:
-                logging.debug(ex)
-                continue
+        try:
+            resource_registry[resource.selfLink] = resource
+        except KeyError as ex:
+            raise ex
+        except UnsupportedTmosVersion as ex:
+            logging.debug(ex)
+            continue
     return resource_registry
 
 

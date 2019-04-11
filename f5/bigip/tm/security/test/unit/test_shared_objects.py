@@ -39,40 +39,40 @@ def FakePortLst():
 
 
 class TestAddresslist_sharedobjects(object):
-        def test_create_two(self, fakeicontrolsession):
-            b = ManagementRoot('192.168.1.1', 'admin', 'admin')
-            b._meta_data['tmos_version'] = '14.0.0'
-            a1 = b.tm.security.shared_objects.address_lists.address_list
-            a2 = b.tm.security.shared_objects.address_lists.address_list
-            assert a1 is not a2
+    def test_create_two(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        b._meta_data['tmos_version'] = '14.0.0'
+        a1 = b.tm.security.shared_objects.address_lists.address_list
+        a2 = b.tm.security.shared_objects.address_lists.address_list
+        assert a1 is not a2
 
-        def test_create_no_args(self, FakeAddrLst):
-            with pytest.raises(MissingRequiredCreationParameter):
-                FakeAddrLst.create()
+    def test_create_no_args(self, FakeAddrLst):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakeAddrLst.create()
 
-        def test_create_mandatory_args_missing(self, fakeicontrolsession):
-            b = ManagementRoot('192.168.1.1.', 'admin', 'admin')
-            b._meta_data['tmos_version'] = '14.0.0'
-            with pytest.raises(MissingRequiredCreationParameter):
-                b.tm.security.shared_objects.address_lists.address_list.create(
-                    name='destined_to_fail', partition='Common')
+    def test_create_mandatory_args_missing(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1.', 'admin', 'admin')
+        b._meta_data['tmos_version'] = '14.0.0'
+        with pytest.raises(MissingRequiredCreationParameter):
+            b.tm.security.shared_objects.address_lists.address_list.create(
+                name='destined_to_fail', partition='Common')
 
 
 class TestPortList_sharedobjects(object):
-        def test_create_two(self, fakeicontrolsession):
-            b = ManagementRoot('192.168.1.1', 'admin', 'admin')
-            b._meta_data['tmos_version'] = '14.0.0'
-            r1 = b.tm.security.shared_objects.port_lists.port_list
-            r2 = b.tm.security.shared_objects.port_lists.port_list
-            assert r1 is not r2
+    def test_create_two(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        b._meta_data['tmos_version'] = '14.0.0'
+        r1 = b.tm.security.shared_objects.port_lists.port_list
+        r2 = b.tm.security.shared_objects.port_lists.port_list
+        assert r1 is not r2
 
-        def test_create_no_args(self, FakePortLst):
-            with pytest.raises(MissingRequiredCreationParameter):
-                FakePortLst.create()
+    def test_create_no_args(self, FakePortLst):
+        with pytest.raises(MissingRequiredCreationParameter):
+            FakePortLst.create()
 
-        def test_create_mandatory_args_missing(self, fakeicontrolsession):
-            b = ManagementRoot('192.168.1.1', 'admin', 'admin')
-            b._meta_data['tmos_version'] = '14.0.0'
-            with pytest.raises(MissingRequiredCreationParameter):
-                b.tm.security.shared_objects.port_lists.port_list.create(
-                    name='destined_to_fail', partition='Common')
+    def test_create_mandatory_args_missing(self, fakeicontrolsession):
+        b = ManagementRoot('192.168.1.1', 'admin', 'admin')
+        b._meta_data['tmos_version'] = '14.0.0'
+        with pytest.raises(MissingRequiredCreationParameter):
+            b.tm.security.shared_objects.port_lists.port_list.create(
+                name='destined_to_fail', partition='Common')

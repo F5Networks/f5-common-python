@@ -369,7 +369,7 @@ class AsmFileMixin(object):
 
     """
     def _download_file(self, filepathname):
-            self._download(filepathname)
+        self._download(filepathname)
 
     def _download(self, filepathname):
         session = self._meta_data['icr_session']

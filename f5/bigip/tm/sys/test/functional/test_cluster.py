@@ -17,23 +17,23 @@ from icontrol.exceptions import iControlUnexpectedHTTPError
 
 
 def test_cluster_load(request, mgmt_root):
-        # Load will produce exception on non-cluster BIGIP.
-        # iControlUnexpectedHTTPError: 404 Unexpected Error: Not Found for uri:
-        try:
-                assert str(mgmt_root.tm.sys.cluster.default.load().kind) == 'tm:sys:cluster:clusterstate'
-        except iControlUnexpectedHTTPError as err:
-                assert('01020036:3: The requested cluster (default) was not found.' in str(err))
+    # Load will produce exception on non-cluster BIGIP.
+    # iControlUnexpectedHTTPError: 404 Unexpected Error: Not Found for uri:
+    try:
+        assert str(mgmt_root.tm.sys.cluster.default.load().kind) == 'tm:sys:cluster:clusterstate'
+    except iControlUnexpectedHTTPError as err:
+        assert ('01020036:3: The requested cluster (default) was not found.' in str(err))
 
 
 def test_cluster_stats_load(request, mgmt_root):
-        # Load will give the result even on non-cluster BIGIP. However, the payload will be almost empty
-        assert str(mgmt_root.tm.sys.cluster.stats.load().kind) == 'tm:sys:cluster:clustercollectionstats'
+    # Load will give the result even on non-cluster BIGIP. However, the payload will be almost empty
+    assert str(mgmt_root.tm.sys.cluster.stats.load().kind) == 'tm:sys:cluster:clustercollectionstats'
 
 
 def test_cluster_default_stats_load(request, mgmt_root):
-        # Load will produce exception on non-cluster BIGIP.
-        # iControlUnexpectedHTTPError: 404 Unexpected Error: Not Found for uri:
-        try:
-                assert str(mgmt_root.tm.sys.cluster.default.stats.load().kind) == 'tm:sys:cluster:clusterstats'
-        except iControlUnexpectedHTTPError as err:
-                assert('01020036:3: The requested cluster (default) was not found.' in str(err))
+    # Load will produce exception on non-cluster BIGIP.
+    # iControlUnexpectedHTTPError: 404 Unexpected Error: Not Found for uri:
+    try:
+        assert str(mgmt_root.tm.sys.cluster.default.stats.load().kind) == 'tm:sys:cluster:clusterstats'
+    except iControlUnexpectedHTTPError as err:
+        assert ('01020036:3: The requested cluster (default) was not found.' in str(err))

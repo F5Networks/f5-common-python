@@ -174,10 +174,10 @@ def fake_http_server(uri, **kwargs):
 
 
 class FakeAsmFileMixin(AsmFileMixin):
-        def __init__(self, uri, **kwargs):
-            session = fake_http_server(uri, **kwargs)
-            self._meta_data = {'icr_session': session}
-            self.file_bound_uri = uri
+    def __init__(self, uri, **kwargs):
+        session = fake_http_server(uri, **kwargs)
+        self._meta_data = {'icr_session': session}
+        self.file_bound_uri = uri
 
 
 class TestAsmFileMixin(object):

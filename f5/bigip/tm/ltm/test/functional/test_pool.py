@@ -79,7 +79,7 @@ class TestPoolMembersCollection(object):
             member1.refresh()
         except HTTPError as err:
             if err.response.status_code != 404:
-                    raise
+                raise
         pre_del = set(iterkeys(pool1.__dict__))
         pool1.refresh()
         post_del = set(iterkeys(pool1.__dict__))

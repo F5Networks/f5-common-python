@@ -47,6 +47,13 @@ def FakeBigIPWithPort(fakeicontrolsession):
     return FBIP
 
 
+@pytest.fixture
+def FakeBigIPWithProxy(fakeicontrolsession):
+    FBIP = ManagementRoot('FakeHostName', 'admin', 'admin', proxies={"https": "https://127.0.0.1:8080"})
+    FBIP.icontrol = mock.MagicMock()
+    return FBIP
+
+
 def test___get__attr(FakeBigIP):
     bigip_dot_asm = FakeBigIP.tm.asm
     assert isinstance(bigip_dot_asm, Asm)
@@ -86,3 +93,8 @@ def test_icontrol_version(FakeBigIPWithPort):
 def test_non_default_port_number(FakeBigIPWithPort):
     uri = urlparse.urlsplit(FakeBigIPWithPort._meta_data['uri'])
     assert uri.port == 10443
+
+
+def test_proxy(FakeBigIPWithProxy):
+    proxy = FakeBigIPWithProxy._meta_data['proxies']
+    assert proxy == {"https": "https://127.0.0.1:8080"}

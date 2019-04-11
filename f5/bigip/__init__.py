@@ -62,6 +62,7 @@ class BaseManagement(PathElement):
         result = dict(
             timeout=kwargs.pop('timeout', 30),
             port=kwargs.pop('port', 443),
+            proxies=kwargs.pop('proxies', {}),
             icontrol_version=kwargs.pop('icontrol_version', ''),
             token=kwargs.pop('token', False),
             token_to_use=kwargs.pop('token_to_use', None),
@@ -83,6 +84,7 @@ class BaseManagement(PathElement):
             username=kwargs['username'],
             password=kwargs['password'],
             timeout=kwargs['timeout'],
+            proxies=kwargs['proxies'],
             verify=kwargs['verify'],
             token_to_use=kwargs['token_to_use']
         )
@@ -100,6 +102,7 @@ class BaseManagement(PathElement):
             'allowed_lazy_attributes': [Tm, Cm, Shared],
             'hostname': kwargs['hostname'],
             'port': kwargs['port'],
+            'proxies': kwargs['proxies'],
             'device_name': None,
             'local_ip': None,
             'bigip': self,
