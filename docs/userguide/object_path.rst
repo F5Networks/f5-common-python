@@ -162,7 +162,7 @@ In the example above, we instantiated the class :class:`f5.bigip.tm.ltm.pool.Poo
 |Unnamed Resource Section|
 --------------------------
 
-In the SDK, we refer to a single instance of a configuratino object with no name field as an :dfn:`unnamed resource`. Unnamed resources cannot be created or deleted, but they can be loaded, updated, etc.
+In the SDK, we refer to a single instance of a configuration object with no name field as an :dfn:`unnamed resource`. Unnamed resources cannot be created or deleted, but they can be loaded, updated, etc.
 
 .. topic:: Example: Load the ``httpd`` unnamed resource settings
 
