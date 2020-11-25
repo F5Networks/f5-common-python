@@ -29,6 +29,7 @@ REST Kind
 
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.tm.net.arp import Arps
+from f5.bigip.tm.net.bwc import Bwc
 from f5.bigip.tm.net.dns_resolver import Dns_Resolvers
 from f5.bigip.tm.net.fdb import Fdb
 from f5.bigip.tm.net.interface import Interfaces
@@ -47,6 +48,7 @@ class Net(OrganizingCollection):
         super(Net, self).__init__(tm)
         self._meta_data['allowed_lazy_attributes'] = [
             Arps,
+            Bwc,
             Dns_Resolvers,
             Fdb,
             Interfaces,
