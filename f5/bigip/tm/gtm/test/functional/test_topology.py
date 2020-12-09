@@ -24,6 +24,8 @@ from f5.sdk_exception import UnsupportedTmosVersion
 from pytest import symbols
 from requests.exceptions import HTTPError
 
+RELEASE_LOOSE_VERSION = LooseVersion(pytest.config.getoption('--release'))
+
 pytestmark = pytest.mark.skipif(
     symbols
     and hasattr(symbols, 'modules')
@@ -64,10 +66,10 @@ def setup_basic_test(request, mgmt_root, name):
     return top1
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) <
-                    '12.1.0' or
-                    LooseVersion(pytest.config.getoption('--release')) ==
-                    '12.0.0', reason='Needs > v12.1.0 TMOS to pass')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION < '12.1.0' or RELEASE_LOOSE_VERSION == '12.0.0',
+    reason='Needs > v12.1.0 TMOS to pass'
+)
 class TestCreate(object):
     def test_create_no_args(self, mgmt_root):
         with pytest.raises(MissingRequiredCreationParameter):
@@ -105,10 +107,10 @@ class TestCreate(object):
         assert err.value.response.status_code == 409
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) >=
-                    '12.1.0' or
-                    LooseVersion(pytest.config.getoption('--release')) ==
-                    '12.0.0', reason='Needs < v12.1.0 TMOS to pass')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION >= '12.1.0' or RELEASE_LOOSE_VERSION == '12.0.0',
+    reason='Needs < v12.1.0 TMOS to pass'
+)
 class TestCreate_pre_12_1_0(object):
     def test_create_no_args(self, mgmt_root):
         with pytest.raises(MissingRequiredCreationParameter):
@@ -146,18 +148,20 @@ class TestCreate_pre_12_1_0(object):
         assert err.value.response.status_code == 409
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) ==
-                    '12.0.0', reason='Resource disabled for TMOS 12.0.0')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION == '12.0.0',
+    reason='Resource disabled for TMOS 12.0.0'
+)
 class TestRefresh(object):
     def test_refresh_raises(self, mgmt_root):
         with pytest.raises(UnsupportedOperation):
             mgmt_root.tm.gtm.topology_s.topology.refresh()
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) <
-                    '12.1.0' or
-                    LooseVersion(pytest.config.getoption('--release')) ==
-                    '12.0.0', reason='Needs > v12.1.0 TMOS to pass')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION < '12.1.0' or RELEASE_LOOSE_VERSION == '12.0.0',
+    reason='Needs > v12.1.0 TMOS to pass'
+)
 class TestLoad(object):
     def test_load_no_object(self, mgmt_root):
         with pytest.raises(HTTPError) as err:
@@ -174,10 +178,10 @@ class TestLoad(object):
         assert t1.selfLink == t2.selfLink
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) >=
-                    '12.1.0' or
-                    LooseVersion(pytest.config.getoption('--release')) ==
-                    '12.0.0', reason='Needs < v12.1.0 TMOS to pass')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION >= '12.1.0' or RELEASE_LOOSE_VERSION == '12.0.0',
+    reason='Needs < v12.1.0 TMOS to pass'
+)
 class TestLoad_pre_12_1_0(object):
     def test_load_no_object(self, mgmt_root):
         with pytest.raises(HTTPError) as err:
@@ -194,24 +198,30 @@ class TestLoad_pre_12_1_0(object):
         assert t1.selfLink == t2.selfLink
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) ==
-                    '12.0.0', reason='Resource disabled for TMOS 12.0.0')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION == '12.0.0',
+    reason='Resource disabled for TMOS 12.0.0'
+)
 class TestUpdate(object):
     def test_update_raises(self, mgmt_root):
         with pytest.raises(UnsupportedOperation):
             mgmt_root.tm.gtm.topology_s.topology.update()
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) ==
-                    '12.0.0', reason='Resource disabled for TMOS 12.0.0')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION == '12.0.0',
+    reason='Resource disabled for TMOS 12.0.0'
+)
 class TestModify(object):
     def test_modify_raises(self, mgmt_root):
         with pytest.raises(UnsupportedOperation):
             mgmt_root.tm.gtm.topology_s.topology.modify()
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) <
-                    '12.1.0', reason='Needs > v12.1.0 TMOS to pass')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION < '12.1.0',
+    reason='Needs > v12.1.0 TMOS to pass'
+)
 class TestDelete(object):
     def test_delete(self, request, mgmt_root):
         r1 = setup_basic_test(request, mgmt_root, NAME)
@@ -221,10 +231,10 @@ class TestDelete(object):
         assert err.value.response.status_code == 404
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) >=
-                    '12.1.0' or
-                    LooseVersion(pytest.config.getoption('--release')) ==
-                    '12.0.0', reason='Needs < v12.1.0 TMOS to pass')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION >= '12.1.0' or RELEASE_LOOSE_VERSION == '12.0.0',
+    reason='Needs < v12.1.0 TMOS to pass'
+)
 class TestDelete_pre_12_1_0(object):
     def test_delete(self, request, mgmt_root):
         r1 = setup_basic_test(request, mgmt_root, NAME_SPACES)
@@ -234,10 +244,10 @@ class TestDelete_pre_12_1_0(object):
         assert err.value.response.status_code == 404
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) <
-                    '12.1.0' or
-                    LooseVersion(pytest.config.getoption('--release')) ==
-                    '12.0.0', reason='Needs > v12.1.0 TMOS to pass')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION < '12.1.0' or RELEASE_LOOSE_VERSION == '12.0.0',
+    reason='Needs > v12.1.0 TMOS to pass'
+)
 class TestTopologyCollection(object):
     def test_region_collection(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, NAME)
@@ -257,10 +267,10 @@ class TestTopologyCollection(object):
         assert isinstance(rc[0], Topology)
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) >=
-                    '12.1.0' or
-                    LooseVersion(pytest.config.getoption('--release')) ==
-                    '12.0.0', reason='Needs < v12.1.0 TMOS to pass')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION >= '12.1.0' or RELEASE_LOOSE_VERSION == '12.0.0',
+    reason='Needs < v12.1.0 TMOS to pass'
+)
 class TestTopologyCollection_pre_12_1_0(object):
     def test_region_collection(self, request, mgmt_root):
         setup_create_test(request, mgmt_root, NAME_SPACES)
@@ -280,8 +290,10 @@ class TestTopologyCollection_pre_12_1_0(object):
         assert isinstance(rc[0], Topology)
 
 
-@pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) !=
-                    '12.0.0', reason='Only TMOS 12.0.0 test')
+@pytest.mark.skipif(
+    RELEASE_LOOSE_VERSION != '12.0.0',
+    reason='Only TMOS 12.0.0 test'
+)
 class TestTopology_12_0_0(object):
     def test_topology_raises(self, request, mgmt_root):
         with pytest.raises(UnsupportedTmosVersion):

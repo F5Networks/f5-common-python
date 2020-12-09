@@ -26,8 +26,8 @@ def setup_virtual_address_s_test(request, mgmt_root, vs_name, vs_partion):
 def setup_virtual_address_test(request, mgmt_root, va_name, va_partition):
     vac = mgmt_root.tm.ltm.virtual_address_s
     if vac.virtual_address.exists(name=va_name, partition=va_partition):
-            vac.virtual_address.load(
-                name=va_name, partition=va_partition).delete()
+        vac.virtual_address.load(
+            name=va_name, partition=va_partition).delete()
     va = vac.virtual_address.create(name=va_name, partition=va_partition)
     request.addfinalizer(va.delete)
     return vac, va

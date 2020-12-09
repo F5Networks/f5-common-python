@@ -176,9 +176,10 @@ class TestLoad(object):
                 name='fake_serv1')
         assert err.value.response.status_code == 404
 
-    @pytest.mark.skipif(LooseVersion(pytest.config.getoption('--release')) ==
-                        '11.5.4',
-                        reason='Needs > v11.5.4 TMOS to pass')
+    @pytest.mark.skipif(
+        LooseVersion(pytest.config.getoption('--release')) == '11.5.4',
+        reason='Needs > v11.5.4 TMOS to pass'
+    )
     def test_load(self, request, mgmt_root):
         setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
         s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
@@ -192,9 +193,9 @@ class TestLoad(object):
         assert s2.disabled is True
 
     @pytest.mark.skipif(
-        LooseVersion(pytest.config.getoption('--release')) >= LooseVersion(
-            '11.6.0'),
-        reason='This test is for 11.5.4 or less.')
+        LooseVersion(pytest.config.getoption('--release')) >= LooseVersion('11.6.0'),
+        reason='This test is for 11.5.4 or less.'
+    )
     def test_load_11_5_4_and_less(self, request, mgmt_root):
         setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
         s1 = mgmt_root.tm.gtm.servers.server.load(name='fake_serv1')
@@ -237,8 +238,7 @@ class TestDelete(object):
 class TestServerCollection(object):
     def test_server_collection(self, request, mgmt_root):
         s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
-        if LooseVersion(pytest.config.getoption('--release')) >= \
-                LooseVersion('12.1.0'):
+        if LooseVersion(pytest.config.getoption('--release')) >= LooseVersion('12.1.0'):
             link = 'https://localhost/mgmt/tm/gtm/server/~Common~fake_serv1'
         else:
             link = 'https://localhost/mgmt/tm/gtm/server/fake_serv1'
@@ -259,8 +259,7 @@ class TestVirtualServerSubCollection(object):
         s1 = setup_basic_test(request, mgmt_root, 'fake_serv1', 'Common')
         vs = s1.virtual_servers_s
         vs1 = vs.virtual_server.create(name='vs1', destination='5.5.5.5:80')
-        if LooseVersion(pytest.config.getoption('--release')) >= \
-                LooseVersion('12.1.0'):
+        if LooseVersion(pytest.config.getoption('--release')) >= LooseVersion('12.1.0'):
             link = 'https://localhost/mgmt/tm/gtm/server/~Common~fake_serv1' \
                    '/virtual-servers/vs'
         else:
@@ -347,9 +346,10 @@ class TestVirtualServerSubCollection(object):
             elif k == limit:
                 assert vs1.__dict__[k] == 'enabled'
 
-    @pytest.mark.skipif(pytest.config.getoption('--release') == '11.6.0',
-                        reason='Due to a bug in 11.6.0 Final this test '
-                               'fails')
+    @pytest.mark.skipif(
+        pytest.config.getoption('--release') == '11.6.0',
+        reason='Due to a bug in 11.6.0 Final this test fails'
+    )
     def test_delete(self, request, mgmt_root):
         vs1 = setup_vs_basic_test(request, mgmt_root, 'vs2', '5.5.5.5:80')
         vs1.delete()
@@ -361,8 +361,7 @@ class TestVirtualServerSubCollection(object):
 
     def test_virtual_server_collection(self, request, mgmt_root):
         vs1 = setup_vs_basic_test(request, mgmt_root, 'vs1', '5.5.5.5:80')
-        if LooseVersion(pytest.config.getoption('--release')) >= \
-                LooseVersion('12.1.0'):
+        if LooseVersion(pytest.config.getoption('--release')) >= LooseVersion('12.1.0'):
             link = 'https://localhost/mgmt/tm/gtm/server/~Common~fake_serv1' \
                    '/virtual-servers/vs'
         else:

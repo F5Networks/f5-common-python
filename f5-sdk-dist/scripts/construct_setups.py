@@ -26,7 +26,11 @@ import sys
 
 from collections import deque
 from collections import namedtuple
-from pip.req import parse_requirements as p_reqs
+
+try: # for pip >= 10
+    from pip._internal.req import parse_requirements as p_reqs
+except ImportError: # for pip <= 9.0.3
+    from pip.req import parse_requirements as p_reqs
 
 
 def construct_cfgs(**kargs):

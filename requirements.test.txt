@@ -1,17 +1,18 @@
 # Install this directory (will use setup.py and therefore install_requires).
 -e .
 # Test Requirements
+pip<=18.1
 hacking==0.13.0
 mock==2.0.0
 pytest==3.2.1
-pytest-cov>=2.2.1
+pytest-cov==2.2.1
 git+https://github.com/F5Networks/pytest-symbols.git
 python-coveralls==2.7.0
+cryptography<3.3
 pyOpenSSL==16.2.0
 requests-mock==1.2.0
 netaddr
 q
-pytest-xdist
 pycodestyle
 jinja2
 tox
