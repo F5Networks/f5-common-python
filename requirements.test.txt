@@ -1,6 +1,7 @@
 # Install this directory (will use setup.py and therefore install_requires).
 -e .
 # Test Requirements
+pip<=18.1
 hacking==0.13.0
 mock==2.0.0
 pytest==3.2.1
