@@ -31,7 +31,7 @@ script:
   - sudo chown travis:travis ${DIST_REPO}/deb_dist/*.deb
 after_success:
   - md5sum ${PKG_RELEASE_EL7} > ${PKG_RELEASE_EL7}.md5 && md5sum --check ${PKG_RELEASE_EL7}.md5
-  - md5sum ${PKG_RELEASE_1404} > ${PKG_RELEASE_1404}.md5 && md5sum --check ${PKG_RELASE_1404}.md5
+  - md5sum ${PKG_RELEASE_1404} > ${PKG_RELEASE_1404}.md5 && md5sum --check ${PKG_RELEASE_1404}.md5
 
 before_deploy: PKG_VERSION=$(python -c "import f5; print(f5.__version__)")
 deploy:
