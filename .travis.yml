@@ -35,6 +35,14 @@ after_success:
 
 before_deploy: PKG_VERSION=$(python -c "import f5; print(f5.__version__)")
 deploy:
+  - provider: pypi
+    user: $PYPI_USER
+    password: $PYPI_PASSWORD
+    on:
+      all_branches: true
+      tags: true
+      python: 2.7
+    skip_cleanup: true
   - provider: releases
     api_key: ${GITHUB_TOKEN}
     file:
