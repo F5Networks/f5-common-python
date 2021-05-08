@@ -9,7 +9,7 @@ pytest-cov==2.2.1
 coverage==4.0.3
 git+https://github.com/F5Networks/pytest-symbols.git
 python-coveralls==2.7.0
-cryptography<3.3
+cryptography<=3.3.2
 pyOpenSSL>=17.5.0
 requests-mock==1.2.0
 netaddr
