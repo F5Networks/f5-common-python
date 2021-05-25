@@ -92,6 +92,7 @@ class Profile(OrganizingCollection):
             Wa_Caches,
             Web_Accelerations,
             Web_Securitys,
+            Websockets,
             Xmls]
 
 
@@ -1186,6 +1187,23 @@ class Websecurity(Resource):
         raise UnsupportedOperation(
             "%s does not support the delete method" % self.__class__.__name__
         )
+
+
+class Websockets(Collection):
+    """BIG-IP® Websocket profile collection."""
+    def __init__(self, profile):
+        super(Websockets, self).__init__(profile)
+        self._meta_data['allowed_lazy_attributes'] = [Websocket]
+        self._meta_data['attribute_registry'] = \
+            {'tm:ltm:profile:websocket:websocketstate': Websocket}
+
+
+class Websocket(Resource):
+    """BIG-IP® Websocket profile resource."""
+    def __init__(self, Websockets):
+        super(Websocket, self).__init__(Websockets)
+        self._meta_data['required_json_kind'] = \
+            'tm:ltm:profile:websocket:websocketstate'
 
 
 class Xmls(Collection):

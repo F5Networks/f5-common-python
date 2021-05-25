@@ -1153,6 +1153,18 @@ class TestWebSecurity(object):
 
 # End Web Security tests
 
+# Begin Websocket tests
+
+
+class TestWebsocket(object):
+    def test_load(self, request, mgmt_root):
+        ws1 = mgmt_root.tm.ltm.profile.\
+            websockets.websocket.load(name='websocket')
+        assert ws1.name == 'websocket'
+
+
+# End Websocket tests
+
 # Begin Xml tests
 
 
