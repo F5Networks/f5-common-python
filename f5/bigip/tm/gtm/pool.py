@@ -26,6 +26,7 @@ GUI Path
 REST Kind
     ``tm:gtm:pools:*``
 """
+import json
 
 from distutils.version import LooseVersion
 
@@ -290,8 +291,10 @@ class MembersResourceA(Resource):
             # fixed in later 12.x release.
 
             try:
+                data = json.dumps(kwargs, ensure_ascii=False)
+                data = data.encode("utf-8")
                 response = session.post(
-                    _create_uri, json=kwargs, **requests_params)
+                    _create_uri, data=data, **requests_params)
 
             except HTTPError as err:
                 if err.response.status_code != 404:
@@ -373,8 +376,10 @@ class MembersResourceAAAA(Resource):
             # fixed in later 12.x release.
 
             try:
+                data = json.dumps(kwargs, ensure_ascii=False)
+                data = data.encode("utf-8")
                 response = session.post(
-                    _create_uri, json=kwargs, **requests_params)
+                    _create_uri, data=data, **requests_params)
 
             except HTTPError as err:
                 if err.response.status_code != 404:

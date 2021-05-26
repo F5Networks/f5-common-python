@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import json
 
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
@@ -76,7 +77,9 @@ class Root(Resource):
         kwargs = self._prepare_request_json(kwargs)
 
         # Invoke the REST operation on the device.
-        response = session.post(_create_uri, json=kwargs, **requests_params)
+        data = json.dumps(kwargs, ensure_ascii=False)
+        data = data.encode("utf-8")
+        response = session.post(_create_uri, data=data, **requests_params)
 
         # Make new instance of self
         result = self._produce_instance(response)
