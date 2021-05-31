@@ -3,6 +3,11 @@ f5-common-python
 
 |Build Status| |Docs Build Status| |slack badge|
 
+NO LONGER UNDER ACTIVE DEVELOPMENT
+----------------------------------
+NOTICE: This project is no longer under active development. F5 may still use
+internally for other project(s) but is no longer maintaining it publicly.
+
 Introduction
 ------------
 This project implements an SDK for the iControl® REST interface for BIG-IP®.
