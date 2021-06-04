@@ -36,7 +36,7 @@ after_success:
 before_deploy:
   - PKG_VERSION=$(python -c "import f5; print(f5.__version__)")
   # Workaround https://github.com/travis-ci/dpl/issues/1235
-  - apt-get install -y python3-venv
+  - sudo apt-get install -y python3-venv
   - python3 -m venv ~/venv
   - source ~/venv/bin/activate
 deploy:
