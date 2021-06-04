@@ -3,12 +3,11 @@ python:
   - 2.7
   - 3.5
   - 3.6
-dist: focal
 sudo: true
 env:
   global:
     - DIST_REPO="f5-sdk-dist"
-    - PKG_VERSION="$(python -c 'import f5; print(f5.__version__)')"
+    - PKG_VERSION=$(python -c "import f5; print f5.__version__")
     - PKG_RELEASE=$(python ${DIST_REPO}/scripts/get-version-release.py --release)
     - PKG_RELEASE_EL7=${DIST_REPO}/rpms/build/f5-sdk-${PKG_VERSION}-${PKG_RELEASE}.el7.noarch.rpm
     - PKG_RELEASE_1404=${DIST_REPO}/deb_dist/python-f5-sdk_${PKG_VERSION}-${PKG_RELEASE}_1404_all.deb
