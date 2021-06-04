@@ -63,7 +63,7 @@ def main(args):
         (output, status) = runCommand('git describe --tags')
         if status == 0:
 
-            m = gitDescribeRe.match(output)
+            m = gitDescribeRe.match(output.decode("utf-8"))
             if m:
                 version = m.group(1)
                 release = m.group(2)
