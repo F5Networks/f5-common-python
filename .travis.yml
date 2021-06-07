@@ -47,7 +47,7 @@ deploy:
     on:
       all_branches: true
       tags: true
-      python: 2.7
+      python: 2.7.15
     skip_cleanup: true
   - provider: releases
     api_key: ${GITHUB_TOKEN}
@@ -62,7 +62,7 @@ deploy:
       repo: F5Networks/f5-common-python
       all_branches: true
       tags: true
-      python: 2.7
+      python: 2.7.15
 
 notifications:
   slack:
