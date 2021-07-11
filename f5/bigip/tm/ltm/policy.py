@@ -27,6 +27,8 @@ REST Kind
     ``tm:ltm:policy:*``
 """
 
+import json
+
 from f5.bigip.mixins import CheckExistenceMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
@@ -161,7 +163,9 @@ class Policy(Resource):
             kwargs['command'] = 'publish'
         if 'Drafts' not in self.name:
             kwargs['name'] = self.fullPath
-        session.post(base_uri, json=kwargs, **requests_params)
+        data = json.dumps(kwargs, ensure_ascii=False)
+        data = data.encode("utf-8")
+        session.post(base_uri, data=data, **requests_params)
         get_kwargs = {
             'name': self.name, 'partition': self.partition,
             'uri_as_parts': True

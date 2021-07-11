@@ -26,6 +26,9 @@ GUI Path
 REST Kind
     ``tm:gtm:topology:*``
 """
+
+import json
+
 from distutils.version import LooseVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
@@ -99,8 +102,10 @@ class Topology(Resource):
         # fixed in later release.
 
         try:
+            data = json.dumps(kwargs, ensure_ascii=False)
+            data = data.encode("utf-8")
             response = session.post(
-                _create_uri, json=kwargs, **requests_params)
+                _create_uri, data=data, **requests_params)
 
         except HTTPError as err:
             if err.response.status_code != 404:

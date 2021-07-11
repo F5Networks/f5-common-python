@@ -97,6 +97,7 @@ except ImportError:
         message = ("Maybe you're using Python < 2.7 and do not have the "
                    "orderreddict external dependency installed.")
         raise exc(message)
+import json
 import copy
 import keyword
 import re
@@ -401,7 +402,9 @@ class ResourceBase(PathElement, ToDictMixin):
             raise AttemptedMutationOfReadOnly(msg)
 
         patch = self._prepare_request_json(patch)
-        response = session.patch(patch_uri, json=patch, **requests_params)
+        data = json.dumps(patch, ensure_ascii=False)
+        data = data.encode("utf-8")
+        response = session.patch(patch_uri, data=data, **requests_params)
         self._local_update(response.json())
 
     def modify(self, **patch):
@@ -577,7 +580,9 @@ class ResourceBase(PathElement, ToDictMixin):
         # @see https://github.com/requests/requests/issues/2364
         for _ in range(0, 30):
             try:
-                response = session.put(update_uri, json=data_dict, **requests_params)
+                data = json.dumps(data_dict, ensure_ascii=False)
+                data = data.encode("utf-8")
+                response = session.put(update_uri, data=data, **requests_params)
                 self._meta_data = temp_meta
                 self._local_update(response.json())
                 break
@@ -1012,7 +1017,9 @@ class Resource(ResourceBase):
         kwargs = self._prepare_request_json(kwargs)
 
         # Invoke the REST operation on the device.
-        response = session.post(_create_uri, json=kwargs, **requests_params)
+        data = json.dumps(kwargs, ensure_ascii=False)
+        data = data.encode("utf-8")
+        response = session.post(_create_uri, data=data, **requests_params)
 
         # Make new instance of self
         result = self._produce_instance(response)

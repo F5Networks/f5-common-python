@@ -27,6 +27,8 @@ REST Kind
     ``tm:ltm:virtual:*``
 """
 
+import json
+
 from distutils.version import LooseVersion
 
 from f5.bigip.mixins import CheckExistenceMixin
@@ -197,8 +199,10 @@ class Policies(Resource, CheckExistenceMixin):
             # this in 11.5.4
 
             try:
+                data = json.dumps(kwargs, ensure_ascii=False)
+                data = data.encode("utf-8")
                 response = session.post(
-                    _create_uri, json=kwargs, **requests_params)
+                    _create_uri, data=data, **requests_params)
 
             except HTTPError as err:
                 if err.response.status_code != 404:

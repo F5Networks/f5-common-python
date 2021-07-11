@@ -23,6 +23,7 @@ REST URI
 REST Kind
     ``cm:shared:licensing:pools:*``
 """
+import json
 
 from f5.bigiq.resource import Collection
 from f5.bigiq.resource import Resource
@@ -127,7 +128,8 @@ class Member(Resource):
         force = self._check_force_arg(kwargs.pop('force', True))
         if not force:
             self._check_generation()
-
-        response = session.delete(delete_uri, json=kwargs, **requests_params)
+        data = json.dumps(kwargs, ensure_ascii=False)
+        data = data.encode("utf-8")
+        response = session.delete(delete_uri, data=data, **requests_params)
         if response.status_code == 200:
             self.__dict__ = {'deleted': True}
