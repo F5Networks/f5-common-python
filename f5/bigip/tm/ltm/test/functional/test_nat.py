@@ -332,7 +332,7 @@ class TestDelete(object):
         setup_loadable_nat_test(request, mgmt_root, NAT)
         n1 = mgmt_root.tm.ltm.nats.nat.load(name='nat1', partition='Common')
         n1.delete()
-        del(n1)
+        del n1
         with pytest.raises(HTTPError) as err:
             mgmt_root.tm.ltm.nats.nat.load(name='nat1', partition='Common')
             assert err.response.status_code == 404
