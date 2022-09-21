@@ -41,14 +41,6 @@ before_deploy:
   - python3 -m venv ~/venv
   - source ~/venv/bin/activate
 deploy:
-  - provider: pypi
-    user: $PYPI_USER
-    password: $PYPI_PASSWORD
-    on:
-      all_branches: true
-      tags: true
-      python: 2.7.15
-    skip_cleanup: true
   - provider: releases
     api_key: ${GITHUB_TOKEN}
     file:
