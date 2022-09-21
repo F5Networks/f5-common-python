@@ -401,7 +401,19 @@ class ResourceBase(PathElement, ToDictMixin):
             raise AttemptedMutationOfReadOnly(msg)
 
         patch = self._prepare_request_json(patch)
-        response = session.patch(patch_uri, json=patch, **requests_params)
+
+        # Handles ConnectionAborted errors
+        for i in range(0, 30):
+            try:
+                response = session.patch(patch_uri, json=patch, **requests_params)
+                break
+            except ConnectionError as ex:
+                if 'Connection aborted' in str(ex) and i < 29:
+                    time.sleep(1)
+                    continue
+                else:
+                    raise
+
         self._local_update(response.json())
 
     def modify(self, **patch):
@@ -575,7 +587,7 @@ class ResourceBase(PathElement, ToDictMixin):
         #
         # @see https://github.com/F5Networks/f5-ansible/issues/317
         # @see https://github.com/requests/requests/issues/2364
-        for _ in range(0, 30):
+        for i in range(0, 30):
             try:
                 response = session.put(update_uri, json=data_dict, **requests_params)
                 self._meta_data = temp_meta
@@ -587,7 +599,7 @@ class ResourceBase(PathElement, ToDictMixin):
                 self._local_update(response.json())
                 raise
             except ConnectionError as ex:
-                if 'Connection aborted' in str(ex):
+                if 'Connection aborted' in str(ex) and i < 29:
                     time.sleep(1)
                     continue
                 else:
@@ -631,7 +643,18 @@ class ResourceBase(PathElement, ToDictMixin):
         else:
             uri = self._meta_data['uri']
 
-        response = refresh_session.get(uri, **requests_params)
+        # Handles ConnectionAborted errors
+        for i in range(0, 30):
+            try:
+                response = refresh_session.get(uri, **requests_params)
+                break
+            except ConnectionError as ex:
+                if 'Connection aborted' in str(ex) and i < 29:
+                    time.sleep(1)
+                    continue
+                else:
+                    raise
+
         self._local_update(response.json())
 
     def refresh(self, **kwargs):
@@ -831,7 +854,17 @@ class Collection(ResourceBase):
         delete_uri = self._meta_data['uri']
         session = self._meta_data['bigip']._meta_data['icr_session']
 
-        session.delete(delete_uri, **requests_params)
+        # Handles ConnectionAborted errors
+        for i in range(0, 30):
+            try:
+                session.delete(delete_uri, **requests_params)
+                break
+            except ConnectionError as ex:
+                if 'Connection aborted' in str(ex) and i < 29:
+                    time.sleep(1)
+                    continue
+                else:
+                    raise
 
     def delete_collection(self, **kwargs):
         """One can not simply delete a collection.
@@ -1012,7 +1045,17 @@ class Resource(ResourceBase):
         kwargs = self._prepare_request_json(kwargs)
 
         # Invoke the REST operation on the device.
-        response = session.post(_create_uri, json=kwargs, **requests_params)
+        # Handles ConnectionAborted errors
+        for i in range(0, 30):
+            try:
+                response = session.post(_create_uri, json=kwargs, **requests_params)
+                break
+            except ConnectionError as ex:
+                if 'Connection aborted' in str(ex) and i < 29:
+                    time.sleep(1)
+                    continue
+                else:
+                    raise
 
         # Make new instance of self
         result = self._produce_instance(response)
@@ -1081,7 +1124,19 @@ class Resource(ResourceBase):
         for key1, key2 in self._meta_data['reduction_forcing_pairs']:
             kwargs = self._reduce_boolean_pair(kwargs, key1, key2)
         kwargs = self._check_for_python_keywords(kwargs)
-        response = refresh_session.get(base_uri, **kwargs)
+
+        # Handles ConnectionAborted errors
+        for i in range(0, 30):
+            try:
+                response = refresh_session.get(base_uri, **kwargs)
+                break
+            except ConnectionError as ex:
+                if 'Connection aborted' in str(ex) and i < 29:
+                    time.sleep(1)
+                    continue
+                else:
+                    raise
+
         # Make new instance of self
         return self._produce_instance(response)
 
@@ -1121,7 +1176,18 @@ class Resource(ResourceBase):
         if not force:
             self._check_generation()
 
-        response = session.delete(delete_uri, **requests_params)
+        # Handles ConnectionAborted errors
+        for i in range(0, 30):
+            try:
+                response = session.delete(delete_uri, **requests_params)
+                break
+            except ConnectionError as ex:
+                if 'Connection aborted' in str(ex) and i < 29:
+                    time.sleep(1)
+                    continue
+                else:
+                    raise
+
         if response.status_code == 200:
             self.__dict__ = {'deleted': True}
 
@@ -1183,13 +1249,23 @@ class Resource(ResourceBase):
         base_uri = self._meta_data['container']._meta_data['uri']
         kwargs.update(requests_params)
 
-        try:
-            session.get(base_uri, **kwargs)
-        except HTTPError as err:
-            if err.response.status_code == 404:
-                return False
-            else:
-                raise
+        # Handles ConnectionAborted errors
+        for i in range(0, 30):
+            try:
+                session.get(base_uri, **kwargs)
+                break
+            except HTTPError as err:
+                if err.response.status_code == 404:
+                    return False
+                else:
+                    raise
+            except ConnectionError as ex:
+                if 'Connection aborted' in str(ex) and i < 29:
+                    time.sleep(1)
+                    continue
+                else:
+                    raise
+
         return True
 
 
