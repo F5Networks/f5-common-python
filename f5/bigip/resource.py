@@ -500,18 +500,20 @@ class ResourceBase(PathElement, ToDictMixin):
             error_message = "Response contains key '_meta_data' which is "\
                 "incompatible with this API!!\n Response json: %r" % rdict
             raise DeviceProvidesIncompatibleKey(error_message)
-        for x in rdict:
-            if not re.match(tokenize.Name, x):
+
+        copy_rdict = copy.deepcopy(rdict)
+        for key, value in iteritems(copy_rdict):
+            if not re.match(tokenize.Name, key):
                 error_message = "Device provided %r which is disallowed"\
-                    " because it's not a valid Python 2.7 identifier." % x
+                    " because it's not a valid Python 2.7 identifier." % key
                 raise DeviceProvidesIncompatibleKey(error_message)
-            elif keyword.iskeyword(x):
+            elif keyword.iskeyword(key):
                 # If attribute is keyword, append underscore to attribute name
-                rdict[x + '_'] = rdict[x]
-                rdict.pop(x)
-            elif x.startswith('__'):
+                rdict[key + '_'] = value
+                rdict.pop(key)
+            elif key.startswith('__'):
                 error_message = "Device provided %r which is disallowed"\
-                    ", it mangles into a Python non-public attribute." % x
+                    ", it mangles into a Python non-public attribute." % key
                 raise DeviceProvidesIncompatibleKey(error_message)
         return rdict
 
