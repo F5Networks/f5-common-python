@@ -120,10 +120,10 @@ class IappParser(object):
             elif char == '}' and not in_quote:
                 brace_count -= 1
 
-            if brace_count is 0:
+            if brace_count == 0:
                 return index + section_start
 
-        if brace_count is not 0:
+        if brace_count != 0:
             raise CurlyBraceMismatchException(
                 'Curly braces mismatch in section %s.' % section
                 )
