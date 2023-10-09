@@ -98,6 +98,7 @@ except ImportError:
                    "orderreddict external dependency installed.")
         raise exc(message)
 import copy
+import json
 import keyword
 import re
 import time
@@ -404,7 +405,8 @@ class ResourceBase(PathElement, ToDictMixin):
         # Handles ConnectionAborted errors
         for i in range(0, 30):
             try:
-                response = session.patch(patch_uri, json=patch, **requests_params)
+                response = session.patch(
+                    patch_uri, data=patch, **requests_params)
                 break
             except ConnectionError as ex:
                 if 'Connection aborted' in str(ex) and i < 29:
@@ -451,6 +453,7 @@ class ResourceBase(PathElement, ToDictMixin):
             kwargs.pop('check')
             od.update(kwargs)
             return od
+        kwargs = json.dumps(kwargs, ensure_ascii=False).encode('utf-8')
         return kwargs
 
     def _iter_list_for_dicts(self, check_list):
@@ -588,7 +591,8 @@ class ResourceBase(PathElement, ToDictMixin):
         # @see https://github.com/requests/requests/issues/2364
         for i in range(0, 30):
             try:
-                response = session.put(update_uri, json=data_dict, **requests_params)
+                response = session.put(
+                    update_uri, data=data_dict, **requests_params)
                 self._meta_data = temp_meta
                 self._local_update(response.json())
                 break
@@ -993,7 +997,8 @@ class Resource(ResourceBase):
         # Handles ConnectionAborted errors
         for i in range(0, 30):
             try:
-                response = session.post(_create_uri, json=kwargs, **requests_params)
+                response = session.post(
+                    _create_uri, data=kwargs, **requests_params)
                 break
             except ConnectionError as ex:
                 if 'Connection aborted' in str(ex) and i < 29:

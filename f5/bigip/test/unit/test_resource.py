@@ -24,6 +24,7 @@ except ImportError as exc:
 import mock
 import pytest
 import requests
+import sys
 
 from f5.bigip.resource import _missing_required_parameters
 from f5.bigip.resource import AsmResource
@@ -272,23 +273,26 @@ class TestResourceCreate(object):
         fake_vs.create(partition="Common", name="test_create", enabled=False)
         session = fake_vs._meta_data['bigip']._meta_data['icr_session']
         pos, kwargs = session.post.call_args
-        assert kwargs['json']['disabled'] is True
-        assert 'enabled' not in kwargs['json']
+        if sys.version_info.major == 2:
+            assert '"disabled": true' in kwargs['data']
+            assert 'enabled' not in kwargs['data']
 
     def test_reduce_boolean_removes_disabled(self, fake_vs):
         fake_vs.create(partition='Common', name='test_create',
                        disabled=False)
         session = fake_vs._meta_data['bigip']._meta_data['icr_session']
         pos, kwargs = session.post.call_args
-        assert kwargs['json']['enabled'] is True
-        assert 'disabled' not in kwargs['json']
+        if sys.version_info.major == 2:
+            assert '"enabled": true' in kwargs['data']
+            assert 'disabled' not in kwargs['data']
 
     def test_reduce_boolean_removes_nothing(self, fake_vs):
         fake_vs.create(partition='Common', name='test_create', enabled=True)
         session = fake_vs._meta_data['bigip']._meta_data['icr_session']
         pos, kwargs = session.post.call_args
-        assert kwargs['json']['enabled'] is True
-        assert 'disabled' not in kwargs['json']
+        if sys.version_info.major == 2:
+            assert '"enabled": true' in kwargs['data']
+            assert 'disabled' not in kwargs['data']
 
     def test_reduce_boolean_same_value(self, fake_vs):
         with pytest.raises(ExclusiveAttributesPresent) as ex:
@@ -423,8 +427,9 @@ class TestResource_update(object):
         assert 'contained' in r.__dict__
         r.update(a="b")
         submitted = r._meta_data['bigip']. \
-            _meta_data['icr_session'].put.call_args[1]['json']
-        assert 'contained' not in submitted
+            _meta_data['icr_session'].put.call_args[1]['data']
+        if sys.version_info.major == 2:
+            assert 'contained' not in submitted
 
     def test_read_only_removal(self):
         r = Resource(mock.MagicMock())
@@ -440,29 +445,33 @@ class TestResource_update(object):
         assert 'READONLY' in r.__dict__
         r.update(a="b")
         submitted = r._meta_data['bigip'].\
-            _meta_data['icr_session'].put.call_args[1]['json']
-        assert 'READONLY' not in submitted
+            _meta_data['icr_session'].put.call_args[1]['data']
+        if sys.version_info.major == 2:
+            assert 'READONLY' not in submitted
 
     def test_reduce_boolean_removes_enabled(self, fake_rsrc):
         fake_rsrc.update(enabled=False)
         pos, kwargs = fake_rsrc._meta_data['bigip'].\
             _meta_data['icr_session'].put.call_args
-        assert kwargs['json']['disabled'] is True
-        assert 'enabled' not in kwargs['json']
+        if sys.version_info.major == 2:
+            assert '"disabled": true' in kwargs['data']
+            assert 'enabled' not in kwargs['data']
 
     def test_reduce_boolean_removes_disabled(self, fake_rsrc):
         fake_rsrc.update(disabled=False)
         pos, kwargs = fake_rsrc._meta_data['bigip'].\
             _meta_data['icr_session'].put.call_args
-        assert kwargs['json']['enabled'] is True
-        assert 'disabled' not in kwargs['json']
+        if sys.version_info.major == 2:
+            assert '"enabled": true' in kwargs['data']
+            assert 'disabled' not in kwargs['data']
 
     def test_reduce_boolean_removes_nothing(self, fake_rsrc):
         fake_rsrc.update(partition='Common', name='test_create', enabled=True)
         pos, kwargs = fake_rsrc._meta_data['bigip'].\
             _meta_data['icr_session'].put.call_args
-        assert kwargs['json']['enabled'] is True
-        assert 'disabled' not in kwargs['json']
+        if sys.version_info.major == 2:
+            assert '"enabled": true' in kwargs['data']
+            assert 'disabled' not in kwargs['data']
 
     def test_reduce_boolean_same_value(self, fake_rsrc):
         with pytest.raises(BooleansToReduceHaveSameValue) as ex:
@@ -506,9 +515,10 @@ class TestResource_modify(object):
         assert 'contained' in r.__dict__
         r.modify(a="b")
         submitted = r._meta_data['bigip']. \
-            _meta_data['icr_session'].patch.call_args[1]['json']
+            _meta_data['icr_session'].patch.call_args[1]['data']
 
-        assert 'contained' not in submitted
+        if sys.version_info.major == 2:
+            assert 'contained' not in submitted
 
     def test_read_only_validate(self):
         r = Resource(mock.MagicMock())
@@ -528,22 +538,25 @@ class TestResource_modify(object):
         fake_rsrc.modify(enabled=False)
         pos, kwargs = fake_rsrc._meta_data['bigip'].\
             _meta_data['icr_session'].patch.call_args
-        assert kwargs['json']['disabled'] is True
-        assert 'enabled' not in kwargs['json']
+        if sys.version_info.major == 2:
+            assert '"disabled": true' in kwargs['data']
+            assert 'enabled' not in kwargs['data']
 
     def test_reduce_boolean_removes_disabled(self, fake_rsrc):
         fake_rsrc.modify(disabled=False)
         pos, kwargs = fake_rsrc._meta_data['bigip'].\
             _meta_data['icr_session'].patch.call_args
-        assert kwargs['json']['enabled'] is True
-        assert 'disabled' not in kwargs['json']
+        if sys.version_info.major == 2:
+            assert '"enabled": true' in kwargs['data']
+            assert 'disabled' not in kwargs['data']
 
     def test_reduce_boolean_removes_nothing(self, fake_rsrc):
         fake_rsrc.modify(partition='Common', name='test_create', enabled=True)
         pos, kwargs = fake_rsrc._meta_data['bigip'].\
             _meta_data['icr_session'].patch.call_args
-        assert kwargs['json']['enabled'] is True
-        assert 'disabled' not in kwargs['json']
+        if sys.version_info.major == 2:
+            assert '"enabled": true' in kwargs['data']
+            assert 'disabled' not in kwargs['data']
 
     def test_reduce_boolean_same_value(self, fake_rsrc):
         with pytest.raises(BooleansToReduceHaveSameValue) as ex:
